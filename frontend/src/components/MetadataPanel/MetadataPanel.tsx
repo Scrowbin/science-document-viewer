@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './MetadataPanel.module.css';
 import type { Document, DocumentMetadata } from '../../types';
 import { METADATA_FIELDS_CONFIG } from '../../constants/metadataConfig';
@@ -8,7 +8,12 @@ import {
   FaFloppyDisk,
   FaXmark,
   FaPlus,
+  FaTag,
+  FaChevronDown,
+  FaChevronRight,
 } from 'react-icons/fa6';
+import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
+import { useTagTooltip } from '../../hooks/useTagTooltip';
 
 export interface MetadataPanelProps {
   document: Document | null;
@@ -27,19 +32,53 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   onToggleEdit,
   onUpdateDocument,
 }) => {
-  const [draft, setDraft] = useState<DocumentMetadata | null>(null);
+  const [prevDocId, setPrevDocId] = useState<string | null>(document?.id ?? null);
+  const [draft, setDraft] = useState<DocumentMetadata | null>(
+    document ? JSON.parse(JSON.stringify(document.metadata)) : null
+  );
   const [newTagText, setNewTagText] = useState('');
   const [newDomainText, setNewDomainText] = useState('');
   const [newGroupText, setNewGroupText] = useState('');
+  const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
+  const [panelWidth, setPanelWidth] = useState(320);
+  const [isDraggingWidth, setIsDraggingWidth] = useState(false);
+  const { tooltipProps, showTooltip, hideTooltip } = useTagTooltip();
 
-  // Sync draft state with incoming document
-  useEffect(() => {
-    if (document) {
-      setDraft(JSON.parse(JSON.stringify(document.metadata)));
-    } else {
-      setDraft(null);
-    }
-  }, [document]);
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingWidth(true);
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = startX - moveEvent.clientX;
+      const newWidth = Math.min(600, Math.max(260, startWidth + deltaX));
+      setPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsDraggingWidth(false);
+      window.document.removeEventListener('mousemove', onMouseMove);
+      window.document.removeEventListener('mouseup', onMouseUp);
+      window.document.body.style.cursor = '';
+      window.document.body.style.userSelect = '';
+    };
+
+    window.document.body.style.cursor = 'col-resize';
+    window.document.body.style.userSelect = 'none';
+    window.document.addEventListener('mousemove', onMouseMove);
+    window.document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleResizeDoubleClick = () => {
+    setPanelWidth(320);
+  };
+
+  // Sync draft state with incoming document per React recommendation (avoiding useEffect setState)
+  if (document?.id !== prevDocId) {
+    setPrevDocId(document?.id ?? null);
+    setDraft(document ? JSON.parse(JSON.stringify(document.metadata)) : null);
+  }
 
   if (!document || !draft) {
     return (
@@ -168,7 +207,24 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   const meta = isEditing ? draft : document.metadata;
 
   return (
-    <aside className={styles.metadataPanel} aria-label="Document Metadata Panel">
+    <aside
+      className={styles.metadataPanel}
+      style={{
+        width: `${panelWidth}px`,
+        transition: isDraggingWidth ? 'none' : undefined,
+      }}
+      aria-label="Document Metadata Panel"
+    >
+      <div
+        className={`${styles.resizeHandle} ${
+          isDraggingWidth ? styles.resizeHandleActive : ''
+        }`}
+        onMouseDown={handleResizeMouseDown}
+        onDoubleClick={handleResizeDoubleClick}
+        title="Drag to resize panel width, double-click to reset (320px)"
+        role="separator"
+        aria-orientation="vertical"
+      />
       <div className={styles.metaHeader}>
         <div className={styles.metaHeaderTop}>
           <div className={styles.metaBadge}>{meta.itemType}</div>
@@ -226,6 +282,98 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
 
           const rawValue = meta[field.key];
 
+          // Dedicated Vertically Scrollable Tag List (Collapsible)
+          if (field.key === 'tags' && Array.isArray(rawValue)) {
+            return (
+              <div key={field.key} className={`${styles.metaRow} ${styles.tagMetaRow}`}>
+                <div
+                  className={styles.tagHeader}
+                  onClick={() => setIsTagsCollapsed((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsTagsCollapsed((prev) => !prev);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  title={isTagsCollapsed ? 'Expand tags' : 'Collapse tags'}
+                  aria-expanded={!isTagsCollapsed}
+                >
+                  <div className={styles.tagHeaderLeft}>
+                    <span className={styles.tagCollapseIcon} aria-hidden="true">
+                      {isTagsCollapsed ? <FaChevronRight /> : <FaChevronDown />}
+                    </span>
+                    <span className={styles.metaLabel}>{field.label}</span>
+                    {rawValue.length > 0 && (
+                      <span className={styles.tagCountBadge}>{rawValue.length}</span>
+                    )}
+                  </div>
+                </div>
+
+                {!isTagsCollapsed && (
+                  <div className={styles.tagValue}>
+                    {rawValue.length === 0 ? (
+                      <div className={styles.emptyTagsNotice}>No tags</div>
+                    ) : (
+                      <div className={styles.tagListContainer}>
+                        {rawValue.map((tag, i) => (
+                          <div
+                            key={`${tag}-${i}`}
+                            className={styles.tagListItem}
+                            onMouseEnter={(e) => showTooltip(tag, e)}
+                            onMouseLeave={hideTooltip}
+                            title={tag}
+                          >
+                            <FaTag className={styles.tagItemIcon} />
+                            <span className={styles.tagText}>{tag}</span>
+                            {isEditing && (
+                              <button
+                                type="button"
+                                className={styles.tagRemoveBtn}
+                                onClick={() => handleRemoveTag(tag)}
+                                title={`Remove tag: ${tag}`}
+                                aria-label={`Remove tag: ${tag}`}
+                              >
+                                <FaXmark />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {isEditing && (
+                      <div className={styles.addTagRow}>
+                        <input
+                          type="text"
+                          className={styles.metaInput}
+                          placeholder="Add new tag..."
+                          value={newTagText}
+                          onChange={(e) => setNewTagText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddTag();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className={styles.smallAddBtn}
+                          onClick={handleAddTag}
+                          title="Add tag"
+                        >
+                          <FaPlus />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <div key={field.key} className={styles.metaRow}>
               <div className={styles.metaLabel}>{field.label}</div>
@@ -273,7 +421,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                   </div>
                 )}
 
-                {/* 2. Chips (Tags, Domains, Document Groups) */}
+                {/* 2. Chips (Domains, Document Groups) */}
                 {field.type === 'chips' && Array.isArray(rawValue) && (
                   <div>
                     <div className={styles.chipContainer}>
@@ -288,7 +436,6 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                                 type="button"
                                 className={styles.chipRemoveBtn}
                                 onClick={() => {
-                                  if (field.key === 'tags') handleRemoveTag(chip);
                                   if (field.key === 'domains') handleRemoveDomain(chip);
                                   if (field.key === 'documentGroups') handleRemoveGroup(chip);
                                 }}
@@ -309,21 +456,17 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                           className={styles.metaInput}
                           placeholder={`Add ${field.label.toLowerCase()}...`}
                           value={
-                            field.key === 'tags'
-                              ? newTagText
-                              : field.key === 'domains'
+                            field.key === 'domains'
                               ? newDomainText
                               : newGroupText
                           }
                           onChange={(e) => {
-                            if (field.key === 'tags') setNewTagText(e.target.value);
                             if (field.key === 'domains') setNewDomainText(e.target.value);
                             if (field.key === 'documentGroups') setNewGroupText(e.target.value);
                           }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault();
-                              if (field.key === 'tags') handleAddTag();
                               if (field.key === 'domains') handleAddDomain();
                               if (field.key === 'documentGroups') handleAddGroup();
                             }
@@ -333,7 +476,6 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                           type="button"
                           className={styles.smallAddBtn}
                           onClick={() => {
-                            if (field.key === 'tags') handleAddTag();
                             if (field.key === 'domains') handleAddDomain();
                             if (field.key === 'documentGroups') handleAddGroup();
                           }}
@@ -425,6 +567,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
           );
         })}
       </div>
+      <FloatingTagTooltip {...tooltipProps} />
     </aside>
   );
 };

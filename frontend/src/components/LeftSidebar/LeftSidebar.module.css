@@ -10,6 +10,7 @@
   overflow-x: hidden;
   user-select: none;
   flex-shrink: 0;
+  position: relative;
 }
 
 .sidebarExpanded {
@@ -121,38 +122,169 @@
   margin-left: auto;
 }
 
-.tagsContainer {
+.sidebarSectionHeader {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 6px 14px;
-  overflow: hidden;
-  max-width: 100%;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  margin: 0 6px 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s ease;
 }
 
-.tagChip {
+.sidebarSectionHeader:hover {
+  background-color: var(--bg-hover);
+}
+
+.sidebarSectionHeader:hover .sidebarSectionTitle {
+  color: var(--text-primary);
+}
+
+.sidebarHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebarSectionHeader .sidebarSectionTitle {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sidebarCollapseIcon {
+  font-size: 9px;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 12px;
+  transition: transform 0.15s ease;
+}
+
+.tagCountBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
   background-color: var(--chip-bg);
   border: 1px solid var(--chip-border);
-  color: var(--chip-text);
+  color: var(--text-muted);
+}
+
+.tagListWrapper {
+  padding: 2px 6px;
+}
+
+.tagListContainer {
+  max-height: 190px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+  background-color: transparent;
+  border: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.tagListContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tagListContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tagListContainer::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.tagListContainer::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
+.tagListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.35;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   cursor: pointer;
-  transition: all 0.15s ease;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
 }
 
-.tagChip:hover {
+.tagListItem:hover {
   background-color: var(--bg-hover);
-  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
-.tagChipActive {
-  background-color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  color: var(--text-on-accent);
+.tagListItem:hover .tagItemIcon {
+  color: var(--text-primary);
+}
+
+.tagListItemActive {
+  background-color: var(--bg-selected);
+  color: var(--accent-blue);
   font-weight: 500;
+}
+
+.tagListItemActive:hover {
+  background-color: var(--bg-selected);
+  color: var(--accent-blue);
+}
+
+.tagItemIcon {
+  font-size: 10px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.12s ease;
+}
+
+.tagListItemActive .tagItemIcon {
+  color: var(--accent-blue);
+}
+
+.tagText {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 100;
+  background: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.resizeHandle:hover,
+.resizeHandleActive {
+  background-color: var(--accent-blue);
 }

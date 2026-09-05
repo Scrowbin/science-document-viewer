@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './LeftSidebar.module.css';
 import type { Collection } from '../../types';
 import { SIDEBAR_NAV_ITEMS } from '../../constants/metadataConfig';
@@ -8,7 +8,11 @@ import {
   FaTag,
   FaAnglesLeft,
   FaAnglesRight,
+  FaChevronDown,
+  FaChevronRight,
 } from 'react-icons/fa6';
+import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
+import { useTagTooltip } from '../../hooks/useTagTooltip';
 
 export interface LeftSidebarProps {
   collapsed: boolean;
@@ -37,11 +41,53 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   onSelectTag,
   navItemCounts,
 }) => {
+  const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(240);
+  const [isDraggingWidth, setIsDraggingWidth] = useState(false);
+  const { tooltipProps, showTooltip, hideTooltip } = useTagTooltip();
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDraggingWidth(true);
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const newWidth = Math.min(480, Math.max(180, startWidth + (moveEvent.clientX - startX)));
+      setSidebarWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsDraggingWidth(false);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleResizeDoubleClick = () => {
+    setSidebarWidth(240);
+  };
+
   return (
     <aside
       className={`${styles.leftSidebar} ${
         collapsed ? styles.sidebarCollapsed : styles.sidebarExpanded
       }`}
+      style={
+        !collapsed
+          ? {
+              width: `${sidebarWidth}px`,
+              transition: isDraggingWidth ? 'none' : undefined,
+            }
+          : undefined
+      }
       aria-label="Library Navigation"
     >
       <div className={styles.sidebarHeader}>
@@ -123,24 +169,55 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
       {/* Data-driven Tags Section */}
       {!collapsed ? (
         <div className={styles.sidebarSection}>
-          <div className={styles.sidebarSectionTitle}>Tags</div>
-          <div className={styles.tagsContainer}>
-            {tags.map((tag) => {
-              const isActive = selectedTag === tag;
-              return (
-                <button
-                  type="button"
-                  key={tag}
-                  className={`${styles.tagChip} ${isActive ? styles.tagChipActive : ''}`}
-                  onClick={() => onSelectTag(isActive ? null : tag)}
-                  title={`Filter by tag: ${tag}`}
-                >
-                  <FaTag style={{ fontSize: '9px' }} />
-                  {tag}
-                </button>
-              );
-            })}
+          <div
+            className={styles.sidebarSectionHeader}
+            onClick={() => setIsTagsCollapsed((prev) => !prev)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsTagsCollapsed((prev) => !prev);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            title={isTagsCollapsed ? 'Expand tags' : 'Collapse tags'}
+            aria-expanded={!isTagsCollapsed}
+          >
+            <div className={styles.sidebarHeaderLeft}>
+              <span className={styles.sidebarCollapseIcon} aria-hidden="true">
+                {isTagsCollapsed ? <FaChevronRight /> : <FaChevronDown />}
+              </span>
+              <span className={styles.sidebarSectionTitle}>Tags</span>
+              {tags.length > 0 && (
+                <span className={styles.tagCountBadge}>{tags.length}</span>
+              )}
+            </div>
           </div>
+          {!isTagsCollapsed && (
+            <div className={styles.tagListWrapper}>
+              <div className={styles.tagListContainer}>
+                {tags.map((tag) => {
+                  const isActive = selectedTag === tag;
+                  return (
+                    <button
+                      type="button"
+                      key={tag}
+                      className={`${styles.tagListItem} ${
+                        isActive ? styles.tagListItemActive : ''
+                      }`}
+                      onClick={() => onSelectTag(isActive ? null : tag)}
+                      onMouseEnter={(e) => showTooltip(tag, e)}
+                      onMouseLeave={hideTooltip}
+                      title={`Filter by tag: ${tag}`}
+                    >
+                      <FaTag className={styles.tagItemIcon} />
+                      <span className={styles.tagText}>{tag}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className={styles.sidebarSection}>
@@ -159,6 +236,21 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </div>
         </div>
       )}
+
+      {!collapsed && (
+        <div
+          className={`${styles.resizeHandle} ${
+            isDraggingWidth ? styles.resizeHandleActive : ''
+          }`}
+          onMouseDown={handleResizeMouseDown}
+          onDoubleClick={handleResizeDoubleClick}
+          title="Drag to resize sidebar width, double-click to reset (240px)"
+          role="separator"
+          aria-orientation="vertical"
+        />
+      )}
+
+      <FloatingTagTooltip {...tooltipProps} />
     </aside>
   );
 };
