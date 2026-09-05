@@ -1,0 +1,117 @@
+/* TabBar.module.css */
+
+.tabBar {
+  height: 38px;
+  display: flex;
+  align-items: flex-end;
+  background-color: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 8px;
+  gap: 4px;
+  user-select: none;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.tabList {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+}
+
+.tabItem {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.tabItem:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tabItemActive {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  border-top: 2px solid var(--accent-blue);
+  font-weight: 600;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.tabIcon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.tabTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabShortcutBadge {
+  font-size: 9px;
+  padding: 1px 4px;
+  background-color: var(--chip-bg);
+  border-radius: 3px;
+  color: var(--text-muted);
+  margin-left: 2px;
+  font-family: var(--font-mono);
+}
+
+.tabCloseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  font-size: 10px;
+}
+
+.tabCloseBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tabNewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.tabNewBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}

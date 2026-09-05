@@ -1,0 +1,158 @@
+/* LeftSidebar.module.css */
+
+.leftSidebar {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.sidebarExpanded {
+  width: 240px;
+}
+
+.sidebarCollapsed {
+  width: 54px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebarHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.sidebarToggleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.sidebarToggleBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebarSection {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebarSectionTitle {
+  padding: 4px 14px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  margin: 1px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.sidebarItem:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebarItemActive {
+  background-color: var(--bg-selected);
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.sidebarItemCollapsed {
+  justify-content: center;
+  padding: 8px 0;
+  margin: 2px 4px;
+}
+
+.sidebarIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sidebarItemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarBadge {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: var(--chip-bg);
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 6px 14px;
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.tagChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background-color: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tagChip:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-color);
+}
+
+.tagChipActive {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--text-on-accent);
+  font-weight: 500;
+}
