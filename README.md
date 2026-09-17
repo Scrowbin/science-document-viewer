@@ -1,54 +1,67 @@
 # Hệ Thống Quản Lý Tài Liệu Khoa Học (Scientific Document Manager)
 
-Hệ thống quản lý tài liệu nghiên cứu khoa học, hỗ trợ đọc, chú thích PDF, tự động trích xuất metadata và tích hợp trợ lý AI thông minh (RAG) phục vụ tra cứu và hỏi đáp chuyên sâu trên tài liệu.
+Hệ thống quản lý tài liệu nghiên cứu khoa học chuyên sâu lấy cảm hứng từ **Zotero**, hỗ trợ đọc và chú thích PDF trực tiếp, tự động trích xuất metadata (DOI, ISBN, arXiv), phân quyền chia sẻ thư viện (Google Drive-style), và tích hợp trợ lý AI thông minh (RAG Pipeline) phục vụ tra cứu và hỏi đáp chuyên sâu trên tài liệu.
 
 ---
 
-## 1. Tổng quan kiến trúc hệ thống
+## 1. Tính năng Nổi bật (Core Features)
 
-Hệ thống được chia làm **3 thành phần chính**:
-
-* **Frontend (App) — React.js + TypeScript**: Giao diện quản lý tài liệu, xem PDF, tạo ghi chú/tag, chat và tương tác với AI.
-* **Backend API — Django REST Framework (Python)**: Xử lý nghiệp vụ, quản lý metadata (tích hợp DOI), xác thực người dùng, upload/download tài liệu và quản lý thư viện.
-* **RAG Pipeline — LangChain + FastAPI (microservice riêng)**: Xử lý tài liệu (chunking, embedding), truy xuất vector và sinh câu trả lời với mô hình ngôn ngữ lớn (LLM).
-
-### Cơ sở dữ liệu
-
-* **PostgreSQL**: Lưu trữ dữ liệu quan hệ gồm metadata tài liệu, thông tin người dùng, collections, folders, tags, và ghi chú/chú thích.
-* **Vector Database (Qdrant)**: Lưu trữ embedding vectors của các chunks nội dung tài liệu phục vụ tìm kiếm ngữ nghĩa và RAG.
+- 📚 **Giao diện Quản lý 3 cột chuẩn Zotero**:
+  - Cột trái: Cây thư mục phân cấp (`Collections` lồng nhau), danh sách thẻ (`Tags`), mục tài liệu hệ thống (*Recently Read, My Publications, Duplicates, Trash*).
+  - Cột giữa: Bảng tài liệu đa năng với khả năng sắp xếp, tìm kiếm tức thì (`Ctrl+F`), lọc theo nhãn/tác giả/lĩnh vực/màu sắc.
+  - Cột phải: Panel xem và chỉnh sửa in-place 22 trường metadata khoa học chuẩn mực.
+- ⚡ **Tự động trích xuất Metadata (Auto-Identifier Lookup)**:
+  - Tự động điền metadata chuẩn xác từ mã **DOI** (qua *Crossref REST API*), **ISBN** (qua *OpenLibrary*), hoặc **arXiv ID** (qua *arXiv Export API*).
+- 📑 **Trình đọc & Chú thích PDF trực quan (PDF.js)**:
+  - Hiển thị văn bản PDF nhiều trang với Text-layer chuẩn.
+  - Tô sáng (Highlight) trực tiếp trên trang PDF và tạo ghi chú cố định (Sticky Note / Page Note).
+  - Tìm kiếm toàn văn (Search in PDF) và chuyển trang nhanh.
+- 👥 **Phân quyền & Chia sẻ thư viện (Google Drive-style Collaboration)**:
+  - Phân quyền theo tài khoản người dùng (`JWT Authentication`).
+  - Chia sẻ từng tài liệu hoặc chia sẻ cả thư mục (tài liệu con tự động thừa hưởng quyền) với 3 cấp độ: `VIEW` (Chỉ xem), `COMMENT` (Bình luận/Annotation), và `EDIT` (Chỉnh sửa metadata/quản lý file).
+- 📝 **Ghi chú Nghiên cứu Cá nhân (Personal Research Notes)**:
+  - Quản lý ghi chú độc lập hoặc đính kèm vào từng bài báo nghiên cứu.
+- 🔗 **Liên kết Bài viết Liên quan (Related Items)**:
+  - Liên kết thủ công giữa các bài báo có phương pháp tương đồng hoặc tự động gợi ý cùng tác giả/lab/lĩnh vực.
+- 🤖 **Trợ lý AI & RAG Pipeline**:
+  - Hỏi đáp (Q&A) ngữ cảnh chuyên sâu trên từng bài báo.
+  - Hỏi đáp bài nghiên cứu mới nhất theo `#tag` trong bộ sưu tập.
+  - Tự động tóm tắt bài báo và tóm tắt hướng nghiên cứu của tác giả.
 
 ---
 
-### Sơ đồ kiến trúc tổng thể (Architecture Diagram)
+## 2. Kiến trúc Tổng thể Hệ thống
+
+Chi tiết sơ đồ Use Case, Sequence Diagrams, ERD 15 bảng và đặc tả REST API xem tại [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md).
 
 ```mermaid
 flowchart TB
     subgraph Client ["Client Layer"]
-        FE["Frontend (React.js + TypeScript)\n- Library UI & Document Table\n- PDF Viewer & Annotation (PDF.js)\n- AI Chat Interface"]
+        FE["Frontend (React.js + TypeScript + Vite)\n- Zotero-style 3-pane Layout\n- PDF.js Viewer & Annotations\n- Share Dialog & AI Assistant"]
     end
 
     subgraph External ["External Services"]
-        DOI["DOI Metadata Providers\n(Crossref REST API / DataCite API)"]
+        DOI["Metadata Providers\n(Crossref / arXiv / OpenLibrary)"]
         LLM["LLM Providers\n(OpenAI / Local Models)"]
     end
 
     subgraph BackendServices ["Backend Services Layer"]
-        BE["Backend API (Django REST Framework)\n- Business Logic & Auth\n- Document CRUD & Storage\n- Metadata Management\n- DOI Integration"]
-        RAG["RAG Pipeline (FastAPI + LangChain)\n- Document Chunking & Parsing\n- Embedding Generation\n- Semantic Vector Search\n- Context Retrieval & Answer Generation"]
+        BE["Backend API (Django REST Framework)\n- JWT Auth & Google Drive Permissions\n- Document CRUD & Media Storage\n- Auto DOI Fetching & Webhook Dispatcher"]
+        RAG["RAG Pipeline (FastAPI + LangChain)\n- Ingestion Webhook Receiver\n- Text Chunking & Embeddings\n- Semantic Search & Streaming QA"]
     end
 
     subgraph DataStorage ["Data & Storage Layer"]
-        PG[("PostgreSQL\n- Users & Collections\n- Document Metadata\n- Folders, Tags, Notes")]
+        PG[("PostgreSQL\n- Users & Shares\n- Hierarchical Collections\n- Metadata (22 fields)\n- PDF Annotations & Notes")]
         QD[("Qdrant Vector DB\n- Document Chunks\n- Dense Embeddings")]
-        FS[("Document Storage\n- PDF Files")]
+        FS[("Media Storage\n- PDF Files")]
     end
 
-    FE <-->|REST API / HTTP| BE
-    FE <-->|Chat API / Streaming| RAG
-    BE <-->|Metadata Query / Trigger Indexing| RAG
+    FE <-->|REST API / JWT| BE
+    FE <-->|Chat Streaming| RAG
     BE -->|Fetch Metadata| DOI
     BE <-->|ORM| PG
     BE <-->|Read / Write| FS
+    BE -.->|HTTP Webhook Trigger| RAG
     RAG <-->|Query Vectors| QD
     RAG <-->|Prompt / Completion| LLM
     RAG -->|Read Documents| FS
@@ -56,65 +69,40 @@ flowchart TB
 
 ---
 
-## 2. Công nghệ chi tiết
+## 3. Lộ Trình Triển Khai 4 Tuần & Tiến Độ
 
-### 2.1. Website quản lý tài liệu
-
-* **Backend**: **Django REST Framework (DRF)** — Quen thuộc, phát triển nhanh, có sẵn hệ thống Admin mạnh mẽ, ORM hoàn thiện và bảo mật cao.
-* **Frontend**: **React.js + TypeScript** — Linh hoạt, hệ sinh thái phong phú, dễ tích hợp các thư viện UI và PDF viewer.
-* **PDF Viewer & Annotation**: **PDF.js** (open-source, phổ biến hàng đầu) hoặc **pdfAnnotate** để hỗ trợ xem tài liệu, tạo ghi chú, highlight trực tiếp trên trang PDF.
-* **DOI Metadata**: Gọi **Crossref REST API** (hoàn toàn miễn phí, không yêu cầu API key) hoặc **DataCite API** để tự động tìm nạp và điền đầy đủ metadata bài báo khoa học dựa trên mã DOI.
-
-### 2.2. RAG Pipeline & Trợ lý AI
-
-* **Microservice**: **FastAPI** — Hiệu năng cao, hỗ trợ bất đồng bộ (async), streaming response phù hợp cho giao tiếp Chatbot/AI.
-* **Framework RAG**: **LangChain** — Quản lý chuỗi xử lý tài liệu, text splitter, embedding model và prompt templates.
-* **Vector Database**: **Qdrant** — Cơ sở dữ liệu vector mã nguồn mở, tốc độ cao, dễ triển khai qua Docker và tối ưu cho tìm kiếm tương đồng (similarity search).
-
-### 2.3. Cơ sở dữ liệu & Lưu trữ
-
-* **PostgreSQL**: Đảm bảo toàn vẹn dữ liệu quan hệ (ACID), lưu trữ phân cấp folder, collection, quan hệ nhiều-nhiều giữa tags và documents.
-* **Qdrant Vector DB**: Lưu trữ embeddings kèm payload metadata (document_id, page_number, chunk_id).
-* **Storage**: Lưu trữ tệp PDF gốc an toàn trên local filesystem hoặc object storage (S3-compatible).
+| Tuần | Mục tiêu | Trạng thái hiện tại |
+| :--- | :--- | :---: |
+| **Tuần 1: Phân tích & Thiết kế** | Hoàn thiện đặc tả yêu cầu, Use Case, Sequence Diagram, ERD 15 bảng, đặc tả REST API, Schema Qdrant Vector Store. | 🟢 **Hoàn thành 100%** (Xem [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md)) |
+| **Tuần 2: Backend Core & DOI** | Cài đặt DRF, PostgreSQL, xây dựng Models 15 bảng, API Upload, tích hợp Crossref API, JWT Auth & Permissions, Unit Tests (6/6 passed), Bruno Collection. | 🟢 **Hoàn thành 100%** (Xem `backend/`) |
+| **Tuần 3: Frontend & PDF Viewer** | Kết nối React với DRF qua `axios`, tích hợp `pdfjs-dist` thật, chức năng Highlight & Sticky Note trên trang PDF. | 🟡 **Khung UI sẵn sàng**, bước tiếp theo |
+| **Tuần 4: Tổ chức Thư viện & Tìm kiếm** | Cây thư mục lồng nhau (`Collections Tree`), Gắn thẻ, Tìm kiếm nâng cao đa tiêu chí, chia sẻ Google Drive. | 🟡 **Khung UI sẵn sàng**, bước tiếp theo |
 
 ---
 
-## 3. Cấu trúc dự án (Repository Structure)
+## 4. Hướng dẫn Cài đặt & Khởi chạy (Quick Start)
 
-```text
-DACNTT/
-├── frontend/             # Ứng dụng Frontend (React.js + TypeScript + Vite)
-│   ├── src/
-│   │   ├── components/   # UI components (TabBar, Sidebar, DocumentTable, MetadataPanel, PdfViewer)
-│   │   ├── types/        # TypeScript interfaces & types
-│   │   └── data/         # Mock data & state management
-│   ├── package.json
-│   └── vite.config.ts
-│
-├── backend/              # [Kế hoạch] Django REST Framework Backend API
-│   ├── manage.py
-│   ├── core/             # Cấu hình dự án Django
-│   ├── documents/        # App quản lý tài liệu, metadata, DOI
-│   └── users/            # App quản lý người dùng & phân quyền
-│
-├── rag_pipeline/         # [Kế hoạch] FastAPI + LangChain Microservice
-│   ├── app/
-│   │   ├── api/          # Endpoints (ingest, query, chat)
-│   │   ├── chains/       # LangChain retrieval & QA chains
-│   │   └── core/         # Vector DB (Qdrant) connection & embeddings
-│   └── requirements.txt
-│
-├── docs/                 # Tài liệu thiết kế kiến trúc & hướng dẫn
-└── README.md
+Chi tiết đầy đủ các bước cài đặt môi trường, cấu hình cơ sở dữ liệu PostgreSQL, biến môi trường `.env`, cấu hình IDE và giải quyết sự cố, vui lòng xem tại:  
+👉 **[SETUP.md](file:///c:/DACNTT/SETUP.md)**
+
+### Tóm tắt nhanh các bước:
+
+#### Khởi chạy Backend (Django API):
+```bash
+cd backend
+python -m venv venv
+.\venv\Scripts\activate   # Windows (hoặc source venv/bin/activate trên macOS/Linux)
+pip install -r requirements.txt
+Copy-Item .env.example .env   # Cập nhật thông tin DB_PASSWORD trong .env
+python manage.py migrate
+python manage.py runserver
 ```
+Backend chạy tại: `http://127.0.0.1:8000/`
 
----
-
-## 4. Hướng dẫn chạy Frontend hiện tại
-
+#### Khởi chạy Frontend (React + Vite):
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Ứng dụng sẽ khởi chạy tại `http://localhost:5173/`.
+Frontend chạy tại: `http://localhost:5173/`

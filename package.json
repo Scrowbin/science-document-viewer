@@ -1,0 +1,13 @@
+{
+  "name": "scientific-document-manager-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scientific Document Manager (Zotero-style with AI & Collaboration)",
+  "scripts": {
+    "start": "node scripts/start-all.mjs",
+    "dev": "node scripts/start-all.mjs",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  },
+  "keywords": ["zotero", "pdf", "django", "react", "scientific-documents"]
+}
