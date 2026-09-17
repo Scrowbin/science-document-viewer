@@ -8,8 +8,11 @@ import type {
   AuthContextType,
 } from '../types/auth';
 
+import { authApi } from '../api/authApi';
+
 const STORAGE_USER_KEY = 'scidocs_auth_user';
 const STORAGE_TOKEN_KEY = 'scidocs_auth_token';
+const STORAGE_REFRESH_KEY = 'scidocs_refresh_token';
 const STORAGE_USERS_REGISTRY_KEY = 'scidocs_registered_users';
 
 // Pre-seeded default demo accounts for instant testing
@@ -101,14 +104,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /**
-   * Log in with email & password
+   * Log in with email & password (Live Django API first, fallback to demo accounts)
    */
   const login = useCallback(async (credentials: LoginCredentials): Promise<boolean> => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    // Simulate realistic async network call
-    await new Promise((res) => setTimeout(res, 450));
+    // 1. Attempt Live Django DRF Token API
+    try {
+      const { user, tokens } = await authApi.login(credentials);
+      if (credentials.rememberMe) {
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+        localStorage.setItem(STORAGE_TOKEN_KEY, tokens.access);
+        localStorage.setItem(STORAGE_REFRESH_KEY, tokens.refresh);
+      } else {
+        sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+        sessionStorage.setItem(STORAGE_TOKEN_KEY, tokens.access);
+      }
 
+      setAuthState({
+        user,
+        token: tokens.access,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      return true;
+    } catch (apiErr) {
+      console.warn('Live API auth unreachable or failed, trying local demo fallback:', apiErr);
+    }
+
+    // 2. Demo Registry Fallback (offline / local development)
     const registry = getRegisteredUsers();
     const cleanEmail = credentials.email.trim().toLowerCase();
 
@@ -134,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // Success
+    // Success with local demo credentials
     const fakeToken = `jwt-${matched.user.id}-${Date.now()}`;
     if (credentials.rememberMe) {
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(matched.user));
@@ -155,13 +180,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /**
-   * Register a new user account
+   * Register a new user account (Live Django API first, fallback to demo accounts)
    */
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    await new Promise((res) => setTimeout(res, 500));
+    // 1. Attempt Live Django DRF Registration
+    try {
+      const { user, tokens } = await authApi.register(data);
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
+      localStorage.setItem(STORAGE_TOKEN_KEY, tokens.access);
+      localStorage.setItem(STORAGE_REFRESH_KEY, tokens.refresh);
 
+      setAuthState({
+        user,
+        token: tokens.access,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      return true;
+    } catch (apiErr) {
+      console.warn('Live API registration failed or unreachable, trying local fallback:', apiErr);
+    }
+
+    // 2. Demo Registry Fallback
     const registry = getRegisteredUsers();
     const cleanEmail = data.email.trim().toLowerCase();
 
@@ -209,8 +252,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Log out current user
    */
   const logout = useCallback(() => {
+    authApi.logout();
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
+    localStorage.removeItem(STORAGE_REFRESH_KEY);
     sessionStorage.removeItem(STORAGE_USER_KEY);
     sessionStorage.removeItem(STORAGE_TOKEN_KEY);
 

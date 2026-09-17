@@ -43,15 +43,50 @@ export interface Document {
   isPublication?: boolean;
   isDuplicate?: boolean;
   inTrash?: boolean;
+  file?: string;
+  fileSize?: number;
+  ragStatus?: string;
+}
+
+/**
+ * Bounding rectangle for PDF annotations.
+ */
+export interface Rect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+/**
+ * Annotation representation matching Django Annotation model.
+ */
+export interface Annotation {
+  id?: number | string;
+  document?: number | string;
+  user?: number | string;
+  username?: string;
+  page_number: number;
+  type: 'highlight' | 'note' | 'underline';
+  color: string;
+  rects: Rect[];
+  selected_text?: string;
+  comment?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /**
  * Collection item in the left sidebar for organizing documents.
+ * Matches CollectionTreeSerializer response shape from Django backend.
  */
 export interface Collection {
   id: string;
   name: string;
-  count?: number;
+  color?: string;
+  parent?: string | null;
+  count?: number;          // document_count from API, or locally computed
+  children?: Collection[]; // nested tree children from /collections/tree/
 }
 
 /**
