@@ -11,6 +11,8 @@ import {
   FaTag,
   FaChevronDown,
   FaChevronRight,
+  FaAnglesRight,
+  FaAnglesLeft,
 } from 'react-icons/fa6';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
@@ -20,6 +22,8 @@ export interface MetadataPanelProps {
   isEditing?: boolean;
   onToggleEdit?: (editing: boolean) => void;
   onUpdateDocument?: (updatedDoc: Document) => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 /**
@@ -31,6 +35,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   isEditing = false,
   onToggleEdit,
   onUpdateDocument,
+  collapsed = false,
+  onToggleCollapse,
 }) => {
   const [prevDocId, setPrevDocId] = useState<string | null>(document?.id ?? null);
   const [draft, setDraft] = useState<DocumentMetadata | null>(
@@ -75,14 +81,51 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   };
 
   // Sync draft state with incoming document per React recommendation (avoiding useEffect setState)
-  if (document?.id !== prevDocId) {
-    setPrevDocId(document?.id ?? null);
+  const currentDocId = document ? document.id : null;
+  if (currentDocId !== prevDocId) {
+    setPrevDocId(currentDocId);
     setDraft(document ? JSON.parse(JSON.stringify(document.metadata)) : null);
+  }
+
+  // If collapsed, render slim vertical rail
+  if (collapsed) {
+    return (
+      <aside className={styles.collapsedRail} onClick={onToggleCollapse} aria-label="Metadata Panel Collapsed">
+        <button
+          type="button"
+          className={styles.railToggleBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleCollapse?.();
+          }}
+          title="Expand Metadata Panel"
+          aria-label="Expand Metadata Panel"
+        >
+          <FaAnglesLeft />
+        </button>
+        <div className={styles.railVerticalTitle}>
+          <span>Metadata</span>
+        </div>
+      </aside>
+    );
   }
 
   if (!document || !draft) {
     return (
       <aside className={styles.metadataPanel} aria-label="Metadata Panel">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 10px' }}>
+          {onToggleCollapse && (
+            <button
+              type="button"
+              className={styles.collapseBtn}
+              onClick={onToggleCollapse}
+              title="Collapse panel"
+              aria-label="Collapse panel"
+            >
+              <FaAnglesRight />
+            </button>
+          )}
+        </div>
         <div className={styles.emptyState}>No document selected.</div>
       </aside>
     );
@@ -256,6 +299,17 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                 title="Edit document metadata"
               >
                 <FaPenToSquare /> Edit
+              </button>
+            )}
+            {onToggleCollapse && (
+              <button
+                type="button"
+                className={styles.collapseBtn}
+                onClick={onToggleCollapse}
+                title="Collapse metadata panel"
+                aria-label="Collapse metadata panel"
+              >
+                <FaAnglesRight />
               </button>
             )}
           </div>

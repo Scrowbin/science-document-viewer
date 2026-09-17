@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './LeftSidebar.module.css';
-import type { Collection } from '../../types';
+import type { Collection, Document } from '../../types';
 import { SIDEBAR_NAV_ITEMS } from '../../constants/metadataConfig';
 import {
   FaBook,
@@ -10,6 +10,7 @@ import {
   FaAnglesRight,
   FaChevronDown,
   FaChevronRight,
+  FaFileLines,
 } from 'react-icons/fa6';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
@@ -26,6 +27,9 @@ export interface LeftSidebarProps {
   selectedTag: string | null;
   onSelectTag: (tag: string | null) => void;
   navItemCounts?: Record<string, number>;
+  documents?: Document[];
+  selectedDocId?: string | null;
+  onSelectDoc?: (id: string) => void;
 }
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({
@@ -40,6 +44,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   selectedTag,
   onSelectTag,
   navItemCounts,
+  documents,
+  selectedDocId,
+  onSelectDoc,
 }) => {
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(240);
@@ -143,25 +150,53 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         {!collapsed && <div className={styles.sidebarSectionTitle}>Collections</div>}
         {collections.map((col) => {
           const isActive = selectedCollectionId === col.id;
+          const colDocs = documents
+            ? documents.filter(
+                (d) => !d.inTrash && d.metadata.documentGroups?.includes(col.name)
+              )
+            : [];
+
           return (
-            <div
-              key={col.id}
-              className={`${styles.sidebarItem} ${
-                collapsed ? styles.sidebarItemCollapsed : ''
-              } ${isActive ? styles.sidebarItemActive : ''}`}
-              onClick={() => onSelectCollection(isActive ? null : col.id)}
-              title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
-            >
-              <FaFolder className={styles.sidebarIcon} />
-              {!collapsed && (
-                <>
-                  <span className={styles.sidebarItemLabel}>{col.name}</span>
-                  {col.count !== undefined && (
-                    <span className={styles.sidebarBadge}>{col.count}</span>
-                  )}
-                </>
+            <React.Fragment key={col.id}>
+              <div
+                className={`${styles.sidebarItem} ${
+                  collapsed ? styles.sidebarItemCollapsed : ''
+                } ${isActive ? styles.sidebarItemActive : ''}`}
+                onClick={() => onSelectCollection(isActive ? null : col.id)}
+                title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
+              >
+                <FaFolder className={styles.sidebarIcon} />
+                {!collapsed && (
+                  <>
+                    <span className={styles.sidebarItemLabel}>{col.name}</span>
+                    {col.count !== undefined && (
+                      <span className={styles.sidebarBadge}>{col.count}</span>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {!collapsed && isActive && colDocs.length > 0 && (
+                <div className={styles.nestedDocList}>
+                  {colDocs.map((d) => (
+                    <div
+                      key={d.id}
+                      className={`${styles.nestedDocItem} ${
+                        selectedDocId === d.id ? styles.nestedDocItemActive : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectDoc?.(d.id);
+                      }}
+                      title={d.title}
+                    >
+                      <FaFileLines className={styles.nestedDocIcon} />
+                      <span className={styles.nestedDocTitle}>{d.title}</span>
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
+            </React.Fragment>
           );
         })}
       </div>

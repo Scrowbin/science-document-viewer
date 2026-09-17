@@ -39,11 +39,17 @@ export const FloatingTagTooltip: React.FC<FloatingTagTooltipProps> = ({
 
   if (!text || !targetRect) return null;
 
+  const isPositioned = position.top !== -9999;
+
   return createPortal(
     <div
       ref={tooltipRef}
       className={styles.tooltipPortal}
-      style={{ top: `${position.top}px`, left: `${position.left}px` }}
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        visibility: isPositioned ? 'visible' : 'hidden',
+      }}
       role="tooltip"
     >
       {text}

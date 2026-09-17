@@ -13,7 +13,7 @@ export interface MainToolbarProps {
   searchRef: React.RefObject<HTMLInputElement | null>;
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onAddFromOption: (type: 'DOI' | 'ISBN' | 'ArXiv ID') => void;
+  onAddFromOption: (type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => void;
 }
 
 export const MainToolbar: React.FC<MainToolbarProps> = ({
@@ -38,10 +38,12 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen]);
 
-  const handleActionClick = (type: 'DOI' | 'ISBN' | 'ArXiv ID') => {
+  const handleActionClick = (type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => {
     setDropdownOpen(false);
     onAddFromOption(type);
   };
+
+  const DISABLED_TYPES: Array<'ISBN' | 'ArXiv ID'> = ['ISBN', 'ArXiv ID'];
 
   return (
     <div className={styles.toolbar}>
@@ -77,26 +79,40 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
               <div
                 className={styles.dropdownItem}
                 role="menuitem"
+                onClick={() => handleActionClick('Upload PDF')}
+              >
+                <FaFileLines />
+                <span>Upload PDF File</span>
+              </div>
+              <div
+                className={styles.dropdownItem}
+                role="menuitem"
                 onClick={() => handleActionClick('DOI')}
               >
                 <FaBarcode />
                 <span>Add from DOI</span>
               </div>
               <div
-                className={styles.dropdownItem}
+                className={`${styles.dropdownItem} ${DISABLED_TYPES.includes('ISBN') ? styles.dropdownItemDisabled : ''}`}
                 role="menuitem"
-                onClick={() => handleActionClick('ISBN')}
+                aria-disabled="true"
+                title="ISBN import — coming in Phase 4"
+                onClick={() => !DISABLED_TYPES.includes('ISBN') && handleActionClick('ISBN')}
               >
                 <FaBook />
                 <span>Add from ISBN</span>
+                <span className={styles.comingSoonBadge}>Soon</span>
               </div>
               <div
-                className={styles.dropdownItem}
+                className={`${styles.dropdownItem} ${DISABLED_TYPES.includes('ArXiv ID') ? styles.dropdownItemDisabled : ''}`}
                 role="menuitem"
-                onClick={() => handleActionClick('ArXiv ID')}
+                aria-disabled="true"
+                title="ArXiv import — coming in Phase 4"
+                onClick={() => !DISABLED_TYPES.includes('ArXiv ID') && handleActionClick('ArXiv ID')}
               >
                 <FaFileLines />
                 <span>Add from ArXiv ID</span>
+                <span className={styles.comingSoonBadge}>Soon</span>
               </div>
             </div>
           )}
