@@ -1,5 +1,6 @@
 /* PdfViewer.module.css */
 
+/* ─── Wrapper ──────────────────────────────────────────────────────────── */
 .pdfViewerWrapper {
   display: flex;
   flex-direction: column;
@@ -9,6 +10,7 @@
   background-color: var(--bg-app);
 }
 
+/* ─── Top Toolbar ──────────────────────────────────────────────────────── */
 .pdfToolbar {
   height: 44px;
   display: flex;
@@ -18,6 +20,7 @@
   background-color: var(--bg-main);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  z-index: 10;
 }
 
 .pdfToolbarGroup {
@@ -45,121 +48,246 @@
   color: var(--text-primary);
 }
 
+.pdfToolBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .pdfToolBtnActive {
-  background-color: var(--accent-blue-subtle);
-  color: var(--accent-blue);
-  border-color: var(--accent-blue-border);
-  font-weight: 500;
+  background-color: #fef08a;
+  color: #854d0e;
+  border-color: #facc15;
+  font-weight: 600;
+}
+
+.pdfToolBtnNoteActive {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  font-weight: 600;
 }
 
 .pdfPageIndicator {
   font-size: 11.5px;
   color: var(--text-secondary);
   padding: 0 6px;
+  white-space: nowrap;
 }
 
+/* ─── PDF Body ─────────────────────────────────────────────────────────── */
 .pdfBody {
   display: flex;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  position: relative;
 }
 
+/* ─── Canvas Scroll Area ───────────────────────────────────────────────── */
+/*
+ * KEY FIX for the "PDF sinking to the left" and broken scrollbars:
+ * - overflow: auto enables both scrollbars when content exceeds the container
+ * - We do NOT use `align-items: center` here because that prevents
+ *   the horizontal scrollbar from appearing (the content is always
+ *   "centered" so it never overflows). Instead we center via margin
+ *   on the page container when there is enough room.
+ * - min-width: 0 prevents flex children from shrinking the scroll area
+ */
 .pdfCanvasScrollArea {
   flex: 1;
-  overflow-y: auto;
+  min-width: 0;
+  overflow: auto;
+  /* Dark background matching the "grey document tray" look */
+  background-color: #4b5563;
+  padding: 24px;
+  /* Items start from the left so the scrollbar activates when zoomed in */
   display: flex;
-  justify-content: center;
-  padding: 24px 16px;
-  background-color: #525659;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
 }
 
-.pdfPageCanvas {
-  width: 680px;
-  min-height: 900px;
+/* Loading text */
+.loadingIndicator {
+  color: #e5e7eb;
+  padding: 20px;
+  font-size: 13px;
+  align-self: center;
+}
+
+/* ─── PDF Page Container ───────────────────────────────────────────────── */
+/*
+ * Contains the canvas + annotation layer.
+ * `display: inline-block` + `margin: 0 auto` auto-centers the page when
+ * the scroll area is wider than the page, but allows the scrollbar to
+ * appear when the page is wider than the scroll area.
+ */
+.pdfPageContainer {
+  position: relative;
   background-color: #ffffff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  padding: 50px 56px;
-  color: #111827;
-  font-family: "Times New Roman", Times, serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  margin: 0 auto 24px auto;
+  /* display inline-block so the container hugs the canvas tightly */
+  display: inline-block;
+  user-select: text;
+  /* Ensures that at high zoom levels the container can grow wider than the parent */
+  flex-shrink: 0;
 }
 
-.pdfArticleHeader {
-  text-align: center;
-  margin-bottom: 24px;
+.pdfCanvas {
+  display: block;
 }
 
-.pdfArticleTitle {
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 1.3;
-  margin-bottom: 10px;
+/* ─── Annotation Layer ─────────────────────────────────────────────────── */
+.annotationLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
-.pdfArticleAuthors {
-  font-size: 12px;
-  font-style: italic;
-  color: #4b5563;
-  margin-bottom: 6px;
-}
-
-.pdfArticleMeta {
-  font-size: 10.5px;
-  color: #6b7280;
-}
-
-.pdfAbstractBox {
-  background-color: #f8fafc;
-  border-left: 3px solid #2563eb;
-  padding: 12px 16px;
-  margin-bottom: 24px;
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: #1f2937;
-}
-
-.pdfTwoColumns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  font-size: 11px;
-  line-height: 1.6;
-  text-align: justify;
-}
-
-.pdfSectionHeading {
-  font-size: 12px;
-  font-weight: bold;
-  margin: 10px 0 4px;
-  text-transform: uppercase;
-  color: #111827;
-}
-
-.pdfHighlight {
-  background-color: #fef08a;
-  padding: 1px 2px;
+.highlightOverlay {
+  position: absolute;
+  background-color: rgba(255, 235, 59, 0.45);
   border-radius: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.pdfFigureBox {
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  background-color: #f9fafb;
-  padding: 10px;
-  margin: 12px 0;
-  text-align: center;
-  font-size: 10px;
-  color: #6b7280;
+.highlightOverlay:hover {
+  background-color: rgba(255, 235, 59, 0.7);
+  box-shadow: 0 0 0 1px #f59e0b;
 }
 
+.stickyPin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  width: 28px;
+  height: 28px;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-radius: 50% 50% 50% 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  cursor: grab;
+  user-select: none;
+  pointer-events: auto;
+  transition: transform 0.12s ease, background-color 0.15s;
+  z-index: 10;
+}
+
+.stickyPin:hover {
+  transform: translate(-50%, -105%) scale(1.1);
+  background-color: #1d4ed8;
+}
+
+.stickyPinDragging {
+  cursor: grabbing !important;
+  transform: translate(-50%, -105%) scale(1.2) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+  z-index: 40 !important;
+  transition: none !important;
+}
+
+/* ─── Annotations Sidebar ──────────────────────────────────────────────── */
+/*
+ * The sidebar sits to the right of the canvas scroll area.
+ * width is controlled dynamically via inline style.
+ * flex-shrink: 0 prevents it from collapsing.
+ */
 .pdfNotesSidebar {
-  width: 280px;
   background-color: var(--bg-panel);
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Resize handle — sits on the LEFT edge of the sidebar */
+.sidebarResizeHandle {
+  width: 5px;
+  cursor: col-resize;
+  background-color: transparent;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+  z-index: 5;
+}
+
+.sidebarResizeHandle:hover,
+.sidebarResizeHandleActive {
+  background-color: var(--accent-blue);
+}
+
+/* Collapsed sidebar: thin strip with expand button */
+.sidebarExpandBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 28px;
+  background-color: var(--bg-panel);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 12px 0;
+  flex-shrink: 0;
+  transition: background-color 0.12s, color 0.12s;
+}
+
+.sidebarExpandBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.sidebarExpandCount {
+  font-size: 9px;
+  font-weight: 700;
+  background-color: var(--accent-blue);
+  color: #fff;
+  border-radius: 8px;
+  padding: 1px 4px;
+  min-width: 14px;
+  text-align: center;
+}
+
+.sidebarCollapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px 5px;
+  font-size: 10px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.sidebarCollapseBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ─── Sidebar Header & Cards ───────────────────────────────────────────── */
+.pdfNotesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
   flex-shrink: 0;
 }
 
@@ -169,7 +297,54 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
-  margin-bottom: 12px;
+}
+
+.pdfNotesCount {
+  font-size: 10.5px;
+  background-color: var(--bg-hover);
+  padding: 2px 7px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.clearHighlightsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.clearHighlightsBtn:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.clearHighlightsSmallBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10.5px;
+  color: #dc2626;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: all 0.12s ease;
+}
+
+.clearHighlightsSmallBtn:hover {
+  background-color: #fee2e2;
 }
 
 .pdfNoteCard {
@@ -179,6 +354,18 @@
   padding: 10px;
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pdfNoteCard:hover {
+  border-color: var(--accent-blue);
+}
+
+.pdfNoteCardActive {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px var(--accent-blue-subtle);
 }
 
 .pdfNoteCardHeader {
@@ -190,18 +377,301 @@
   color: var(--text-muted);
 }
 
+.pdfNoteTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.badgeHighlight {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.badgeNote {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.pdfNoteActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  font-size: 11px;
+  border-radius: 3px;
+  transition: color 0.12s;
+}
+
+.deleteBtn:hover {
+  color: #ef4444;
+}
+
 .pdfNoteQuote {
   font-size: 11px;
   font-style: italic;
   color: var(--text-primary);
-  background-color: var(--accent-blue-subtle);
-  padding: 4px 6px;
-  border-left: 2px solid var(--accent-blue);
+  background-color: rgba(254, 240, 138, 0.35);
+  padding: 5px 8px;
+  border-left: 3px solid #facc15;
   border-radius: 2px;
   margin-bottom: 6px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .pdfNoteText {
   font-size: 11.5px;
   color: var(--text-secondary);
+  line-height: 1.4;
+  word-break: break-word;
 }
+
+.emptyAnnotations {
+  text-align: center;
+  padding: 30px 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ─── Sticky Note Popover ──────────────────────────────────────────────── */
+.notePopoverModal {
+  position: absolute;
+  z-index: 100;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 14px;
+  width: 260px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.notePopoverTitle {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+}
+
+.noteTextarea {
+  width: 100%;
+  height: 70px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  resize: none;
+  margin-bottom: 10px;
+  font-family: inherit;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.notePopoverActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.btnPrimary {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+}
+
+.btnSecondary {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+
+.btnSecondary:hover {
+  background-color: var(--bg-hover);
+}
+
+/* ─── Animations ───────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── PDF Text Layer ───────────────────────────────────────────────────── */
+.pdfTextLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+  z-index: 2;
+  user-select: text;
+  pointer-events: auto;
+}
+
+/* ─── Selection Popup (Floating Toolbar) ────────────────────────────────── */
+.selectionPopup {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+  border-radius: 6px;
+  padding: 5px 8px;
+  z-index: 60;
+  pointer-events: auto;
+  animation: fadeIn 0.12s ease;
+  white-space: nowrap;
+}
+
+.selectionColorsGroup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 6px;
+  border-right: 1px solid var(--border-color);
+}
+
+.selectionColorBtn {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  padding: 0;
+}
+
+.selectionColorBtn:hover {
+  transform: scale(1.25);
+}
+
+.selectionActionBtn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background-color: var(--bg-main);
+  transition: background-color 0.1s;
+}
+
+.selectionActionBtn:hover {
+  background-color: var(--bg-hover);
+}
+
+/* ─── Context Menu ─────────────────────────────────────────────────────── */
+.contextMenu {
+  position: fixed;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 4px 0;
+  min-width: 180px;
+  z-index: 9999;
+  font-size: 12px;
+  user-select: none;
+  animation: fadeIn 0.1s ease;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.contextMenuItem:hover {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+}
+
+.contextMenuItemDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.contextMenuItemDisabled:hover {
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.contextMenuLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contextMenuShortcut {
+  font-size: 10px;
+  opacity: 0.65;
+  margin-left: 12px;
+}
+
+.contextMenuDivider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
+.contextMenuColors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+}
+
+.contextColorDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.contextColorDot:hover {
+  transform: scale(1.3);
+}
+
