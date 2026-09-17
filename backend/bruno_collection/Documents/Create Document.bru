@@ -1,0 +1,28 @@
+meta {
+  name: Create Document (Metadata + Tags)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/documents/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "Highly accurate protein structure prediction with AlphaFold",
+    "short_title": "AlphaFold Protein Prediction",
+    "doi": "10.1038/s41586-020-2649-2",
+    "repository": "Nature",
+    "item_type": "journalArticle",
+    "date": "2020-01-15T00:00:00Z",
+    "author_names": ["John Jumper", "Demis Hassabis"],
+    "tag_names": ["Structural Biology", "Deep Learning", "AlphaFold"]
+  }
+}

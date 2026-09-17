@@ -1,0 +1,15 @@
+meta {
+  name: Get Collections Tree (Hierarchical)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/collections/tree/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

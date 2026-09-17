@@ -1,0 +1,21 @@
+meta {
+  name: Lookup Metadata by DOI
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/metadata/lookup-doi/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "doi": "10.1038/s41586-020-2649-2"
+  }
+}
