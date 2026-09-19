@@ -88,7 +88,7 @@ export function mapDjangoDocToFrontend(doc: DjangoDocumentRaw): Document {
     authors: authorList.length > 0 ? authorList : ['Unknown Author'],
     tags: doc.tags || [],
     domains: doc.domains || ['Scientific Research'],
-    documentGroups: doc.primary_collection_name ? [doc.primary_collection_name] : ['General Library'],
+    documentGroups: doc.primary_collection_name ? [doc.primary_collection_name] : [],
     groupColor: '#3b82f6',
   };
 

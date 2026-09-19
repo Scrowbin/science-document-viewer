@@ -230,7 +230,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     >
       <div className={styles.sidebarHeader}>
         {!collapsed && (
-          <div className={styles.sidebarHeaderTitle}>
+          <div
+            className={styles.sidebarHeaderTitle}
+            onClick={() => onSelectNav('all')}
+            style={{ cursor: 'pointer' }}
+            title="All Documents in My Library"
+          >
             <FaBook />
             <span>My Library</span>
           </div>

@@ -56,7 +56,7 @@ export function HomePage() {
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
-  const [activeNavId, setActiveNavId] = useState<string | null>('recent');
+  const [activeNavId, setActiveNavId] = useState<string | null>('all');
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,6 +105,7 @@ export function HomePage() {
   const navItemCounts = useMemo(() => {
     const nonTrash = documents.filter((d) => !d.inTrash);
     return {
+      all: nonTrash.length,
       recent: nonTrash.filter((d) => Boolean(d.lastRead)).length,
       publications: nonTrash.filter((d) => d.isPublication).length,
       duplicates: nonTrash.filter((d) => d.isDuplicate).length,
@@ -319,7 +320,7 @@ export function HomePage() {
           onSelectCollection={(colId) => {
             setSelectedCollectionId(colId);
             setSelectedTag(null);
-            setActiveNavId(colId ? null : 'recent');
+            setActiveNavId(colId ? null : 'all');
             setActiveTabId('tab-library');
           }}
           onCreateCollection={handleCreateCollection}
@@ -328,7 +329,7 @@ export function HomePage() {
           onSelectTag={(tag) => {
             setSelectedTag(tag);
             setSelectedCollectionId(null);
-            setActiveNavId(tag ? null : 'recent');
+            setActiveNavId(tag ? null : 'all');
             setActiveTabId('tab-library');
           }}
           navItemCounts={navItemCounts}

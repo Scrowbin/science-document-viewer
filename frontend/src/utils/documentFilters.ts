@@ -40,6 +40,9 @@ export function filterDocuments(
     // 1. Library Section Filtering
     if (activeNavId) {
       switch (activeNavId) {
+        case 'all':
+          if (doc.inTrash) return false;
+          break;
         case 'recent':
           if (doc.inTrash || !doc.lastRead) return false;
           break;

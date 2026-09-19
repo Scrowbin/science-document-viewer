@@ -233,10 +233,14 @@ export function useDocuments(): UseDocumentsReturn {
 
     try {
       const newDoc = await documentsApi.createDocument(formData);
-      setDocuments((prev) => [newDoc, ...prev]);
+      const docWithRead: Document = {
+        ...newDoc,
+        lastRead: newDoc.lastRead || new Date().toISOString().replace('T', ' ').slice(0, 16),
+      };
+      setDocuments((prev) => [docWithRead, ...prev]);
       setSelectedDocId(newDoc.id);
       showToast(`Uploaded and added ${file.name} to library!`);
-      onOpenPdf(newDoc);
+      onOpenPdf(docWithRead);
     } catch (err) {
       console.warn('Backend file upload failed, creating local document:', err);
       const fileUrl = URL.createObjectURL(file);

@@ -1,5 +1,6 @@
 import type { MetadataFieldDefinition, SidebarNavItem } from '../types';
 import {
+  FaBookOpen,
   FaClock,
   FaBook,
   FaCopy,
@@ -40,9 +41,10 @@ export const METADATA_FIELDS_CONFIG: MetadataFieldDefinition[] = [
  * Standard Library sidebar navigation items with designated icons.
  */
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
+  { id: 'all', label: 'All Documents', icon: FaBookOpen },
   { id: 'recent', label: 'Recently Read', icon: FaClock },
+  { id: 'unfiled', label: 'Unfiled Items', icon: FaFolderOpen },
   { id: 'publications', label: 'My Publications', icon: FaBook },
   { id: 'duplicates', label: 'Duplicate Items', icon: FaCopy },
-  { id: 'unfiled', label: 'Unfiled Items', icon: FaFolderOpen },
   { id: 'trash', label: 'Trash', icon: FaTrash },
 ];
