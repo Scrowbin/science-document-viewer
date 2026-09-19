@@ -1,6 +1,9 @@
+import logging
 import re
 import requests
 from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 def clean_doi(doi: str) -> str:
     """Normalize DOI string by stripping URL prefixes and whitespace."""
@@ -46,17 +49,16 @@ def fetch_metadata_from_doi(raw_doi: str, timeout: int = 10) -> Optional[Dict[st
         short_titles = item.get('short-title', [])
         short_title = short_titles[0] if short_titles else ''
 
-        # Extract authors
+        # Extract authors as plain "First Last" strings.
+        # This matches the frontend LookupDoiResult.authors: string[] contract
+        # and the backend _set_m2m(author_names: List[str]) expectation.
         authors = []
         for author in item.get('author', []):
             given = author.get('given', '').strip()
             family = author.get('family', '').strip()
             name = f"{given} {family}".strip() if given or family else author.get('name', '').strip()
             if name:
-                authors.append({
-                    'first_name': given,
-                    'last_name': family or name
-                })
+                authors.append(name)
 
         # Extract journal / repository
         containers = item.get('container-title', [])
@@ -97,5 +99,5 @@ def fetch_metadata_from_doi(raw_doi: str, timeout: int = 10) -> Optional[Dict[st
         }
 
     except Exception as e:
-        print(f"Error fetching metadata from Crossref for DOI {doi}: {e}")
+        logger.warning("Error fetching metadata from Crossref for DOI %s: %s", doi, e)
         return None

@@ -157,6 +157,31 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
             'author_names', 'tag_names', 'domain_names'
         )
 
+    def validate_file(self, value):
+        if not value:
+            return value
+
+        # 1. Size check: 50 MB limit
+        max_size = 50 * 1024 * 1024
+        if value.size > max_size:
+            raise serializers.ValidationError("File size exceeds maximum allowed limit (50 MB).")
+
+        # 2. Extension check
+        name = getattr(value, 'name', '')
+        if not name.lower().endswith('.pdf'):
+            raise serializers.ValidationError("Only PDF files (.pdf) are allowed.")
+
+        # 3. Content / Magic bytes check (detects renamed malicious/non-PDF files)
+        pos = value.tell() if hasattr(value, 'tell') else 0
+        chunk = value.read(1024)
+        if hasattr(value, 'seek'):
+            value.seek(pos)
+
+        if not chunk.startswith(b'%PDF-') and b'%PDF-' not in chunk[:1024]:
+            raise serializers.ValidationError("Invalid file content: uploaded file is not a valid PDF document.")
+
+        return value
+
     def create(self, validated_data):
         author_names = validated_data.pop('author_names', [])
         tag_names = validated_data.pop('tag_names', [])
@@ -184,17 +209,17 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
         if author_names is not None or tag_names is not None or domain_names is not None:
             self._set_m2m(
                 document,
-                author_names if author_names is not None else [],
-                tag_names if tag_names is not None else [],
-                domain_names if domain_names is not None else [],
+                author_names=author_names,
+                tag_names=tag_names,
+                domain_names=domain_names,
                 is_update=True
             )
         return document
 
-    def _set_m2m(self, document, author_names, tag_names, domain_names, is_update=False):
+    def _set_m2m(self, document, author_names=None, tag_names=None, domain_names=None, is_update=False):
         # Authors: global Zotero-style registry — same (first_name, last_name) pair is
         # intentionally shared across documents, matching Zotero's Author entity model.
-        if author_names:
+        if author_names is not None:
             if is_update:
                 document.documentauthor_set.all().delete()
             for idx, name in enumerate(author_names, start=1):
@@ -204,7 +229,7 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
                 author, _ = Author.objects.get_or_create(first_name=first_name, last_name=last_name)
                 DocumentAuthor.objects.create(document=document, author=author, author_order=idx)
 
-        if tag_names:
+        if tag_names is not None:
             if is_update:
                 document.tags.clear()
             for name in tag_names:
@@ -213,7 +238,7 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
                     tag, _ = Tag.objects.get_or_create(name=clean_name)
                     document.tags.add(tag)
 
-        if domain_names:
+        if domain_names is not None:
             if is_update:
                 document.domains.clear()
             for name in domain_names:

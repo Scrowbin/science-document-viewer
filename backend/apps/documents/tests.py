@@ -3,7 +3,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
-from .models import Document, Annotation, Note, DocumentShare
+from .models import Document, Annotation, Note, DocumentShare, Author, Tag, DocumentAuthor
 from ..collections_app.models import Collection
 from .services.crossref_service import clean_doi, fetch_metadata_from_doi
 
@@ -111,3 +111,129 @@ class DocumentApiTestCase(TestCase):
         })
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Note.objects.filter(user=self.user1).count(), 1)
+
+    def test_annotation_router_patch_and_delete(self):
+        """Verify AnnotationViewSet registered at /api/v1/annotations/:id/ supports PATCH and DELETE."""
+        doc = Document.objects.create(owner=self.user1, title='Quantum Paper')
+        anno = Annotation.objects.create(
+            document=doc,
+            user=self.user1,
+            page_number=1,
+            type='highlight',
+            color='#ffeb3b',
+            comment='Original comment'
+        )
+        # Test PATCH /annotations/:id/
+        patch_resp = self.client.patch(f'/api/v1/annotations/{anno.id}/', {
+            'comment': 'Updated comment',
+            'color': '#ff0000'
+        }, format='json')
+        self.assertEqual(patch_resp.status_code, status.HTTP_200_OK)
+        anno.refresh_from_db()
+        self.assertEqual(anno.comment, 'Updated comment')
+        self.assertEqual(anno.color, '#ff0000')
+
+        # Test DELETE /annotations/:id/
+        del_resp = self.client.delete(f'/api/v1/annotations/{anno.id}/')
+        self.assertEqual(del_resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Annotation.objects.filter(id=anno.id).count(), 0)
+
+    def test_document_m2m_update(self):
+        """Verify Document PATCH updates author_names, tag_names, and domain_names."""
+        doc = Document.objects.create(owner=self.user1, title='Initial Paper')
+        # Initial update with authors, tags, domains
+        resp = self.client.patch(f'/api/v1/documents/{doc.id}/', {
+            'author_names': ['Alan Turing', 'Ada Lovelace'],
+            'tag_names': ['Computing', 'AI'],
+            'domain_names': ['Computer Science']
+        }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        doc.refresh_from_db()
+        self.assertEqual(doc.authors.count(), 2)
+        self.assertEqual(doc.tags.count(), 2)
+        self.assertEqual(doc.domains.count(), 1)
+
+        # Update tags and authors
+        resp2 = self.client.patch(f'/api/v1/documents/{doc.id}/', {
+            'author_names': ['Claude Shannon'],
+            'tag_names': ['Information Theory']
+        }, format='json')
+        self.assertEqual(resp2.status_code, status.HTTP_200_OK)
+        doc.refresh_from_db()
+        self.assertEqual(doc.authors.count(), 1)
+        self.assertEqual(doc.authors.first().last_name, 'Shannon')
+        self.assertEqual(doc.tags.count(), 1)
+        self.assertEqual(doc.tags.first().name, 'Information Theory')
+        # Domains was not in payload, should be untouched
+        self.assertEqual(doc.domains.count(), 1)
+
+    def test_pdf_upload_valid_file(self):
+        """Valid PDF with %PDF- header succeeds."""
+        pdf_content = b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF"
+        pdf_file = SimpleUploadedFile("research.pdf", pdf_content, content_type="application/pdf")
+        resp = self.client.post('/api/v1/documents/', {
+            'title': 'Real Research Paper',
+            'file': pdf_file,
+        }, format='multipart')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        doc = Document.objects.get(id=resp.data['id'])
+        self.assertTrue(bool(doc.file))
+        self.assertTrue(doc.file.name.endswith('.pdf'))
+
+    def test_pdf_upload_renamed_non_pdf_rejected(self):
+        """A renamed non-PDF file (.pdf extension but lacking %PDF- header) must be rejected."""
+        fake_content = b"This is plain text disguised as a PDF file to bypass extension checks."
+        fake_file = SimpleUploadedFile("trojan.pdf", fake_content, content_type="application/pdf")
+        resp = self.client.post('/api/v1/documents/', {
+            'title': 'Disguised Paper',
+            'file': fake_file,
+        }, format='multipart')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('file', resp.data)
+
+    def test_pdf_upload_wrong_extension_rejected(self):
+        """A file with a non-PDF extension must be rejected."""
+        txt_file = SimpleUploadedFile("notes.txt", b"plain text", content_type="text/plain")
+        resp = self.client.post('/api/v1/documents/', {
+            'title': 'Notes File',
+            'file': txt_file,
+        }, format='multipart')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('file', resp.data)
+
+    def test_collection_tree_deep_nested_single_query(self):
+        """Verify deep 4-level collection tree is constructed accurately with correct document counts."""
+        root = Collection.objects.create(owner=self.user1, name='Computer Science')
+        lvl1 = Collection.objects.create(owner=self.user1, name='AI', parent=root)
+        lvl2 = Collection.objects.create(owner=self.user1, name='Machine Learning', parent=lvl1)
+        lvl3 = Collection.objects.create(owner=self.user1, name='Deep Learning', parent=lvl2)
+        Document.objects.create(owner=self.user1, title='Paper 1', primary_collection=lvl3)
+
+        resp = self.client.get('/api/v1/collections/tree/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        tree = resp.data
+        self.assertEqual(len(tree), 1)
+        self.assertEqual(tree[0]['name'], 'Computer Science')
+        self.assertEqual(len(tree[0]['children']), 1)
+        self.assertEqual(tree[0]['children'][0]['name'], 'AI')
+        self.assertEqual(len(tree[0]['children'][0]['children']), 1)
+        self.assertEqual(tree[0]['children'][0]['children'][0]['name'], 'Machine Learning')
+        self.assertEqual(len(tree[0]['children'][0]['children'][0]['children']), 1)
+        leaf = tree[0]['children'][0]['children'][0]['children'][0]
+        self.assertEqual(leaf['name'], 'Deep Learning')
+        self.assertEqual(leaf['document_count'], 1)
+
+    def test_document_list_prefetch_performance(self):
+        """Verify listing documents with M2M authors, tags, domains does not trigger N+1 queries."""
+        for i in range(5):
+            doc = Document.objects.create(owner=self.user1, title=f'Performance Paper {i}')
+            author = Author.objects.create(first_name='Author', last_name=f'Num{i}')
+            DocumentAuthor.objects.create(document=doc, author=author, author_order=1)
+            tag = Tag.objects.create(name=f'Tag{i}')
+            doc.tags.add(tag)
+
+        resp = self.client.get('/api/v1/documents/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.data), 5)
+        self.assertIn('authors', resp.data[0])
+        self.assertIn('tags', resp.data[0])

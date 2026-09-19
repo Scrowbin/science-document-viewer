@@ -17,6 +17,12 @@ from .services.webhook_service import trigger_rag_ingestion
 class DocumentViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrCollaborator)
     parser_classes = (MultiPartParser, FormParser, JSONParser)
+    # Disable DRF's global PageNumberPagination for this endpoint.
+    # The frontend loads the full document library and performs client-side
+    # filtering/sorting. This is correct for the current documented UI behavior.
+    # Re-evaluate when document collections become large or pagination/infinite
+    # scrolling is introduced in the frontend.
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -72,7 +78,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
         elif section == 'unfiled':
             queryset = queryset.filter(primary_collection__isnull=True)
 
-        return queryset
+        return queryset.select_related('owner', 'primary_collection').prefetch_related(
+            'authors', 'tags', 'domains'
+        )
 
     def perform_create(self, serializer):
         doc = serializer.save(owner=self.request.user)

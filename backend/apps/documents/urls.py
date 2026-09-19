@@ -2,11 +2,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     DocumentViewSet, MetadataLookupView,
-    NoteViewSet, TagViewSet, SharedWithMeView
+    AnnotationViewSet, NoteViewSet, TagViewSet, SharedWithMeView
 )
 
 router = DefaultRouter()
 router.register(r'documents', DocumentViewSet, basename='document')
+router.register(r'annotations', AnnotationViewSet, basename='annotation')
 router.register(r'notes', NoteViewSet, basename='note')
 router.register(r'tags', TagViewSet, basename='tag')
 

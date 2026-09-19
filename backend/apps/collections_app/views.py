@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Collection, CollectionShare
 from .serializers import CollectionSerializer, CollectionTreeSerializer, CollectionShareSerializer
 
@@ -11,24 +11,46 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        # Return collections owned by user or shared with user
+        # Return collections owned by user or shared with user, annotated with document count
         return Collection.objects.filter(
             Q(owner=user) | Q(shares__shared_with_user=user)
-        ).distinct()
+        ).distinct().annotate(doc_count=Count('primary_documents'))
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
     @action(detail=False, methods=['get'], url_path='tree')
     def tree(self, request):
-        """Return root collections with nested children for the current user."""
+        """
+        Return all collections structured into a nested tree for the current user.
+        Executes in a single SQL query using in-memory dictionary-based tree building,
+        preventing N+1 queries regardless of tree depth.
+        """
         user = request.user
-        root_collections = Collection.objects.filter(
-            Q(owner=user) | Q(shares__shared_with_user=user),
-            parent__isnull=True
-        ).distinct()
-        serializer = CollectionTreeSerializer(root_collections, many=True)
-        return Response(serializer.data)
+        collections = Collection.objects.filter(
+            Q(owner=user) | Q(shares__shared_with_user=user)
+        ).distinct().annotate(doc_count=Count('primary_documents'))
+
+        nodes = {}
+        for c in collections:
+            nodes[c.id] = {
+                'id': c.id,
+                'name': c.name,
+                'color': c.color,
+                'parent': c.parent_id,
+                'document_count': getattr(c, 'doc_count', 0),
+                'children': [],
+            }
+
+        root_nodes = []
+        for c in collections:
+            node = nodes[c.id]
+            if c.parent_id and c.parent_id in nodes:
+                nodes[c.parent_id]['children'].append(node)
+            else:
+                root_nodes.append(node)
+
+        return Response(root_nodes)
 
     @action(detail=True, methods=['get', 'post'], url_path='shares')
     def shares(self, request, pk=None):

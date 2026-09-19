@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from ..collections_app.models import Collection
 
 # Shared permission level choices — mirrors CollectionShare.PERMISSION_CHOICES.
@@ -74,7 +75,12 @@ class Document(models.Model):
     loc_in_archive = models.CharField(max_length=255, blank=True, default='')
 
     # Physical File storage
-    file = models.FileField(upload_to='documents/', null=True, blank=True)
+    file = models.FileField(
+        upload_to='documents/',
+        null=True,
+        blank=True,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])]
+    )
     file_size = models.BigIntegerField(null=True, blank=True)
 
     # RAG Status

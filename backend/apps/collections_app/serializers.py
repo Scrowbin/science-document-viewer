@@ -33,7 +33,8 @@ class CollectionSerializer(serializers.ModelSerializer):
         read_only_fields = ('owner', 'created_at')
 
     def get_document_count(self, obj):
-        # Counts primary documents or junction documents
+        if hasattr(obj, 'doc_count'):
+            return obj.doc_count
         return obj.primary_documents.count()
 
 class CollectionTreeSerializer(serializers.ModelSerializer):
