@@ -13,7 +13,7 @@ export const apiClient = axios.create({
 // Request Interceptor: Attach JWT Access Token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('scidocs_auth_token');
+    const token = localStorage.getItem('scidocs_auth_token') || sessionStorage.getItem('scidocs_auth_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const refreshToken = localStorage.getItem('scidocs_refresh_token');
+      const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
 
       if (!refreshToken || originalRequest.url?.endsWith('/auth/token/refresh/')) {
         return Promise.reject(error);
@@ -74,10 +74,16 @@ apiClient.interceptors.response.use(
         });
 
         const newAccessToken = response.data.access;
-        localStorage.setItem('scidocs_auth_token', newAccessToken);
-
-        if (response.data.refresh) {
-          localStorage.setItem('scidocs_refresh_token', response.data.refresh);
+        if (localStorage.getItem('scidocs_auth_token')) {
+          localStorage.setItem('scidocs_auth_token', newAccessToken);
+          if (response.data.refresh) {
+            localStorage.setItem('scidocs_refresh_token', response.data.refresh);
+          }
+        } else {
+          sessionStorage.setItem('scidocs_auth_token', newAccessToken);
+          if (response.data.refresh) {
+            sessionStorage.setItem('scidocs_refresh_token', response.data.refresh);
+          }
         }
 
         apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
@@ -92,6 +98,9 @@ apiClient.interceptors.response.use(
         localStorage.removeItem('scidocs_auth_token');
         localStorage.removeItem('scidocs_refresh_token');
         localStorage.removeItem('scidocs_auth_user');
+        sessionStorage.removeItem('scidocs_auth_token');
+        sessionStorage.removeItem('scidocs_refresh_token');
+        sessionStorage.removeItem('scidocs_auth_user');
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

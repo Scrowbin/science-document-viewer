@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import axios from 'axios';
 import styles from './CreateCollectionModal.module.css';
 import type { Collection } from '../../types';
 import { FaFolderPlus, FaXmark, FaSpinner } from 'react-icons/fa6';
@@ -69,7 +70,19 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
       await onCreate(trimmed, color, parentId ? parentId : null);
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to create collection.';
+      let msg = 'Failed to create collection.';
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          msg = 'Session expired or unauthenticated. Please sign in again.';
+        } else if (err.response?.data && typeof err.response.data === 'object') {
+          const firstErr = Object.values(err.response.data)[0];
+          msg = Array.isArray(firstErr) ? String(firstErr[0]) : String(firstErr);
+        } else {
+          msg = err.message;
+        }
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
       setError(msg);
     } finally {
       setIsSubmitting(false);
