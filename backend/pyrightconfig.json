@@ -1,12 +1,11 @@
 {
-  "venvPath": "backend",
+  "venvPath": ".",
   "venv": "venv",
   "extraPaths": [
-    "backend"
+    "."
   ],
   "typeCheckingMode": "basic",
   "reportMissingTypeStubs": false,
   "reportAttributeAccessIssue": "none",
   "reportOperatorIssue": "none"
 }
-
