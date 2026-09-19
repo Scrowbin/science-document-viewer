@@ -220,6 +220,11 @@
   animation: toastIn 0.2s ease-out;
 }
 
+.toastError {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
 @keyframes toastIn {
   from {
     opacity: 0;

@@ -17,7 +17,7 @@ import { PdfViewer } from '../../components/PdfViewer/PdfViewer';
 import { MetadataPanel } from '../../components/MetadataPanel/MetadataPanel';
 import { DoiModal } from '../../components/DoiModal/DoiModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
-import { FaCheck } from 'react-icons/fa6';
+import { FaCheck, FaCircleExclamation } from 'react-icons/fa6';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -92,13 +92,13 @@ export function HomePage() {
   const [activeTabId, setActiveTabId] = useState<string>('tab-library');
 
   // ─── Toast Notifications ──────────────────────────────────────────────────
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
-  const showToast = useCallback((message: string) => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     if (toastTimeoutRef.current) window.clearTimeout(toastTimeoutRef.current);
-    setToastMessage(message);
-    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(null), 2500);
+    setToast({ message, type });
+    toastTimeoutRef.current = window.setTimeout(() => setToast(null), 2500);
   }, []);
 
   // ─── Derived State (Memos) ────────────────────────────────────────────────
@@ -393,10 +393,14 @@ export function HomePage() {
       />
 
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className={styles.toastNotification}>
-          <FaCheck style={{ color: '#10b981' }} />
-          <span>{toastMessage}</span>
+      {toast && (
+        <div className={`${styles.toastNotification} ${toast.type === 'error' ? styles.toastError : ''}`}>
+          {toast.type === 'error' ? (
+            <FaCircleExclamation style={{ color: '#ffffff' }} />
+          ) : (
+            <FaCheck style={{ color: '#10b981' }} />
+          )}
+          <span>{toast.message}</span>
         </div>
       )}
     </div>

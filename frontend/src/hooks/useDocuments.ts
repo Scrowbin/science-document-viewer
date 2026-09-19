@@ -3,28 +3,30 @@ import type { Document } from '../types';
 import { documentsApi } from '../api/documentsApi';
 import { MOCK_DOCUMENTS } from '../data/mockData';
 
+type ToastFn = (msg: string, type?: 'success' | 'error') => void;
+
 export interface UseDocumentsReturn {
   documents: Document[];
   setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
   isLiveApiConnected: boolean;
   isLoadingDocs: boolean;
-  handleDeleteDocument: (selectedDoc: Document | null, showToast: (msg: string) => void) => Promise<void>;
-  handleRestoreDocument: (docId: string, showToast: (msg: string) => void) => Promise<void>;
+  handleDeleteDocument: (selectedDoc: Document | null, showToast: ToastFn) => Promise<void>;
+  handleRestoreDocument: (docId: string, showToast: ToastFn) => Promise<void>;
   handleUpdateDocument: (
     updatedDoc: Document,
     setIsEditing: (v: boolean) => void,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => Promise<void>;
   handleDuplicateDocument: (
     doc: Document,
     setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => Promise<void>;
-  handleToggleReadStatus: (doc: Document, showToast: (msg: string) => void) => Promise<void>;
+  handleToggleReadStatus: (doc: Document, showToast: ToastFn) => Promise<void>;
   handleFileUpload: (
     file: File,
     setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void,
+    showToast: ToastFn,
     onOpenPdf: (doc: Document) => void
   ) => Promise<void>;
 }
@@ -43,7 +45,7 @@ export function useDocuments(): UseDocumentsReturn {
       try {
         const liveDocs = await documentsApi.getDocuments();
         if (!isMounted) return;
-        if (liveDocs && liveDocs.length > 0) {
+        if (liveDocs) {
           setDocuments(liveDocs);
         }
         setIsLiveApiConnected(true);
@@ -63,12 +65,14 @@ export function useDocuments(): UseDocumentsReturn {
 
   const handleDeleteDocument = useCallback(async (
     selectedDoc: Document | null,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => {
     if (!selectedDoc) return;
     const docId = selectedDoc.id;
+    let prevDocs: Document[] = [];
 
     setDocuments((prev) => {
+      prevDocs = prev;
       const target = prev.find((d) => d.id === docId);
       if (!target) return prev;
       if (target.inTrash) {
@@ -86,52 +90,81 @@ export function useDocuments(): UseDocumentsReturn {
         await documentsApi.toggleTrash(docId);
       }
     } catch (err) {
-      console.warn('Backend delete/trash sync failed:', err);
+      console.warn('Backend delete/trash sync failed, rolling back:', err);
+      if (prevDocs.length > 0) {
+        setDocuments(prevDocs);
+      }
+      showToast('Failed to sync deletion with server', 'error');
     }
   }, []);
 
   const handleRestoreDocument = useCallback(async (
     docId: string,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => {
-    setDocuments((prev) => prev.map((d) => (d.id === docId ? { ...d, inTrash: false } : d)));
+    let prevDocs: Document[] = [];
+    setDocuments((prev) => {
+      prevDocs = prev;
+      return prev.map((d) => (d.id === docId ? { ...d, inTrash: false } : d));
+    });
     showToast('Restored document to library');
     try {
       await documentsApi.toggleTrash(docId);
     } catch (err) {
-      console.warn('Backend restore sync failed:', err);
+      console.warn('Backend restore sync failed, rolling back:', err);
+      if (prevDocs.length > 0) {
+        setDocuments(prevDocs);
+      }
+      showToast('Failed to restore document on server', 'error');
     }
   }, []);
 
   const handleUpdateDocument = useCallback(async (
     updatedDoc: Document,
     setIsEditing: (v: boolean) => void,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => {
-    setDocuments((prev) => prev.map((d) => (d.id === updatedDoc.id ? updatedDoc : d)));
+    let prevDocs: Document[] = [];
+    setDocuments((prev) => {
+      prevDocs = prev;
+      return prev.map((d) => (d.id === updatedDoc.id ? updatedDoc : d));
+    });
     setIsEditing(false);
     showToast('Metadata updated successfully');
     try {
       await documentsApi.updateDocument(updatedDoc.id, {
         title: updatedDoc.title,
         short_title: updatedDoc.metadata.shortTitle,
+        item_type: updatedDoc.metadata.itemType,
+        repository: updatedDoc.metadata.repository,
+        archive_id: updatedDoc.metadata.archiveId,
         doi: updatedDoc.metadata.doi,
         url: updatedDoc.metadata.url,
         genre: updatedDoc.metadata.genre,
+        date: updatedDoc.metadata.date,
         language: updatedDoc.metadata.language,
         license: updatedDoc.metadata.license,
         version: updatedDoc.metadata.version,
+        citation_key: updatedDoc.metadata.citationKey,
+        loc_in_archive: updatedDoc.metadata.locationInArchive,
         extra: updatedDoc.metadata.extra,
+        author_names: updatedDoc.metadata.authors,
+        tag_names: updatedDoc.metadata.tags,
+        domain_names: updatedDoc.metadata.domains,
       });
     } catch (err) {
-      console.warn('Backend metadata sync failed:', err);
+      console.warn('Backend metadata sync failed, rolling back:', err);
+      if (prevDocs.length > 0) {
+        setDocuments(prevDocs);
+      }
+      showToast('Failed to sync metadata with server', 'error');
     }
   }, []);
 
   const handleDuplicateDocument = useCallback(async (
     doc: Document,
     setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => {
     try {
       const cloned = await documentsApi.duplicateDocument(doc.id);
@@ -166,24 +199,30 @@ export function useDocuments(): UseDocumentsReturn {
 
   const handleToggleReadStatus = useCallback(async (
     doc: Document,
-    showToast: (msg: string) => void
+    showToast: ToastFn
   ) => {
+    let prevDocs: Document[] = [];
     const nextLastRead = doc.lastRead ? '' : new Date().toISOString().replace('T', ' ').slice(0, 16);
-    setDocuments((prev) =>
-      prev.map((d) => (d.id === doc.id ? { ...d, lastRead: nextLastRead } : d))
-    );
+    setDocuments((prev) => {
+      prevDocs = prev;
+      return prev.map((d) => (d.id === doc.id ? { ...d, lastRead: nextLastRead } : d));
+    });
     showToast(doc.lastRead ? 'Marked as unread' : 'Marked as read');
     try {
       await documentsApi.toggleRead(doc.id);
     } catch (err) {
-      console.warn('Backend toggle read sync failed:', err);
+      console.warn('Backend toggle read sync failed, rolling back:', err);
+      if (prevDocs.length > 0) {
+        setDocuments(prevDocs);
+      }
+      showToast('Failed to update read status on server', 'error');
     }
   }, []);
 
   const handleFileUpload = useCallback(async (
     file: File,
     setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void,
+    showToast: ToastFn,
     onOpenPdf: (doc: Document) => void
   ) => {
     showToast(`Uploading ${file.name}...`);
