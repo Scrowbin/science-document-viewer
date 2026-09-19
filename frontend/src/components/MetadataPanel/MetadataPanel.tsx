@@ -181,24 +181,60 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   };
 
   // Tag Management
-  const handleAddTag = () => {
-    if (!newTagText.trim()) return;
-    setDraft((prev) => {
-      if (!prev) return prev;
-      if (prev.tags.includes(newTagText.trim())) return prev;
-      return { ...prev, tags: [...prev.tags, newTagText.trim()] };
-    });
-    setNewTagText('');
+  const handleAddTag = (tagToAdd?: string) => {
+    const tag = (tagToAdd ?? newTagText).trim();
+    if (!tag) return;
+
+    if (isEditing) {
+      setDraft((prev) => {
+        if (!prev) return prev;
+        if (prev.tags.includes(tag)) return prev;
+        return { ...prev, tags: [...prev.tags, tag] };
+      });
+      setNewTagText('');
+    } else if (document) {
+      // Direct tag addition in view mode
+      if (document.metadata.tags?.includes(tag)) {
+        setNewTagText('');
+        return;
+      }
+      const nextTags = [...(document.metadata.tags || []), tag];
+      const updatedDoc: Document = {
+        ...document,
+        metadata: {
+          ...document.metadata,
+          tags: nextTags,
+          dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        },
+      };
+      setDraft(updatedDoc.metadata);
+      onUpdateDocument?.(updatedDoc);
+      setNewTagText('');
+    }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setDraft((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        tags: prev.tags.filter((t) => t !== tagToRemove),
+    if (isEditing) {
+      setDraft((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          tags: prev.tags.filter((t) => t !== tagToRemove),
+        };
+      });
+    } else if (document) {
+      const nextTags = (document.metadata.tags || []).filter((t) => t !== tagToRemove);
+      const updatedDoc: Document = {
+        ...document,
+        metadata: {
+          ...document.metadata,
+          tags: nextTags,
+          dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        },
       };
-    });
+      setDraft(updatedDoc.metadata);
+      onUpdateDocument?.(updatedDoc);
+    }
   };
 
   // Domain Management
@@ -246,15 +282,29 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   // Save changes
   const handleSave = () => {
     if (!draft) return;
+    const finalTags =
+      newTagText.trim() && !draft.tags.includes(newTagText.trim())
+        ? [...draft.tags, newTagText.trim()]
+        : draft.tags;
+
+    const finalDomains =
+      newDomainText.trim() && !draft.domains.includes(newDomainText.trim())
+        ? [...draft.domains, newDomainText.trim()]
+        : draft.domains;
+
     const updatedDoc: Document = {
       ...document,
       title: draft.title,
       creator: draft.authors.join(', ') || document.creator,
       metadata: {
         ...draft,
+        tags: finalTags,
+        domains: finalDomains,
         dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
       },
     };
+    setNewTagText('');
+    setNewDomainText('');
     onUpdateDocument?.(updatedDoc);
     onToggleEdit?.(false);
   };
@@ -399,47 +449,46 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                           >
                             <FaTag className={styles.tagItemIcon} />
                             <span className={styles.tagText}>{tag}</span>
-                            {isEditing && (
-                              <button
-                                type="button"
-                                className={styles.tagRemoveBtn}
-                                onClick={() => handleRemoveTag(tag)}
-                                title={`Remove tag: ${tag}`}
-                                aria-label={`Remove tag: ${tag}`}
-                              >
-                                <FaXmark />
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              className={styles.tagRemoveBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveTag(tag);
+                              }}
+                              title={`Remove tag: ${tag}`}
+                              aria-label={`Remove tag: ${tag}`}
+                            >
+                              <FaXmark />
+                            </button>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {isEditing && (
-                      <div className={styles.addTagRow}>
-                        <input
-                          type="text"
-                          className={styles.metaInput}
-                          placeholder="Add new tag..."
-                          value={newTagText}
-                          onChange={(e) => setNewTagText(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              handleAddTag();
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className={styles.smallAddBtn}
-                          onClick={handleAddTag}
-                          title="Add tag"
-                        >
-                          <FaPlus />
-                        </button>
-                      </div>
-                    )}
+                    <div className={styles.addTagRow}>
+                      <input
+                        type="text"
+                        className={styles.metaInput}
+                        placeholder="Add tag (press Enter)..."
+                        value={newTagText}
+                        onChange={(e) => setNewTagText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddTag();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.smallAddBtn}
+                        onClick={() => handleAddTag()}
+                        title="Add tag"
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

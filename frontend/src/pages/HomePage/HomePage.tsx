@@ -34,6 +34,7 @@ export function HomePage() {
     handleUpdateDocument,
     handleDuplicateDocument,
     handleSetDocumentCollection,
+    handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
   } = useDocuments();
@@ -273,6 +274,18 @@ export function HomePage() {
     [handleSetDocumentCollection, showToast]
   );
 
+  // ─── Tag Assignment Prompt Handler ────────────────────────────────────────
+  const handleAddTagPrompt = useCallback(
+    (doc: Document) => {
+      setSelectedDocId(doc.id);
+      const tagName = window.prompt(`Enter a new tag for "${doc.title}":`);
+      if (tagName && tagName.trim()) {
+        handleAddTagToDocument(doc.id, tagName.trim(), showToast);
+      }
+    },
+    [handleAddTagToDocument, showToast]
+  );
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div
@@ -376,6 +389,7 @@ export function HomePage() {
                 onCopyCitation={handleCopyCitation}
                 collections={collections}
                 onAddToCollection={handleAddToCollection}
+                onAddTag={handleAddTagPrompt}
                 isTrashView={activeNavId === 'trash'}
                 sortState={sortState}
                 onToggleSort={handleToggleSort}

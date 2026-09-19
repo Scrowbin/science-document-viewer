@@ -28,6 +28,11 @@ export interface UseDocumentsReturn {
     collectionName: string | null,
     showToast: ToastFn
   ) => Promise<void>;
+  handleAddTagToDocument: (
+    docId: string,
+    tagName: string,
+    showToast: ToastFn
+  ) => Promise<void>;
   handleToggleReadStatus: (doc: Document, showToast: ToastFn) => Promise<void>;
   handleFileUpload: (
     file: File,
@@ -138,7 +143,11 @@ export function useDocuments(): UseDocumentsReturn {
     setIsEditing(false);
     showToast('Metadata updated successfully');
     try {
-      await documentsApi.updateDocument(updatedDoc.id, {
+      if (String(updatedDoc.id).startsWith('doc-')) {
+        // Local mock document, memory state already updated
+        return;
+      }
+      const updated = await documentsApi.updateDocument(updatedDoc.id, {
         title: updatedDoc.title,
         short_title: updatedDoc.metadata.shortTitle,
         item_type: updatedDoc.metadata.itemType,
@@ -147,7 +156,7 @@ export function useDocuments(): UseDocumentsReturn {
         doi: updatedDoc.metadata.doi,
         url: updatedDoc.metadata.url,
         genre: updatedDoc.metadata.genre,
-        date: updatedDoc.metadata.date,
+        date: updatedDoc.metadata.date || null,
         language: updatedDoc.metadata.language,
         license: updatedDoc.metadata.license,
         version: updatedDoc.metadata.version,
@@ -158,6 +167,9 @@ export function useDocuments(): UseDocumentsReturn {
         tag_names: updatedDoc.metadata.tags,
         domain_names: updatedDoc.metadata.domains,
       });
+      if (updated) {
+        setDocuments((prev) => prev.map((d) => (d.id === updatedDoc.id ? updated : d)));
+      }
     } catch (err) {
       console.warn('Backend metadata sync failed, rolling back:', err);
       if (prevDocs.length > 0) {
@@ -302,6 +314,31 @@ export function useDocuments(): UseDocumentsReturn {
     }
   }, []);
 
+  const handleAddTagToDocument = useCallback(async (
+    docId: string,
+    tagName: string,
+    showToast: ToastFn
+  ) => {
+    const cleanTag = tagName.trim();
+    if (!cleanTag) return;
+    const target = documents.find((d) => d.id === docId);
+    if (!target) return;
+    if (target.metadata.tags?.includes(cleanTag)) {
+      showToast(`Tag "${cleanTag}" already exists on document`);
+      return;
+    }
+    const nextTags = [...(target.metadata.tags || []), cleanTag];
+    const updatedDoc: Document = {
+      ...target,
+      metadata: {
+        ...target.metadata,
+        tags: nextTags,
+        dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      },
+    };
+    await handleUpdateDocument(updatedDoc, () => {}, showToast);
+  }, [documents, handleUpdateDocument]);
+
   return {
     documents,
     setDocuments,
@@ -312,6 +349,7 @@ export function useDocuments(): UseDocumentsReturn {
     handleUpdateDocument,
     handleDuplicateDocument,
     handleSetDocumentCollection,
+    handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
   };

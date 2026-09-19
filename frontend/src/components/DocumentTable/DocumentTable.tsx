@@ -16,6 +16,7 @@ import {
   FaFolder,
   FaChevronRight,
   FaXmark,
+  FaTag,
 } from 'react-icons/fa6';
 
 export interface DocumentTableProps {
@@ -31,6 +32,7 @@ export interface DocumentTableProps {
   onCopyCitation?: (doc: Document) => void;
   collections?: Collection[];
   onAddToCollection?: (docId: string, colId: string | null, colName: string | null) => void;
+  onAddTag?: (doc: Document) => void;
   isTrashView?: boolean;
   sortState: SortState;
   onToggleSort: (key: SortKey) => void;
@@ -69,6 +71,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onCopyCitation,
   collections = [],
   onAddToCollection,
+  onAddTag,
   isTrashView = false,
   sortState,
   onToggleSort,
@@ -328,6 +331,19 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {!contextMenu.doc.inTrash && onAddTag && (
+            <div
+              className={styles.contextMenuItem}
+              onClick={() => {
+                onAddTag(contextMenu.doc);
+                setContextMenu(null);
+              }}
+            >
+              <FaTag style={{ color: '#10b981' }} />
+              <span>Add Tag...</span>
             </div>
           )}
 
