@@ -140,10 +140,11 @@ async function startAll() {
   // Step 3: Launch Frontend
   log('Frontend', C.magenta, 'Starting Vite dev server on http://localhost:5173 ...');
 
-  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const isWin = process.platform === 'win32';
+  const npmCmd = isWin ? 'npm.cmd' : 'npm';
   const frontendProc = spawn(npmCmd, ['run', 'dev'], {
     cwd: FRONTEND_DIR,
-    shell: false,
+    shell: isWin,
   });
   children.push(frontendProc);
 
