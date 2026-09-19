@@ -31,8 +31,13 @@ export const collectionsApi = {
   /**
    * Create a new collection.
    */
-  async createCollection(data: { name: string; color?: string; parent?: number | null }): Promise<CollectionNode> {
-    const res = await apiClient.post<CollectionNode>('/collections/', data);
+  async createCollection(data: { name: string; color?: string; parent?: string | number | null }): Promise<CollectionNode> {
+    const payload = {
+      name: data.name,
+      color: data.color || '#3b82f6',
+      parent: data.parent ? data.parent : null,
+    };
+    const res = await apiClient.post<CollectionNode>('/collections/', payload);
     return res.data;
   },
 

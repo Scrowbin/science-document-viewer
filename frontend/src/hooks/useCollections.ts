@@ -17,6 +17,7 @@ export interface UseCollectionsReturn {
   collections: Collection[];
   isLoading: boolean;
   refetch: () => void;
+  createCollection: (data: { name: string; color?: string; parentId?: string | null }) => Promise<Collection>;
 }
 
 /**
@@ -54,5 +55,15 @@ export function useCollections(): UseCollectionsReturn {
     setRefetchTrigger((n) => n + 1);
   }, []);
 
-  return { collections, isLoading, refetch };
+  const createCollection = useCallback(async (data: { name: string; color?: string; parentId?: string | null }): Promise<Collection> => {
+    const node = await collectionsApi.createCollection({
+      name: data.name,
+      color: data.color,
+      parent: data.parentId ? data.parentId : null,
+    });
+    refetch();
+    return mapNodeToCollection(node);
+  }, [refetch]);
+
+  return { collections, isLoading, refetch, createCollection };
 }

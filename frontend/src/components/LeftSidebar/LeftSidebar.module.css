@@ -63,12 +63,64 @@
 }
 
 .sidebarSectionTitle {
-  padding: 4px 14px 6px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
+}
+
+.sidebarSectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 14px 6px;
+}
+
+.addCollectionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 11px;
+}
+
+.addCollectionBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--accent-blue);
+}
+
+.addSubCollectionBtn {
+  opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-left: 2px;
+  font-size: 10px;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebarItem:hover .addSubCollectionBtn {
+  opacity: 1;
+}
+
+.addSubCollectionBtn:hover {
+  background-color: var(--bg-hover);
+  color: var(--accent-blue) !important;
 }
 
 .sidebarItem {

@@ -49,7 +49,7 @@ export function HomePage() {
     handleSaveDoiDocument,
   } = useDoiModal();
 
-  const { collections } = useCollections();
+  const { collections, createCollection } = useCollections();
 
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [selectedDocId, setSelectedDocId] = useState<string>('');
@@ -248,6 +248,21 @@ export function HomePage() {
     return selectedDoc;
   }, [activeTab, selectedDoc, documents]);
 
+  // ─── Collection Creation Handler ──────────────────────────────────────────
+  const handleCreateCollection = useCallback(
+    async (name: string, color?: string, parentId?: string | null) => {
+      try {
+        await createCollection({ name, color, parentId });
+        showToast(`Collection "${name}" created successfully`);
+      } catch (err) {
+        console.error('Failed to create collection:', err);
+        showToast('Failed to create collection', 'error');
+        throw err;
+      }
+    },
+    [createCollection, showToast]
+  );
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div
@@ -307,6 +322,7 @@ export function HomePage() {
             setActiveNavId(colId ? null : 'recent');
             setActiveTabId('tab-library');
           }}
+          onCreateCollection={handleCreateCollection}
           tags={availableTags}
           selectedTag={selectedTag}
           onSelectTag={(tag) => {
