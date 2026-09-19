@@ -26,6 +26,7 @@ export interface LeftSidebarProps {
   selectedCollectionId: string | null;
   onSelectCollection: (id: string | null) => void;
   onCreateCollection?: (name: string, color?: string, parentId?: string | null) => Promise<void>;
+  onDropDocOnCollection?: (docId: string, colId: string, colName: string) => void;
   tags: string[];
   selectedTag: string | null;
   onSelectTag: (tag: string | null) => void;
@@ -44,6 +45,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   selectedCollectionId,
   onSelectCollection,
   onCreateCollection,
+  onDropDocOnCollection,
   tags,
   selectedTag,
   onSelectTag,
@@ -55,6 +57,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDraggingWidth, setIsDraggingWidth] = useState(false);
+  const [dragOverColId, setDragOverColId] = useState<string | null>(null);
   const { tooltipProps, showTooltip, hideTooltip } = useTagTooltip();
 
   // Create Collection Modal State
@@ -130,15 +133,41 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     const hasChildren = Boolean(col.children && col.children.length > 0);
     const isExpanded = expandedCollections.has(col.id);
 
+    const isDropTarget = dragOverColId === col.id;
+
     return (
       <React.Fragment key={col.id}>
         <div
           className={`${styles.sidebarItem} ${
             collapsed ? styles.sidebarItemCollapsed : ''
-          } ${isActive ? styles.sidebarItemActive : ''}`}
+          } ${isActive ? styles.sidebarItemActive : ''} ${
+            isDropTarget ? styles.sidebarItemDropTarget : ''
+          }`}
           style={!collapsed && depth > 0 ? { paddingLeft: `${12 + depth * 14}px` } : undefined}
           onClick={() => onSelectCollection(isActive ? null : col.id)}
           title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
+          onDragOver={(e) => {
+            if (onDropDocOnCollection) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'copy';
+              if (dragOverColId !== col.id) {
+                setDragOverColId(col.id);
+              }
+            }
+          }}
+          onDragLeave={() => {
+            if (dragOverColId === col.id) {
+              setDragOverColId(null);
+            }
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOverColId(null);
+            const docId = e.dataTransfer.getData('text/plain');
+            if (docId && onDropDocOnCollection) {
+              onDropDocOnCollection(docId, col.id, col.name);
+            }
+          }}
         >
           {hasChildren && !collapsed && (
             <span

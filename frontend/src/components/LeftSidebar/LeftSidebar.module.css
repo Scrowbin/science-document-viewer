@@ -147,6 +147,12 @@
   font-weight: 600;
 }
 
+.sidebarItemDropTarget {
+  background-color: rgba(2, 132, 199, 0.15) !important;
+  outline: 2px dashed var(--accent-blue) !important;
+  outline-offset: -2px;
+}
+
 .sidebarItemCollapsed {
   justify-content: center;
   padding: 8px 0;

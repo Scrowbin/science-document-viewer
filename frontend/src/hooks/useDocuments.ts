@@ -22,6 +22,12 @@ export interface UseDocumentsReturn {
     setSelectedDocId: (id: string) => void,
     showToast: ToastFn
   ) => Promise<void>;
+  handleSetDocumentCollection: (
+    docId: string,
+    collectionId: string | number | null,
+    collectionName: string | null,
+    showToast: ToastFn
+  ) => Promise<void>;
   handleToggleReadStatus: (doc: Document, showToast: ToastFn) => Promise<void>;
   handleFileUpload: (
     file: File,
@@ -264,6 +270,38 @@ export function useDocuments(): UseDocumentsReturn {
     }
   }, []);
 
+  const handleSetDocumentCollection = useCallback(async (
+    docId: string,
+    collectionId: string | number | null,
+    collectionName: string | null,
+    showToast: ToastFn
+  ) => {
+    let prevDocs: Document[] = [];
+    setDocuments((prev) => {
+      prevDocs = prev;
+      return prev.map((d) => {
+        if (d.id !== docId) return d;
+        return {
+          ...d,
+          metadata: {
+            ...d.metadata,
+            documentGroups: collectionName ? [collectionName] : [],
+          },
+        };
+      });
+    });
+    showToast(collectionName ? `Added to "${collectionName}"` : 'Removed from collection');
+    try {
+      await documentsApi.setDocumentCollection(docId, collectionId);
+    } catch (err) {
+      console.warn('Backend collection assignment failed, rolling back:', err);
+      if (prevDocs.length > 0) {
+        setDocuments(prevDocs);
+      }
+      showToast('Failed to update collection on server', 'error');
+    }
+  }, []);
+
   return {
     documents,
     setDocuments,
@@ -273,6 +311,7 @@ export function useDocuments(): UseDocumentsReturn {
     handleRestoreDocument,
     handleUpdateDocument,
     handleDuplicateDocument,
+    handleSetDocumentCollection,
     handleToggleReadStatus,
     handleFileUpload,
   };

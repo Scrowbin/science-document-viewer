@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './MetadataPanel.module.css';
-import type { Document, DocumentMetadata } from '../../types';
+import type { Document, DocumentMetadata, Collection } from '../../types';
 import { METADATA_FIELDS_CONFIG } from '../../constants/metadataConfig';
 import {
   FaArrowUpRightFromSquare,
@@ -22,8 +22,24 @@ export interface MetadataPanelProps {
   isEditing?: boolean;
   onToggleEdit?: (editing: boolean) => void;
   onUpdateDocument?: (updatedDoc: Document) => void;
+  collections?: Collection[];
+  onSetCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+}
+
+function flattenCollections(
+  cols: Collection[],
+  depth = 0
+): Array<{ id: string; name: string; depth: number; color?: string }> {
+  const result: Array<{ id: string; name: string; depth: number; color?: string }> = [];
+  for (const col of cols) {
+    result.push({ id: col.id, name: col.name, depth, color: col.color });
+    if (col.children && col.children.length > 0) {
+      result.push(...flattenCollections(col.children, depth + 1));
+    }
+  }
+  return result;
 }
 
 /**
@@ -35,6 +51,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   isEditing = false,
   onToggleEdit,
   onUpdateDocument,
+  collections = [],
+  onSetCollection,
   collapsed = false,
   onToggleCollapse,
 }) => {
@@ -477,68 +495,103 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
 
                 {/* 2. Chips (Domains, Document Groups) */}
                 {field.type === 'chips' && Array.isArray(rawValue) && (
-                  <div>
-                    <div className={styles.chipContainer}>
-                      {rawValue.length === 0 ? (
-                        <span style={{ color: 'var(--text-muted)' }}>—</span>
-                      ) : (
-                        rawValue.map((chip, i) => (
-                          <span key={i} className={styles.metaChip}>
-                            {chip}
-                            {isEditing && (
-                              <button
-                                type="button"
-                                className={styles.chipRemoveBtn}
-                                onClick={() => {
-                                  if (field.key === 'domains') handleRemoveDomain(chip);
-                                  if (field.key === 'documentGroups') handleRemoveGroup(chip);
-                                }}
-                                title={`Remove ${chip}`}
-                              >
-                                <FaXmark />
-                              </button>
-                            )}
-                          </span>
-                        ))
-                      )}
-                    </div>
-
-                    {isEditing && (
-                      <div className={styles.addChipRow}>
-                        <input
-                          type="text"
-                          className={styles.metaInput}
-                          placeholder={`Add ${field.label.toLowerCase()}...`}
-                          value={
-                            field.key === 'domains'
-                              ? newDomainText
-                              : newGroupText
+                  field.key === 'documentGroups' && collections && collections.length > 0 ? (
+                    <div>
+                      <select
+                        className={styles.metaSelect}
+                        value={
+                          flattenCollections(collections).find((c) =>
+                            rawValue.includes(c.name)
+                          )?.id ?? ''
+                        }
+                        onChange={(e) => {
+                          const selectedColId = e.target.value || null;
+                          const selectedCol = flattenCollections(collections).find(
+                            (c) => c.id === selectedColId
+                          );
+                          const colName = selectedCol ? selectedCol.name : null;
+                          if (isEditing) {
+                            setDraft((prev) =>
+                              prev ? { ...prev, documentGroups: colName ? [colName] : [] } : prev
+                            );
                           }
-                          onChange={(e) => {
-                            if (field.key === 'domains') setNewDomainText(e.target.value);
-                            if (field.key === 'documentGroups') setNewGroupText(e.target.value);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
+                          if (onSetCollection && document) {
+                            onSetCollection(document.id, selectedColId, colName);
+                          }
+                        }}
+                      >
+                        <option value="">— None (Unfiled) —</option>
+                        {flattenCollections(collections).map((col) => (
+                          <option key={col.id} value={col.id}>
+                            {`${'— '.repeat(col.depth)}${col.name}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className={styles.chipContainer}>
+                        {rawValue.length === 0 ? (
+                          <span style={{ color: 'var(--text-muted)' }}>—</span>
+                        ) : (
+                          rawValue.map((chip, i) => (
+                            <span key={i} className={styles.metaChip}>
+                              {chip}
+                              {isEditing && (
+                                <button
+                                  type="button"
+                                  className={styles.chipRemoveBtn}
+                                  onClick={() => {
+                                    if (field.key === 'domains') handleRemoveDomain(chip);
+                                    if (field.key === 'documentGroups') handleRemoveGroup(chip);
+                                  }}
+                                  title={`Remove ${chip}`}
+                                >
+                                  <FaXmark />
+                                </button>
+                              )}
+                            </span>
+                          ))
+                        )}
+                      </div>
+
+                      {isEditing && (
+                        <div className={styles.addChipRow}>
+                          <input
+                            type="text"
+                            className={styles.metaInput}
+                            placeholder={`Add ${field.label.toLowerCase()}...`}
+                            value={
+                              field.key === 'domains'
+                                ? newDomainText
+                                : newGroupText
+                            }
+                            onChange={(e) => {
+                              if (field.key === 'domains') setNewDomainText(e.target.value);
+                              if (field.key === 'documentGroups') setNewGroupText(e.target.value);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (field.key === 'domains') handleAddDomain();
+                                if (field.key === 'documentGroups') handleAddGroup();
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className={styles.smallAddBtn}
+                            onClick={() => {
                               if (field.key === 'domains') handleAddDomain();
                               if (field.key === 'documentGroups') handleAddGroup();
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className={styles.smallAddBtn}
-                          onClick={() => {
-                            if (field.key === 'domains') handleAddDomain();
-                            if (field.key === 'documentGroups') handleAddGroup();
-                          }}
-                        >
-                          <FaPlus />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                            }}
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
                 )}
 
                 {/* 3. Color Swatch Indicator / Picker */}

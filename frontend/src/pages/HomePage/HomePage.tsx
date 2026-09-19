@@ -33,6 +33,7 @@ export function HomePage() {
     handleRestoreDocument,
     handleUpdateDocument,
     handleDuplicateDocument,
+    handleSetDocumentCollection,
     handleToggleReadStatus,
     handleFileUpload,
   } = useDocuments();
@@ -264,6 +265,14 @@ export function HomePage() {
     [createCollection, showToast]
   );
 
+  // ─── Document Collection Assignment Handler ──────────────────────────────
+  const handleAddToCollection = useCallback(
+    (docId: string, colId: string | null, colName: string | null) => {
+      handleSetDocumentCollection(docId, colId, colName, showToast);
+    },
+    [handleSetDocumentCollection, showToast]
+  );
+
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div
@@ -324,6 +333,7 @@ export function HomePage() {
             setActiveTabId('tab-library');
           }}
           onCreateCollection={handleCreateCollection}
+          onDropDocOnCollection={handleAddToCollection}
           tags={availableTags}
           selectedTag={selectedTag}
           onSelectTag={(tag) => {
@@ -364,6 +374,8 @@ export function HomePage() {
                 onToggleReadStatus={(doc) => handleToggleReadStatus(doc, showToast)}
                 onTrashDoc={handleDeleteSelectedDocument}
                 onCopyCitation={handleCopyCitation}
+                collections={collections}
+                onAddToCollection={handleAddToCollection}
                 isTrashView={activeNavId === 'trash'}
                 sortState={sortState}
                 onToggleSort={handleToggleSort}
@@ -379,6 +391,8 @@ export function HomePage() {
           isEditing={isEditingMetadata}
           onToggleEdit={setIsEditingMetadata}
           onUpdateDocument={(doc) => handleUpdateDocument(doc, setIsEditingMetadata, showToast)}
+          collections={collections}
+          onSetCollection={handleAddToCollection}
           collapsed={rightSidebarCollapsed}
           onToggleCollapse={() => setRightSidebarCollapsed((prev) => !prev)}
         />

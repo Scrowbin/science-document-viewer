@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './DocumentTable.module.css';
-import type { Document, SortKey, SortState } from '../../types';
+import type { Document, SortKey, SortState, Collection } from '../../types';
 import {
   FaFileLines,
   FaFilePdf,
@@ -12,6 +12,10 @@ import {
   FaQuoteLeft,
   FaTrash,
   FaClock,
+  FaFolderPlus,
+  FaFolder,
+  FaChevronRight,
+  FaXmark,
 } from 'react-icons/fa6';
 
 export interface DocumentTableProps {
@@ -25,6 +29,8 @@ export interface DocumentTableProps {
   onToggleReadStatus?: (doc: Document) => void;
   onTrashDoc?: (doc: Document) => void;
   onCopyCitation?: (doc: Document) => void;
+  collections?: Collection[];
+  onAddToCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   isTrashView?: boolean;
   sortState: SortState;
   onToggleSort: (key: SortKey) => void;
@@ -34,6 +40,20 @@ interface ContextMenuState {
   x: number;
   y: number;
   doc: Document;
+}
+
+function flattenCollections(
+  cols: Collection[],
+  depth = 0
+): Array<{ id: string; name: string; depth: number; color?: string }> {
+  const result: Array<{ id: string; name: string; depth: number; color?: string }> = [];
+  for (const col of cols) {
+    result.push({ id: col.id, name: col.name, depth, color: col.color });
+    if (col.children && col.children.length > 0) {
+      result.push(...flattenCollections(col.children, depth + 1));
+    }
+  }
+  return result;
 }
 
 export const DocumentTable: React.FC<DocumentTableProps> = ({
@@ -47,11 +67,14 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onToggleReadStatus,
   onTrashDoc,
   onCopyCitation,
+  collections = [],
+  onAddToCollection,
   isTrashView = false,
   sortState,
   onToggleSort,
 }) => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+  const [isCollectionSubmenuOpen, setIsCollectionSubmenuOpen] = useState(false);
 
   // Close context menu on outside click or window scroll
   useEffect(() => {
@@ -75,6 +98,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
     const x = Math.min(e.clientX, window.innerWidth - 220);
     const y = Math.min(e.clientY, window.innerHeight - 260);
 
+    setIsCollectionSubmenuOpen(false);
     setContextMenu({ x, y, doc });
   };
 
@@ -133,13 +157,25 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           ) : (
             documents.map((doc) => {
               const isSelected = doc.id === selectedDocId;
+              const isDraggable = !doc.inTrash;
               return (
                 <tr
                   key={doc.id}
-                  className={`${styles.tr} ${isSelected ? styles.trSelected : ''}`}
+                  className={`${styles.tr} ${isSelected ? styles.trSelected : ''} ${
+                    isDraggable ? styles.draggableRow : ''
+                  }`}
                   onClick={() => onSelectDoc(doc.id)}
                   onDoubleClick={() => !doc.inTrash && onOpenPdf(doc)}
                   onContextMenu={(e) => handleRowContextMenu(e, doc)}
+                  draggable={isDraggable}
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('text/plain', doc.id);
+                    e.dataTransfer.setData(
+                      'application/json',
+                      JSON.stringify({ id: doc.id, title: doc.title })
+                    );
+                    e.dataTransfer.effectAllowed = 'copyMove';
+                  }}
                 >
                   <td className={styles.td}>
                     <div className={styles.titleCell}>
@@ -217,6 +253,81 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             >
               <FaFilePdf style={{ color: 'var(--accent-blue)' }} />
               <span>Open in New Tab</span>
+            </div>
+          )}
+
+          {/* Add to Collection with submenu */}
+          {!contextMenu.doc.inTrash && onAddToCollection && (
+            <div
+              className={`${styles.contextMenuItem} ${styles.contextMenuSubmenuContainer}`}
+              onMouseEnter={() => setIsCollectionSubmenuOpen(true)}
+              onMouseLeave={() => setIsCollectionSubmenuOpen(false)}
+            >
+              <FaFolderPlus style={{ color: '#0ea5e9' }} />
+              <span style={{ flex: 1 }}>Add to Collection</span>
+              <FaChevronRight style={{ fontSize: '10px', color: 'var(--text-muted)' }} />
+
+              {isCollectionSubmenuOpen && (
+                <div
+                  className={styles.contextSubmenu}
+                  style={
+                    contextMenu.x > window.innerWidth - 440
+                      ? { right: '100%', left: 'auto' }
+                      : { left: '100%' }
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {flattenCollections(collections).length === 0 ? (
+                    <div style={{ padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                      No collections available
+                    </div>
+                  ) : (
+                    flattenCollections(collections).map((col) => {
+                      const isCurrentCollection =
+                        contextMenu.doc.metadata.documentGroups?.includes(col.name);
+                      return (
+                        <div
+                          key={col.id}
+                          className={styles.contextMenuItem}
+                          style={{ paddingLeft: `${12 + col.depth * 10}px` }}
+                          onClick={() => {
+                            onAddToCollection(contextMenu.doc.id, col.id, col.name);
+                            setContextMenu(null);
+                            setIsCollectionSubmenuOpen(false);
+                          }}
+                        >
+                          <FaFolder style={{ color: col.color || 'var(--accent-blue)', fontSize: '11px' }} />
+                          <span style={{ flex: 1, fontWeight: isCurrentCollection ? 600 : 400 }}>
+                            {col.name}
+                          </span>
+                          {isCurrentCollection && (
+                            <span style={{ fontSize: '10px', color: 'var(--accent-blue)', marginLeft: '4px' }}>
+                              ✓
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+
+                  {Boolean(contextMenu.doc.metadata.documentGroups?.length) && (
+                    <>
+                      <div className={styles.contextMenuDivider} />
+                      <div
+                        className={styles.contextMenuItem}
+                        onClick={() => {
+                          onAddToCollection(contextMenu.doc.id, null, null);
+                          setContextMenu(null);
+                          setIsCollectionSubmenuOpen(false);
+                        }}
+                      >
+                        <FaXmark style={{ color: '#ef4444' }} />
+                        <span style={{ color: '#ef4444' }}>Remove from Collection</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

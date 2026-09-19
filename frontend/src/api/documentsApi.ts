@@ -147,6 +147,16 @@ export const documentsApi = {
   },
 
   /**
+   * Assign or move document to a primary collection (or null to unfile).
+   */
+  async setDocumentCollection(id: string | number, collectionId: string | number | null): Promise<Document> {
+    const res = await apiClient.patch<DjangoDocumentRaw>(`/documents/${id}/`, {
+      primary_collection: collectionId ? collectionId : null,
+    });
+    return mapDjangoDocToFrontend(res.data);
+  },
+
+  /**
    * Delete document permanently.
    */
   async deleteDocument(id: string | number): Promise<void> {
