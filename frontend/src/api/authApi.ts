@@ -96,13 +96,25 @@ export const authApi = {
   },
 
   /**
-   * Logout and clear tokens.
+   * Logout and clear tokens (blacklists refresh token on backend if online).
    */
-  logout(): void {
+  async logout(): Promise<void> {
+    const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
+    if (refreshToken) {
+      try {
+        await apiClient.post('/auth/logout/', { refresh: refreshToken });
+      } catch {
+        // Silently ignore network / offline errors during logout
+      }
+    }
     localStorage.removeItem('scidocs_auth_token');
     localStorage.removeItem('scidocs_refresh_token');
     localStorage.removeItem('scidocs_auth_user');
+    sessionStorage.removeItem('scidocs_auth_token');
+    sessionStorage.removeItem('scidocs_refresh_token');
+    sessionStorage.removeItem('scidocs_auth_user');
   },
 };
 
 export default authApi;
+

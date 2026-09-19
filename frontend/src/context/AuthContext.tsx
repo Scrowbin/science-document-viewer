@@ -68,10 +68,10 @@ function saveRegisteredUsers(users: Array<{ user: User; passwordHash: string }>)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>(() => {
-    // Check initial user in localStorage
+    // Check initial user in localStorage or sessionStorage
     try {
-      const storedUser = localStorage.getItem(STORAGE_USER_KEY);
-      const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+      const storedUser = localStorage.getItem(STORAGE_USER_KEY) || sessionStorage.getItem(STORAGE_USER_KEY);
+      const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY) || sessionStorage.getItem(STORAGE_TOKEN_KEY);
       if (storedUser && storedToken) {
         return {
           user: JSON.parse(storedUser),
@@ -84,11 +84,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       console.error('Failed to parse cached auth state:', e);
     }
-    // Default: logged in with demo user for seamless local development
+    // Default: unauthenticated user. Explicit login is required.
     return {
-      user: DEFAULT_DEMO_USERS[0].user,
-      token: 'demo-jwt-token-active-session',
-      isAuthenticated: true,
+      user: null,
+      token: null,
+      isAuthenticated: false,
       isLoading: false,
       error: null,
     };
@@ -249,15 +249,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /**
-   * Log out current user
+   * Log out current user (calls server-side blacklist & clears storage)
    */
-  const logout = useCallback(() => {
-    authApi.logout();
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // Ignore errors on logout
+    }
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
     localStorage.removeItem(STORAGE_REFRESH_KEY);
     sessionStorage.removeItem(STORAGE_USER_KEY);
     sessionStorage.removeItem(STORAGE_TOKEN_KEY);
+    sessionStorage.removeItem(STORAGE_REFRESH_KEY);
 
     setAuthState({
       user: null,
@@ -267,6 +272,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       error: null,
     });
   }, []);
+
 
   /**
    * Request password reset instructions

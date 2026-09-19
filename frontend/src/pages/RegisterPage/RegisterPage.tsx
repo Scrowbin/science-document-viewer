@@ -35,6 +35,13 @@ export function RegisterPage() {
     };
   }, [clearError]);
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
   // Calculate password strength score (0 to 4)
   const passwordStrength = useMemo(() => {
     if (!password) return { score: 0, label: 'None', color: '#9ca3af', width: '0%' };

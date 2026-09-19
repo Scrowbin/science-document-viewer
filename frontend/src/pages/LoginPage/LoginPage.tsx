@@ -12,7 +12,9 @@ import {
   FaCircleExclamation,
   FaFlask,
   FaArrowLeft,
+  FaGoogle,
 } from 'react-icons/fa6';
+
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -30,6 +32,13 @@ export function LoginPage() {
       clearError();
     };
   }, [clearError]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,6 +204,21 @@ export function LoginPage() {
           </button>
         </form>
 
+        {/* OAuth2 Single Sign-On (Deferred — implement oauth2 later) */}
+        <div className={styles.oauthSection}>
+          <div className={styles.divider}>
+            <span>or</span>
+          </div>
+          <button
+            type="button"
+            className={styles.oauthButton}
+            disabled
+            title="OAuth2 (Google/Institutional SSO) will be implemented in a later milestone"
+          >
+            <FaGoogle /> Continue with Google (OAuth2 &mdash; implement later)
+          </button>
+        </div>
+
         {/* Demo Fast-Track Account for instant evaluator testing */}
         <div className={styles.demoSection}>
           <span className={styles.demoLabel}>Or try with demo account</span>
@@ -207,6 +231,7 @@ export function LoginPage() {
             <FaFlask /> 1-Click Demo Login (Dr. Sarah Jenkins)
           </button>
         </div>
+
 
         {/* Footer Navigation */}
         <div className={styles.footerText}>

@@ -2,6 +2,8 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext';
 import { HomePage, LoginPage, RegisterPage, ForgotPasswordPage } from './pages';
 
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+
 /**
  * App Root Component: Orchestrates top-level Authentication Provider
  * and Client-Side Routing between Pages.
@@ -12,7 +14,14 @@ export function App() {
       <Router>
         <Routes>
           {/* Main Scientific Document Manager Library */}
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Authentication & User Onboarding Routes */}
           <Route path="/login" element={<LoginPage />} />
