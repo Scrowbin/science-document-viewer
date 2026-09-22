@@ -185,23 +185,6 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       <FaFileLines className={styles.docIcon} />
                       <span className={styles.docTitleText}>{doc.title}</span>
 
-                      {/* Category Badges */}
-                      {doc.isPublication && (
-                        <span className={`${styles.statusPill} ${styles.pubPill}`}>
-                          My Pub
-                        </span>
-                      )}
-                      {doc.isDuplicate && (
-                        <span className={`${styles.statusPill} ${styles.duplicatePill}`}>
-                          Duplicate
-                        </span>
-                      )}
-                      {doc.inTrash && (
-                        <span className={`${styles.statusPill} ${styles.trashPill}`}>
-                          In Trash
-                        </span>
-                      )}
-
                       {/* Quick Actions */}
                       {doc.inTrash ? (
                         <button

@@ -125,37 +125,6 @@
 .tr:hover .openPdfActionBtn,
 .trSelected .openPdfActionBtn,
 .tr:hover .restoreActionBtn,
-.trSelected .restoreActionBtn {
-  opacity: 1;
-}
-
-.statusPill {
-  font-size: 9.5px;
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.pubPill {
-  background-color: #e0e7ff;
-  color: #4338ca;
-  border: 1px solid #c7d2fe;
-}
-
-.duplicatePill {
-  background-color: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
-}
-
-.trashPill {
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
 .emptyState {
   padding: 40px 16px;
   text-align: center;

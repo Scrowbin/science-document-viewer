@@ -1,57 +1,73 @@
 # Frontend — Scientific Document Manager
 
-Giao diện người dùng cho ứng dụng Quản lý Tài liệu Khoa học (lấy cảm hứng từ Zotero), được xây dựng bằng **React.js + TypeScript + Vite**.
+User interface for the Scientific Document Management application (inspired by Zotero), built with **React 19 + TypeScript + Vite**.
 
-Ứng dụng kết nối với:
-- **Backend API (Django REST Framework)**: Quản lý nghiệp vụ, metadata, DOI, lưu trữ tệp tin.
-- **RAG Pipeline (FastAPI + LangChain)**: Chat AI, truy vấn ngữ nghĩa tài liệu qua Qdrant Vector DB.
+The application connects to:
+- **Backend API (Django 5 REST Framework)**: Business logic, metadata management, DOI lookup, PDF file storage, and relational library management.
+- **Embedded RAG Pipeline**: Local semantic search, in-document Q&A with page grounding badges (`[Page X]`), and 1-click summarization via local vector database (Qdrant Embedded) and local LLM (Ollama `llama3.2:3b`).
 
 ---
 
-## Công nghệ sử dụng trong Frontend
+## Frontend Tech Stack
 
 - **Framework**: React 19 + TypeScript
 - **Bundler**: Vite
-- **Styling**: CSS Modules + Global CSS Tokens (Không dùng Tailwind CSS)
-- **PDF Viewer & Annotation**: PDF.js / pdfAnnotate
-- **Icons**: `react-icons`
+- **Styling**: CSS Modules + Global CSS Variables & Design Tokens (Tailwind CSS strictly prohibited)
+- **PDF Viewer & Annotation**: PDF.js (Canvas rendering, TextLayer, Smooth Zoom, Highlighting, Draggable Sticky Notes)
+- **Icons**: `react-icons` (FontAwesome / Lucide icons)
+- **HTTP Client**: Axios with automatic JWT interceptors and 401 token refresh queue
 
 ---
 
-## Cấu trúc thư mục
+## Directory Structure
 
 ```text
 frontend/src/
+├── api/                         # Typed Axios client & REST services
+│   ├── client.ts                # Axios instance with JWT interceptors & token refresh
+│   ├── authApi.ts               # Login, register, me endpoints
+│   ├── documentsApi.ts          # Document CRUD, PDF multipart upload, DOI lookup
+│   ├── annotationsApi.ts        # In-canvas annotations REST integration
+│   ├── collectionsApi.ts        # Collections tree CRUD
+│   └── index.ts                 # Central API exports
 ├── components/
-│   ├── TabBar/           # Browser-style tab navigation (Ctrl/Cmd + 1..9)
-│   ├── LeftSidebar/      # Library, Collections, Tags with resizer & tooltips
-│   ├── MainToolbar/      # Search bar (Ctrl/Cmd + F), Add document, View controls
-│   ├── DocumentTable/    # Sortable document list with status indicators
-│   ├── MetadataPanel/    # Resizable right sidebar with in-place field editing
-│   ├── PdfViewer/        # Integrated PDF viewer with annotation support
-│   └── common/           # Reusable components (Tooltip, Resizer, Dropdown, Modal)
-├── types/                # Core TypeScript interfaces (Document, Collection, Tag, Tab)
-├── data/                 # Mock datasets and initial state
-├── App.tsx               # Root component & keyboard shortcuts handler
-└── index.css             # Theme variables & CSS reset
+│   ├── TabBar/                  # Browser-style tab navigation (Ctrl/Cmd + 1..9)
+│   ├── LeftSidebar/             # Library tree, Collections, Tags with resizer & tooltips
+│   ├── MainToolbar/             # Search bar (Ctrl/Cmd + F), Add document dropdown
+│   ├── DocumentTable/           # Sortable document table with active column indicators
+│   ├── MetadataPanel/           # Resizable right sidebar with in-place editing of 22 fields
+│   ├── PdfViewer/               # Integrated PDF.js canvas viewer, TextLayer, In-canvas notes
+│   ├── AiChatPanel/             # Slide-out AI assistant: Q&A, 1-Click summary, [Page X] navigation
+│   ├── DoiModal/                # DOI lookup & metadata preview modal
+│   ├── UserMenu/                # User avatar dropdown & API status indicator
+│   └── common/                  # Reusable Tooltip, Resizer, Dropdown, Modal components
+├── context/                     # React Contexts (AuthContext.tsx with JWT session)
+├── hooks/                       # Custom hooks (useKeyboardShortcuts, useDocuments, useCollections, useDoiModal)
+├── utils/                       # Pure utility functions (documentFilters, pdfGenerator)
+├── types/index.ts               # Core shared TypeScript interfaces
+├── constants/metadataConfig.ts  # Data-driven configuration for 22 metadata fields
+├── data/                        # Mock data & sample PDF binary fallback
+├── App.tsx                      # Root shell & keyboard shortcuts coordinator
+├── App.module.css               # Main 3-column layout grid
+└── index.css                    # Design tokens (colors, fonts, light/dark themes)
 ```
 
 ---
 
-## Hướng dẫn cài đặt & Khởi chạy
+## Installation & Development
 
 ```bash
-# Cài đặt dependencies
+# Install dependencies
 npm install
 
-# Khởi chạy development server
+# Start Vite development server
 npm run dev
 
-# Kiểm tra lint
+# Run TypeScript & ESLint check
 npm run lint
 
 # Build production bundle
 npm run build
 ```
 
-Xem tài liệu kiến trúc toàn diện tại [README.md](../README.md) và [ARCHITECTURE.md](../ARCHITECTURE.md).
+See comprehensive architecture documentation at [README.md](../README.md) and [ARCHITECTURE.md](../ARCHITECTURE.md).

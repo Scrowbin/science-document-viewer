@@ -5,7 +5,6 @@ import {
   FaPlus,
   FaChevronDown,
   FaBarcode,
-  FaBook,
   FaFileLines,
 } from 'react-icons/fa6';
 
@@ -13,7 +12,7 @@ export interface MainToolbarProps {
   searchRef: React.RefObject<HTMLInputElement | null>;
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onAddFromOption: (type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => void;
+  onAddFromOption: (type: 'DOI' | 'Upload PDF') => void;
 }
 
 export const MainToolbar: React.FC<MainToolbarProps> = ({
@@ -38,12 +37,10 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen]);
 
-  const handleActionClick = (type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => {
+  const handleActionClick = (type: 'DOI' | 'Upload PDF') => {
     setDropdownOpen(false);
     onAddFromOption(type);
   };
-
-  const DISABLED_TYPES: Array<'ISBN' | 'ArXiv ID'> = ['ISBN', 'ArXiv ID'];
 
   return (
     <div className={styles.toolbar}>
@@ -92,28 +89,6 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
                 <FaBarcode />
                 <span>Add from DOI</span>
               </div>
-              <div
-                className={`${styles.dropdownItem} ${DISABLED_TYPES.includes('ISBN') ? styles.dropdownItemDisabled : ''}`}
-                role="menuitem"
-                aria-disabled="true"
-                title="ISBN import — coming in Phase 4"
-                onClick={() => !DISABLED_TYPES.includes('ISBN') && handleActionClick('ISBN')}
-              >
-                <FaBook />
-                <span>Add from ISBN</span>
-                <span className={styles.comingSoonBadge}>Soon</span>
-              </div>
-              <div
-                className={`${styles.dropdownItem} ${DISABLED_TYPES.includes('ArXiv ID') ? styles.dropdownItemDisabled : ''}`}
-                role="menuitem"
-                aria-disabled="true"
-                title="ArXiv import — coming in Phase 4"
-                onClick={() => !DISABLED_TYPES.includes('ArXiv ID') && handleActionClick('ArXiv ID')}
-              >
-                <FaFileLines />
-                <span>Add from ArXiv ID</span>
-                <span className={styles.comingSoonBadge}>Soon</span>
-              </div>
             </div>
           )}
         </div>
@@ -123,3 +98,4 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
 };
 
 export default MainToolbar;
+

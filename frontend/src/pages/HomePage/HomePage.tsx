@@ -210,10 +210,9 @@ export function HomePage() {
     await handleDeleteDocument(selectedDoc, showToast);
   }, [selectedDoc, handleDeleteDocument, showToast]);
 
-  const handleAddFromOption = useCallback((type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => {
+  const handleAddFromOption = useCallback((type: 'DOI' | 'Upload PDF') => {
     if (type === 'Upload PDF') { fileInputRef.current?.click(); return; }
     if (type === 'DOI') { openDoiModal(); return; }
-    // ISBN / ArXiv — placeholder (disabled in UI, but guard here too)
   }, [openDoiModal]);
 
   const handleToggleSort = useCallback((key: SortKey) => {

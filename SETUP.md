@@ -1,64 +1,65 @@
-# Hướng Dẫn Cài Đặt và Khởi Chạy Dự Án (Setup & Installation Guide)
+# Setup & Installation Guide
 
-Tài liệu này hướng dẫn chi tiết cách cài đặt và chạy toàn bộ hệ thống **Scientific Document Manager** (bao gồm cả Backend Django REST Framework và Frontend React) khi bạn clone/pull mã nguồn từ GitHub về máy mới.
+This guide provides comprehensive instructions for installing, configuring, and running the **Scientific Document Manager** (Django REST Framework backend + React 19 frontend + Local RAG pipeline) on a new workstation.
 
 ---
 
-## 1. Yêu Cầu Phần Mềm Cần Cài Đặt Sẵn (Prerequisites)
+## 1. Prerequisites
 
-Trước khi tiến hành cài đặt dự án, máy tính của bạn cần được cài đặt các công cụ sau:
+Before installing the project, ensure your workstation has the following prerequisites:
 
-| Công cụ | Phiên bản khuyến nghị | Ghi chú & Liên kết tải |
+| Tool | Recommended Version | Download & Setup Notes |
 | :--- | :--- | :--- |
-| **Python** | `3.11.x` hoặc `3.12.x` | [Tải Python cho Windows](https://www.python.org/downloads/windows/)<br>⚠️ **Bắt buộc:** Tích chọn ô **"Add python.exe to PATH"** trong quá trình cài đặt. |
-| **Node.js** | `v18.x` hoặc `v20.x LTS` (kèm `npm`) | [Tải Node.js](https://nodejs.org/) để chạy và build Frontend React. |
-| **PostgreSQL** | `16.x` | [Tải PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) (đi kèm `pgAdmin 4`) hoặc chạy qua Docker. |
-| **Git** | Bản mới nhất | [Tải Git](https://git-scm.com/downloads) để clone và quản lý mã nguồn. |
-| **Bruno** hoặc **Postman** *(Tùy chọn)* | Mới nhất | [Tải Bruno](https://www.usebruno.com/downloads) để chạy test bộ sưu tập API có sẵn tại `backend/bruno_collection`. |
-| **Docker Desktop** *(Tùy chọn)* | Mới nhất | [Tải Docker Desktop](https://www.docker.com/products/docker-desktop/) (khuyến nghị nếu muốn chạy PostgreSQL hoặc Qdrant Vector DB trong container). |
+| **Python** | `3.11.x` or `3.12.x` | [Download Python for Windows](https://www.python.org/downloads/windows/)<br>⚠️ **Mandatory:** Check the box **"Add python.exe to PATH"** during installation. |
+| **Node.js** | `v18.x` or `v20.x LTS` (with `npm`) | [Download Node.js](https://nodejs.org/) to run and build the React frontend. |
+| **PostgreSQL** | `16.x` | [Download PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) (includes `pgAdmin 4`) or run via Docker. |
+| **Git** | Latest | [Download Git](https://git-scm.com/downloads) for version control. |
+| **Ollama** | Latest | [Download Ollama](https://ollama.com/) to serve local LLMs (`llama3.2:3b`) on `http://localhost:11434`. |
+| **Bruno** / **Postman** *(Optional)* | Latest | [Download Bruno](https://www.usebruno.com/downloads) to run the prebuilt API collection at `backend/bruno_collection`. |
 
 ---
 
-## 2. Hướng Dẫn Cài Đặt Backend (Django REST Framework)
+## 2. Backend Setup (Django 5 REST Framework)
 
-### Bước 2.1: Tạo Cơ sở dữ liệu PostgreSQL
-Mở `pgAdmin 4` hoặc terminal `psql`, tạo một cơ sở dữ liệu mới cho dự án:
+### Step 2.1: Create PostgreSQL Database
+Open `pgAdmin 4` or your terminal `psql` shell and create a database:
 ```sql
 CREATE DATABASE scientific_library_db;
 ```
 
-### Bước 2.2: Khởi tạo Virtual Environment và Cài đặt Thư viện
-Mở terminal (PowerShell hoặc CMD) tại thư mục gốc của dự án:
+### Step 2.2: Initialize Virtual Environment & Install Dependencies
+Open a terminal in the root repository directory:
 ```bash
-# 1. Di chuyển vào thư mục backend
+# 1. Navigate to backend directory
 cd backend
 
-# 2. Tạo môi trường ảo Python
+# 2. Create Python virtual environment
 python -m venv venv
 
-# 3. Kích hoạt môi trường ảo:
-# Trên Windows (PowerShell):
+# 3. Activate virtual environment:
+# On Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
-# (Nếu gặp lỗi Execution Policy trên PowerShell, chạy: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass)
-# Hoặc trên Windows (CMD):
+# (If script execution is disabled, run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass)
+# On Windows (CMD):
 .\venv\Scripts\activate.bat
-# Trên macOS / Linux:
+# On macOS / Linux:
 source venv/bin/activate
 
-# 4. Cài đặt các phụ thuộc từ requirements.txt
+# 4. Install backend dependencies (including PyMuPDF, LangChain, Qdrant)
 pip install -r requirements.txt
 ```
 
-### Bước 2.3: Thiết lập biến môi trường `.env`
-Do file `.env` chứa thông tin nhạy cảm và được chặn bởi `.gitignore`, bạn cần tạo file `.env` từ file mẫu `.env.example`:
+### Step 2.3: Configure Environment Variables (`.env`)
+Create your `.env` file from `.env.example`:
 ```bash
-# Trên Windows (PowerShell):
+# On Windows (PowerShell):
 Copy-Item .env.example .env
 
-# Trên macOS / Linux:
+# On macOS / Linux:
 cp .env.example .env
 ```
-Mở file `backend/.env` và cập nhật các thông số cho phù hợp với máy của bạn (đặc biệt là mật khẩu `DB_PASSWORD` của PostgreSQL):
+
+Open `backend/.env` and configure your credentials (especially PostgreSQL `DB_PASSWORD`):
 ```env
 # Django Configuration
 SECRET_KEY=django-insecure-scientific-doc-manager-secret-key-2026-prod-ready
@@ -68,91 +69,116 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 # Database Configuration (PostgreSQL 16)
 DB_NAME=scientific_library_db
 DB_USER=postgres
-DB_PASSWORD=mật_khẩu_postgres_của_bạn
+DB_PASSWORD=your_actual_postgres_password
 DB_HOST=localhost
 DB_PORT=5432
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 
-# RAG Service Webhook URL
-RAG_WEBHOOK_URL=http://localhost:8001/webhook/rag/ingest
+# Local LLM & RAG Configuration
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2:3b
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+QDRANT_STORAGE_PATH=media/qdrant_db
 ```
 
-### Bước 2.4: Thực thi Migrations & Tạo Superuser
+### Step 2.4: Execute Migrations & Create Superuser
 ```bash
-# Áp dụng các migration tạo 15 bảng cơ sở dữ liệu
+# Apply database migrations (creates 15 relational tables)
 python manage.py migrate
 
-# (Tùy chọn) Tạo tài khoản quản trị Admin
+# (Optional) Create superuser for Django Admin
 python manage.py createsuperuser
 ```
 
-### Bước 2.5: Kiểm tra và Khởi chạy Backend Server
+### Step 2.5: Verify & Run Backend Server
 ```bash
-# Chạy bộ kiểm thử tự động (6 tests)
-python manage.py test apps.documents.tests
+# Run automated test suites (19 tests)
+python manage.py test apps.documents.tests apps.users.tests
 
-# Khởi động máy chủ backend
+# Start Django development server
 python manage.py runserver
 ```
-Backend API sẽ hoạt động tại: **`http://127.0.0.1:8000/`**  
-Trang quản trị Django Admin: **`http://127.0.0.1:8000/admin/`**
+Backend API will be accessible at: **`http://127.0.0.1:8000/`**  
+Django Admin dashboard: **`http://127.0.0.1:8000/admin/`**
 
 ---
 
-## 3. Hướng Dẫn Cài Đặt Frontend (React + TypeScript + Vite)
+## 3. Local AI Setup (Ollama & Model Download)
 
-Mở một cửa sổ terminal **mới**:
+Ensure Ollama is running in the background:
+```bash
+# Pull the required lightweight model (Llama 3.2 3B)
+ollama pull llama3.2:3b
+
+# Verify Ollama server responds
+curl http://localhost:11434/v1/models
+```
+
+---
+
+## 4. Frontend Setup (React 19 + TypeScript + Vite)
+
+Open a **new** terminal window:
 
 ```bash
-# 1. Di chuyển vào thư mục frontend
+# 1. Navigate to frontend directory
 cd frontend
 
-# 2. Cài đặt các gói phụ thuộc (node_modules)
+# 2. Install dependencies
 npm install
 
-# 3. Khởi chạy máy chủ phát triển (Dev Server)
+# 3. Verify TypeScript build
+npm run build
+
+# 4. Start Vite development server
 npm run dev
 ```
 
-Giao diện Web sẽ hoạt động tại: **`http://localhost:5173/`**
+The Web UI will be live at: **`http://localhost:5173/`**
 
 ---
 
-## 4. Cấu Hình Trình Soạn Thảo / IDE (VS Code & Antigravity IDE)
+## 5. Running the Complete System (One Command)
 
-Để đảm bảo Language Server và Linter phân giải đường dẫn chính xác (không bị báo lỗi giả *`Cannot find module apps...`*):
-
-1. **Luôn mở thư mục gốc của repository (`DACNTT`)** trong IDE thay vì mở riêng lẻ thư mục con.
-2. Dự án đã được thiết lập sẵn các file cấu hình sau trong mã nguồn:
-   - [`.vscode/settings.json`](file:///c:/DACNTT/.vscode/settings.json): Khai báo `backend` là `extraPaths` và tự động chọn Python Virtual Environment tại `backend/venv`.
-   - [`pyrightconfig.json`](file:///c:/DACNTT/pyrightconfig.json): Khai báo `backend` cho Pyright / Pylance.
-3. Trong VS Code, bạn chỉ cần nhấn `Ctrl + Shift + P` -> chọn **"Python: Select Interpreter"** -> chọn Python trong `backend/venv/Scripts/python.exe`.
+From the project root:
+```bash
+npm start
+```
+This runs both Django backend and React Vite dev server concurrently via `scripts/start-all.mjs`.
 
 ---
 
-## 5. Xử Lý Các Sự Cố Thường Gặp (Troubleshooting)
+## 6. IDE Configuration (VS Code & Antigravity IDE)
 
-### 1. Lỗi `ModuleNotFoundError: No module named 'psycopg2'`
-- **Nguyên nhân:** Chưa cài đặt thư viện kết nối PostgreSQL hoặc chưa kích hoạt môi trường ảo.
-- **Khắc phục:** Đảm bảo đã chạy `.\venv\Scripts\activate` và chạy lệnh:
-  ```bash
-  pip install psycopg2-binary
-  ```
+To ensure language servers, linters, and imports resolve cleanly:
 
-### 2. Lỗi `django.db.utils.OperationalError: connection to server at "localhost", port 5432 failed`
-- **Nguyên nhân:** Dịch vụ PostgreSQL chưa được bật hoặc thông tin đăng nhập trong file `backend/.env` không chính xác.
-- **Khắc phục:** 
-  - Mở `Services` (trên Windows) tìm `postgresql-x64-16` và chọn **Start**.
-  - Kiểm tra lại `DB_USER` và `DB_PASSWORD` trong file `backend/.env`.
+1. **Always open the root directory (`DACNTT`)** in your editor.
+2. The repository includes:
+   - [`.vscode/settings.json`](file:///c:/DACNTT/.vscode/settings.json): Designates `backend` as an `extraPath` and automatically binds `backend/venv`.
+   - [`pyrightconfig.json`](file:///c:/DACNTT/pyrightconfig.json): Configures root and backend search paths for Pyright/Pylance.
+3. In VS Code, press `Ctrl + Shift + P` -> **"Python: Select Interpreter"** -> choose `backend/venv/Scripts/python.exe`.
 
-### 3. Lỗi PowerShell không cho kích hoạt venv (`running scripts is disabled on this system`)
-- **Khắc phục:** Mở PowerShell với quyền Administrator hoặc chạy lệnh sau trong phiên làm việc hiện tại:
+---
+
+## 7. Troubleshooting
+
+### 1. `ModuleNotFoundError: No module named 'psycopg2'`
+- **Cause:** PostgreSQL driver not installed or virtual environment not activated.
+- **Resolution:** Activate `backend/venv` and run `pip install psycopg2-binary`.
+
+### 2. `django.db.utils.OperationalError: connection to server at "localhost", port 5432 failed`
+- **Cause:** PostgreSQL service not running or invalid credentials in `.env`.
+- **Resolution:** Start the PostgreSQL service in Windows Services (`postgresql-x64-16`) and check `DB_PASSWORD` in `backend/.env`.
+
+### 3. PowerShell execution policy error (`running scripts is disabled`)
+- **Resolution:** Run PowerShell as Administrator or execute in the current session:
   ```powershell
   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
   .\venv\Scripts\Activate.ps1
   ```
 
-### 4. Lỗi import `Cannot find module apps.documents.models` trong editor
-- **Khắc phục:** Đảm bảo thư mục mở trong IDE là thư mục gốc của repo (`DACNTT`) để file `.vscode/settings.json` và `pyrightconfig.json` có hiệu lực.
+### 4. Ollama connection refused (`Failed to connect to localhost:11434`)
+- **Resolution:** Launch the Ollama desktop app or run `ollama serve` in a terminal.

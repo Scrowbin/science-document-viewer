@@ -130,21 +130,3 @@
   background-color: var(--bg-hover);
   color: var(--text-primary);
 }
-
-.dropdownItemDisabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.comingSoonBadge {
-  margin-left: auto;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background-color: var(--bg-hover);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
