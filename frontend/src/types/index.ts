@@ -139,3 +139,44 @@ export interface SidebarNavItem {
 
 export * from './auth';
 
+/**
+ * RAG Source Citation mapping retrieved chunk to page number.
+ */
+export interface ChatSource {
+  page: number;
+  chunk_id?: string;
+  snippet?: string;
+  score?: number;
+}
+
+/**
+ * Chat Message in the AI Research Assistant.
+ */
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  sources?: ChatSource[];
+  timestamp: string;
+  isStreaming?: boolean;
+  isError?: boolean;
+}
+
+/**
+ * Backend Q&A Response shape.
+ */
+export interface ChatResponse {
+  answer: string;
+  sources: ChatSource[];
+  model?: string;
+}
+
+/**
+ * Backend 1-Click Summary Response shape.
+ */
+export interface SummaryResponse {
+  summary: string;
+  sources: ChatSource[];
+  model?: string;
+}
+

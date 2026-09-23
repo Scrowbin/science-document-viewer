@@ -6,6 +6,7 @@ from rest_framework import status
 from .models import Document, Annotation, Note, DocumentShare, Author, Tag, DocumentAuthor
 from ..collections_app.models import Collection
 from .services.crossref_service import clean_doi, fetch_metadata_from_doi
+from .services.pdf_metadata_service import extract_metadata_from_pdf, fetch_arxiv_metadata, apply_pdf_metadata_to_document
 
 User = get_user_model()
 
@@ -14,6 +15,9 @@ class CrossrefServiceTestCase(TestCase):
         self.assertEqual(clean_doi("https://doi.org/10.1016/j.cell.2024.01"), "10.1016/j.cell.2024.01")
         self.assertEqual(clean_doi("http://dx.doi.org/10.1038/nature123"), "10.1038/nature123")
         self.assertEqual(clean_doi(" 10.1000/182 "), "10.1000/182")
+        self.assertEqual(clean_doi("s41586-020-2649-2"), "10.1038/s41586-020-2649-2")
+        self.assertEqual(clean_doi("doi: 10.1038/s41586-020-2649-2"), "10.1038/s41586-020-2649-2")
+        self.assertEqual(clean_doi("https://www.nature.com/articles/s41586-020-2649-2"), "10.1038/s41586-020-2649-2")
 
     def test_fetch_metadata_live_or_fallback(self):
         # Test with a well-known canonical DOI: 10.1038/s41586-020-2649-2 (AlphaFold 1 paper)
@@ -237,3 +241,60 @@ class DocumentApiTestCase(TestCase):
         self.assertEqual(len(resp.data), 5)
         self.assertIn('authors', resp.data[0])
         self.assertIn('tags', resp.data[0])
+
+    def test_metadata_lookup_doi_endpoint(self):
+        """Test POST /api/v1/metadata/lookup-doi/ endpoint validation and response."""
+        # Empty DOI string returns 400
+        resp_empty = self.client.post('/api/v1/metadata/lookup-doi/', {})
+        self.assertEqual(resp_empty.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Invalid/nonexistent DOI returns 404
+        resp_invalid = self.client.post('/api/v1/metadata/lookup-doi/', {'doi': 'not-a-real-doi-12345'})
+        self.assertEqual(resp_invalid.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class PdfMetadataExtractorTestCase(TestCase):
+    def test_arxiv_metadata_fetch(self):
+        """Verify official arXiv API resolves real paper metadata."""
+        meta = fetch_arxiv_metadata('1706.03762')
+        if meta:
+            self.assertEqual(meta['title'], 'Attention Is All You Need')
+            self.assertIn('Ashish Vaswani', meta['authors'])
+            self.assertEqual(meta['repository'], 'arXiv')
+            self.assertTrue(meta['date'].startswith('2017'))
+
+    def test_apply_metadata_to_document(self):
+        """Verify apply_pdf_metadata_to_document updates Document fields in PostgreSQL."""
+        user = User.objects.create_user(username='test_extractor', password='password123')
+        doc = Document.objects.create(owner=user, title='1706.03762v7')
+
+        # Mock metadata
+        mock_meta = {
+            'title': 'Attention Is All You Need',
+            'authors': ['Ashish Vaswani', 'Noam Shazeer'],
+            'date': '2017-06-12',
+            'doi': '10.48550/arXiv.1706.03762',
+            'url': 'https://arxiv.org/abs/1706.03762',
+            'repository': 'arXiv',
+            'extra': 'The dominant sequence transduction models are based on complex recurrent or convolutional neural networks...',
+            'tags': ['cs.CL', 'cs.LG'],
+            'domains': ['Computer Science'],
+        }
+
+        from unittest.mock import patch
+        with patch('apps.documents.services.pdf_metadata_service.extract_metadata_from_pdf', return_value=mock_meta):
+            from django.core.files.uploadedfile import SimpleUploadedFile
+            doc.file = SimpleUploadedFile("1706.03762v7.pdf", b"%PDF-1.5 test", content_type="application/pdf")
+            doc.save()
+
+            applied = apply_pdf_metadata_to_document(doc)
+            self.assertTrue(applied)
+
+            doc.refresh_from_db()
+            self.assertEqual(doc.title, 'Attention Is All You Need')
+            self.assertEqual(doc.doi, '10.48550/arXiv.1706.03762')
+            self.assertEqual(doc.repository, 'arXiv')
+            self.assertEqual(doc.authors.count(), 2)
+            self.assertEqual(doc.tags.count(), 2)
+            self.assertEqual(doc.domains.count(), 1)
+

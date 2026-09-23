@@ -59,15 +59,18 @@
 
 .trSelected {
   background-color: var(--table-row-selected) !important;
+  box-shadow: inset 3px 0 0 var(--accent-blue);
 }
 
 .td {
-  padding: 9px 14px;
+  padding: 8px 14px;
+  height: 38px;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 320px;
+  vertical-align: middle;
 }
 
 .titleCell {
@@ -125,6 +128,85 @@
 .tr:hover .openPdfActionBtn,
 .trSelected .openPdfActionBtn,
 .tr:hover .restoreActionBtn,
+.trSelected .restoreActionBtn {
+  opacity: 1;
+}
+
+.openPdfActionBtn:hover {
+  background-color: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+}
+
+.metadataOnlyBadge {
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #d97706;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ragIndexedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #059669;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ragIndexingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #2563eb;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.statusDotGreen {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #10b981;
+}
+
+.statusDotYellow {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.restoreActionBtn:hover {
+  background-color: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}
+
 .emptyState {
   padding: 40px 16px;
   text-align: center;
@@ -209,7 +291,7 @@
 }
 
 .draggableRow {
-  cursor: grab;
+  cursor: pointer;
 }
 
 .draggableRow:active {

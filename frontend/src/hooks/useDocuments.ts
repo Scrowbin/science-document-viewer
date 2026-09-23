@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Document } from '../types';
 import { documentsApi } from '../api/documentsApi';
 import { MOCK_DOCUMENTS } from '../data/mockData';
+import { createEmptyMetadata } from '../utils/documentDefaults';
 
 type ToastFn = (msg: string, type?: 'success' | 'error') => void;
 
@@ -261,19 +262,20 @@ export function useDocuments(): UseDocumentsReturn {
       onOpenPdf(docWithRead);
     } catch (err) {
       console.warn('Backend file upload failed, creating local document:', err);
+      const cleanTitle = file.name.replace(/\.pdf$/i, '');
       const fileUrl = URL.createObjectURL(file);
       const localDoc: Document = {
         id: `doc-${Date.now()}`,
-        title: file.name.replace(/\.pdf$/i, ''),
+        title: cleanTitle,
         creator: 'Uploaded Document',
         lastRead: 'Just now',
         file: fileUrl,
-        metadata: {
-          ...MOCK_DOCUMENTS[0].metadata,
-          title: file.name.replace(/\.pdf$/i, ''),
-          doi: '',
-          url: '',
-        },
+        metadata: createEmptyMetadata(cleanTitle, {
+          itemType: 'journalArticle',
+          repository: 'Local Upload',
+          date: new Date().getFullYear().toString(),
+          authors: ['Uploaded Document'],
+        }),
       };
       setDocuments((prev) => [localDoc, ...prev]);
       setSelectedDocId(localDoc.id);

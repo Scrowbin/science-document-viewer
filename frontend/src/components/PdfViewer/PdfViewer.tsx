@@ -26,7 +26,9 @@ import {
   FaFolderOpen,
   FaArrowPointer,
   FaEraser,
+  FaRobot,
 } from 'react-icons/fa6';
+import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
 
 // Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -46,8 +48,8 @@ const MIN_ZOOM = 50;
 const MAX_ZOOM = 250;
 const ZOOM_STEP = 15;
 const SIDEBAR_MIN_WIDTH = 220;
-const SIDEBAR_MAX_WIDTH = 520;
-const SIDEBAR_DEFAULT_WIDTH = 310;
+const SIDEBAR_MAX_WIDTH = 640;
+const SIDEBAR_DEFAULT_WIDTH = 320;
 
 interface ContextMenuState {
   visible: boolean;
@@ -74,6 +76,18 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
   const [selectedColor, setSelectedColor] = useState<string>('#ffeb3b');
   const [isLoadingPdf, setIsLoadingPdf] = useState<boolean>(true);
   const [pdfDocProxy, setPdfDocProxy] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+  const [activeSidebarTab, setActiveSidebarTab] = useState<'annotations' | 'ai'>('annotations');
+
+  const currentPageRef = useRef(currentPage);
+  const numPagesRef = useRef(numPages);
+
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
+  useEffect(() => {
+    numPagesRef.current = numPages;
+  }, [numPages]);
 
   // Annotations
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
@@ -108,9 +122,46 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
   });
 
   // Annotations sidebar: collapsible + resizable
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
-  const [sidebarWidth, setSidebarWidth] = useState<number>(SIDEBAR_DEFAULT_WIDTH);
+  const viewerWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [wrapperWidth, setWrapperWidth] = useState<number>(() => (typeof window !== 'undefined' ? window.innerWidth : 1200));
+  const [customSidebarWidth, setCustomSidebarWidth] = useState<number | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => (typeof window !== 'undefined' ? window.innerWidth < 850 : false));
   const [isDraggingSidebar, setIsDraggingSidebar] = useState<boolean>(false);
+
+  // ─── Responsive Sidebar Auto-Shrink via ResizeObserver on Container ────────
+  useEffect(() => {
+    const el = viewerWrapperRef.current;
+    if (!el) return;
+
+    let prevW = el.clientWidth || window.innerWidth;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        if (w > 0) {
+          setWrapperWidth(w);
+          if (w < 580 && prevW >= 580) {
+            setSidebarCollapsed(true);
+          } else if (w >= 580 && prevW < 580) {
+            setSidebarCollapsed(false);
+          }
+          prevW = w;
+        }
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Compute effective width: automatically shrinks as horizontal width narrows
+  const effectiveSidebarWidth = (() => {
+    if (customSidebarWidth !== null) {
+      return Math.min(customSidebarWidth, Math.max(SIDEBAR_MIN_WIDTH, Math.floor(wrapperWidth * 0.45)));
+    }
+    if (wrapperWidth >= 1100) return SIDEBAR_DEFAULT_WIDTH;
+    if (wrapperWidth >= 850) return 275;
+    return 235;
+  })();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const textLayerRef = useRef<HTMLDivElement | null>(null);
@@ -259,22 +310,92 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     return () => window.removeEventListener('click', handleWindowClick);
   }, []);
 
-  // ─── Ctrl+Scroll Zoom ─────────────────────────────────────────────────────
+  // ─── Vertical Wheel Scroll between Pages & Ctrl+Scroll Zoom ─────────────────
   useEffect(() => {
     const scrollArea = scrollAreaRef.current;
     if (!scrollArea) return;
 
+    let isFlipping = false;
+    let flipCooldownTimer: number | null = null;
+
     const handleWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      e.preventDefault();
-      setZoomLevel((z) => {
-        const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-        return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z + delta));
-      });
+      // 1. Ctrl / Cmd + Scroll => Zoom
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        setZoomLevel((z) => {
+          const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+          return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z + delta));
+        });
+        return;
+      }
+
+      // 2. Normal Vertical Scroll between Pages
+      if (isFlipping) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+      // Allow buffer for bottom/top boundary detection
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 10;
+      const atTop = scrollTop <= 10;
+
+      // Scrolling Down past bottom of current page
+      if (e.deltaY > 15 && atBottom && currentPageRef.current < numPagesRef.current) {
+        isFlipping = true;
+        setCurrentPage((p) => Math.min(numPagesRef.current, p + 1));
+        scrollArea.scrollTop = 0;
+        flipCooldownTimer = window.setTimeout(() => {
+          isFlipping = false;
+        }, 280);
+      }
+      // Scrolling Up past top of current page
+      else if (e.deltaY < -15 && atTop && currentPageRef.current > 1) {
+        isFlipping = true;
+        setCurrentPage((p) => Math.max(1, p - 1));
+        flipCooldownTimer = window.setTimeout(() => {
+          if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          }
+          isFlipping = false;
+        }, 280);
+      }
     };
 
     scrollArea.addEventListener('wheel', handleWheel, { passive: false });
-    return () => scrollArea.removeEventListener('wheel', handleWheel);
+    return () => {
+      scrollArea.removeEventListener('wheel', handleWheel);
+      if (flipCooldownTimer) window.clearTimeout(flipCooldownTimer);
+    };
+  }, []);
+
+  // ─── Keyboard Navigation: PageDown / PageUp / Space ────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+      const scrollArea = scrollAreaRef.current;
+      if (!scrollArea) return;
+
+      if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+        const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 12;
+        if (atBottom && currentPageRef.current < numPagesRef.current) {
+          e.preventDefault();
+          setCurrentPage((p) => Math.min(numPagesRef.current, p + 1));
+          scrollArea.scrollTop = 0;
+        }
+      } else if (e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+        const atTop = scrollArea.scrollTop <= 12;
+        if (atTop && currentPageRef.current > 1) {
+          e.preventDefault();
+          setCurrentPage((p) => Math.max(1, p - 1));
+          setTimeout(() => {
+            if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          }, 60);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // ─── Delete Annotation Helper ─────────────────────────────────────────────
@@ -412,11 +533,11 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     e.preventDefault();
     setIsDraggingSidebar(true);
     const startX = e.clientX;
-    const startWidth = sidebarWidth;
+    const startWidth = effectiveSidebarWidth;
 
     const onMouseMove = (me: MouseEvent) => {
       const delta = startX - me.clientX;
-      setSidebarWidth(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, startWidth + delta)));
+      setCustomSidebarWidth(Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, startWidth + delta)));
     };
     const onMouseUp = () => {
       setIsDraggingSidebar(false);
@@ -430,7 +551,11 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     document.body.style.userSelect = 'none';
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  }, [sidebarWidth]);
+  }, [effectiveSidebarWidth]);
+
+  const handleSidebarResizeDoubleClick = useCallback(() => {
+    setCustomSidebarWidth(null);
+  }, []);
 
   // ─── Create Highlight Helper ──────────────────────────────────────────────
   const createHighlightFromRects = useCallback((rects: Rect[], text: string, color: string) => {
@@ -486,7 +611,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     if (!container) return;
 
     const containerRect = container.getBoundingClientRect();
-    const rects: Rect[] = Array.from(clientRects)
+    const rawRects: Rect[] = Array.from(clientRects)
       .map((r) => ({
         x1: Math.round(r.left - containerRect.left),
         y1: Math.round(r.top - containerRect.top),
@@ -494,6 +619,35 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
         y2: Math.round(r.bottom - containerRect.top),
       }))
       .filter((r) => r.x2 > r.x1 && r.y2 > r.y1);
+
+    if (rawRects.length === 0) return;
+
+    // 2-Column Academic Paper Gutter Clamping:
+    // If a bounding box spans across the center divide (> 55% page width bridging the gutter),
+    // split it cleanly into left-column and right-column boxes to prevent giant full-width highlight blocks.
+    const pageMid = containerRect.width / 2;
+    const gutterMargin = Math.min(24, containerRect.width * 0.03);
+    const rects: Rect[] = [];
+
+    for (const r of rawRects) {
+      const rectWidth = r.x2 - r.x1;
+      if (r.x1 < pageMid - gutterMargin && r.x2 > pageMid + gutterMargin && rectWidth > containerRect.width * 0.5) {
+        rects.push({
+          x1: r.x1,
+          y1: r.y1,
+          x2: Math.round(pageMid - gutterMargin),
+          y2: r.y2,
+        });
+        rects.push({
+          x1: Math.round(pageMid + gutterMargin),
+          y1: r.y1,
+          x2: r.x2,
+          y2: r.y2,
+        });
+      } else {
+        rects.push(r);
+      }
+    }
 
     if (rects.length === 0) return;
 
@@ -703,6 +857,16 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // ─── Jump to Specific Page (from AI Citations) ───────────────────────────
+  const jumpToPage = useCallback((pageNum: number) => {
+    if (pageNum >= 1 && pageNum <= numPages) {
+      setCurrentPage(pageNum);
+      if (scrollAreaRef.current) {
+        scrollAreaRef.current.scrollTop = 0;
+      }
+    }
+  }, [numPages]);
+
   // ─── Jump to Annotation ───────────────────────────────────────────────────
   const jumpToAnnotation = (anno: Annotation) => {
     setCurrentPage(anno.page_number);
@@ -714,7 +878,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className={styles.pdfViewerWrapper}>
+    <div className={styles.pdfViewerWrapper} ref={viewerWrapperRef}>
       {/* Hidden File Input for Open Local PDF */}
       <input
         ref={fileInputRef}
@@ -854,6 +1018,23 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
             <span>Open PDF</span>
           </button>
         </div>
+
+        {/* AI Research Assistant Toggle Button */}
+        <div className={styles.pdfToolbarGroup}>
+          <button
+            type="button"
+            className={activeSidebarTab === 'ai' && !sidebarCollapsed ? styles.pdfToolBtnAiActive : styles.pdfToolBtnAi}
+            onClick={() => {
+              setActiveSidebarTab('ai');
+              setSidebarCollapsed(false);
+            }}
+            title="Open AI Research Assistant (Grounded Q&A, 1-Click Summary, Page Citations)"
+          >
+            <FaRobot />
+            <span>AI Assistant</span>
+            <span className={styles.aiSparkleBadge}>RAG</span>
+          </button>
+        </div>
       </div>
 
       {/* PDF Body: Canvas + Sidebar */}
@@ -864,6 +1045,23 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
         >
           {isLoadingPdf && (
             <div className={styles.loadingIndicator}>Loading PDF Document...</div>
+          )}
+
+          {!effectiveFile && (
+            <div className={styles.metadataPreviewNotice}>
+              <span className={styles.noticeBadge}>Preview Mode</span>
+              <span className={styles.noticeText}>
+                Bibliographic metadata preview. Attach original research PDF to read full text and enable vector indexing.
+              </span>
+              <button
+                type="button"
+                className={styles.attachPdfBtn}
+                onClick={() => fileInputRef.current?.click()}
+                title="Upload original PDF for this paper"
+              >
+                <FaFolderOpen /> Attach PDF
+              </button>
+            </div>
           )}
 
           <div
@@ -1063,16 +1261,38 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
             <div
               className={`${styles.sidebarResizeHandle} ${isDraggingSidebar ? styles.sidebarResizeHandleActive : ''}`}
               onMouseDown={handleSidebarResizeMouseDown}
-              title="Drag to resize annotations panel"
+              onDoubleClick={handleSidebarResizeDoubleClick}
+              title="Drag to resize annotations panel, double-click to reset auto-width"
             />
             <div
               className={styles.pdfNotesSidebar}
-              style={{ width: sidebarWidth, transition: isDraggingSidebar ? 'none' : undefined }}
+              style={{
+                width: effectiveSidebarWidth,
+                transition: isDraggingSidebar ? 'none' : 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
             >
               <div className={styles.pdfNotesHeader}>
-                <span className={styles.pdfNotesTitle}>Annotations &amp; Notes</span>
+                <div className={styles.sidebarTabGroup}>
+                  <button
+                    type="button"
+                    className={`${styles.sidebarTabBtn} ${activeSidebarTab === 'annotations' ? styles.sidebarTabBtnActive : ''}`}
+                    onClick={() => setActiveSidebarTab('annotations')}
+                  >
+                    <FaNoteSticky style={{ fontSize: 10 }} />
+                    <span>Notes ({annotations.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.sidebarTabBtn} ${activeSidebarTab === 'ai' ? styles.sidebarTabBtnActive : ''}`}
+                    onClick={() => setActiveSidebarTab('ai')}
+                  >
+                    <FaRobot style={{ fontSize: 10 }} />
+                    <span>AI Assistant</span>
+                  </button>
+                </div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {annotations.some((a) => a.type === 'highlight') && (
+                  {activeSidebarTab === 'annotations' && annotations.some((a) => a.type === 'highlight') && (
                     <button
                       type="button"
                       className={styles.clearHighlightsBtn}
@@ -1083,62 +1303,74 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
                       <span>Clear Highlights</span>
                     </button>
                   )}
-                  <span className={styles.pdfNotesCount}>{annotations.length}</span>
                   <button
                     type="button"
                     className={styles.sidebarCollapseBtn}
                     onClick={() => setSidebarCollapsed(true)}
-                    title="Collapse annotations panel"
+                    title="Collapse panel"
                   >
                     <FaAnglesRight />
                   </button>
                 </div>
               </div>
 
-              {annotations.length === 0 ? (
-                <div className={styles.emptyAnnotations}>
-                  No annotations yet.<br />
-                  Drag across text to <strong>Highlight</strong>, or click <strong>Note</strong> to place a note!
+              {/* Tab 1: AI Assistant */}
+              {activeSidebarTab === 'ai' ? (
+                <div className={styles.aiSidebarBody}>
+                  <AiChatPanel
+                    key={doc.id}
+                    document={doc}
+                    onJumpToPage={jumpToPage}
+                    onClose={() => setSidebarCollapsed(true)}
+                  />
                 </div>
               ) : (
-                annotations.map((anno) => {
-                  const isSelected = activeAnnotationId === anno.id;
-                  return (
-                    <div
-                      key={anno.id}
-                      className={`${styles.pdfNoteCard} ${isSelected ? styles.pdfNoteCardActive : ''}`}
-                      onClick={() => jumpToAnnotation(anno)}
-                    >
-                      <div className={styles.pdfNoteCardHeader}>
-                        <span className={`${styles.pdfNoteTypeBadge} ${anno.type === 'highlight' ? styles.badgeHighlight : styles.badgeNote}`}>
-                          {anno.type === 'highlight' ? <FaHighlighter /> : <FaNoteSticky />}
-                          <span>{anno.type === 'highlight' ? 'Highlight' : 'Note'} &bull; P.{anno.page_number}</span>
-                        </span>
-                        <div className={styles.pdfNoteActions}>
-                          <button
-                            type="button"
-                            className={styles.deleteBtn}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteAnnotationById(anno.id!);
-                            }}
-                            title="Delete Annotation"
-                          >
-                            <FaTrash />
-                          </button>
+                /* Tab 2: Annotations & Notes */
+                annotations.length === 0 ? (
+                  <div className={styles.emptyAnnotations}>
+                    No annotations yet.<br />
+                    Drag across text to <strong>Highlight</strong>, or click <strong>Note</strong> to place a note!
+                  </div>
+                ) : (
+                  annotations.map((anno) => {
+                    const isSelected = activeAnnotationId === anno.id;
+                    return (
+                      <div
+                        key={anno.id}
+                        className={`${styles.pdfNoteCard} ${isSelected ? styles.pdfNoteCardActive : ''}`}
+                        onClick={() => jumpToAnnotation(anno)}
+                      >
+                        <div className={styles.pdfNoteCardHeader}>
+                          <span className={`${styles.pdfNoteTypeBadge} ${anno.type === 'highlight' ? styles.badgeHighlight : styles.badgeNote}`}>
+                            {anno.type === 'highlight' ? <FaHighlighter /> : <FaNoteSticky />}
+                            <span>{anno.type === 'highlight' ? 'Highlight' : 'Note'} &bull; P.{anno.page_number}</span>
+                          </span>
+                          <div className={styles.pdfNoteActions}>
+                            <button
+                              type="button"
+                              className={styles.deleteBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteAnnotationById(anno.id!);
+                              }}
+                              title="Delete Annotation"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
                         </div>
+                        {anno.selected_text && (
+                          <div className={styles.pdfNoteQuote}>
+                            &ldquo;{anno.selected_text.length > 120
+                              ? `${anno.selected_text.slice(0, 120)}...`
+                              : anno.selected_text}&rdquo;
+                          </div>
+                        )}
+                        {anno.comment && <div className={styles.pdfNoteText}>{anno.comment}</div>}
                       </div>
-                      {anno.selected_text && (
-                        <div className={styles.pdfNoteQuote}>
-                          &ldquo;{anno.selected_text.length > 120
-                            ? `${anno.selected_text.slice(0, 120)}...`
-                            : anno.selected_text}&rdquo;
-                        </div>
-                      )}
-                      {anno.comment && <div className={styles.pdfNoteText}>{anno.comment}</div>}
-                    </div>
-                  );
-                })
+                    );
+                  })
+                )
               )}
             </div>
           </>

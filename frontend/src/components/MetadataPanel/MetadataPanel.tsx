@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './MetadataPanel.module.css';
 import type { Document, DocumentMetadata, Collection } from '../../types';
 import { METADATA_FIELDS_CONFIG } from '../../constants/metadataConfig';
@@ -64,20 +64,39 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   const [newDomainText, setNewDomainText] = useState('');
   const [newGroupText, setNewGroupText] = useState('');
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
-  const [panelWidth, setPanelWidth] = useState(320);
+  const [customPanelWidth, setCustomPanelWidth] = useState<number | null>(null);
   const [isDraggingWidth, setIsDraggingWidth] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200));
   const { tooltipProps, showTooltip, hideTooltip } = useTagTooltip();
+
+  // Responsive resize listener for automatic sidebar shrinking
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Compute effective width: automatically shrink as horizontal width narrows
+  const effectivePanelWidth = (() => {
+    if (customPanelWidth !== null) {
+      return Math.min(customPanelWidth, Math.max(220, Math.floor(windowWidth * 0.35)));
+    }
+    if (windowWidth >= 1400) return 320;
+    if (windowWidth >= 1200) return 280;
+    if (windowWidth >= 1000) return 245;
+    return 230;
+  })();
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDraggingWidth(true);
     const startX = e.clientX;
-    const startWidth = panelWidth;
+    const startWidth = effectivePanelWidth;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const deltaX = startX - moveEvent.clientX;
-      const newWidth = Math.min(600, Math.max(260, startWidth + deltaX));
-      setPanelWidth(newWidth);
+      const newWidth = Math.min(600, Math.max(220, startWidth + deltaX));
+      setCustomPanelWidth(newWidth);
     };
 
     const onMouseUp = () => {
@@ -95,7 +114,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   };
 
   const handleResizeDoubleClick = () => {
-    setPanelWidth(320);
+    setCustomPanelWidth(null);
   };
 
   // Sync draft state with incoming document per React recommendation (avoiding useEffect setState)
@@ -130,7 +149,14 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
 
   if (!document || !draft) {
     return (
-      <aside className={styles.metadataPanel} aria-label="Metadata Panel">
+      <aside
+        className={styles.metadataPanel}
+        style={{
+          width: `${effectivePanelWidth}px`,
+          transition: isDraggingWidth ? 'none' : 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+        aria-label="Metadata Panel"
+      >
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 10px' }}>
           {onToggleCollapse && (
             <button
@@ -321,8 +347,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     <aside
       className={styles.metadataPanel}
       style={{
-        width: `${panelWidth}px`,
-        transition: isDraggingWidth ? 'none' : undefined,
+        width: `${effectivePanelWidth}px`,
+        transition: isDraggingWidth ? 'none' : 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
       aria-label="Document Metadata Panel"
     >
@@ -332,7 +358,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
         }`}
         onMouseDown={handleResizeMouseDown}
         onDoubleClick={handleResizeDoubleClick}
-        title="Drag to resize panel width, double-click to reset (320px)"
+        title="Drag to resize panel width, double-click to reset auto-width"
         role="separator"
         aria-orientation="vertical"
       />

@@ -185,6 +185,21 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       <FaFileLines className={styles.docIcon} />
                       <span className={styles.docTitleText}>{doc.title}</span>
 
+                      {/* Status Badges */}
+                      {!doc.file ? (
+                        <span className={styles.metadataOnlyBadge} title="Bibliographic metadata only. Attach original PDF to read full text.">
+                          Metadata Only
+                        </span>
+                      ) : doc.ragStatus === 'INDEXED' ? (
+                        <span className={styles.ragIndexedBadge} title="Document indexed in vector store for AI Assistant">
+                          <span className={styles.statusDotGreen} /> Indexed
+                        </span>
+                      ) : doc.ragStatus === 'INDEXING' ? (
+                        <span className={styles.ragIndexingBadge} title="Indexing in progress...">
+                          <span className={styles.statusDotYellow} /> Indexing...
+                        </span>
+                      ) : null}
+
                       {/* Quick Actions */}
                       {doc.inTrash ? (
                         <button
@@ -206,9 +221,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                             e.stopPropagation();
                             onOpenPdf(doc);
                           }}
-                          title="Open PDF Viewer"
+                          title={doc.file ? 'Open PDF Viewer' : 'Preview Metadata in Viewer'}
                         >
-                          <FaFilePdf /> Open PDF
+                          <FaFilePdf /> {doc.file ? 'Open PDF' : 'Preview'}
                         </button>
                       )}
                     </div>

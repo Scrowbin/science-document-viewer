@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
 import type { Document } from '../types';
-import { MOCK_DOCUMENTS } from '../data/mockData';
+import { createEmptyMetadata } from '../utils/documentDefaults';
 
 export interface UseDoiModalReturn {
   showDoiModal: boolean;
@@ -11,11 +11,11 @@ export interface UseDoiModalReturn {
   openDoiModal: () => void;
   closeDoiModal: () => void;
   setDoiInput: (val: string) => void;
-  handleLookupDoi: (showToast: (msg: string) => void) => Promise<void>;
+  handleLookupDoi: (showToast: (msg: string, type?: 'success' | 'error') => void) => Promise<void>;
   handleSaveDoiDocument: (
     setDocuments: React.Dispatch<React.SetStateAction<Document[]>>,
     setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void
+    showToast: (msg: string, type?: 'success' | 'error') => void
   ) => Promise<void>;
 }
 
@@ -35,14 +35,22 @@ export function useDoiModal(): UseDoiModalReturn {
     setDoiInput('');
   }, []);
 
-  const handleLookupDoi = useCallback(async (showToast: (msg: string) => void) => {
-    if (!doiInput.trim()) return;
+  const handleLookupDoi = useCallback(async (showToast: (msg: string, type?: 'success' | 'error') => void) => {
+    let clean = doiInput.trim();
+    if (!clean) return;
+
+    // Auto-complete Nature/Springer suffixes if 10.1038/ was omitted
+    if (/^s\d{4,5}-\d+/i.test(clean)) {
+      clean = `10.1038/${clean}`;
+      setDoiInput(clean);
+    }
+
     setIsLookingUpDoi(true);
     try {
-      const res = await documentsApi.lookupDoi(doiInput.trim());
+      const res = await documentsApi.lookupDoi(clean);
       setDoiPreview(res);
     } catch {
-      showToast('Could not find metadata for this DOI. Check the DOI string.');
+      showToast('Could not find metadata for this DOI. Make sure the DOI is valid (e.g. 10.1038/s41586-020-2649-2)', 'error');
     } finally {
       setIsLookingUpDoi(false);
     }
@@ -83,15 +91,18 @@ export function useDoiModal(): UseDoiModalReturn {
         title: doiPreview.title,
         creator: doiPreview.authors?.join(', ') || 'Unknown Author',
         lastRead: 'Just now',
-        metadata: {
-          ...MOCK_DOCUMENTS[0].metadata,
-          title: doiPreview.title,
+        metadata: createEmptyMetadata(doiPreview.title, {
           shortTitle: doiPreview.short_title || doiPreview.title,
           doi: doiPreview.doi,
-          authors: doiPreview.authors || ['Unknown'],
+          url: doiPreview.url || `https://doi.org/${doiPreview.doi}`,
+          authors: doiPreview.authors && doiPreview.authors.length > 0 ? doiPreview.authors : ['Unknown Author'],
           repository: doiPreview.repository || 'Crossref',
+          itemType: doiPreview.item_type || 'journalArticle',
+          date: doiPreview.date ? doiPreview.date.slice(0, 4) : '2026',
+          tags: doiPreview.tags || [],
+          domains: doiPreview.domains || [],
           extra: doiPreview.extra || '',
-        },
+        }),
       };
       setDocuments((prev) => [localDoc, ...prev]);
       setSelectedDocId(localDoc.id);

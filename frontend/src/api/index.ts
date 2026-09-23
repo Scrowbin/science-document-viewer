@@ -3,3 +3,4 @@ export { authApi } from './authApi';
 export { documentsApi } from './documentsApi';
 export { annotationsApi } from './annotationsApi';
 export { collectionsApi } from './collectionsApi';
+export { ragApi } from './ragApi';
