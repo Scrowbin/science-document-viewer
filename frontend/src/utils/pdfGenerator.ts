@@ -4,8 +4,27 @@ import type { Document } from '../types';
  * Escapes characters for PDF literal text strings: \( \) \\
  * Keeps printable ASCII for standard PDF Type-1 fonts (Helvetica, etc.).
  */
-function escapePdfText(str: string): string {
+/**
+ * Cleans XML/HTML tags and entities from input strings.
+ */
+function cleanText(str: string): string {
   return (str || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Escapes characters for PDF literal text strings: \( \) \\
+ * Keeps printable ASCII for standard PDF Type-1 fonts (Helvetica, etc.).
+ */
+function escapePdfText(str: string): string {
+  return cleanText(str)
     .replace(/\\/g, '\\\\')
     .replace(/\(/g, '\\(')
     .replace(/\)/g, '\\)')
@@ -16,11 +35,12 @@ function escapePdfText(str: string): string {
  * Wraps text into lines that do not exceed maxChars.
  */
 function wrapText(text: string, maxChars = 80): string[] {
-  const words = (text || '').split(/\s+/);
+  const words = cleanText(text).split(/\s+/);
   const lines: string[] = [];
   let currentLine = '';
 
   for (const w of words) {
+    if (!w) continue;
     if ((currentLine + ' ' + w).trim().length <= maxChars) {
       currentLine = (currentLine + ' ' + w).trim();
     } else {
@@ -49,15 +69,15 @@ function stringToLatin1Bytes(str: string): Uint8Array {
  * Includes Title, Authors, DOI, Abstract, Metadata Cards, Methodology, Benchmarks Table & References.
  */
 export function generateAcademicPdf(doc: Document): Uint8Array {
-  const title = doc.title || 'Academic Paper Title';
-  const authors = doc.creator || (doc.metadata?.authors?.join(', ') || 'Unknown Author');
-  const doi = doc.metadata?.doi || '10.xxxx/xxxx';
-  const repo = doc.metadata?.repository || 'Open Research Repository';
-  const date = doc.metadata?.date || '2026';
-  const license = doc.metadata?.license || 'Open Access';
-  const itemType = doc.metadata?.itemType || 'Journal Article';
-  const tags = doc.metadata?.tags?.join(', ') || 'Scientific Computing, AI';
-  const extra = doc.metadata?.extra || 'Peer-reviewed academic research with empirical validation.';
+  const title = cleanText(doc.title) || 'Academic Paper Title';
+  const authors = cleanText(doc.creator || (doc.metadata?.authors?.join(', ') || 'Unknown Author'));
+  const doi = cleanText(doc.metadata?.doi || '10.xxxx/xxxx');
+  const repo = cleanText(doc.metadata?.repository || 'Open Research Repository');
+  const date = cleanText(doc.metadata?.date || '2026');
+  const license = cleanText(doc.metadata?.license || 'Open Access');
+  const itemType = cleanText(doc.metadata?.itemType || 'Journal Article');
+  const tags = cleanText(doc.metadata?.tags?.join(', ') || 'Scientific Computing, AI');
+  const extra = cleanText(doc.metadata?.extra || 'Peer-reviewed academic research with empirical validation.');
 
   // ---------------- Page 1 Content Stream ----------------
   let p1 = '';

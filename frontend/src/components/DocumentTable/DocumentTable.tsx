@@ -16,6 +16,7 @@ import {
   FaFolder,
   FaChevronRight,
   FaXmark,
+  FaTag,
 } from 'react-icons/fa6';
 
 export interface DocumentTableProps {
@@ -31,6 +32,7 @@ export interface DocumentTableProps {
   onCopyCitation?: (doc: Document) => void;
   collections?: Collection[];
   onAddToCollection?: (docId: string, colId: string | null, colName: string | null) => void;
+  onAddTag?: (doc: Document) => void;
   isTrashView?: boolean;
   sortState: SortState;
   onToggleSort: (key: SortKey) => void;
@@ -69,6 +71,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onCopyCitation,
   collections = [],
   onAddToCollection,
+  onAddTag,
   isTrashView = false,
   sortState,
   onToggleSort,
@@ -182,22 +185,20 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       <FaFileLines className={styles.docIcon} />
                       <span className={styles.docTitleText}>{doc.title}</span>
 
-                      {/* Category Badges */}
-                      {doc.isPublication && (
-                        <span className={`${styles.statusPill} ${styles.pubPill}`}>
-                          My Pub
+                      {/* Status Badges */}
+                      {!doc.file ? (
+                        <span className={styles.metadataOnlyBadge} title="Bibliographic metadata only. Attach original PDF to read full text.">
+                          Metadata Only
                         </span>
-                      )}
-                      {doc.isDuplicate && (
-                        <span className={`${styles.statusPill} ${styles.duplicatePill}`}>
-                          Duplicate
+                      ) : doc.ragStatus === 'INDEXED' ? (
+                        <span className={styles.ragIndexedBadge} title="Document indexed in vector store for AI Assistant">
+                          <span className={styles.statusDotGreen} /> Indexed
                         </span>
-                      )}
-                      {doc.inTrash && (
-                        <span className={`${styles.statusPill} ${styles.trashPill}`}>
-                          In Trash
+                      ) : doc.ragStatus === 'INDEXING' ? (
+                        <span className={styles.ragIndexingBadge} title="Indexing in progress...">
+                          <span className={styles.statusDotYellow} /> Indexing...
                         </span>
-                      )}
+                      ) : null}
 
                       {/* Quick Actions */}
                       {doc.inTrash ? (
@@ -220,9 +221,9 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                             e.stopPropagation();
                             onOpenPdf(doc);
                           }}
-                          title="Open PDF Viewer"
+                          title={doc.file ? 'Open PDF Viewer' : 'Preview Metadata in Viewer'}
                         >
-                          <FaFilePdf /> Open PDF
+                          <FaFilePdf /> {doc.file ? 'Open PDF' : 'Preview'}
                         </button>
                       )}
                     </div>
@@ -328,6 +329,19 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {!contextMenu.doc.inTrash && onAddTag && (
+            <div
+              className={styles.contextMenuItem}
+              onClick={() => {
+                onAddTag(contextMenu.doc);
+                setContextMenu(null);
+              }}
+            >
+              <FaTag style={{ color: '#10b981' }} />
+              <span>Add Tag...</span>
             </div>
           )}
 

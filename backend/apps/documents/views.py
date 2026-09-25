@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, permissions, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,6 +14,9 @@ from .serializers import (
 from .permissions import IsOwnerOrCollaborator
 from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
+from .services.pdf_metadata_service import apply_pdf_metadata_to_document
+
+logger = logging.getLogger(__name__)
 
 class DocumentViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrCollaborator)
@@ -84,8 +88,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         doc = serializer.save(owner=self.request.user)
-        # If file was uploaded, trigger RAG background ingestion
+        # If file was uploaded:
         if doc.file:
+            # 1. Automatically extract academic metadata (arXiv ID, DOI, or layout heuristic)
+            try:
+                apply_pdf_metadata_to_document(doc)
+            except Exception as e:
+                logger.warning("PDF metadata extraction failed: %s", e)
+
+            # 2. Trigger RAG background ingestion
             trigger_rag_ingestion(
                 document_id=doc.id,
                 file_path=doc.file.path,
@@ -214,7 +225,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 
 class MetadataLookupView(views.APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         doi = request.data.get('doi')

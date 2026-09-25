@@ -1,108 +1,118 @@
-# Hệ Thống Quản Lý Tài Liệu Khoa Học (Scientific Document Manager)
+# Scientific Document Manager (Zotero Style with Local AI & Collaboration)
 
-Hệ thống quản lý tài liệu nghiên cứu khoa học chuyên sâu lấy cảm hứng từ **Zotero**, hỗ trợ đọc và chú thích PDF trực tiếp, tự động trích xuất metadata (DOI, ISBN, arXiv), phân quyền chia sẻ thư viện (Google Drive-style), và tích hợp trợ lý AI thông minh (RAG Pipeline) phục vụ tra cứu và hỏi đáp chuyên sâu trên tài liệu.
-
----
-
-## 1. Tính năng Nổi bật (Core Features)
-
-- 📚 **Giao diện Quản lý 3 cột chuẩn Zotero**:
-  - Cột trái: Cây thư mục phân cấp (`Collections` lồng nhau), danh sách thẻ (`Tags`), mục tài liệu hệ thống (*Recently Read, My Publications, Duplicates, Trash*).
-  - Cột giữa: Bảng tài liệu đa năng với khả năng sắp xếp, tìm kiếm tức thì (`Ctrl+F`), lọc theo nhãn/tác giả/lĩnh vực/màu sắc.
-  - Cột phải: Panel xem và chỉnh sửa in-place 22 trường metadata khoa học chuẩn mực.
-- ⚡ **Tự động trích xuất Metadata (Auto-Identifier Lookup)**:
-  - Tự động điền metadata chuẩn xác từ mã **DOI** (qua *Crossref REST API*), **ISBN** (qua *OpenLibrary*), hoặc **arXiv ID** (qua *arXiv Export API*).
-- 📑 **Trình đọc & Chú thích PDF trực quan (PDF.js)**:
-  - Hiển thị văn bản PDF nhiều trang với Text-layer chuẩn.
-  - Tô sáng (Highlight) trực tiếp trên trang PDF và tạo ghi chú cố định (Sticky Note / Page Note).
-  - Tìm kiếm toàn văn (Search in PDF) và chuyển trang nhanh.
-- 👥 **Phân quyền & Chia sẻ thư viện (Google Drive-style Collaboration)**:
-  - Phân quyền theo tài khoản người dùng (`JWT Authentication`).
-  - Chia sẻ từng tài liệu hoặc chia sẻ cả thư mục (tài liệu con tự động thừa hưởng quyền) với 3 cấp độ: `VIEW` (Chỉ xem), `COMMENT` (Bình luận/Annotation), và `EDIT` (Chỉnh sửa metadata/quản lý file).
-- 📝 **Ghi chú Nghiên cứu Cá nhân (Personal Research Notes)**:
-  - Quản lý ghi chú độc lập hoặc đính kèm vào từng bài báo nghiên cứu.
-- 🔗 **Liên kết Bài viết Liên quan (Related Items)**:
-  - Liên kết thủ công giữa các bài báo có phương pháp tương đồng hoặc tự động gợi ý cùng tác giả/lab/lĩnh vực.
-- 🤖 **Trợ lý AI & RAG Pipeline**:
-  - Hỏi đáp (Q&A) ngữ cảnh chuyên sâu trên từng bài báo.
-  - Hỏi đáp bài nghiên cứu mới nhất theo `#tag` trong bộ sưu tập.
-  - Tự động tóm tắt bài báo và tóm tắt hướng nghiên cứu của tác giả.
+An advanced scientific document management system inspired by **Zotero**, designed for researchers, academics, and students. The platform integrates native PDF reading and in-canvas annotations, automated academic metadata extraction (Crossref DOI), Google Drive-style sharing permissions, and a locally hosted **Retrieval-Augmented Generation (RAG) AI Assistant** for grounded document Q&A and 1-click summarization.
 
 ---
 
-## 2. Kiến trúc Tổng thể Hệ thống
+## 1. Core Features
 
-Chi tiết sơ đồ Use Case, Sequence Diagrams, ERD 15 bảng và đặc tả REST API xem tại [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md).
+- 📚 **Zotero-style 3-Column Workspace**:
+  - **Left Sidebar**: Hierarchical collection folders (nested trees), interactive tags list with hover counters, and default library filters (*Recently Read, My Publications, Duplicates, Trash*).
+  - **Center Panel**: High-performance sortable document table, instant search (`Ctrl+F`), and filtering by tags, authors, domains, and color categories.
+  - **Right Sidebar**: In-place editable panel managing 22 standardized academic metadata fields.
+- ⚡ **Automated Metadata Extraction (DOI Lookup)**:
+  - Instant metadata auto-fill via **Crossref REST API** (Title, Authors, Journal, Publication Year, Abstract).
+- 📑 **Integrated PDF.js Reader & In-Canvas Annotations**:
+  - Academic two-column text rendering with high-accuracy TextLayer.
+  - In-canvas text highlighting and draggable, boundary-clamped sticky notes.
+  - Smooth Ctrl+Scroll zoom, text search in PDF, and sidebar annotation management.
+- 👥 **Google Drive-Style Collaboration & Sharing**:
+  - User identity managed via JWT authentication (`djangorestframework-simplejwt`) with token rotation and blacklist logout.
+  - Granular document-level and folder-level sharing inheritance with 3 permission tiers: `VIEW`, `COMMENT`, and `EDIT`.
+- 🤖 **Embedded Local RAG AI Assistant**:
+  - **Layout-Aware PDF Ingestion**: `PyMuPDF` (`fitz`) extraction with coordinate-based sorting (`sort=True`) preserving academic reading order.
+  - **Semantic Chunking**: `RecursiveCharacterTextSplitter` (chunk size: 900, overlap: 150).
+  - **Dense Embeddings**: `all-MiniLM-L6-v2` (384-dimensional dense vectors, lightweight CPU inference).
+  - **Local Vector Store**: `Qdrant Embedded` (`media/qdrant_db/`) with payload indexing on `doc_id` and `page_number`.
+  - **Local LLM**: `Ollama` running `llama3.2:3b` over OpenAI-compatible REST endpoints.
+  - **Interactive Citations**: Answers cite `[Page X]` badges; clicking a badge smoothly scrolls the PDF viewer directly to the source page.
+
+---
+
+## 2. High-Level Architecture
+
+For complete UML diagrams, sequence diagrams, 15-table relational ERD, and REST API specifications, refer to [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md).
 
 ```mermaid
 flowchart TB
-    subgraph Client ["Client Layer"]
-        FE["Frontend (React.js + TypeScript + Vite)\n- Zotero-style 3-pane Layout\n- PDF.js Viewer & Annotations\n- Share Dialog & AI Assistant"]
+    subgraph ClientLayer ["1. Client Layer (React 19 + TypeScript + Vite)"]
+        FE_UI["3-Column Library & PDF.js Viewer\nIn-Canvas Highlights & Draggable Sticky Notes"]
+        FE_AI["AI Assistant Panel (<AiChatPanel>)\nDoc Q&A, 1-Click Summary, [Page X] Source Citations"]
     end
 
-    subgraph External ["External Services"]
-        DOI["Metadata Providers\n(Crossref / arXiv / OpenLibrary)"]
-        LLM["LLM Providers\n(OpenAI / Local Models)"]
+    subgraph BackendLayer ["2. Backend Core API (Django 5 REST Framework)"]
+        BE_API["Document, Collection & Annotation ViewSets\nSimpleJWT Auth with Blacklist Logout\nGoogle Drive Permission Matrix (VIEW / COMMENT / EDIT)"]
+        BE_DOI["Crossref DOI Metadata Service"]
+        BE_RAG["Embedded RAG Engine (rag_service.py)\nPyMuPDF (sort=True) + RecursiveSplitter + all-MiniLM-L6-v2"]
     end
 
-    subgraph BackendServices ["Backend Services Layer"]
-        BE["Backend API (Django REST Framework)\n- JWT Auth & Google Drive Permissions\n- Document CRUD & Media Storage\n- Auto DOI Fetching & Webhook Dispatcher"]
-        RAG["RAG Pipeline (FastAPI + LangChain)\n- Ingestion Webhook Receiver\n- Text Chunking & Embeddings\n- Semantic Search & Streaming QA"]
+    subgraph DataLayer ["3. Data & Storage Layer"]
+        PG[("PostgreSQL 16\n15 Relational Tables")]
+        QD[("Qdrant Embedded Vector DB\n384-dim Vectors, media/qdrant_db/")]
+        FS["Physical Storage\nmedia/documents/*.pdf"]
     end
 
-    subgraph DataStorage ["Data & Storage Layer"]
-        PG[("PostgreSQL\n- Users & Shares\n- Hierarchical Collections\n- Metadata (22 fields)\n- PDF Annotations & Notes")]
-        QD[("Qdrant Vector DB\n- Document Chunks\n- Dense Embeddings")]
-        FS[("Media Storage\n- PDF Files")]
+    subgraph LocalAI ["4. Local AI Inference Engine"]
+        OLLAMA["Ollama Server (Local)\nllama3.2:3b on http://localhost:11434/v1"]
     end
 
-    FE <-->|REST API / JWT| BE
-    FE <-->|Chat Streaming| RAG
-    BE -->|Fetch Metadata| DOI
-    BE <-->|ORM| PG
-    BE <-->|Read / Write| FS
-    BE -.->|HTTP Webhook Trigger| RAG
-    RAG <-->|Query Vectors| QD
-    RAG <-->|Prompt / Completion| LLM
-    RAG -->|Read Documents| FS
+    FE_UI <-->|REST API / JWT| BE_API
+    FE_AI <-->|POST /chat/, /summarize/| BE_API
+    BE_API -->|Auto Fetch Metadata| BE_DOI
+    BE_API <-->|Django ORM| PG
+    BE_API <-->|Stream / Store Files| FS
+    BE_API --> BE_RAG
+    BE_RAG <-->|Index & Filtered Search| QD
+    BE_RAG <-->|Inference via REST API| OLLAMA
+    BE_RAG -->|Read Files| FS
 ```
 
 ---
 
-## 3. Lộ Trình Triển Khai 4 Tuần & Tiến Độ
+## 3. Development Roadmap & Status
 
-| Tuần | Mục tiêu | Trạng thái hiện tại |
-| :--- | :--- | :---: |
-| **Tuần 1: Phân tích & Thiết kế** | Hoàn thiện đặc tả yêu cầu, Use Case, Sequence Diagram, ERD 15 bảng, đặc tả REST API, Schema Qdrant Vector Store. | 🟢 **Hoàn thành 100%** (Xem [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md)) |
-| **Tuần 2: Backend Core & DOI** | Cài đặt DRF, PostgreSQL, xây dựng Models 15 bảng, API Upload, tích hợp Crossref API, JWT Auth & Permissions, Unit Tests (6/6 passed), Bruno Collection. | 🟢 **Hoàn thành 100%** (Xem `backend/`) |
-| **Tuần 3: Frontend & PDF Viewer** | Kết nối React với DRF qua `axios`, tích hợp `pdfjs-dist` thật, chức năng Highlight & Sticky Note trên trang PDF. | 🟡 **Khung UI sẵn sàng**, bước tiếp theo |
-| **Tuần 4: Tổ chức Thư viện & Tìm kiếm** | Cây thư mục lồng nhau (`Collections Tree`), Gắn thẻ, Tìm kiếm nâng cao đa tiêu chí, chia sẻ Google Drive. | 🟡 **Khung UI sẵn sàng**, bước tiếp theo |
+| Phase | Milestone | Status | Key Deliverables |
+| :--- | :--- | :---: | :--- |
+| **Phase 1** | **Architecture & Specifications** | 🟢 **100% Done** | Requirements, ERD (15 tables), REST API specs, and Qdrant schema documented in [ARCHITECTURE.md](file:///c:/DACNTT/ARCHITECTURE.md). |
+| **Phase 2** | **Backend Core & Crossref DOI** | 🟢 **100% Done** | Django 5 setup, 15 models, JWT authentication, Google Drive sharing permissions, Crossref service, Bruno API collection. |
+| **Phase 3** | **Frontend UI & PDF Viewer** | 🟢 **100% Done** | React 19 3-column Zotero UI, PDF.js integration, in-canvas annotations, DOI preview modal, collection tree CRUD, and unified runner. |
+| **Phase 3.5 - 3.8** | **Full Monorepo Audit & Refactoring** | 🟢 **100% Done** | Security fixes, JWT token blacklist logout, Axios refresh queue, N+1 query optimization, magic byte upload validation (`%PDF-`), 19/19 backend tests passing. |
+| **Phase 4.1** | **Midterm Scope Audit & Alignment** | 🟢 **100% Done** | Scope reduction, dropped non-essential features, frozen desktop-grade PDF viewer, locked RAG stack (PyMuPDF `sort=True`, Qdrant, Ollama `llama3.2:3b`). |
+| **Phase 4.2** | **Local RAG Pipeline Implementation** | 🚀 **In Progress** | `RAG-1` (PDF extraction & chunking), `RAG-2` (Vector store indexing), `RAG-3` (Doc Q&A & summary API), `RAG-4` (`<AiChatPanel>`), `RAG-5` (Evaluation benchmark). |
 
 ---
 
-## 4. Hướng dẫn Cài đặt & Khởi chạy (Quick Start)
+## 4. Quick Start Guide
 
-Chi tiết đầy đủ các bước cài đặt môi trường, cấu hình cơ sở dữ liệu PostgreSQL, biến môi trường `.env`, cấu hình IDE và giải quyết sự cố, vui lòng xem tại:  
+For comprehensive setup prerequisites, database configuration, environment variables, and troubleshooting, please read:  
 👉 **[SETUP.md](file:///c:/DACNTT/SETUP.md)**
 
-### Tóm tắt nhanh các bước:
+### Summary Commands:
 
-#### Khởi chạy Backend (Django API):
+#### 1. Backend Setup (Django REST API):
 ```bash
 cd backend
 python -m venv venv
-.\venv\Scripts\activate   # Windows (hoặc source venv/bin/activate trên macOS/Linux)
+.\venv\Scripts\activate          # Windows PowerShell (or source venv/bin/activate on macOS/Linux)
 pip install -r requirements.txt
-Copy-Item .env.example .env   # Cập nhật thông tin DB_PASSWORD trong .env
+Copy-Item .env.example .env      # Configure DB_PASSWORD in .env
 python manage.py migrate
+python manage.py test apps.documents.tests apps.users.tests
 python manage.py runserver
 ```
-Backend chạy tại: `http://127.0.0.1:8000/`
+Backend runs at: `http://127.0.0.1:8000/`
 
-#### Khởi chạy Frontend (React + Vite):
+#### 2. Frontend Setup (React 19 + Vite):
 ```bash
 cd frontend
 npm install
+npm run build                    # Verify production build
 npm run dev
 ```
-Frontend chạy tại: `http://localhost:5173/`
+Frontend runs at: `http://localhost:5173/`
+
+#### 3. Run Everything with One Command:
+```bash
+# In the repository root:
+npm start
+```

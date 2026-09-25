@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './LeftSidebar.module.css';
 import type { Collection, Document } from '../../types';
 import { SIDEBAR_NAV_ITEMS } from '../../constants/metadataConfig';
@@ -55,10 +55,28 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   onSelectDoc,
 }) => {
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(240);
+  const [customSidebarWidth, setCustomSidebarWidth] = useState<number | null>(null);
   const [isDraggingWidth, setIsDraggingWidth] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200));
   const [dragOverColId, setDragOverColId] = useState<string | null>(null);
   const { tooltipProps, showTooltip, hideTooltip } = useTagTooltip();
+
+  // Responsive resize listener for automatic sidebar shrinking
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Compute effective width: automatically shrink as horizontal width narrows
+  const effectiveSidebarWidth = (() => {
+    if (customSidebarWidth !== null) {
+      return Math.min(customSidebarWidth, Math.max(160, Math.floor(windowWidth * 0.28)));
+    }
+    if (windowWidth >= 1400) return 240;
+    if (windowWidth >= 1150) return 210;
+    return 180;
+  })();
 
   // Create Collection Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -98,11 +116,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     e.preventDefault();
     setIsDraggingWidth(true);
     const startX = e.clientX;
-    const startWidth = sidebarWidth;
+    const startWidth = effectiveSidebarWidth;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const newWidth = Math.min(480, Math.max(180, startWidth + (moveEvent.clientX - startX)));
-      setSidebarWidth(newWidth);
+      const newWidth = Math.min(480, Math.max(160, startWidth + (moveEvent.clientX - startX)));
+      setCustomSidebarWidth(newWidth);
     };
 
     const onMouseUp = () => {
@@ -120,7 +138,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   const handleResizeDoubleClick = () => {
-    setSidebarWidth(240);
+    setCustomSidebarWidth(null);
   };
 
   const renderCollectionNode = (col: Collection, depth = 0): React.ReactNode => {
@@ -250,8 +268,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
       style={
         !collapsed
           ? {
-              width: `${sidebarWidth}px`,
-              transition: isDraggingWidth ? 'none' : undefined,
+              width: `${effectiveSidebarWidth}px`,
+              transition: isDraggingWidth ? 'none' : 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             }
           : undefined
       }
@@ -419,7 +437,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           }`}
           onMouseDown={handleResizeMouseDown}
           onDoubleClick={handleResizeDoubleClick}
-          title="Drag to resize sidebar width, double-click to reset (240px)"
+          title="Drag to resize sidebar width, double-click to reset auto-width"
           role="separator"
           aria-orientation="vertical"
         />

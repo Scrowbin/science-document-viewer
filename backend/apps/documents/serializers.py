@@ -157,6 +157,27 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
             'author_names', 'tag_names', 'domain_names'
         )
 
+    def to_internal_value(self, data):
+        # Normalize date before DRF DateTimeField validation
+        if 'date' in data:
+            date_val = data.get('date')
+            if not date_val or (isinstance(date_val, str) and not date_val.strip()):
+                data = data.copy() if hasattr(data, 'copy') else dict(data)
+                data['date'] = None
+            elif isinstance(date_val, str):
+                cleaned = date_val.strip()
+                if len(cleaned) == 4 and cleaned.isdigit():
+                    data = data.copy() if hasattr(data, 'copy') else dict(data)
+                    data['date'] = f"{cleaned}-01-01T00:00:00Z"
+                elif len(cleaned) == 7 and cleaned[:4].isdigit() and cleaned[4] == '-' and cleaned[5:].isdigit():
+                    data = data.copy() if hasattr(data, 'copy') else dict(data)
+                    data['date'] = f"{cleaned}-01T00:00:00Z"
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        # Delegate representation to DocumentDetailSerializer so response includes tags, authors, domains
+        return DocumentDetailSerializer(instance, context=self.context).data
+
     def validate_file(self, value):
         if not value:
             return value

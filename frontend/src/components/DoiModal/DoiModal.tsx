@@ -13,6 +13,12 @@ export interface DoiModalProps {
   onClose: () => void;
 }
 
+const SAMPLE_DOIS = [
+  { label: 'Nature (NumPy)', doi: '10.1038/s41586-020-2649-2' },
+  { label: 'Cell (Genomics)', doi: '10.1016/j.cell.2024.01.015' },
+  { label: 'ACM (Computing)', doi: '10.1145/3318464.3389700' },
+];
+
 export function DoiModal({
   isOpen,
   doiInput,
@@ -41,7 +47,7 @@ export function DoiModal({
         <div className={styles.modalBody}>
           <p className={styles.helpText}>
             Enter any valid academic DOI (e.g. <code>10.1038/s41586-020-2649-2</code>) to
-            automatically fetch metadata from Crossref:
+            fetch live metadata from Crossref:
           </p>
 
           <div className={styles.doiInputGroup}>
@@ -63,6 +69,21 @@ export function DoiModal({
               {isLookingUpDoi ? <FaSpinner className={styles.spinnerIcon} /> : <FaBarcode />}
               <span>{isLookingUpDoi ? 'Fetching...' : 'Lookup'}</span>
             </button>
+          </div>
+
+          <div className={styles.sampleChipsRow}>
+            <span className={styles.sampleChipsLabel}>Try sample:</span>
+            {SAMPLE_DOIS.map((s) => (
+              <button
+                type="button"
+                key={s.doi}
+                className={styles.sampleChipBtn}
+                onClick={() => onInputChange(s.doi)}
+                title={`Click to fill: ${s.doi}`}
+              >
+                {s.label}
+              </button>
+            ))}
           </div>
 
           {doiPreview && (

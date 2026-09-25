@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Document } from '../types';
 import { documentsApi } from '../api/documentsApi';
 import { MOCK_DOCUMENTS } from '../data/mockData';
+import { createEmptyMetadata } from '../utils/documentDefaults';
 
 type ToastFn = (msg: string, type?: 'success' | 'error') => void;
 
@@ -26,6 +27,11 @@ export interface UseDocumentsReturn {
     docId: string,
     collectionId: string | number | null,
     collectionName: string | null,
+    showToast: ToastFn
+  ) => Promise<void>;
+  handleAddTagToDocument: (
+    docId: string,
+    tagName: string,
     showToast: ToastFn
   ) => Promise<void>;
   handleToggleReadStatus: (doc: Document, showToast: ToastFn) => Promise<void>;
@@ -138,7 +144,11 @@ export function useDocuments(): UseDocumentsReturn {
     setIsEditing(false);
     showToast('Metadata updated successfully');
     try {
-      await documentsApi.updateDocument(updatedDoc.id, {
+      if (String(updatedDoc.id).startsWith('doc-')) {
+        // Local mock document, memory state already updated
+        return;
+      }
+      const updated = await documentsApi.updateDocument(updatedDoc.id, {
         title: updatedDoc.title,
         short_title: updatedDoc.metadata.shortTitle,
         item_type: updatedDoc.metadata.itemType,
@@ -147,7 +157,7 @@ export function useDocuments(): UseDocumentsReturn {
         doi: updatedDoc.metadata.doi,
         url: updatedDoc.metadata.url,
         genre: updatedDoc.metadata.genre,
-        date: updatedDoc.metadata.date,
+        date: updatedDoc.metadata.date || null,
         language: updatedDoc.metadata.language,
         license: updatedDoc.metadata.license,
         version: updatedDoc.metadata.version,
@@ -158,6 +168,9 @@ export function useDocuments(): UseDocumentsReturn {
         tag_names: updatedDoc.metadata.tags,
         domain_names: updatedDoc.metadata.domains,
       });
+      if (updated) {
+        setDocuments((prev) => prev.map((d) => (d.id === updatedDoc.id ? updated : d)));
+      }
     } catch (err) {
       console.warn('Backend metadata sync failed, rolling back:', err);
       if (prevDocs.length > 0) {
@@ -249,19 +262,20 @@ export function useDocuments(): UseDocumentsReturn {
       onOpenPdf(docWithRead);
     } catch (err) {
       console.warn('Backend file upload failed, creating local document:', err);
+      const cleanTitle = file.name.replace(/\.pdf$/i, '');
       const fileUrl = URL.createObjectURL(file);
       const localDoc: Document = {
         id: `doc-${Date.now()}`,
-        title: file.name.replace(/\.pdf$/i, ''),
+        title: cleanTitle,
         creator: 'Uploaded Document',
         lastRead: 'Just now',
         file: fileUrl,
-        metadata: {
-          ...MOCK_DOCUMENTS[0].metadata,
-          title: file.name.replace(/\.pdf$/i, ''),
-          doi: '',
-          url: '',
-        },
+        metadata: createEmptyMetadata(cleanTitle, {
+          itemType: 'journalArticle',
+          repository: 'Local Upload',
+          date: new Date().getFullYear().toString(),
+          authors: ['Uploaded Document'],
+        }),
       };
       setDocuments((prev) => [localDoc, ...prev]);
       setSelectedDocId(localDoc.id);
@@ -302,6 +316,31 @@ export function useDocuments(): UseDocumentsReturn {
     }
   }, []);
 
+  const handleAddTagToDocument = useCallback(async (
+    docId: string,
+    tagName: string,
+    showToast: ToastFn
+  ) => {
+    const cleanTag = tagName.trim();
+    if (!cleanTag) return;
+    const target = documents.find((d) => d.id === docId);
+    if (!target) return;
+    if (target.metadata.tags?.includes(cleanTag)) {
+      showToast(`Tag "${cleanTag}" already exists on document`);
+      return;
+    }
+    const nextTags = [...(target.metadata.tags || []), cleanTag];
+    const updatedDoc: Document = {
+      ...target,
+      metadata: {
+        ...target.metadata,
+        tags: nextTags,
+        dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      },
+    };
+    await handleUpdateDocument(updatedDoc, () => {}, showToast);
+  }, [documents, handleUpdateDocument]);
+
   return {
     documents,
     setDocuments,
@@ -312,6 +351,7 @@ export function useDocuments(): UseDocumentsReturn {
     handleUpdateDocument,
     handleDuplicateDocument,
     handleSetDocumentCollection,
+    handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
   };

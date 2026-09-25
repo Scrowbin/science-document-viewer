@@ -14,7 +14,7 @@
 }
 
 .sidebarExpanded {
-  width: 240px;
+  width: clamp(190px, 17vw, 240px);
 }
 
 .sidebarCollapsed {

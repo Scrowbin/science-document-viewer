@@ -34,6 +34,7 @@ export function HomePage() {
     handleUpdateDocument,
     handleDuplicateDocument,
     handleSetDocumentCollection,
+    handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
   } = useDocuments();
@@ -55,8 +56,8 @@ export function HomePage() {
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [selectedDocId, setSelectedDocId] = useState<string>('');
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 780 : false));
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 920 : false));
   const [activeNavId, setActiveNavId] = useState<string | null>('all');
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -64,6 +65,31 @@ export function HomePage() {
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ─── Responsive Sidebar Auto-Collapse on Window Resize ────────────────────
+  useEffect(() => {
+    let prevWidth = window.innerWidth;
+    const handleResize = () => {
+      const width = window.innerWidth;
+      // Auto-collapse LeftSidebar when narrowing past 780px
+      if (width < 780 && prevWidth >= 780) {
+        setSidebarCollapsed(true);
+      } else if (width >= 780 && prevWidth < 780) {
+        setSidebarCollapsed(false);
+      }
+
+      // Auto-collapse Right MetadataPanel when narrowing past 920px
+      if (width < 920 && prevWidth >= 920) {
+        setRightSidebarCollapsed(true);
+      } else if (width >= 920 && prevWidth < 920) {
+        setRightSidebarCollapsed(false);
+      }
+      prevWidth = width;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ─── User Menu ────────────────────────────────────────────────────────────
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -151,7 +177,13 @@ export function HomePage() {
   }, [processedDocuments, selectedDocId]);
 
   // ─── Tab Handlers ─────────────────────────────────────────────────────────
-  const handleSelectTab = useCallback((id: string) => setActiveTabId(id), []);
+  const handleSelectTab = useCallback((id: string) => {
+    setActiveTabId(id);
+    const targetTab = tabs.find((t) => t.id === id);
+    if (targetTab?.type === 'pdf' && targetTab.documentId) {
+      setSelectedDocId(targetTab.documentId);
+    }
+  }, [tabs, setSelectedDocId]);
 
   // Fix F-F1: single atomic setTabs that handles both filtering and active tab change
   const handleCloseTab = useCallback((idToClose: string) => {
@@ -165,10 +197,13 @@ export function HomePage() {
       if (activeTabId === idToClose) {
         const nextTab = guardrail[guardrail.length - 1] ?? guardrail[0];
         setActiveTabId(nextTab.id);
+        if (nextTab.type === 'pdf' && nextTab.documentId) {
+          setSelectedDocId(nextTab.documentId);
+        }
       }
       return guardrail;
     });
-  }, [activeTabId]);
+  }, [activeTabId, setSelectedDocId]);
 
   const handleNewTab = useCallback(() => {
     const newId = `tab-${Date.now()}`;
@@ -180,8 +215,13 @@ export function HomePage() {
   const handleSwitchTabByIndex = useCallback((index: number) => {
     if (tabs.length === 0) return;
     const target = tabs[Math.min(index, tabs.length - 1)];
-    if (target) setActiveTabId(target.id);
-  }, [tabs]);
+    if (target) {
+      setActiveTabId(target.id);
+      if (target.type === 'pdf' && target.documentId) {
+        setSelectedDocId(target.documentId);
+      }
+    }
+  }, [tabs, setSelectedDocId]);
 
   const handleFocusSearch = useCallback(() => {
     searchInputRef.current?.focus();
@@ -190,13 +230,14 @@ export function HomePage() {
 
   // ─── Document Handlers (delegated to useDocuments) ────────────────────────
   const handleOpenPdf = useCallback((doc: Document) => {
+    setSelectedDocId(doc.id);
     const tabId = `pdf-${doc.id}`;
     setTabs((prev) => {
       if (prev.some((t) => t.id === tabId)) return prev;
       return [...prev, { id: tabId, title: doc.metadata.shortTitle || doc.title, type: 'pdf', documentId: doc.id, closable: true }];
     });
     setActiveTabId(tabId);
-  }, []);
+  }, [setSelectedDocId]);
 
   const handleCopyCitation = useCallback((doc: Document) => {
     const year = doc.metadata.date ? doc.metadata.date.slice(0, 4) : '2026';
@@ -209,10 +250,9 @@ export function HomePage() {
     await handleDeleteDocument(selectedDoc, showToast);
   }, [selectedDoc, handleDeleteDocument, showToast]);
 
-  const handleAddFromOption = useCallback((type: 'DOI' | 'ISBN' | 'ArXiv ID' | 'Upload PDF') => {
+  const handleAddFromOption = useCallback((type: 'DOI' | 'Upload PDF') => {
     if (type === 'Upload PDF') { fileInputRef.current?.click(); return; }
     if (type === 'DOI') { openDoiModal(); return; }
-    // ISBN / ArXiv — placeholder (disabled in UI, but guard here too)
   }, [openDoiModal]);
 
   const handleToggleSort = useCallback((key: SortKey) => {
@@ -271,6 +311,18 @@ export function HomePage() {
       handleSetDocumentCollection(docId, colId, colName, showToast);
     },
     [handleSetDocumentCollection, showToast]
+  );
+
+  // ─── Tag Assignment Prompt Handler ────────────────────────────────────────
+  const handleAddTagPrompt = useCallback(
+    (doc: Document) => {
+      setSelectedDocId(doc.id);
+      const tagName = window.prompt(`Enter a new tag for "${doc.title}":`);
+      if (tagName && tagName.trim()) {
+        handleAddTagToDocument(doc.id, tagName.trim(), showToast);
+      }
+    },
+    [handleAddTagToDocument, showToast]
   );
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -376,6 +428,7 @@ export function HomePage() {
                 onCopyCitation={handleCopyCitation}
                 collections={collections}
                 onAddToCollection={handleAddToCollection}
+                onAddTag={handleAddTagPrompt}
                 isTrashView={activeNavId === 'trash'}
                 sortState={sortState}
                 onToggleSort={handleToggleSort}
