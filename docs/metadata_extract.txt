@@ -1,0 +1,36 @@
+@startuml
+title Document metadata save
+
+actor User
+participant System
+participant "arXiv/ISBN API" as ax
+participant "AI Agent" as ai
+participant "Database" as db
+
+== Add Metadata Manually ==
+
+User -> System: manual_extract_metadata()
+System --> User: Show form
+User -> System: data sent via POST
+System -> db: Saves data 
+System --> User: Reference added
+
+== Add Metadata via arXiv ID / ISBN ==
+User -> System: doi_extractor_metadata()
+System -> ax: calls the api
+ax --> System: returns document info
+System --> User: Show preview pane
+User -> db: Saves data
+
+== Add Metadata via autoExtractor == 
+User -> System: auto_extractor_metadata()
+System --> User: find metadata by popular formats and displays preview pane 
+User -> db: Saves data
+
+== Add Metadata via AI Agent ==
+User -> System: ai_extractor_metadata()
+System -> ai: POST 
+ai --> System: returns document info
+System --> User: Displays preview pane
+User -> db: Saves data
+

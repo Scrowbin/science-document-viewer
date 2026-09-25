@@ -1,0 +1,8 @@
+frontend:
+add a custom upload document from the frontend, allow every kind of file
+remove the tags that sits next to the document title 
+add a user page (eg change username change password change email page pfp )
+
+
+backend:
+change credentials page ( password, etc )
