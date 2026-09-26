@@ -3,7 +3,7 @@ import requests
 from dotenv import load_dotenv
 import os
 import arxiv
-from manual_extractor_utils import auto_extract_metadata
+from manual_pdf_parser import auto_extract_metadata
 from grobid_client.grobid_client import GrobidClient
 
 load_dotenv()
@@ -60,21 +60,15 @@ def ai_extractor_metadata(path):
     client = GrobidClient(config_path="./grobid.json")
     output_dir = path.parent / "grobid_output"
     output_dir.mkdir(exist_ok=True)
-
     client.process(
         service="processFulltextDocument",
         input_path=str(path),
-        output_path=str(output_dir),
-        # Metadata
+        output=str(output_dir),
         consolidate_header=True,
-        # References
         consolidate_citations=True,
         include_raw_citations=True,
-        # Useful for RAG
         segment_sentences=True,
-        # Generate Markdown
         markdown_output=True,
-        # Keep TEI around as the rich source
         force=True,
     )
 
