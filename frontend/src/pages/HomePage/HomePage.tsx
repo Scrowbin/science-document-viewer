@@ -16,6 +16,7 @@ import { DocumentTable } from '../../components/DocumentTable/DocumentTable';
 import { PdfViewer } from '../../components/PdfViewer/PdfViewer';
 import { MetadataPanel } from '../../components/MetadataPanel/MetadataPanel';
 import { DoiModal } from '../../components/DoiModal/DoiModal';
+import { UploadModal } from '../../components/UploadModal/UploadModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { FaCheck, FaCircleExclamation } from 'react-icons/fa6';
 
@@ -37,6 +38,12 @@ export function HomePage() {
     handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
+    uploadModalFile,
+    isExtractingUpload,
+    uploadPreviewMeta,
+    handleUpdateUploadMeta,
+    handleConfirmUpload,
+    handleCancelUpload,
   } = useDocuments();
 
   const {
@@ -474,6 +481,17 @@ export function HomePage() {
         onLookup={() => handleLookupDoi(showToast)}
         onSave={() => handleSaveDoiDocument(setDocuments, setSelectedDocId, showToast)}
         onClose={closeDoiModal}
+      />
+
+      {/* Upload Preview Modal matching metadata_extract_usecase.png */}
+      <UploadModal
+        isOpen={Boolean(uploadModalFile)}
+        file={uploadModalFile}
+        isExtracting={isExtractingUpload}
+        metadata={uploadPreviewMeta}
+        onMetadataChange={handleUpdateUploadMeta}
+        onConfirm={() => handleConfirmUpload(setSelectedDocId, showToast, handleOpenPdf)}
+        onClose={handleCancelUpload}
       />
 
       {/* Toast Notification */}

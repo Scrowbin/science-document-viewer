@@ -1,4 +1,6 @@
 import logging
+import os
+import tempfile
 from rest_framework import viewsets, permissions, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -14,7 +16,7 @@ from .serializers import (
 from .permissions import IsOwnerOrCollaborator
 from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
-from .services.pdf_metadata_service import apply_pdf_metadata_to_document
+from .services.pdf_metadata_service import apply_pdf_metadata_to_document, extract_metadata_from_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -225,6 +227,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 
 class MetadataLookupView(views.APIView):
+    authentication_classes = ()
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
@@ -236,6 +239,56 @@ class MetadataLookupView(views.APIView):
         if not metadata:
             return Response({"detail": "Could not fetch metadata for the provided DOI."}, status=status.HTTP_404_NOT_FOUND)
 
+        return Response(metadata)
+
+
+class PdfMetadataExtractView(views.APIView):
+    """
+    Extracts metadata from an uploaded PDF without saving to the database.
+    Allows the frontend to display a preview pane matching metadata_extract_usecase.png.
+    """
+    authentication_classes = ()
+    permission_classes = (permissions.AllowAny,)
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            logger.warning("[PDF-EXTRACT] [ERROR] No 'file' field in request.FILES. Received keys: %s", list(request.FILES.keys()))
+            return Response({"detail": "PDF file is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        logger.info("[PDF-EXTRACT] [IN] Received file: %s (%s bytes)", uploaded_file.name, uploaded_file.size)
+
+        # Validate magic byte
+        pos = uploaded_file.tell() if hasattr(uploaded_file, 'tell') else 0
+        chunk = uploaded_file.read(1024)
+        if hasattr(uploaded_file, 'seek'):
+            uploaded_file.seek(pos)
+        if not chunk.startswith(b'%PDF-') and b'%PDF-' not in chunk[:1024]:
+            logger.warning("[PDF-EXTRACT] [ERROR] Magic byte validation failed. Chunk preview: %s", chunk[:32])
+            return Response({"detail": "Uploaded file is not a valid PDF document."}, status=status.HTTP_400_BAD_REQUEST)
+
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+            for c in uploaded_file.chunks():
+                tmp.write(c)
+            tmp_path = tmp.name
+
+        try:
+            logger.info("[PDF-EXTRACT] [RUN] Running extraction pipeline on temp file %s...", tmp_path)
+            metadata = extract_metadata_from_pdf(tmp_path)
+            logger.info("[PDF-EXTRACT] [DONE] Pipeline finished. Title: %s, Authors: %s", metadata.get('title'), metadata.get('authors'))
+        except Exception as e:
+            logger.exception("[PDF-EXTRACT] [FAIL] Exception during extract_metadata_from_pdf: %s", e)
+            metadata = None
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+        if not metadata:
+            logger.warning("[PDF-EXTRACT] [EMPTY] No metadata returned from extraction pipeline (HTTP 404).")
+            return Response({"detail": "Could not extract metadata from the provided PDF."}, status=status.HTTP_404_NOT_FOUND)
+
+        logger.info("[PDF-EXTRACT] [OK] Returning HTTP 200 with extracted metadata for '%s'", metadata.get('title'))
         return Response(metadata)
 
 

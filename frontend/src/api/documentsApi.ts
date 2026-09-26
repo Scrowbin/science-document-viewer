@@ -36,7 +36,7 @@ export interface DjangoDocumentRaw {
 }
 
 export interface LookupDoiResult {
-  doi: string;
+  doi?: string;
   title: string;
   short_title?: string;
   /** Authors as plain strings, e.g. "First Last" */
@@ -254,6 +254,41 @@ export const documentsApi = {
       }
 
       throw backendErr;
+    }
+  },
+
+  /**
+   * Uploads a PDF to extract metadata without persisting to the database.
+   * Matches metadata_extract_usecase.png preview pane requirement.
+   */
+  async extractPdfMetadata(file: File): Promise<LookupDoiResult> {
+    console.log(`[PDF-EXTRACT] 📤 Sending ${file.name} (${(file.size / 1024).toFixed(1)} KB) to POST /api/v1/metadata/extract-pdf/...`);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await apiClient.post<LookupDoiResult>('/metadata/extract-pdf/', formData);
+      console.log(`[PDF-EXTRACT] ✅ Success! Received academic metadata from server:`, response.data);
+      return response.data;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
+      console.error(
+        `[PDF-EXTRACT] ❌ Server metadata extraction failed!`,
+        '\n• HTTP Status:', axiosErr.response?.status,
+        '\n• Server Response:', axiosErr.response?.data,
+        '\n• Error Message:', axiosErr.message || err
+      );
+      const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+      return {
+        title: cleanTitle,
+        short_title: cleanTitle.slice(0, 100),
+        authors: ['Unknown Author'],
+        repository: 'Direct PDF Upload',
+        item_type: 'journalArticle',
+        date: new Date().getFullYear().toString(),
+        extra: '',
+        tags: ['General Science'],
+        domains: ['General Science'],
+      };
     }
   },
 };

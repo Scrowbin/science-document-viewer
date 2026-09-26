@@ -14,12 +14,18 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('scidocs_auth_token') || sessionStorage.getItem('scidocs_auth_token');
-    if (token && config.headers) {
+    // Only attach real cryptographic JWT tokens, never fake client-side mock strings
+    if (token && !token.startsWith('jwt-') && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     // If sending FormData, delete Content-Type to allow browser to generate multipart boundary
     if (config.data instanceof FormData && config.headers) {
+      if (typeof (config.headers as Record<string, unknown>).delete === 'function') {
+        (config.headers as { delete: (h: string) => void }).delete('Content-Type');
+        (config.headers as { delete: (h: string) => void }).delete('content-type');
+      }
       delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
     }
     return config;
   },
@@ -52,7 +58,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
 
-      if (!refreshToken || originalRequest.url?.endsWith('/auth/token/refresh/')) {
+      if (!refreshToken || refreshToken.startsWith('jwt-') || originalRequest.url?.endsWith('/auth/token/refresh/')) {
+        // Clear dead or mock token so subsequent requests aren't permanently poisoned with 401
+        localStorage.removeItem('scidocs_auth_token');
+        sessionStorage.removeItem('scidocs_auth_token');
         return Promise.reject(error);
       }
 

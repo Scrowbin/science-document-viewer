@@ -6,6 +6,7 @@ User = get_user_model()
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
+    institution = serializers.CharField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = User
@@ -16,7 +17,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
-            institution=validated_data["institution"],
+            institution=validated_data.get("institution", ""),
         )
         return user
 

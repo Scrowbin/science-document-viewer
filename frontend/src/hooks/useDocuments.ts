@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Document } from '../types';
-import { documentsApi } from '../api/documentsApi';
+import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
 import { MOCK_DOCUMENTS } from '../data/mockData';
 import { createEmptyMetadata } from '../utils/documentDefaults';
 
@@ -41,6 +41,16 @@ export interface UseDocumentsReturn {
     showToast: ToastFn,
     onOpenPdf: (doc: Document) => void
   ) => Promise<void>;
+  uploadModalFile: File | null;
+  isExtractingUpload: boolean;
+  uploadPreviewMeta: LookupDoiResult | null;
+  handleUpdateUploadMeta: <K extends keyof LookupDoiResult>(field: K, val: LookupDoiResult[K]) => void;
+  handleConfirmUpload: (
+    setSelectedDocId: (id: string) => void,
+    showToast: ToastFn,
+    onOpenPdf: (doc: Document) => void
+  ) => Promise<void>;
+  handleCancelUpload: () => void;
 }
 
 export function useDocuments(): UseDocumentsReturn {
@@ -238,17 +248,84 @@ export function useDocuments(): UseDocumentsReturn {
     }
   }, []);
 
+  const [uploadModalFile, setUploadModalFile] = useState<File | null>(null);
+  const [isExtractingUpload, setIsExtractingUpload] = useState(false);
+  const [uploadPreviewMeta, setUploadPreviewMeta] = useState<LookupDoiResult | null>(null);
+
   const handleFileUpload = useCallback(async (
     file: File,
+    _setSelectedDocId: (id: string) => void,
+    showToast: ToastFn,
+    _onOpenPdf: (doc: Document) => void
+  ) => {
+    void _setSelectedDocId;
+    void _onOpenPdf;
+    setUploadModalFile(file);
+    setIsExtractingUpload(true);
+    setUploadPreviewMeta(null);
+    console.log(`[UPLOAD] 🚀 User selected PDF file:`, file.name, `(${(file.size / 1024).toFixed(1)} KB)`);
+    showToast(`Analyzing academic metadata from ${file.name}...`);
+    try {
+      const meta = await documentsApi.extractPdfMetadata(file);
+      console.log(`[UPLOAD] 📋 Setting metadata in preview modal:`, meta);
+      setUploadPreviewMeta(meta);
+    } catch (err) {
+      console.error('[UPLOAD] ❌ Extraction error caught in hook:', err);
+      const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+      setUploadPreviewMeta({
+        title: cleanTitle,
+        short_title: cleanTitle.slice(0, 100),
+        authors: ['Unknown Author'],
+        repository: 'Direct PDF Upload',
+        item_type: 'journalArticle',
+        doi: '',
+        date: new Date().getFullYear().toString(),
+        extra: '',
+        tags: ['General Science'],
+        domains: ['General Science'],
+      });
+    } finally {
+      setIsExtractingUpload(false);
+    }
+  }, []);
+
+  const handleUpdateUploadMeta = useCallback(<K extends keyof LookupDoiResult>(field: K, val: LookupDoiResult[K]) => {
+    setUploadPreviewMeta((prev) => {
+      if (!prev) return null;
+      return { ...prev, [field]: val };
+    });
+  }, []);
+
+  const handleCancelUpload = useCallback(() => {
+    setUploadModalFile(null);
+    setUploadPreviewMeta(null);
+    setIsExtractingUpload(false);
+  }, []);
+
+  const handleConfirmUpload = useCallback(async (
     setSelectedDocId: (id: string) => void,
     showToast: ToastFn,
     onOpenPdf: (doc: Document) => void
   ) => {
-    showToast(`Uploading ${file.name}...`);
+    if (!uploadModalFile || !uploadPreviewMeta) return;
+
+    showToast(`Adding "${uploadPreviewMeta.title}" to library...`);
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', file.name.replace(/\.pdf$/i, ''));
-    formData.append('item_type', 'journalArticle');
+    formData.append('file', uploadModalFile);
+    formData.append('title', uploadPreviewMeta.title);
+    formData.append('short_title', uploadPreviewMeta.short_title || uploadPreviewMeta.title);
+    if (uploadPreviewMeta.doi) formData.append('doi', uploadPreviewMeta.doi);
+    if (uploadPreviewMeta.url) formData.append('url', uploadPreviewMeta.url);
+    if (uploadPreviewMeta.repository) formData.append('repository', uploadPreviewMeta.repository);
+    if (uploadPreviewMeta.item_type) formData.append('item_type', uploadPreviewMeta.item_type);
+    if (uploadPreviewMeta.date) formData.append('date', uploadPreviewMeta.date);
+    if (uploadPreviewMeta.extra) formData.append('extra', uploadPreviewMeta.extra);
+    if (uploadPreviewMeta.language) formData.append('language', uploadPreviewMeta.language);
+    if (uploadPreviewMeta.license) formData.append('license', uploadPreviewMeta.license);
+
+    (uploadPreviewMeta.authors || []).forEach((a) => formData.append('author_names', a));
+    (uploadPreviewMeta.tags || []).forEach((t) => formData.append('tag_names', t));
+    (uploadPreviewMeta.domains || []).forEach((d) => formData.append('domain_names', d));
 
     try {
       const newDoc = await documentsApi.createDocument(formData);
@@ -258,31 +335,37 @@ export function useDocuments(): UseDocumentsReturn {
       };
       setDocuments((prev) => [docWithRead, ...prev]);
       setSelectedDocId(newDoc.id);
-      showToast(`Uploaded and added ${file.name} to library!`);
+      showToast(`Added "${newDoc.title}" to library!`);
+      handleCancelUpload();
       onOpenPdf(docWithRead);
     } catch (err) {
       console.warn('Backend file upload failed, creating local document:', err);
-      const cleanTitle = file.name.replace(/\.pdf$/i, '');
-      const fileUrl = URL.createObjectURL(file);
+      const cleanTitle = uploadPreviewMeta.title;
+      const fileUrl = URL.createObjectURL(uploadModalFile);
       const localDoc: Document = {
         id: `doc-${Date.now()}`,
         title: cleanTitle,
-        creator: 'Uploaded Document',
+        creator: uploadPreviewMeta.authors?.join(', ') || 'Uploaded Document',
         lastRead: 'Just now',
         file: fileUrl,
         metadata: createEmptyMetadata(cleanTitle, {
-          itemType: 'journalArticle',
-          repository: 'Local Upload',
-          date: new Date().getFullYear().toString(),
-          authors: ['Uploaded Document'],
+          itemType: uploadPreviewMeta.item_type || 'journalArticle',
+          repository: uploadPreviewMeta.repository || 'Local Upload',
+          date: uploadPreviewMeta.date || new Date().getFullYear().toString(),
+          authors: uploadPreviewMeta.authors?.length ? uploadPreviewMeta.authors : ['Uploaded Document'],
+          extra: uploadPreviewMeta.extra || '',
+          doi: uploadPreviewMeta.doi || '',
+          tags: uploadPreviewMeta.tags || [],
+          domains: uploadPreviewMeta.domains || [],
         }),
       };
       setDocuments((prev) => [localDoc, ...prev]);
       setSelectedDocId(localDoc.id);
-      showToast(`Added ${file.name} to library!`);
+      showToast(`Added "${cleanTitle}" to library!`);
+      handleCancelUpload();
       onOpenPdf(localDoc);
     }
-  }, []);
+  }, [uploadModalFile, uploadPreviewMeta, handleCancelUpload]);
 
   const handleSetDocumentCollection = useCallback(async (
     docId: string,
@@ -354,5 +437,11 @@ export function useDocuments(): UseDocumentsReturn {
     handleAddTagToDocument,
     handleToggleReadStatus,
     handleFileUpload,
+    uploadModalFile,
+    isExtractingUpload,
+    uploadPreviewMeta,
+    handleUpdateUploadMeta,
+    handleConfirmUpload,
+    handleCancelUpload,
   };
 }
