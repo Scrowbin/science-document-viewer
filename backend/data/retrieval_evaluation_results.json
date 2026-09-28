@@ -1,0 +1,38 @@
+{
+  "section": {
+    "strategy": "section",
+    "queries_evaluated": 16,
+    "total_corpus_chunks": 77,
+    "hit_rate_at_1": 81.2,
+    "hit_rate_at_3": 93.8,
+    "hit_rate_at_5": 100.0,
+    "mrr": 0.88,
+    "avg_chunk_tokens": 732.8,
+    "avg_latency_ms": 14.33,
+    "total_eval_time_sec": 1.07
+  },
+  "section_token": {
+    "strategy": "section_token",
+    "queries_evaluated": 16,
+    "total_corpus_chunks": 220,
+    "hit_rate_at_1": 62.5,
+    "hit_rate_at_3": 87.5,
+    "hit_rate_at_5": 87.5,
+    "mrr": 0.74,
+    "avg_chunk_tokens": 256.8,
+    "avg_latency_ms": 14.69,
+    "total_eval_time_sec": 0.87
+  },
+  "section_overlap": {
+    "strategy": "section_overlap",
+    "queries_evaluated": 16,
+    "total_corpus_chunks": 247,
+    "hit_rate_at_1": 56.2,
+    "hit_rate_at_3": 87.5,
+    "hit_rate_at_5": 87.5,
+    "mrr": 0.719,
+    "avg_chunk_tokens": 265.6,
+    "avg_latency_ms": 17.73,
+    "total_eval_time_sec": 0.95
+  }
+}

@@ -298,3 +298,71 @@ class PdfMetadataExtractorTestCase(TestCase):
             self.assertEqual(doc.tags.count(), 2)
             self.assertEqual(doc.domains.count(), 1)
 
+
+class DocumentChunksTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='chunk_researcher', password='password123')
+        self.client.force_authenticate(user=self.user)
+
+    def test_document_chunks_inspection_api(self):
+        """Verify GET /api/v1/documents/{id}/chunks/ returns structured chunks with 3 strategies."""
+        doc = Document.objects.create(
+            owner=self.user,
+            title='Sample Transformer Paper',
+            extra='Abstract: Self-attention models require non-parametric memory. Introduction: Transformers replace RNNs.'
+        )
+
+        # 1. Strategy A: section
+        resp = self.client.get(f'/api/v1/documents/{doc.id}/chunks/?strategy=section')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertEqual(data['strategy'], 'section')
+        self.assertTrue(data['total_chunks'] >= 1)
+        self.assertIn('chunks', data)
+        self.assertIn('token_count', data['chunks'][0])
+        self.assertIn('section', data['chunks'][0])
+
+        # 2. Strategy B: section_token
+        resp_token = self.client.get(f'/api/v1/documents/{doc.id}/chunks/?strategy=section_token&max_tokens=20')
+        self.assertEqual(resp_token.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp_token.json()['strategy'], 'section_token')
+
+        # 3. Strategy C: section_overlap
+        resp_overlap = self.client.get(f'/api/v1/documents/{doc.id}/chunks/?strategy=section_overlap&max_tokens=20&overlap=5')
+        self.assertEqual(resp_overlap.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp_overlap.json()['strategy'], 'section_overlap')
+        self.assertEqual(resp_overlap.json()['overlap'], 5)
+
+    def test_chunking_strategies_unit(self):
+        """Verify chunk_sections produces expected chunk counts under the 3 experimental strategies."""
+        from .services.chunking_utils import chunk_sections, estimate_tokens
+        sample_sections = [
+            {
+                'title': '1. Introduction',
+                'page_start': 1,
+                'page_end': 1,
+                'text': 'Deep learning models require extensive training. ' * 50,
+                'token_count': 350
+            },
+            {
+                'title': '2. Methodology',
+                'page_start': 2,
+                'page_end': 3,
+                'text': 'We propose a novel residual learning formulation. ' * 40,
+                'token_count': 280
+            }
+        ]
+
+        chunks_sec = chunk_sections(sample_sections, strategy='section')
+        self.assertEqual(len(chunks_sec), 2)
+        self.assertEqual(chunks_sec[0]['section'], '1. Introduction')
+        self.assertEqual(chunks_sec[1]['section'], '2. Methodology')
+
+        chunks_tok = chunk_sections(sample_sections, strategy='section_token', max_tokens=100)
+        self.assertTrue(len(chunks_tok) > len(chunks_sec))
+
+        chunks_ov = chunk_sections(sample_sections, strategy='section_overlap', max_tokens=100, overlap=30)
+        self.assertTrue(len(chunks_ov) >= len(chunks_tok))
+
+

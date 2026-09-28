@@ -17,6 +17,7 @@ import { PdfViewer } from '../../components/PdfViewer/PdfViewer';
 import { MetadataPanel } from '../../components/MetadataPanel/MetadataPanel';
 import { DoiModal } from '../../components/DoiModal/DoiModal';
 import { UploadModal } from '../../components/UploadModal/UploadModal';
+import { ChunkInspectorModal } from '../../components/ChunkInspectorModal/ChunkInspectorModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { FaCheck, FaCircleExclamation } from 'react-icons/fa6';
 
@@ -62,6 +63,7 @@ export function HomePage() {
 
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [selectedDocId, setSelectedDocId] = useState<string>('');
+  const [inspectingDoc, setInspectingDoc] = useState<Document | null>(null);
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 780 : false));
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 920 : false));
@@ -436,6 +438,7 @@ export function HomePage() {
                 collections={collections}
                 onAddToCollection={handleAddToCollection}
                 onAddTag={handleAddTagPrompt}
+                onInspectChunks={setInspectingDoc}
                 isTrashView={activeNavId === 'trash'}
                 sortState={sortState}
                 onToggleSort={handleToggleSort}
@@ -453,6 +456,7 @@ export function HomePage() {
           onUpdateDocument={(doc) => handleUpdateDocument(doc, setIsEditingMetadata, showToast)}
           collections={collections}
           onSetCollection={handleAddToCollection}
+          onInspectChunks={setInspectingDoc}
           collapsed={rightSidebarCollapsed}
           onToggleCollapse={() => setRightSidebarCollapsed((prev) => !prev)}
         />
@@ -492,6 +496,13 @@ export function HomePage() {
         onMetadataChange={handleUpdateUploadMeta}
         onConfirm={() => handleConfirmUpload(setSelectedDocId, showToast, handleOpenPdf)}
         onClose={handleCancelUpload}
+      />
+
+      {/* Chunk Inspector Modal for Midterm Ingestion Demonstration */}
+      <ChunkInspectorModal
+        isOpen={Boolean(inspectingDoc)}
+        document={inspectingDoc}
+        onClose={() => setInspectingDoc(null)}
       />
 
       {/* Toast Notification */}

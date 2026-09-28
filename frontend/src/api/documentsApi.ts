@@ -291,6 +291,50 @@ export const documentsApi = {
       };
     }
   },
+
+  /**
+   * Fetches extracted and structured chunks from a document under a specific chunking strategy.
+   */
+  async getDocumentChunks(
+    documentId: string | number,
+    strategy: 'section' | 'section_token' | 'section_overlap' = 'section_overlap',
+    maxTokens: number = 350,
+    overlap: number = 70
+  ): Promise<DocumentChunksResponse> {
+    const response = await apiClient.get<DocumentChunksResponse>(
+      `/documents/${documentId}/chunks/`,
+      {
+        params: {
+          strategy,
+          max_tokens: maxTokens,
+          overlap,
+        },
+      }
+    );
+    return response.data;
+  },
 };
+
+export interface DocumentChunk {
+  chunk_id: string;
+  section: string;
+  page: number;
+  page_end?: number;
+  strategy: string;
+  token_count: number;
+  preview: string;
+  text: string;
+}
+
+export interface DocumentChunksResponse {
+  document_id: string;
+  document_title: string;
+  strategy: 'section' | 'section_token' | 'section_overlap';
+  max_tokens: number;
+  overlap: number;
+  total_chunks: number;
+  avg_tokens_per_chunk: number;
+  chunks: DocumentChunk[];
+}
 
 export default documentsApi;
