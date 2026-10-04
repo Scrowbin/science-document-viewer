@@ -1,9 +1,10 @@
 from json import load
+from django.http import JsonResponse
 import requests
 from dotenv import load_dotenv
 import os
 import arxiv
-from manual_pdf_parser import auto_extract_metadata
+from .manual_pdf_parser import auto_extract_metadata
 from grobid_client.grobid_client import GrobidClient
 
 load_dotenv()
@@ -68,7 +69,6 @@ def ai_extractor_metadata(path):
         consolidate_citations=True,
         include_raw_citations=True,
         segment_sentences=True,
-        markdown_output=True,
         force=True,
     )
 
@@ -80,3 +80,21 @@ def ai_extractor_metadata(path):
         "markdown_path": markdown_path,
         "tei_path": tei_path,
     }
+
+
+def metadata_extractor(path):
+    try:
+        result = ai_extractor_metadata(path)
+        if result:
+            return result
+    except Exception as e:
+        print(f"GROBID failed: {e}")
+
+    try:
+        result = auto_extract_metadata(path)
+        if result:
+            return result
+    except Exception as e:
+        print(f"Auto extractor failed: {e}")
+
+    return None

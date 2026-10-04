@@ -5,4 +5,5 @@ add a user page (eg change username change password change email page pfp )
 
 
 backend:
-change credentials page ( password, etc )
+removes all images / tables in document preprocessing before feeding into rag
+rename doc submit button
