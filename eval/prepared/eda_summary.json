@@ -1,0 +1,23 @@
+{
+  "total_questions": 16,
+  "unique_papers": 4,
+  "question_type_distribution": {
+    "quantitative": 4,
+    "architecture": 4,
+    "methodology": 4,
+    "factoid": 3,
+    "comparative": 1
+  },
+  "unanswerable_count": 0,
+  "unanswerable_pct": 0.0,
+  "float_selected_count": 0,
+  "float_selected_pct": 0.0,
+  "text_evidence_questions": 16,
+  "evidence_tokens": {
+    "min": 2,
+    "max": 34,
+    "mean": 23.2,
+    "p50": 24
+  },
+  "mean_question_evidence_lexical_overlap": 0.121
+}

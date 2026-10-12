@@ -1,0 +1,43 @@
+{
+  "step": "10_citation",
+  "top_k": 4,
+  "baseline_strategy": "section_overlap",
+  "results": [
+    {
+      "strategy": "section_overlap",
+      "is_baseline": true,
+      "queries": 16,
+      "recall_1": 0.438,
+      "recall_3": 0.625,
+      "recall_k": 0.688,
+      "precision_k": 0.198,
+      "f1": 0.304,
+      "hallucination_rate": 0.312,
+      "bootstrap_ci_diff": "[+0.000, +0.000]"
+    },
+    {
+      "strategy": "section",
+      "is_baseline": false,
+      "queries": 16,
+      "recall_1": 0.562,
+      "recall_3": 0.625,
+      "recall_k": 0.812,
+      "precision_k": 0.224,
+      "f1": 0.348,
+      "hallucination_rate": 0.188,
+      "bootstrap_ci_diff": "[-0.012, +0.119]"
+    },
+    {
+      "strategy": "section_token",
+      "is_baseline": false,
+      "queries": 16,
+      "recall_1": 0.5,
+      "recall_3": 0.562,
+      "recall_k": 0.625,
+      "precision_k": 0.182,
+      "f1": 0.279,
+      "hallucination_rate": 0.375,
+      "bootstrap_ci_diff": "[-0.081, +0.012]"
+    }
+  ]
+}

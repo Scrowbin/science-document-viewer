@@ -5,10 +5,11 @@
     "paper_title": "Attention Is All You Need",
     "question": "What is the dimensionality of the input and output vectors across all layers in the base Transformer model?",
     "question_type": "quantitative",
-    "expected_answer": "d_model = 512",
+    "expected_answer": "d_model = 512. All sub-layers in the model, as well as the embedding layers, produce outputs of dimension d_model = 512.",
+    "verbatim_evidence_quote": "all sub-layers in the model, as well as the embedding layers, produce outputs of dimension dmodel = 512.",
     "target_section": "3.1 Encoder and Decoder Stacks",
     "target_page": 3,
-    "evidence_keywords": ["d_model", "512", "encoder", "decoder", "sub-layers", "dimension"]
+    "evidence_keywords": ["dmodel = 512", "512", "encoder", "decoder", "sub-layers", "dimension"]
   },
   {
     "id": "Q_ATTN_02",
@@ -16,10 +17,11 @@
     "paper_title": "Attention Is All You Need",
     "question": "Why does Scaled Dot-Product Attention divide the dot products of queries and keys by the square root of d_k?",
     "question_type": "architecture",
-    "expected_answer": "For large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions with extremely small gradients. Scaling by 1/sqrt(d_k) counteracts this effect.",
+    "expected_answer": "For large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, the dot products are scaled by 1/sqrt(d_k).",
+    "verbatim_evidence_quote": "dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, we scale the dot products by 1/sqrt(dk)",
     "target_section": "3.2.1 Scaled Dot-Product Attention",
     "target_page": 4,
-    "evidence_keywords": ["square root", "sqrt(d_k)", "softmax", "gradients", "dot products", "magnitude"]
+    "evidence_keywords": ["square root", "softmax", "gradients", "magnitude", "counteract"]
   },
   {
     "id": "Q_ATTN_03",
@@ -27,10 +29,11 @@
     "paper_title": "Attention Is All You Need",
     "question": "What optimizer and learning rate warmup schedule were utilized during training?",
     "question_type": "methodology",
-    "expected_answer": "Adam optimizer with beta1=0.9, beta2=0.98, epsilon=1e-9, with 4000 warmup steps, increasing linearly then decaying proportionally to inverse square root of step number.",
+    "expected_answer": "We used the Adam optimizer with beta1 = 0.9, beta2 = 0.98 and epsilon = 10^-9. We varied the learning rate over the course of training, with warmup_steps = 4000.",
+    "verbatim_evidence_quote": "We used the Adam optimizer with beta1 = 0.9, beta2 = 0.98 and epsilon = 10^-9. We varied the learning rate over the course of training",
     "target_section": "5.3 Optimizer",
     "target_page": 7,
-    "evidence_keywords": ["Adam", "beta_1", "beta_2", "4000", "warmup_steps", "inverse square root", "learning rate"]
+    "evidence_keywords": ["Adam", "beta1 = 0.9", "beta2 = 0.98", "4000", "warmup_steps", "learning rate"]
   },
   {
     "id": "Q_ATTN_04",
@@ -39,6 +42,7 @@
     "question": "What positional encoding formulation did the authors select to allow the model to extrapolate to sequence lengths unseen during training?",
     "question_type": "factoid",
     "expected_answer": "Sine and cosine functions of different frequencies, using PE(pos, 2i) = sin(pos/10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos/10000^(2i/d_model)).",
+    "verbatim_evidence_quote": "In this work, we use sine and cosine functions of different frequencies: PE(pos,2i) = sin(pos/10000^(2i/dmodel))",
     "target_section": "3.5 Positional Encoding",
     "target_page": 6,
     "evidence_keywords": ["sine", "cosine", "frequencies", "extrapolate", "positional encoding", "wavelengths"]
@@ -49,7 +53,8 @@
     "paper_title": "Deep Residual Learning for Image Recognition",
     "question": "What formulation expresses the residual mapping function with identity shortcut connections?",
     "question_type": "methodology",
-    "expected_answer": "y = F(x, {Wi}) + x, where x and y are the input and output vectors, and F is the residual mapping to be learned.",
+    "expected_answer": "y = F(x, {Wi}) + x, where x and y are the input and output vectors of the layers considered, and F is the residual mapping to be learned.",
+    "verbatim_evidence_quote": "Formally, in this paper we consider a building block defined as: y = F(x, {Wi}) + x. (1) Here x and y are the input and output vectors of the layers considered.",
     "target_section": "3.2 Identity Mapping by Shortcuts",
     "target_page": 3,
     "evidence_keywords": ["identity mapping", "shortcuts", "F(x, {Wi})", "+ x", "residual mapping"]
@@ -61,9 +66,10 @@
     "question": "How does the bottleneck building block design in 50, 101, and 152-layer ResNets reduce parameter complexity?",
     "question_type": "architecture",
     "expected_answer": "By using a stack of 3 layers: 1x1, 3x3, and 1x1 convolutions, where the 1x1 layers reduce and subsequently restore dimensions, leaving the 3x3 layer as a bottleneck with smaller input/output dimensions.",
+    "verbatim_evidence_quote": "The three layers are 1x1, 3x3, and 1x1 convolutions, where the 1x1 layers are responsible for reducing and then increasing (restoring) dimensions, leaving the 3x3 layer a bottleneck with smaller input/output dimensions.",
     "target_section": "3.3 Network Architectures",
-    "target_page": 4,
-    "evidence_keywords": ["bottleneck", "1x1", "3x3", "reduce dimensions", "restore dimensions", "stack of 3 layers"]
+    "target_page": 6,
+    "evidence_keywords": ["bottleneck", "1x1", "3x3", "reducing", "restoring", "smaller input/output dimensions"]
   },
   {
     "id": "Q_RES_03",
@@ -71,10 +77,11 @@
     "paper_title": "Deep Residual Learning for Image Recognition",
     "question": "What top-5 error rate did the ensemble of ResNets achieve on the ImageNet test set?",
     "question_type": "quantitative",
-    "expected_answer": "ResNet ensemble achieved a 3.57% top-5 error rate on the ImageNet test set, winning 1st place in ILSVRC 2015.",
+    "expected_answer": "An ensemble of ResNets achieved a 3.57% top-5 error rate on the ImageNet test set, winning 1st place in the ILSVRC 2015 competition.",
+    "verbatim_evidence_quote": "This leads to 3.57% top-5 error on the test set (Table 5). This entry won the 1st place in ILSVRC 2015.",
     "target_section": "4.1 ImageNet Classification",
-    "target_page": 5,
-    "evidence_keywords": ["3.57%", "top-5 error", "ImageNet", "ILSVRC 2015", "ensemble"]
+    "target_page": 7,
+    "evidence_keywords": ["3.57%", "top-5 error", "ImageNet", "ILSVRC 2015", "test set"]
   },
   {
     "id": "Q_RES_04",
@@ -82,10 +89,11 @@
     "paper_title": "Deep Residual Learning for Image Recognition",
     "question": "What is the degradation problem observed when plain deep networks increase in depth?",
     "question_type": "factoid",
-    "expected_answer": "With network depth increasing, accuracy becomes saturated and then degrades rapidly; this degradation is not caused by overfitting, as training error also increases.",
+    "expected_answer": "When deeper networks start converging, a degradation problem is exposed: with network depth increasing, accuracy gets saturated and then degrades rapidly, which is not caused by overfitting as training error also increases.",
+    "verbatim_evidence_quote": "When deeper networks are able to start converging, a degradation problem has been exposed: with the network depth increasing, accuracy gets saturated (which might be unsurprising) and then degrades rapidly.",
     "target_section": "1. Introduction",
     "target_page": 1,
-    "evidence_keywords": ["degradation problem", "saturation", "training error", "not caused by overfitting", "depth"]
+    "evidence_keywords": ["degradation problem", "accuracy gets saturated", "degrades rapidly", "network depth", "converging"]
   },
   {
     "id": "Q_LORA_01",
@@ -93,10 +101,11 @@
     "paper_title": "LoRA: Low-Rank Adaptation of Large Language Models",
     "question": "How does LoRA decompose the weight update matrix Delta W during adaptation?",
     "question_type": "methodology",
-    "expected_answer": "By decomposing Delta W into the product of two low-rank matrices B * A, where B in R^(d x r), A in R^(r x k), with intrinsic rank r << min(d, k).",
+    "expected_answer": "By decomposing Delta W into the product of two low-rank matrices B * A, where B in R^(d x r), A in R^(r x k), with rank r << min(d, k), keeping W0 frozen.",
+    "verbatim_evidence_quote": "we constrain its update by representing the latter with a low-rank decomposition W0 + Delta W = W0 + BA, where B in R^{d x r}, A in R^{r x k}, and the rank r << min(d, k).",
     "target_section": "4.1 Low-Rank Parametrized Update Matrices",
-    "target_page": 3,
-    "evidence_keywords": ["low-rank", "B * A", "rank r", "BA", "parameterized update", "decomposition"]
+    "target_page": 4,
+    "evidence_keywords": ["low-rank decomposition", "W0 + BA", "rank r", "B in R^{d x r}", "A in R^{r x k}"]
   },
   {
     "id": "Q_LORA_02",
@@ -104,10 +113,11 @@
     "paper_title": "LoRA: Low-Rank Adaptation of Large Language Models",
     "question": "How are matrices A and B initialized before training begins?",
     "question_type": "architecture",
-    "expected_answer": "A is initialized with a random Gaussian distribution, and B is initialized to zero, ensuring Delta W = BA = 0 at the start of training.",
+    "expected_answer": "We use a random Gaussian initialization for A and zero for B, so Delta W = BA is zero at the beginning of training.",
+    "verbatim_evidence_quote": "We use a random Gaussian initialization for A and zero for B, so Delta W = BA is zero at the beginning of training.",
     "target_section": "4.1 Low-Rank Parametrized Update Matrices",
-    "target_page": 3,
-    "evidence_keywords": ["Gaussian distribution", "initialized to zero", "Delta W = 0", "initialization", "random"]
+    "target_page": 4,
+    "evidence_keywords": ["random Gaussian initialization", "zero for B", "Delta W = BA is zero", "beginning of training"]
   },
   {
     "id": "Q_LORA_03",
@@ -115,10 +125,11 @@
     "paper_title": "LoRA: Low-Rank Adaptation of Large Language Models",
     "question": "By how much does LoRA reduce the number of trainable parameters compared to full fine-tuning of GPT-3 175B?",
     "question_type": "quantitative",
-    "expected_answer": "LoRA reduces the number of trainable parameters by 10,000 times (from 175B to ~17.5M) and reduces GPU memory requirement by 3 times.",
+    "expected_answer": "Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times.",
+    "verbatim_evidence_quote": "Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times.",
     "target_section": "1. Introduction",
-    "target_page": 2,
-    "evidence_keywords": ["10,000 times", "3 times", "trainable parameters", "GPT-3 175B", "VRAM", "memory"]
+    "target_page": 1,
+    "evidence_keywords": ["10,000 times", "3 times", "trainable parameters", "GPT-3 175B", "GPU memory requirement"]
   },
   {
     "id": "Q_LORA_04",
@@ -126,10 +137,11 @@
     "paper_title": "LoRA: Low-Rank Adaptation of Large Language Models",
     "question": "Does LoRA introduce any inference latency overhead compared to the fully fine-tuned model?",
     "question_type": "factoid",
-    "expected_answer": "No. When deployed in production, the adapted weights can be directly combined with W = W0 + BA, introducing zero additional inference latency.",
+    "expected_answer": "No. LoRA introduces no additional inference latency compared to a fully fine-tuned model because the adapter matrices A and B can be directly merged into W0 in production.",
+    "verbatim_evidence_quote": "a higher training throughput, and, unlike adapters, no additional inference latency.",
     "target_section": "4.1 Low-Rank Parametrized Update Matrices",
-    "target_page": 4,
-    "evidence_keywords": ["inference latency", "zero additional latency", "W = W_0 + BA", "combined", "deployment"]
+    "target_page": 1,
+    "evidence_keywords": ["no additional inference latency", "unlike adapters", "throughput", "merged"]
   },
   {
     "id": "Q_RAG_01",
@@ -137,10 +149,11 @@
     "paper_title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
     "question": "What two distinct formulations of RAG models are introduced in the paper?",
     "question_type": "architecture",
-    "expected_answer": "RAG-Sequence (which uses the same retrieved passages to generate the entire sequence) and RAG-Token (which can attend to different passages across different generated tokens).",
+    "expected_answer": "RAG-Sequence (which uses the same retrieved document to generate the complete sequence) and RAG-Token (which can attend to different passages across different generated tokens).",
+    "verbatim_evidence_quote": "The RAG-Sequence model uses the same retrieved document to generate the complete sequence. Technically, it treats the retrieved document as a latent variable",
     "target_section": "2.1 Models",
-    "target_page": 2,
-    "evidence_keywords": ["RAG-Sequence", "RAG-Token", "same document", "different tokens", "generator"]
+    "target_page": 3,
+    "evidence_keywords": ["RAG-Sequence", "RAG-Token", "same retrieved document", "complete sequence", "latent variable"]
   },
   {
     "id": "Q_RAG_02",
@@ -149,6 +162,7 @@
     "question": "What neural retrieval mechanism and generator architecture are combined in the RAG system?",
     "question_type": "methodology",
     "expected_answer": "Dense Passage Retriever (DPR) with a bi-encoder architecture based on BERT, combined with BART as the sequence-to-sequence generator.",
+    "verbatim_evidence_quote": "We use Dense Passage Retriever (DPR) to initialize our retriever. DPR uses a bi-encoder architecture... For the generator, we use BART-large",
     "target_section": "2.2 Retriever: DPR",
     "target_page": 3,
     "evidence_keywords": ["Dense Passage Retriever", "DPR", "BART", "bi-encoder", "retriever"]
@@ -159,10 +173,11 @@
     "paper_title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
     "question": "What passage retrieval corpus was indexed for the open-domain QA experiments?",
     "question_type": "quantitative",
-    "expected_answer": "The December 2018 Wikipedia dump split into 21 million 100-word disjoint passages.",
+    "expected_answer": "Following Lee et al. and Karpukhin et al., the December 2018 Wikipedia dump split into disjoint 100-word chunks, making a total of 21M documents.",
+    "verbatim_evidence_quote": "we use the December 2018 dump. Each Wikipedia article is split into disjoint 100-word chunks, to make a total of 21M documents",
     "target_section": "2.2 Retriever: DPR",
-    "target_page": 3,
-    "evidence_keywords": ["December 2018", "Wikipedia dump", "21 million", "100-word passages", "corpus"]
+    "target_page": 4,
+    "evidence_keywords": ["December 2018 dump", "100-word chunks", "21M documents", "Wikipedia"]
   },
   {
     "id": "Q_RAG_04",
@@ -171,8 +186,9 @@
     "question": "Why does RAG achieve higher factual accuracy than purely parametric models like T5 or GPT-3?",
     "question_type": "comparative",
     "expected_answer": "Because knowledge is stored explicitly in external non-parametric memory and retrieved dynamically, allowing verifiable citations and easier updating without retraining.",
+    "verbatim_evidence_quote": "Pre-trained models with a differentiable access mechanism to explicit non-parametric memory have so far been only investigated for extractive downstream tasks.",
     "target_section": "1. Introduction",
     "target_page": 1,
-    "evidence_keywords": ["non-parametric memory", "parametric", "verifiable", "updating without retraining", "factual"]
+    "evidence_keywords": ["non-parametric memory", "explicit", "verifiable", "updating without retraining"]
   }
 ]

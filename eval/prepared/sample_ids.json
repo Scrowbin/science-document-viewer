@@ -1,0 +1,22 @@
+{
+  "sample_size": 16,
+  "seed": 42,
+  "ids": [
+    "Q_ATTN_01",
+    "Q_ATTN_02",
+    "Q_ATTN_03",
+    "Q_ATTN_04",
+    "Q_RES_01",
+    "Q_RES_02",
+    "Q_RES_03",
+    "Q_RES_04",
+    "Q_LORA_01",
+    "Q_LORA_02",
+    "Q_LORA_03",
+    "Q_LORA_04",
+    "Q_RAG_01",
+    "Q_RAG_02",
+    "Q_RAG_03",
+    "Q_RAG_04"
+  ]
+}
