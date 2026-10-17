@@ -85,10 +85,10 @@ class DocumentRAG:
         k_const = 60
 
         for rank, idx in enumerate(dense_top):
-            rrf_scores[idx] = rrf_scores.get(idx, 0.0) + 1.0 / (k_const + rank + 1)
+            rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
 
         for rank, idx in enumerate(bm25_top):
-            rrf_scores[idx] = rrf_scores.get(idx, 0.0) + 1.0 / (k_const + rank + 1)
+            rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
 
         ranked_indices = sorted(
             rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
@@ -136,73 +136,28 @@ def reindex_document(doc_id: int, file_path: str) -> Optional[DocumentRAG]:
     return get_or_create_rag(doc_id, file_path)
 
 
-def generate_answer_with_ollama(
-    question: str, chunks: List[Tuple[Document, float]], doc_title: str
-) -> Tuple[str, str]:
-    """
-    Queries Ollama LLM endpoint with retrieved context chunks.
-    Returns (answer_text, model_name).
-    """
-    ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
-    model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
-
-    context_str = "\n\n".join(
-        [
-            f"--- Snippet (Page {doc.metadata.get('page', 1)}, Section: {doc.metadata.get('section', 'Main')}) ---\n{doc.page_content}"
-            for doc, _ in chunks
-        ]
-    )
-
-    prompt = f"""You are a precise academic research assistant reading "{doc_title or 'the document'}".
-Use ONLY the provided context below to answer the user's question clearly and accurately.
-If the answer is not contained in the context, synthesize the most relevant details available from the context.
-
-Context:
-{context_str}
-
-Question: {question}
-
-Answer:"""
-
+def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Optional[str]:
+    """Calls Ollama /api/generate and returns response text or None."""
     try:
         resp = requests.post(
             f"{ollama_url}/api/generate",
-            json={
-                "model": model_name,
-                "prompt": prompt,
-                "stream": False,
-            },
+            json={"model": model_name, "prompt": prompt, "stream": False},
             timeout=15,
         )
         if resp.status_code == 200:
             data = resp.json()
             answer = data.get("response", "").strip()
-            if answer:
-                return answer, f"{model_name} (Local RAG)"
+            return answer if answer else None
     except Exception as e:
-        logger.info(f"Ollama generation offline/failed ({e}), using grounded context synthesis.")
-
-    # Grounded synthesis fallback if Ollama is offline
-    synthesis_snippets = []
-    for doc, score in chunks[:3]:
-        sec = doc.metadata.get("section", f"Page {doc.metadata.get('page', 1)}")
-        snippet = doc.page_content.strip().replace("\n", " ")
-        if len(snippet) > 250:
-            snippet = snippet[:250] + "..."
-        synthesis_snippets.append(f"- **{sec}**: {snippet}")
-
-    fallback_answer = (
-        f"Based on retrieved context from **{doc_title or 'the document'}**:\n\n"
-        + "\n\n".join(synthesis_snippets)
-    )
-    return fallback_answer, "Grounded Hybrid RAG (Local)"
+        logger.info(f"Ollama offline/failed: {e}")
+    return None
 
 
 def query_document(
     doc_id: int, file_path: str, question: str, doc_title: str = ""
 ) -> Dict[str, Any]:
     """
-    Queries document RAG index, retrieves top chunks, and returns response structure.
+    Queries document RAG index, retrieves top chunks, and returns a response structure.
     """
     rag = get_or_create_rag(doc_id, file_path)
     if not rag or not rag.documents:
@@ -221,28 +176,46 @@ def query_document(
         snippet = doc.page_content.strip().replace("\n", " ")
         if len(snippet) > 180:
             snippet = snippet[:180] + "..."
-        sources.append(
-            {
-                "page": page,
-                "chunk_id": chunk_id,
-                "snippet": snippet,
-            }
-        )
+        sources.append({"page": page, "chunk_id": chunk_id, "snippet": snippet})
 
-    answer, model_used = generate_answer_with_ollama(question, top_chunks, doc_title)
+    ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
+    model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
 
-    return {
-        "answer": answer,
-        "sources": sources,
-        "model": model_used,
-    }
+    context_str = "\n\n".join(
+        f"--- Snippet (Page {doc.metadata.get('page', 1)}, Section: {doc.metadata.get('section', 'Main')}) ---\n{doc.page_content}"
+        for doc, _ in top_chunks
+    )
+
+    prompt = (
+        f'You are a precise academic research assistant reading "{doc_title or "the document"}".\n'
+        f"Use ONLY the provided context below to answer the user's question clearly and accurately.\n"
+        f"If the answer is not contained in the context, synthesize the most relevant details available.\n\n"
+        f"Context:\n{context_str}\n\nQuestion: {question}\n\nAnswer:"
+    )
+
+    answer = _generate_with_ollama(prompt, model_name, ollama_url)
+    if answer:
+        return {"answer": answer, "sources": sources, "model": f"{model_name} (Local RAG)"}
+
+    # Grounded synthesis fallback
+    snippets = []
+    for doc, _ in top_chunks[:3]:
+        sec = doc.metadata.get("section", f"Page {doc.metadata.get('page', 1)}")
+        text = doc.page_content.strip().replace("\n", " ")[:250]
+        snippets.append(f"- **{sec}**: {text}...")
+
+    fallback_answer = (
+        f"Based on retrieved context from **{doc_title or 'the document'}**:\n\n"
+        + "\n\n".join(snippets)
+    )
+    return {"answer": fallback_answer, "sources": sources, "model": "Grounded Hybrid RAG (Local)"}
 
 
 def summarize_document(
     doc_id: int, file_path: str, doc_title: str = ""
 ) -> Dict[str, Any]:
     """
-    Generates a 1-click structured technical summary of the document.
+    Generates a structured technical summary of the document.
     """
     rag = get_or_create_rag(doc_id, file_path)
     if not rag or not rag.documents:
@@ -252,15 +225,10 @@ def summarize_document(
             "model": "Local RAG Engine",
         }
 
-    # Select representative chunks across start, middle, and end
+    # Select representative chunks: start, quarter, mid, three-quarter, end
     total = len(rag.documents)
-    indices = []
-    if total <= 5:
-        indices = list(range(total))
-    else:
-        indices = [0, 1, total // 2, max(0, total - 2), total - 1]
-    
-    rep_chunks = [(rag.documents[i], 1.0) for i in sorted(set(indices))]
+    indices = sorted(set([0, total // 4, total // 2, 3 * total // 4, total - 1]))
+    rep_chunks = [(rag.documents[i], 1.0) for i in indices]
 
     sources = []
     for doc, _ in rep_chunks:
@@ -269,67 +237,31 @@ def summarize_document(
         snippet = doc.page_content.strip().replace("\n", " ")
         if len(snippet) > 150:
             snippet = snippet[:150] + "..."
-        sources.append(
-            {
-                "page": page,
-                "chunk_id": chunk_id,
-                "snippet": snippet,
-            }
-        )
+        sources.append({"page": page, "chunk_id": chunk_id, "snippet": snippet})
 
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
     model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
 
-    context_str = "\n\n".join([doc.page_content for doc, _ in rep_chunks])
-    prompt = f"""Summarize the document "{doc_title or 'Selected Paper'}" into 3 clear markdown sections:
-### 1. Problem Statement
-### 2. Proposed Architecture & Methodology
-### 3. Empirical Results & Findings
+    context_str = "\n\n".join(doc.page_content for doc, _ in rep_chunks)
+    prompt = (
+        f'Summarize the document "{doc_title or "Selected Paper"}" into 3 clear markdown sections:\n'
+        f"### 1. Problem Statement\n### 2. Proposed Architecture & Methodology\n### 3. Empirical Results & Findings\n\n"
+        f"Document Excerpts:\n{context_str}\n\nSummary:"
+    )
 
-Document Excerpts:
-{context_str}
+    summary = _generate_with_ollama(prompt, model_name, ollama_url)
+    if summary:
+        return {"summary": summary, "sources": sources, "model": f"{model_name} (Local RAG)"}
 
-Summary:"""
-
-    try:
-        resp = requests.post(
-            f"{ollama_url}/api/generate",
-            json={
-                "model": model_name,
-                "prompt": prompt,
-                "stream": False,
-            },
-            timeout=15,
-        )
-        if resp.status_code == 200:
-            data = resp.json()
-            summary_text = data.get("response", "").strip()
-            if summary_text:
-                return {
-                    "summary": summary_text,
-                    "sources": sources,
-                    "model": f"{model_name} (Local RAG)",
-                }
-    except Exception as e:
-        logger.info(f"Ollama summary offline/failed ({e}), using grounded template fallback.")
-
-    # Grounded synthesis summary fallback
+    # Grounded fallback
     doc_name = doc_title or "this document"
-    first_chunk = rag.documents[0].page_content.strip().replace("\n", " ")[:300]
-    mid_chunk = rag.documents[total // 2].page_content.strip().replace("\n", " ")[:300]
-    last_chunk = rag.documents[-1].page_content.strip().replace("\n", " ")[:300]
+    first = rag.documents[0].page_content.strip().replace("\n", " ")[:300]
+    mid = rag.documents[total // 2].page_content.strip().replace("\n", " ")[:300]
+    last = rag.documents[-1].page_content.strip().replace("\n", " ")[:300]
 
-    fallback_summary = f"""### 1. Problem Statement & Overview
-{first_chunk}...
-
-### 2. Proposed Methodology & Key Concepts
-{mid_chunk}...
-
-### 3. Key Findings & Discussion
-{last_chunk}..."""
-
-    return {
-        "summary": fallback_summary,
-        "sources": sources,
-        "model": "Grounded Hybrid RAG (Local)",
-    }
+    fallback = (
+        f"### 1. Problem Statement & Overview\n{first}...\n\n"
+        f"### 2. Proposed Methodology & Key Concepts\n{mid}...\n\n"
+        f"### 3. Key Findings & Discussion\n{last}..."
+    )
+    return {"summary": fallback, "sources": sources, "model": "Grounded Hybrid RAG (Local)"}

@@ -9,7 +9,7 @@ import pymupdf
 import requests
 from django.utils import timezone
 from django.utils.dateparse import parse_date, parse_datetime
-from ..metadata_extractor.metadata_extractor import metadata_extractor
+from ..data_extractor.data_extractor import data_extractor
 from .crossref_service import clean_doi, fetch_metadata_from_doi
 from ..models import (
     Author,
@@ -57,8 +57,20 @@ def apply_pdf_metadata_to_document(doc: Document) -> bool:
     if not doc.file:
         return False
 
-    meta = metadata_extractor(doc.file.path)
+    # Use the higher‑level helper so tests can patch it
+    meta = extract_metadata_from_pdf(doc.file.path)
+    # Fallback to basic PDF info if GROBID/auto extractor returns nothing
     if not meta or not meta.get("title"):
+        try:
+            pdf_doc = pymupdf.open(doc.file.path)
+            info = pdf_doc.metadata
+            pdf_doc.close()
+            fallback_title = info.get("title") or ""
+            meta = {"title": fallback_title.strip()}
+        except Exception as e:
+            logger.debug("Fallback PDF metadata extraction failed: %s", e)
+            meta = {}
+    if not meta.get("title"):
         return False
 
     file_name = doc.file.name or "document"
@@ -145,14 +157,15 @@ def apply_pdf_metadata_to_document(doc: Document) -> bool:
         domain_clean = domain_name.strip()
         if domain_clean:
             domain_obj, _ = Domain.objects.get_or_create(name=domain_clean[:150])
+            DocumentDomain.objects.get_or_create(document=doc, domain=domain_obj)
     return True
 
 
 def extract_metadata_from_pdf(file_path: str) -> Dict[str, Any]:
     """
-    Extracts structured academic metadata from a PDF file using metadata_extractor pipeline.
+    Extracts structured academic metadata from a PDF file using data_extractor pipeline.
     """
-    meta = metadata_extractor(file_path)
+    meta = data_extractor(file_path)
     return meta or {}
 
 
@@ -160,38 +173,54 @@ def fetch_arxiv_metadata(arxiv_id: str, timeout: int = 8) -> Optional[Dict[str, 
     """
     Query the official arXiv API to resolve academic metadata.
     """
-    clean_id = re.sub(r'v\d+$', '', arxiv_id.strip())
+    clean_id = re.sub(r"v\d+$", "", arxiv_id.strip())
     url = f"https://export.arxiv.org/api/query?id_list={clean_id}"
     try:
         resp = requests.get(
             url,
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'},
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
             timeout=timeout,
         )
         if resp.status_code == 200:
             root = ET.fromstring(resp.content)
-            ns = {'atom': 'http://www.w3.org/2005/Atom'}
-            entry = root.find('atom:entry', ns)
+            ns = {"atom": "http://www.w3.org/2005/Atom"}
+            entry = root.find("atom:entry", ns)
             if entry is not None:
-                title_elem = entry.find('atom:title', ns)
+                title_elem = entry.find("atom:title", ns)
                 if title_elem is not None and title_elem.text:
-                    title = title_elem.text.strip().replace('\n', ' ')
+                    title = title_elem.text.strip().replace("\n", " ")
                     authors = []
-                    for a in entry.findall('atom:author', ns):
-                        name_elem = a.find('atom:name', ns)
+                    for a in entry.findall("atom:author", ns):
+                        name_elem = a.find("atom:name", ns)
                         if name_elem is not None and name_elem.text:
                             authors.append(name_elem.text.strip())
+                    published_elem = entry.find("atom:published", ns)
+                    published = (
+                        published_elem.text.strip()[:10]
+                        if published_elem is not None and published_elem.text
+                        else ""
+                    )
+                    summary_elem = entry.find("atom:summary", ns)
+                    summary = (
+                        summary_elem.text.strip().replace("\n", " ")
+                        if summary_elem is not None and summary_elem.text
+                        else ""
+                    )
                     return {
                         "title": title,
                         "short_title": title[:100],
                         "authors": authors,
+                        "date": published,
                         "doi": f"10.48550/arXiv.{clean_id}",
                         "url": f"https://arxiv.org/abs/{clean_id}",
                         "repository": "arXiv",
+                        "extra": summary,
                     }
     except Exception as e:
         logger.warning("arXiv lookup failed for %s: %s", clean_id, e)
     return None
+
+
 #
 # def extract_metadata_from_pdf(file_path: str) -> Dict[str, Any]:
 #     """

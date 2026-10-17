@@ -4,7 +4,10 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pymupdf
 from bs4 import BeautifulSoup
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,
+    CharacterTextSplitter,
+)
 from langchain_core.documents import Document
 from django.conf import settings
 
@@ -12,13 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def extract_structured_body(xml_text: str) -> List[Dict[str, Any]]:
-    """
-    Extracts structured abstract and body sections with paragraphs from TEI XML.
-    """
     soup = BeautifulSoup(xml_text, "xml")
     sections = []
 
-    # 1. Extract Abstract
     abstract = soup.find("abstract")
     if abstract:
         abstract_paragraphs = [
@@ -37,7 +36,6 @@ def extract_structured_body(xml_text: str) -> List[Dict[str, Any]]:
                 }
             )
 
-    # 2. Extract Body
     text_elem = soup.find("text")
     if text_elem:
         body = text_elem.find("body")
@@ -66,9 +64,6 @@ def extract_structured_body(xml_text: str) -> List[Dict[str, Any]]:
 
 
 def assemble_full_text(sections: List[Dict[str, Any]]) -> str:
-    """
-    Combines sections into a formatted text block with section headings.
-    """
     blocks = []
     for sec in sections:
         title = sec.get("section", "").strip()
@@ -82,12 +77,9 @@ def assemble_full_text(sections: List[Dict[str, Any]]) -> str:
     return "\n\n".join(blocks)
 
 
-def chunk_tei_xml(
+def recursive_chunker(
     xml_text: str, chunk_size: int = 500, chunk_overlap: int = 50
 ) -> List[Document]:
-    """
-    Chunks TEI XML into LangChain Document objects with section metadata.
-    """
     sections = extract_structured_body(xml_text)
     if not sections:
         return []
@@ -125,9 +117,35 @@ def chunk_tei_xml(
     return documents
 
 
+def fixed_size_chunk(pure_tei_xml, chunk_size=550, chunk_overlap=150):
+    doc = extract_structured_body(pure_tei_xml)
+    text_splitter = CharacterTextSplitter(
+        separator="\n",
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+    )
+    chunks = text_splitter.split_text(assemble_full_text(doc))
+
+    documents = []
+    for i, chunk in enumerate(chunks):
+        doc = Document(
+            page_content=chunk,
+            metadata={
+                "chunk_id": i,
+                "total_chunks": len(chunks),
+                "chunk_size": len(chunk),
+            },
+        )
+        documents.append(doc)
+
+    return documents
+
+
 def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
     """
-    Uses GrobidClient to process full text PDF and save TEI XML in xml_store.
+    Uses GrobidClient to process a PDF and return TEI XML text.
+    Saves output in project-root/xml_store/. Returns None if GROBID is unavailable.
     """
     try:
         from grobid_client.grobid_client import GrobidClient
@@ -144,8 +162,8 @@ def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
             input_path=pdf_path,
             output=str(xml_store),
             consolidate_header=True,
-            consolidate_citations=True,
-            include_raw_citations=True,
+            consolidate_citations=False,
+            include_raw_citations=False,
             segment_sentences=True,
             force=True,
         )
@@ -155,7 +173,7 @@ def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
         if xml_file.exists():
             return xml_file.read_text(encoding="utf-8")
     except Exception as e:
-        logger.warning(f"Grobid TEI XML extraction failed for {pdf_path}: {e}")
+        logger.warning(f"GROBID TEI XML extraction failed for {pdf_path}: {e}")
 
     return None
 
@@ -215,7 +233,7 @@ def chunk_document(pdf_path: str) -> List[Document]:
     # Try GROBID first
     xml_text = process_pdf_with_grobid(pdf_path)
     if xml_text:
-        docs = chunk_tei_xml(xml_text)
+        docs = recursive_chunker(xml_text)
         if docs:
             logger.info(f"Successfully chunked {len(docs)} sections via GROBID TEI XML")
             return docs

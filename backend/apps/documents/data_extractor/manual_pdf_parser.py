@@ -1,5 +1,6 @@
 import re
 from pypdf import PdfReader
+from pathlib import Path
 
 
 ARXIV_RE = re.compile(
@@ -310,7 +311,7 @@ def extract_references(text):
 
 
 def auto_extract_metadata(path):
-    reader = PdfReader(path)
+    reader = PdfReader(Path(path))
 
     pages = []
 

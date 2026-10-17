@@ -7,3 +7,9 @@ add a user page (eg change username change password change email page pfp )
 backend:
 removes all images / tables in document preprocessing before feeding into rag
 rename doc submit button
+
+
+
+đồ án tốt nghiệp
+shi: thêm metadata để tăng retrieval, kiểu gì thì idk nma the idea is there 
+
