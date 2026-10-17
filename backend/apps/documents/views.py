@@ -29,15 +29,17 @@ from .serializers import (
 from .permissions import IsOwnerOrCollaborator
 from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
+from .services.pdf_metadata_service import apply_pdf_metadata_to_document, extract_metadata_from_pdf
+from .services.chunking_utils import chunk_document_pdf, chunk_sections
+)
+    reindex_document,
+    summarize_document,
+    query_document,
+from .services.rag_service import (
+)
+    extract_metadata_from_pdf,
 from .services.pdf_metadata_service import (
     apply_pdf_metadata_to_document,
-    extract_metadata_from_pdf,
-)
-from .services.rag_service import (
-    query_document,
-    summarize_document,
-    reindex_document,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -303,6 +305,63 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Response(
             {"status": "linked", "id": relation.id}, status=status.HTTP_201_CREATED
         )
+
+    @action(detail=True, methods=['get'], url_path='chunks')
+    def chunks(self, request, pk=None):
+        """
+        Inspect document chunks under a specified chunking strategy.
+        Supports query params:
+          - strategy: 'section' | 'section_token' | 'section_overlap' (default: 'section_overlap')
+          - max_tokens: int (default: 400)
+          - overlap: int (default: 80)
+        """
+        doc = self.get_object()
+        strategy = request.query_params.get('strategy', 'section_overlap')
+        try:
+            max_tokens = int(request.query_params.get('max_tokens', 400))
+        except (ValueError, TypeError):
+            max_tokens = 400
+
+        try:
+            overlap = int(request.query_params.get('overlap', 80))
+        except (ValueError, TypeError):
+            overlap = 80
+
+        if not doc.file or not os.path.exists(doc.file.path):
+            content = doc.extra or doc.title or "No document file content available."
+            sections = [{"title": "Abstract", "page_start": 1, "page_end": 1, "text": content}]
+            chunks_data = chunk_sections(sections, strategy=strategy, max_tokens=max_tokens, overlap=overlap)
+        else:
+            try:
+                chunks_data = chunk_document_pdf(
+                    doc.file.path,
+                    strategy=strategy,
+                    max_tokens=max_tokens,
+                    overlap=overlap
+                )
+            except Exception as e:
+                logger.exception("Error extracting chunks from document %s: %s", doc.id, e)
+                return Response(
+                    {"detail": f"Failed to extract document chunks: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        avg_tokens = (
+            round(sum(c['token_count'] for c in chunks_data) / max(1, len(chunks_data)), 1)
+            if chunks_data else 0
+        )
+
+        return Response({
+            "document_id": str(doc.id),
+            "document_title": doc.title,
+            "strategy": strategy,
+            "max_tokens": max_tokens,
+            "overlap": overlap if strategy == 'section_overlap' else 0,
+            "total_chunks": len(chunks_data),
+            "avg_tokens_per_chunk": avg_tokens,
+            "chunks": chunks_data
+        })
+
 
 
 class MetadataLookupView(views.APIView):

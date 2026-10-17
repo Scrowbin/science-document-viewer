@@ -67,8 +67,10 @@ The midterm system has one primary external human actor: **Researcher**. Interna
 | **Researcher** | Primary Human Actor | Main authenticated user managing their personal scientific library. | Registers/logs in via JWT, uploads PDFs, fetches DOI metadata, organizes collection trees, annotates text, queries documents via AI assistant, and generates AI summaries from key sections. |
 
 > [!NOTE]
-> **Scope Reduction & Feature Deferral:**
-> Multi-user collaboration, live peer invites, and granular permission sharing (`VIEW`, `COMMENT`, `EDIT`) are formally **deferred to post-midterm releases**. The system scope is strictly optimized around the single-user researcher workflow and the core embedded RAG AI pipeline. See **Appendix A** for post-midterm extension designs.
+> **Implementation Status & Roadmap Alignment:**
+> - **🟢 Active & Verified in Code:** React 19 Frontend SPA, PDF.js canvas viewer, in-canvas annotations, Django 5 DRF Backend (Auth, Collections, Documents, Annotations, Notes, Tags, Crossref DOI, PDF metadata extractor), layout-aware PyMuPDF section extraction + 3 chunking strategies (`section`, `section_token`, `section_overlap`), interactive `<ChunkInspectorModal>`, `GET /api/v1/documents/{id}/chunks/` API, and organic retrieval evaluation harness (`backend/scripts/evaluate_retrieval.py` using BM25 over real scientific PDFs).
+> - **📋 Queued Target Architecture (RAG-2 & RAG-3):** Dense vector embeddings (`sentence-transformers/all-MiniLM-L6-v2`), embedded vector storage (`qdrant-client`), and local LLM inference integration (`Ollama llama3.2:3b`). The frontend currently provides an active `<AiChatPanel>` UI with grounded simulated local responses pending completion of the backend vector indexing and LLM endpoints.
+> - **Deferred Post-Midterm:** Multi-user collaboration, live peer invites, and granular permission sharing (`VIEW`, `COMMENT`, `EDIT`) are formally **deferred to post-midterm releases**. The system scope is strictly optimized around the single-user researcher workflow and the core embedded RAG AI pipeline. See **Appendix A** for post-midterm extension designs.
 
 ---
 
@@ -271,13 +273,13 @@ To maintain a clean separation of concerns, the low-level implementation constan
 
 | Architectural Component | Engineering Parameter | Implementation Value / Standard | Rationale & Tradeoff |
 | :--- | :--- | :--- | :--- |
-| **PDF Text Extraction** | Library & Sorting Mode | `PyMuPDF` (`fitz`), `sort=True` | Coordinates-based sorting improves positional reading order for multi-column academic PDF layouts without requiring OCR. |
-| **Chunking Strategy** | Splitter & Window Size | `RecursiveCharacterTextSplitter`<br>• Chunk Size: `~900` chars<br>• Overlap: `~150` chars | 900 characters roughly corresponds to 1–2 coherent scientific paragraphs, balancing dense context with high retrieval precision. |
-| **Embedding Model** | Vector Dimensions & Metric | `sentence-transformers/all-MiniLM-L6-v2`<br>• Dims: `384`<br>• Metric: `Cosine` | Lightweight 384-dimensional model suitable for local inference without an external embedding API dependency. |
-| **Vector Database** | Engine & Storage Path | `Qdrant Embedded`<br>• Storage: `media/qdrant_db/`<br>• Collection: `scientific_document_chunks` | In-process embedded storage avoids external Docker dependencies for the local development and midterm demo phases. |
-| **Local LLM Inference** | Server & Model | `Ollama`<br>• Model: `llama3.2:3b`<br>• API: `http://localhost:11434/v1` | Runs as an independent local OS daemon; accessed over standard OpenAI-compatible REST `/v1/chat/completions`. |
+| **PDF Text Extraction** | Library & Sorting Mode | `PyMuPDF` (`fitz`), block & font size inspection | Coordinates and font-size based heading detection (`extract_sections_from_pdf`) preserves section hierarchy and page boundaries. |
+| **Chunking Strategy** | Splitter & Window Size | **3 Comparative Strategies:**<br>1. `section`: Whole section blocks (Baseline)<br>2. `section_token`: Token limits via `RecursiveCharacterTextSplitter`<br>3. `section_overlap`: Sliding window overlap (Runtime Default)<br>• Production API: `max_tokens=400`, `overlap=80`<br>• Eval script: `max_tokens=350`, `overlap=70` | Pure section chunking provides high coherence for large LLM contexts, while sliding window overlap (`section_overlap`) optimizes retrieval precision without context loss. |
+| **Embedding Model** | Vector Dimensions & Metric | `sentence-transformers/all-MiniLM-L6-v2`<br>• Dims: `384`<br>• Metric: `Cosine`<br>*(Status: Queued / Target Design)* | Lightweight 384-dimensional model suitable for local inference without an external embedding API dependency. |
+| **Vector Database** | Engine & Storage Path | `Qdrant Embedded`<br>• Storage: `media/qdrant_db/`<br>• Collection: `scientific_document_chunks`<br>*(Status: Queued / Target Design)* | In-process embedded storage avoids external Docker dependencies for the local development and midterm demo phases. |
+| **Local LLM Inference** | Server & Model | `Ollama`<br>• Model: `llama3.2:3b`<br>• API: `http://localhost:11434/v1`<br>*(Status: Queued / Frontend Fallback active)* | Runs as an independent local OS daemon; accessed over standard OpenAI-compatible REST `/v1/chat/completions`. |
 | **File Integrity** | Size Limit & Magic Bytes | `50MB` limit, `.pdf` extension, `%PDF-` magic byte inspection | Prevents non-PDF or renamed binary files from reaching the parser or polluting storage. |
-| **Retrieval Top-K** | Scoped Similarity Results | • Document Q&A: `Top-4` chunks<br>• Semantic Search: `Top-10` chunks | Implementation defaults chosen to limit retrieval context and keep prompt tokens compact for local LLM inference. |
+| **Retrieval Engine & Top-K** | Scoped Similarity Results | • **Active Baseline:** Lexical BM25 ranking (`k1=1.5, b=0.75`) with section heading boost, `Top-5` (`evaluate_retrieval.py`)<br>• **Target Dense Retrieval:** Top-4 chunks for document Q&A, Top-10 for semantic search | BM25 baseline establishes empirical search benchmark over raw academic PDFs prior to dense vector store integration. |
 
 ---
 

@@ -17,6 +17,7 @@ import {
   FaChevronRight,
   FaXmark,
   FaTag,
+  FaCube,
 } from 'react-icons/fa6';
 
 export interface DocumentTableProps {
@@ -33,6 +34,7 @@ export interface DocumentTableProps {
   collections?: Collection[];
   onAddToCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   onAddTag?: (doc: Document) => void;
+  onInspectChunks?: (doc: Document) => void;
   isTrashView?: boolean;
   sortState: SortState;
   onToggleSort: (key: SortKey) => void;
@@ -72,6 +74,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   collections = [],
   onAddToCollection,
   onAddTag,
+  onInspectChunks,
   isTrashView = false,
   sortState,
   onToggleSort,
@@ -342,6 +345,19 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             >
               <FaTag style={{ color: '#10b981' }} />
               <span>Add Tag...</span>
+            </div>
+          )}
+
+          {onInspectChunks && (
+            <div
+              className={styles.contextMenuItem}
+              onClick={() => {
+                onInspectChunks(contextMenu.doc);
+                setContextMenu(null);
+              }}
+            >
+              <FaCube style={{ color: '#2563eb' }} />
+              <span>Inspect Chunks...</span>
             </div>
           )}
 

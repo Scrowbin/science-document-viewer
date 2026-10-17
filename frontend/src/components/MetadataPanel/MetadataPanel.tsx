@@ -13,6 +13,7 @@ import {
   FaChevronRight,
   FaAnglesRight,
   FaAnglesLeft,
+  FaCube,
 } from 'react-icons/fa6';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
@@ -26,6 +27,7 @@ export interface MetadataPanelProps {
   onSetCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  onInspectChunks?: (doc: Document) => void;
 }
 
 function flattenCollections(
@@ -55,6 +57,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   onSetCollection,
   collapsed = false,
   onToggleCollapse,
+  onInspectChunks,
 }) => {
   const [prevDocId, setPrevDocId] = useState<string | null>(document?.id ?? null);
   const [draft, setDraft] = useState<DocumentMetadata | null>(
@@ -386,14 +389,26 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                className={styles.editBtn}
-                onClick={() => onToggleEdit?.(true)}
-                title="Edit document metadata"
-              >
-                <FaPenToSquare /> Edit
-              </button>
+              <>
+                <button
+                  type="button"
+                  className={styles.editBtn}
+                  onClick={() => onToggleEdit?.(true)}
+                  title="Edit document metadata"
+                >
+                  <FaPenToSquare /> Edit
+                </button>
+                {onInspectChunks && document && (
+                  <button
+                    type="button"
+                    className={styles.inspectBtn}
+                    onClick={() => onInspectChunks(document)}
+                    title="Inspect extracted sections and RAG chunks"
+                  >
+                    <FaCube /> Chunks
+                  </button>
+                )}
+              </>
             )}
             {onToggleCollapse && (
               <button

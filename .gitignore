@@ -27,7 +27,22 @@ qdrant_storage/
 media/
 uploads/
 
-# Internal / Scratch Docs
+# Internal / Scratch Docs & Tooling
 additional docs/
+sample__papers/
+sample_papers/
+scratch/
+
+# AI Agent Instruction, Prompt & Handover Docs
 AGENTS.md
+EVALUATION.MD
+EVALUATION.md
+evaluation.md
+*AGENT*.md
+*agent*.md
+eval/*AGENT*.md
+eval/*agent*.md
+eval/AGENT_SESSION_PROMPTS_AND_HANDOVER.md
+
+
 
