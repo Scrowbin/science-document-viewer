@@ -31,15 +31,11 @@ from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
 from .services.pdf_metadata_service import apply_pdf_metadata_to_document, extract_metadata_from_pdf
 from .services.chunking_utils import chunk_document_pdf, chunk_sections
-)
-    reindex_document,
-    summarize_document,
-    query_document,
 from .services.rag_service import (
+    query_document,
+    summarize_document,
+    reindex_document,
 )
-    extract_metadata_from_pdf,
-from .services.pdf_metadata_service import (
-    apply_pdf_metadata_to_document,
 
 logger = logging.getLogger(__name__)
 
