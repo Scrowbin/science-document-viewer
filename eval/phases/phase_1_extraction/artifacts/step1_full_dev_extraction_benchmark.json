@@ -1,0 +1,910 @@
+{
+  "benchmark": "Step 1 Full-Dev 48-Paper PDF Extraction & CER Benchmark",
+  "date": "2026-10-17",
+  "total_dev_papers": 48,
+  "evaluated_papers": 47,
+  "missing_local_pdfs": 1,
+  "macro_summary": {
+    "PyMuPDF": {
+      "papers_evaluated": 47,
+      "mean_heading_recall_pct": 56.47,
+      "mean_char_accuracy_pct": 37.32,
+      "mean_latency_ms": 207.58
+    }
+  },
+  "per_paper_results": [
+    {
+      "paper_arxiv_id": "1603.09631",
+      "gold_headings_count": 17,
+      "pymupdf": {
+        "heading_recall_pct": 94.12,
+        "char_accuracy_pct": 35.05,
+        "cer": 0.6495,
+        "latency_ms": 43.72,
+        "extracted_sections": 20
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1609.00425",
+      "gold_headings_count": 11,
+      "pymupdf": {
+        "heading_recall_pct": 72.73,
+        "char_accuracy_pct": 63.54,
+        "cer": 0.3646,
+        "latency_ms": 62.24,
+        "extracted_sections": 15
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1610.09225",
+      "gold_headings_count": 14,
+      "pymupdf": {
+        "heading_recall_pct": 0.0,
+        "char_accuracy_pct": 30.15,
+        "cer": 0.6985,
+        "latency_ms": 52.45,
+        "extracted_sections": 15
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1612.03226",
+      "gold_headings_count": 8,
+      "pymupdf": {
+        "heading_recall_pct": 87.5,
+        "char_accuracy_pct": 41.49,
+        "cer": 0.5851,
+        "latency_ms": 53.09,
+        "extracted_sections": 11
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1701.04056",
+      "gold_headings_count": 13,
+      "pymupdf": {
+        "heading_recall_pct": 92.31,
+        "char_accuracy_pct": 49.24,
+        "cer": 0.5076,
+        "latency_ms": 37.36,
+        "extracted_sections": 17
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1701.08229",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 42.12,
+        "cer": 0.5788,
+        "latency_ms": 69.5,
+        "extracted_sections": 18
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1704.06194",
+      "gold_headings_count": 15,
+      "pymupdf": {
+        "heading_recall_pct": 46.67,
+        "char_accuracy_pct": 27.31,
+        "cer": 0.7269,
+        "latency_ms": 72.74,
+        "extracted_sections": 46
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1706.08198",
+      "gold_headings_count": 11,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 62.08,
+        "cer": 0.3792,
+        "latency_ms": 291.5,
+        "extracted_sections": 20
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1708.01464",
+      "gold_headings_count": 18,
+      "pymupdf": {
+        "heading_recall_pct": 94.44,
+        "char_accuracy_pct": 41.61,
+        "cer": 0.5839,
+        "latency_ms": 39.1,
+        "extracted_sections": 24
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1712.00991",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 90.0,
+        "char_accuracy_pct": 29.78,
+        "cer": 0.7022,
+        "latency_ms": 66.41,
+        "extracted_sections": 14
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1802.07862",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 90.0,
+        "char_accuracy_pct": 50.87,
+        "cer": 0.4913,
+        "latency_ms": 640.04,
+        "extracted_sections": 14
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1805.08241",
+      "gold_headings_count": 12,
+      "pymupdf": {
+        "heading_recall_pct": 50.0,
+        "char_accuracy_pct": 39.96,
+        "cer": 0.6004,
+        "latency_ms": 100.84,
+        "extracted_sections": 14
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1806.00738",
+      "gold_headings_count": 9,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 41.37,
+        "cer": 0.5863,
+        "latency_ms": 383.38,
+        "extracted_sections": 12
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1808.09111",
+      "gold_headings_count": 17,
+      "pymupdf": {
+        "heading_recall_pct": 88.24,
+        "char_accuracy_pct": 4.67,
+        "cer": 0.9533,
+        "latency_ms": 416.7,
+        "extracted_sections": 29
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1809.00530",
+      "gold_headings_count": 17,
+      "pymupdf": {
+        "heading_recall_pct": 76.47,
+        "char_accuracy_pct": 66.98,
+        "cer": 0.3302,
+        "latency_ms": 102.83,
+        "extracted_sections": 24
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1809.01541",
+      "gold_headings_count": 11,
+      "pymupdf": {
+        "heading_recall_pct": 90.91,
+        "char_accuracy_pct": 20.76,
+        "cer": 0.7924,
+        "latency_ms": 42.67,
+        "extracted_sections": 21
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1809.02286",
+      "gold_headings_count": 12,
+      "pymupdf": {
+        "heading_recall_pct": 83.33,
+        "char_accuracy_pct": 50.45,
+        "cer": 0.4955,
+        "latency_ms": 523.03,
+        "extracted_sections": 20
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1809.04267",
+      "gold_headings_count": 18,
+      "pymupdf": {
+        "heading_recall_pct": 22.22,
+        "char_accuracy_pct": 4.87,
+        "cer": 0.9513,
+        "latency_ms": 68.99,
+        "extracted_sections": 10
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1810.08699",
+      "gold_headings_count": 12,
+      "pymupdf": {
+        "heading_recall_pct": 0.0,
+        "char_accuracy_pct": 61.2,
+        "cer": 0.388,
+        "latency_ms": 53.04,
+        "extracted_sections": 9
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1811.00147",
+      "gold_headings_count": 11,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 49.41,
+        "cer": 0.5059,
+        "latency_ms": 249.54,
+        "extracted_sections": 21
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1811.00383",
+      "gold_headings_count": 11,
+      "pymupdf": {
+        "heading_recall_pct": 45.45,
+        "char_accuracy_pct": 10.55,
+        "cer": 0.8945,
+        "latency_ms": 39.32,
+        "extracted_sections": 12
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1811.05711",
+      "gold_headings_count": 19,
+      "pymupdf": {
+        "heading_recall_pct": 10.53,
+        "char_accuracy_pct": 44.5,
+        "cer": 0.555,
+        "latency_ms": 1174.02,
+        "extracted_sections": 42
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1904.01548",
+      "gold_headings_count": 7,
+      "pymupdf": {
+        "heading_recall_pct": 85.71,
+        "char_accuracy_pct": 32.06,
+        "cer": 0.6794,
+        "latency_ms": 673.32,
+        "extracted_sections": 12
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1904.03288",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 67.92,
+        "cer": 0.3208,
+        "latency_ms": 157.98,
+        "extracted_sections": 24
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1904.09535",
+      "gold_headings_count": 13,
+      "pymupdf": {
+        "heading_recall_pct": 92.31,
+        "char_accuracy_pct": 10.17,
+        "cer": 0.8983,
+        "latency_ms": 47.48,
+        "extracted_sections": 18
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1906.01081",
+      "gold_headings_count": 17,
+      "pymupdf": {
+        "heading_recall_pct": 64.71,
+        "char_accuracy_pct": 19.65,
+        "cer": 0.8035,
+        "latency_ms": 425.92,
+        "extracted_sections": 35
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1906.08593",
+      "gold_headings_count": 15,
+      "pymupdf": {
+        "heading_recall_pct": 60.0,
+        "char_accuracy_pct": 59.72,
+        "cer": 0.4028,
+        "latency_ms": 76.55,
+        "extracted_sections": 15
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1907.04433",
+      "gold_headings_count": 8,
+      "pymupdf": {
+        "heading_recall_pct": 100.0,
+        "char_accuracy_pct": 22.58,
+        "cer": 0.7742,
+        "latency_ms": 79.5,
+        "extracted_sections": 11
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1908.06941",
+      "gold_headings_count": 7,
+      "pymupdf": {
+        "heading_recall_pct": 57.14,
+        "char_accuracy_pct": 4.55,
+        "cer": 0.9545,
+        "latency_ms": 44.55,
+        "extracted_sections": 16
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1909.02304",
+      "gold_headings_count": 20,
+      "pymupdf": {
+        "heading_recall_pct": 20.0,
+        "char_accuracy_pct": 2.18,
+        "cer": 0.9782,
+        "latency_ms": 108.92,
+        "extracted_sections": 23
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1909.09067",
+      "gold_headings_count": 9,
+      "pymupdf": {
+        "heading_recall_pct": 22.22,
+        "char_accuracy_pct": 46.15,
+        "cer": 0.5385,
+        "latency_ms": 74.68,
+        "extracted_sections": 12
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1909.09587",
+      "gold_headings_count": 18,
+      "pymupdf": {
+        "heading_recall_pct": 16.67,
+        "char_accuracy_pct": 64.71,
+        "cer": 0.3529,
+        "latency_ms": 52.69,
+        "extracted_sections": 15
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1909.11687",
+      "gold_headings_count": 14,
+      "pymupdf": {
+        "heading_recall_pct": 42.86,
+        "char_accuracy_pct": 4.77,
+        "cer": 0.9523,
+        "latency_ms": 83.43,
+        "extracted_sections": 16
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1909.13714",
+      "gold_headings_count": 5,
+      "pymupdf": {
+        "heading_recall_pct": 80.0,
+        "char_accuracy_pct": 52.48,
+        "cer": 0.4752,
+        "latency_ms": 28.11,
+        "extracted_sections": 6
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1910.01863",
+      "gold_headings_count": 19,
+      "pymupdf": {
+        "heading_recall_pct": 31.58,
+        "char_accuracy_pct": 62.26,
+        "cer": 0.3774,
+        "latency_ms": 68.04,
+        "extracted_sections": 25
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1911.02855",
+      "gold_headings_count": 26,
+      "pymupdf": {
+        "heading_recall_pct": 11.54,
+        "char_accuracy_pct": 32.6,
+        "cer": 0.674,
+        "latency_ms": 68.33,
+        "extracted_sections": 28
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1911.03059",
+      "gold_headings_count": 21,
+      "pymupdf": {
+        "heading_recall_pct": 0.0,
+        "char_accuracy_pct": 56.39,
+        "cer": 0.4361,
+        "latency_ms": 39.82,
+        "extracted_sections": 20
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1912.01214",
+      "gold_headings_count": 17,
+      "pymupdf": {
+        "heading_recall_pct": 17.65,
+        "char_accuracy_pct": 2.78,
+        "cer": 0.9722,
+        "latency_ms": 382.8,
+        "extracted_sections": 9
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1912.04961",
+      "gold_headings_count": 16,
+      "pymupdf": {
+        "heading_recall_pct": 37.5,
+        "char_accuracy_pct": 26.52,
+        "cer": 0.7348,
+        "latency_ms": 56.25,
+        "extracted_sections": 23
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1912.06262",
+      "gold_headings_count": 12,
+      "pymupdf": {
+        "heading_recall_pct": 41.67,
+        "char_accuracy_pct": 68.27,
+        "cer": 0.3173,
+        "latency_ms": 71.66,
+        "extracted_sections": 14
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "1912.13337",
+      "gold_headings_count": 21,
+      "pymupdf": {
+        "heading_recall_pct": 23.81,
+        "char_accuracy_pct": 5.99,
+        "cer": 0.9401,
+        "latency_ms": 2075.74,
+        "extracted_sections": 34
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2001.03131",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 30.0,
+        "char_accuracy_pct": 41.91,
+        "cer": 0.5809,
+        "latency_ms": 35.39,
+        "extracted_sections": 23
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2001.09215",
+      "gold_headings_count": 4,
+      "pymupdf": {
+        "heading_recall_pct": 50.0,
+        "char_accuracy_pct": 67.89,
+        "cer": 0.3211,
+        "latency_ms": 24.9,
+        "extracted_sections": 7
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2002.01664",
+      "gold_headings_count": 13,
+      "pymupdf": {
+        "heading_recall_pct": 46.15,
+        "char_accuracy_pct": 53.0,
+        "cer": 0.47,
+        "latency_ms": 203.97,
+        "extracted_sections": 18
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2002.03407",
+      "gold_headings_count": 9,
+      "pymupdf": {
+        "heading_recall_pct": 44.44,
+        "char_accuracy_pct": 47.94,
+        "cer": 0.5206,
+        "latency_ms": 74.82,
+        "extracted_sections": 10
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2002.11910",
+      "gold_headings_count": 10,
+      "pymupdf": {
+        "heading_recall_pct": 30.0,
+        "char_accuracy_pct": 14.78,
+        "cer": 0.8522,
+        "latency_ms": 65.56,
+        "extracted_sections": 13
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    },
+    {
+      "paper_arxiv_id": "2003.04642",
+      "gold_headings_count": 23,
+      "pymupdf": {
+        "heading_recall_pct": 13.04,
+        "char_accuracy_pct": 18.81,
+        "cer": 0.8119,
+        "latency_ms": 153.34,
+        "extracted_sections": 52
+      },
+      "grobid": {
+        "available": false,
+        "heading_recall_pct": null
+      },
+      "nougat": {
+        "status": "colab_batch_ready",
+        "available": false
+      }
+    }
+  ]
+}

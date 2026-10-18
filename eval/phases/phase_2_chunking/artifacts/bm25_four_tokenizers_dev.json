@@ -1,0 +1,74 @@
+[
+  {
+    "tokenizer": "whitespace",
+    "scope": "within_paper",
+    "mrr5": 0.4451,
+    "ndcg4": 0.4469,
+    "hit1": 34.38,
+    "hit3": 50.78,
+    "hit5": 63.28
+  },
+  {
+    "tokenizer": "whitespace",
+    "scope": "cross_paper",
+    "mrr5": 0.2315,
+    "ndcg4": 0.2249,
+    "hit1": 17.19,
+    "hit3": 25.78,
+    "hit5": 35.16
+  },
+  {
+    "tokenizer": "regex_no_stopwords",
+    "scope": "within_paper",
+    "mrr5": 0.4303,
+    "ndcg4": 0.4327,
+    "hit1": 32.81,
+    "hit3": 48.44,
+    "hit5": 62.5
+  },
+  {
+    "tokenizer": "regex_no_stopwords",
+    "scope": "cross_paper",
+    "mrr5": 0.2121,
+    "ndcg4": 0.2158,
+    "hit1": 14.84,
+    "hit3": 25.0,
+    "hit5": 33.59
+  },
+  {
+    "tokenizer": "regex_39_stopwords",
+    "scope": "within_paper",
+    "mrr5": 0.4283,
+    "ndcg4": 0.4208,
+    "hit1": 33.59,
+    "hit3": 49.22,
+    "hit5": 61.72
+  },
+  {
+    "tokenizer": "regex_39_stopwords",
+    "scope": "cross_paper",
+    "mrr5": 0.2246,
+    "ndcg4": 0.227,
+    "hit1": 16.41,
+    "hit3": 28.12,
+    "hit5": 33.59
+  },
+  {
+    "tokenizer": "wordpiece",
+    "scope": "within_paper",
+    "mrr5": 0.4677,
+    "ndcg4": 0.4832,
+    "hit1": 35.94,
+    "hit3": 53.12,
+    "hit5": 67.97
+  },
+  {
+    "tokenizer": "wordpiece",
+    "scope": "cross_paper",
+    "mrr5": 0.2141,
+    "ndcg4": 0.2114,
+    "hit1": 16.41,
+    "hit3": 24.22,
+    "hit5": 32.03
+  }
+]

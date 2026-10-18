@@ -88,6 +88,12 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                 if not block_lines:
                     continue
 
+                # Re-attach split small-caps: single uppercase letter followed by space and uppercase sequence (e.g. '1 I NTRODUCTION')
+                def _normalize_title_text(s: str) -> str:
+                    s_clean = re.sub(r"\b([A-Z])\s+([A-Z]{2,})\b", r"\1\2", s)
+                    s_clean = re.sub(r"\bL\s+O\s+RA\b", "LoRA", s_clean, flags=re.IGNORECASE)
+                    return re.sub(r"\s+", " ", s_clean).strip()
+
                 # In papers like Attention, LoRA, etc., the number ('1', '3.1') is on line 0, and title is on line 1
                 if len(block_lines) >= 2 and re.match(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*|[I|V|X]+)\.?$", block_lines[0].strip()):
                     first_line = f"{block_lines[0].strip()} {block_lines[1].strip()}"
@@ -96,14 +102,21 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                     first_line = block_lines[0].strip()
                     content_start_idx = 1
 
+                first_line = _normalize_title_text(first_line)
                 cleaned_line = re.sub(r"^[0-9]+(?:\.[0-9]+)*\.?\s*", "", first_line).strip().lower()
+                cleaned_line = re.sub(r"\b([a-z])\s+([a-z]{2,})\b", r"\1\2", cleaned_line)
 
                 is_heading = False
-                if len(first_line) < 75:
+                if 3 <= len(first_line) < 85:
                     if cleaned_line in KNOWN_ACADEMIC_HEADINGS:
                         is_heading = True
-                    elif re.match(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*|[I|V|X]+)\.?\s+[A-Z][A-Za-z0-9\s\-_:,\(\)]{2,50}$", first_line):
+                    # Structural number prefix + title (supporting conversational punctuation like ?, ', ", -, :)
+                    elif re.match(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*|[I|V|X]+)\.?\s+[A-Za-z0-9\s\-_:,\(\)\?\'\"\`]{2,75}[\.\?]?$", first_line):
                         is_heading = True
+                    # Typographic bold heuristic on numbered or short title block
+                    elif any(s.get("flags", 0) & 2 for l in b.get("lines", [])[:1] for s in l.get("spans", [])):
+                        if re.match(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*|[I|V|X]+)\.?", first_line):
+                            is_heading = True
 
                 if is_heading:
                     # Flush previous section if it has content
@@ -146,7 +159,7 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
     # Fallback: if no distinct sections detected, return full document as one section
     if not sections and len(doc) > 0:
         doc_retry = pymupdf.open(pdf_path)
-        full_text = "\n\n".join([page.get_text("text") for page in doc_retry])
+        full_text = "\n\n".join([str(page.get_text("text")) for page in doc_retry])
         doc_retry.close()
         sections.append({
             "title": "Document Body",

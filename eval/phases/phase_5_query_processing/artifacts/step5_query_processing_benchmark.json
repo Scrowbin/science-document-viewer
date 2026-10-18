@@ -1,0 +1,126 @@
+{
+  "benchmark": "Step 5 Query Processing & Technical Acronym Expansion Benchmark",
+  "cohort": "QASPER Expanded Split (160 Papers, 487 Queries)",
+  "acronym_stats": {
+    "total_queries": 487,
+    "queries_with_acronyms": 14,
+    "acronym_hit_rate": 0.028747433264887063,
+    "total_acronym_mentions": 15
+  },
+  "dense_e5_results": {
+    "Arm 1: Raw Query": {
+      "ndcg4": 0.4458896803090695,
+      "mrr5": 0.4587611225188228,
+      "hit5": 71.86858316221766,
+      "recall20": 0.9586184520476101,
+      "query_encode_latency_ms": 12.22,
+      "avg_query_len_chars": 50.87063655030801
+    },
+    "Arm 2: Filler Stripping": {
+      "ndcg4": 0.4411540481874683,
+      "mrr5": 0.455201916495551,
+      "hit5": 72.8952772073922,
+      "recall20": 0.9566139541498884,
+      "query_encode_latency_ms": 14.47,
+      "avg_query_len_chars": 47.19301848049281
+    },
+    "Arm 3: Acronym Inline": {
+      "ndcg4": 0.44240466628154357,
+      "mrr5": 0.45633127994524303,
+      "hit5": 71.86858316221766,
+      "recall20": 0.9586184520476101,
+      "query_encode_latency_ms": 9.33,
+      "avg_query_len_chars": 52.13552361396304
+    },
+    "Arm 4: Acronym Append": {
+      "ndcg4": 0.4439786526914317,
+      "mrr5": 0.45930869267624913,
+      "hit5": 72.07392197125256,
+      "recall20": 0.9586184520476101,
+      "query_encode_latency_ms": 9.72,
+      "avg_query_len_chars": 52.07392197125257
+    },
+    "Arm 5: Combined (Inline + Strip)": {
+      "ndcg4": 0.4376242693238684,
+      "mrr5": 0.45184804928131417,
+      "hit5": 72.8952772073922,
+      "recall20": 0.9566139541498884,
+      "query_encode_latency_ms": 9.52,
+      "avg_query_len_chars": 48.45790554414784
+    }
+  },
+  "bm25_results": {
+    "Arm 1: Raw Query": {
+      "ndcg4": 0.3826304334349932,
+      "mrr5": 0.3894250513347023,
+      "hit5": 65.09240246406571,
+      "recall20": 0.9312341662444331
+    },
+    "Arm 2: Filler Stripping": {
+      "ndcg4": 0.39082441622342456,
+      "mrr5": 0.39976043805612593,
+      "hit5": 67.35112936344969,
+      "recall20": 0.932774207312195
+    },
+    "Arm 3: Acronym Inline": {
+      "ndcg4": 0.3767496898256716,
+      "mrr5": 0.3838809034907597,
+      "hit5": 63.860369609856264,
+      "recall20": 0.9312341662444331
+    },
+    "Arm 4: Acronym Append": {
+      "ndcg4": 0.3767496898256716,
+      "mrr5": 0.3838809034907597,
+      "hit5": 63.860369609856264,
+      "recall20": 0.9312341662444331
+    },
+    "Arm 5: Combined (Inline + Strip)": {
+      "ndcg4": 0.38494367261410295,
+      "mrr5": 0.39421629021218346,
+      "hit5": 66.11909650924025,
+      "recall20": 0.932774207312195
+    }
+  },
+  "dense_hypothesis_tests": [
+    {
+      "arm_name": "Arm 2: Filler Stripping",
+      "delta_ndcg4": -0.004735632121601218,
+      "ci_95": [
+        -0.02022132123658841,
+        0.012000662471013791
+      ],
+      "p_value": 0.5867066466766616,
+      "is_significant": false
+    },
+    {
+      "arm_name": "Arm 3: Acronym Inline",
+      "delta_ndcg4": -0.0034850140275259492,
+      "ci_95": [
+        -0.008936756614340863,
+        0.0014985722803191283
+      ],
+      "p_value": 0.16991504247876063,
+      "is_significant": false
+    },
+    {
+      "arm_name": "Arm 4: Acronym Append",
+      "delta_ndcg4": -0.0019110276176378495,
+      "ci_95": [
+        -0.009277368128968067,
+        0.0052603844794977365
+      ],
+      "p_value": 0.5797101449275363,
+      "is_significant": false
+    },
+    {
+      "arm_name": "Arm 5: Combined (Inline + Strip)",
+      "delta_ndcg4": -0.008265410985201152,
+      "ci_95": [
+        -0.024134183474931892,
+        0.008224540562706944
+      ],
+      "p_value": 0.31984007996002,
+      "is_significant": false
+    }
+  ]
+}

@@ -87,6 +87,7 @@ def resolve_pdf_files(
 def normalize_heading(h: str) -> str:
     """Normalizes section heading for fuzzy comparison."""
     h = re.sub(r"^[0-9\.\s\-]+", "", h)  # Strip leading numbers
+    h = re.sub(r"\b([A-Za-z])\s+([A-Za-z]{2,})\b", r"\1\2", h)
     h = re.sub(r"\s+", " ", h)
     return h.strip().lower()
 

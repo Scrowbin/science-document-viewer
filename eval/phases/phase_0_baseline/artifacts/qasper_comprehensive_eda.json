@@ -1,0 +1,69 @@
+{
+  "dataset_name": "QASPER",
+  "scope": "Frozen Pilot Split & Expanded Benchmark Cohort",
+  "splits": {
+    "dev_papers_count": 0,
+    "held_out_papers_count": 0,
+    "pilot_total_papers": 100,
+    "pilot_total_questions": 250,
+    "expanded_total_papers": 211,
+    "expanded_total_questions": 487
+  },
+  "document_statistics": {
+    "mean_words_per_doc": 3257.23,
+    "std_words_per_doc": 1593.369956130716,
+    "p50_words_per_doc": 2980.5,
+    "p95_words_per_doc": 5843.5999999999985,
+    "min_words_per_doc": 930,
+    "max_words_per_doc": 10279,
+    "mean_sections_per_doc": 13.36,
+    "mean_words_per_section": 243.80464071856287,
+    "p50_words_per_section": 179.0,
+    "p95_words_per_section": 662.0,
+    "total_sections_analyzed": 1336
+  },
+  "question_statistics": {
+    "type_distribution": {
+      "extractive": 175,
+      "yes_no": 36,
+      "abstractive": 31,
+      "unanswerable": 8
+    },
+    "type_percentages": {
+      "extractive": 70.0,
+      "yes_no": 14.4,
+      "abstractive": 12.4,
+      "unanswerable": 3.2
+    },
+    "mean_words_per_question": 7.952,
+    "p50_words_per_question": 7.0,
+    "p95_words_per_question": 14.549999999999983,
+    "min_words_per_question": 4,
+    "max_words_per_question": 24
+  },
+  "evidence_statistics": {
+    "mean_evidence_passages_per_q": 2.124,
+    "single_passage_evidence_count": 112,
+    "multi_passage_evidence_count": 130,
+    "mean_evidence_words": 190.932,
+    "p50_evidence_words": 148.0,
+    "p95_evidence_words": 438.54999999999995,
+    "mean_lexical_jaccard_overlap": 0.015828186973759446
+  },
+  "top_10_section_headings": {
+    "introduction": 98,
+    "conclusion": 57,
+    "related work": 48,
+    "acknowledgments": 27,
+    "results": 24,
+    "experiments": 22,
+    "conclusions": 13,
+    "discussion": 11,
+    "acknowledgements": 11,
+    "model": 9
+  },
+  "page_consensus_rate": {
+    "PyMuPDF_and_pypdf_100pct_agreement": 52.8,
+    "none": 47.2
+  }
+}

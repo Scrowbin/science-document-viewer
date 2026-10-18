@@ -1,0 +1,23 @@
+{
+  "raw_total_questions": 274,
+  "valid_benchmark_questions": 250,
+  "unique_papers": 96,
+  "question_type_distribution": {
+    "extractive": 175,
+    "yes_no": 36,
+    "abstractive": 31,
+    "unanswerable": 8
+  },
+  "unanswerable_count": 8,
+  "unanswerable_pct": 3.2,
+  "float_selected_count": 11,
+  "float_selected_pct": 4.0,
+  "text_evidence_questions": 242,
+  "evidence_tokens": {
+    "min": 5,
+    "max": 1579,
+    "mean": 51.4,
+    "p50": 32
+  },
+  "mean_question_evidence_lexical_overlap": 0.063
+}

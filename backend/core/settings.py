@@ -146,5 +146,10 @@ CORS_ALLOW_CREDENTIALS = True
 LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'ollama')
 OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:3b')
-EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'intfloat/e5-small-v2')
+QDRANT_MODE = os.getenv('QDRANT_MODE', 'local')  # 'local' (embedded SQLite) or 'server' (standalone Docker)
+QDRANT_URL = os.getenv('QDRANT_URL', 'http://localhost:6333')
+QDRANT_PREFER_GRPC = os.getenv('QDRANT_PREFER_GRPC', 'false').lower() == 'true'
+QDRANT_GRPC_PORT = int(os.getenv('QDRANT_GRPC_PORT', '6334'))
 QDRANT_STORAGE_PATH = os.path.join(BASE_DIR, os.getenv('QDRANT_STORAGE_PATH', 'media/qdrant_db'))
+

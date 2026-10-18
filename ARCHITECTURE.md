@@ -44,7 +44,7 @@ The system is engineered as a **Modular Monolith** combining a React 19 single-p
 │   PostgreSQL 16 Database          │   │   Embedded RAG Pipeline (rag_service│
 │   - Users & Authentication        │   │   - PyMuPDF (fitz) sort=True        │
 │   - Hierarchical Collections Tree │   │   - RecursiveCharacterTextSplitter  │
-│   - Document Records & Metadata           │   │   - all-MiniLM-L6-v2 (384-dim)      │
+│   - Document Records & Metadata           │   │   - intfloat/e5-small-v2 (384-dim)  │
 │   - Annotations & Sticky Notes    │   │   - Qdrant Embedded Vector Store    │
 │   - Personal Research Notes       │   +──────────────────┬──────────────────+
 │   - Authors, Tags & Domains       │                      │ Local REST /v1
@@ -69,7 +69,7 @@ The midterm system has one primary external human actor: **Researcher**. Interna
 > [!NOTE]
 > **Implementation Status & Roadmap Alignment:**
 > - **🟢 Active & Verified in Code:** React 19 Frontend SPA, PDF.js canvas viewer, in-canvas annotations, Django 5 DRF Backend (Auth, Collections, Documents, Annotations, Notes, Tags, Crossref DOI, PDF metadata extractor), layout-aware PyMuPDF section extraction + 3 chunking strategies (`section`, `section_token`, `section_overlap`), interactive `<ChunkInspectorModal>`, `GET /api/v1/documents/{id}/chunks/` API, and organic retrieval evaluation harness (`backend/scripts/evaluate_retrieval.py` using BM25 over real scientific PDFs).
-> - **📋 Queued Target Architecture (RAG-2 & RAG-3):** Dense vector embeddings (`sentence-transformers/all-MiniLM-L6-v2`), embedded vector storage (`qdrant-client`), and local LLM inference integration (`Ollama llama3.2:3b`). The frontend currently provides an active `<AiChatPanel>` UI with grounded simulated local responses pending completion of the backend vector indexing and LLM endpoints.
+> - **📋 Target Architecture (RAG-2 & RAG-3):** Dense vector embeddings (`intfloat/e5-small-v2`, empirically selected champion over 160 papers / 487 queries with +0.0671 nDCG@4 over MiniLM, $p=0.0010^*$), embedded vector storage (`qdrant-client`), and local LLM inference integration (`Ollama llama3.2:3b`). The frontend currently provides an active `<AiChatPanel>` UI with grounded simulated local responses pending completion of the backend vector indexing and LLM endpoints.
 > - **Deferred Post-Midterm:** Multi-user collaboration, live peer invites, and granular permission sharing (`VIEW`, `COMMENT`, `EDIT`) are formally **deferred to post-midterm releases**. The system scope is strictly optimized around the single-user researcher workflow and the core embedded RAG AI pipeline. See **Appendix A** for post-midterm extension designs.
 
 ---
@@ -230,7 +230,7 @@ package "Data & AI Infrastructure" {
     database "PostgreSQL 16" as PostgreSQL
     database "Qdrant\nEmbedded Vector Store" as Qdrant
     folder "PDF File Storage\n(media/documents/)" as Files
-    [Embedding Model\nall-MiniLM-L6-v2] as Embeddings
+    [Embedding Model\nintfloat/e5-small-v2] as Embeddings
     [Local LLM Server\nOllama (llama3.2:3b)] as LLM
 }
 
@@ -275,7 +275,7 @@ To maintain a clean separation of concerns, the low-level implementation constan
 | :--- | :--- | :--- | :--- |
 | **PDF Text Extraction** | Library & Sorting Mode | `PyMuPDF` (`fitz`), block & font size inspection | Coordinates and font-size based heading detection (`extract_sections_from_pdf`) preserves section hierarchy and page boundaries. |
 | **Chunking Strategy** | Splitter & Window Size | **3 Comparative Strategies:**<br>1. `section`: Whole section blocks (Baseline)<br>2. `section_token`: Token limits via `RecursiveCharacterTextSplitter`<br>3. `section_overlap`: Sliding window overlap (Runtime Default)<br>• Production API: `max_tokens=400`, `overlap=80`<br>• Eval script: `max_tokens=350`, `overlap=70` | Pure section chunking provides high coherence for large LLM contexts, while sliding window overlap (`section_overlap`) optimizes retrieval precision without context loss. |
-| **Embedding Model** | Vector Dimensions & Metric | `sentence-transformers/all-MiniLM-L6-v2`<br>• Dims: `384`<br>• Metric: `Cosine`<br>*(Status: Queued / Target Design)* | Lightweight 384-dimensional model suitable for local inference without an external embedding API dependency. |
+| **Embedding Model** | Vector Dimensions & Metric | `intfloat/e5-small-v2`<br>• Dims: `384`<br>• Metric: `Cosine`<br>*(Empirically selected champion over 160 papers / 487 queries: 0.4459 nDCG@4, +0.0671 over MiniLM, $p=0.0010^*$)* | High-performance 384-dimensional asymmetric model (`passage: ` / `query: `) outperforming base MiniLM, SPECTER2, MPNet, and BM25 on scientific text. |
 | **Vector Database** | Engine & Storage Path | `Qdrant Embedded`<br>• Storage: `media/qdrant_db/`<br>• Collection: `scientific_document_chunks`<br>*(Status: Queued / Target Design)* | In-process embedded storage avoids external Docker dependencies for the local development and midterm demo phases. |
 | **Local LLM Inference** | Server & Model | `Ollama`<br>• Model: `llama3.2:3b`<br>• API: `http://localhost:11434/v1`<br>*(Status: Queued / Frontend Fallback active)* | Runs as an independent local OS daemon; accessed over standard OpenAI-compatible REST `/v1/chat/completions`. |
 | **File Integrity** | Size Limit & Magic Bytes | `50MB` limit, `.pdf` extension, `%PDF-` magic byte inspection | Prevents non-PDF or renamed binary files from reaching the parser or polluting storage. |
@@ -316,7 +316,7 @@ fork again
     :Recursive Character Chunking
     (Chunk size: ~900 chars, Overlap: ~150 chars, Page-aware metadata);
     :Generate Dense Embeddings
-    (SentenceTransformers all-MiniLM-L6-v2 -> 384-dimensional vectors);
+    (intfloat/e5-small-v2 -> 384-dimensional vectors with 'passage: ' prefix);
     :Store Vectors & Payload in Qdrant Embedded
     (Payload: doc_id, page_number, chunk_id, text);
     :Update Document Status in Database

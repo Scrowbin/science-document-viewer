@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-10-16 23:22:14",
+  "embedding_model": "intfloat/e5-small-v2",
+  "dimension": 384,
+  "engine": "qdrant_embedded_local",
+  "storage_backend": "sqlite",
+  "search_mode": "exact_brute_force",
+  "hnsw_status": "inert_in_local_mode",
+  "champion_config": null,
+  "notes": "Audit Remediation: Qdrant local embedded mode uses SQLite exact brute-force search. HNSW parameters (M, ef_construct, ef_search) have no effect in local mode. This benchmark characterizes exact retrieval fidelity against NumPy BLAS across all 114 queries.",
+  "tokenization_audit": {
+    "sequence_limit": 512,
+    "mean_subwords": 205.5,
+    "p50_subwords": 212.0,
+    "p90_subwords": 307.0,
+    "p95_subwords": 345.2,
+    "max_subwords": 630,
+    "num_exceeding_limit": 5,
+    "pct_exceeding_limit": 0.45,
+    "within_budget": true
+  },
+  "resource_footprint": {
+    "num_chunks": 1119,
+    "disk_mb": 4.43,
+    "peak_traced_ram_mb": 20.27,
+    "memory_measurement_qualification": "tracemalloc tracks Python-allocated heap memory (including NumPy arrays in recent versions); it misses SQLite and other native allocations.",
+    "build_time_s": 12.37
+  },
+  "regime_a_within_paper": {
+    "candidate_pool_size": "~25 chunks per paper",
+    "exact_id_match_top4_pct": 100.0,
+    "exact_id_match_top20_pct": 100.0,
+    "max_score_delta_vs_blas": 2.16e-07,
+    "warmup_queries": 10,
+    "num_timed_passes": 5,
+    "pooled_samples": 570,
+    "p50_latency_ms": 29.065,
+    "p95_latency_ms": 48.363,
+    "p99_latency_ms": 57.97,
+    "p50_pass_range_ms": [
+      27.465,
+      40.166
+    ],
+    "latency_explanation": "Likely includes Python-side payload filtering overhead; not profiled."
+  },
+  "regime_b_global_corpus": {
+    "candidate_pool_size": "1119 chunks across all papers",
+    "exact_id_match_top4_pct": 100.0,
+    "exact_id_match_top20_pct": 100.0,
+    "max_score_delta_vs_blas": 2.09e-07,
+    "warmup_queries": 10,
+    "num_timed_passes": 5,
+    "pooled_samples": 570,
+    "p50_latency_ms": 6.959,
+    "p95_latency_ms": 9.692,
+    "p99_latency_ms": 10.75,
+    "p50_pass_range_ms": [
+      6.662,
+      8.041
+    ],
+    "latency_explanation": "Likely dominated by in-process Python/NumPy scan; not profiled."
+  }
+}

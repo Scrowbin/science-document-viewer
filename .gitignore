@@ -1,6 +1,8 @@
 # Operating System
 .DS_Store
 Thumbs.db
+._*
+
 
 # Environments
 .env
@@ -43,6 +45,14 @@ evaluation.md
 eval/*AGENT*.md
 eval/*agent*.md
 eval/AGENT_SESSION_PROMPTS_AND_HANDOVER.md
+
+# Large Evaluation Caches & Model Weights
+backend/eval/
+eval/pdfs/
+eval/data/
+*.npy
+*.tar.gz
+
 
 
 

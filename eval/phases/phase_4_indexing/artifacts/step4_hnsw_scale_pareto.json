@@ -1,0 +1,392 @@
+{
+  "benchmark": "Step 4 HNSW Scaling Pareto Sweep",
+  "date": "2026-10-17",
+  "server_mode": true,
+  "n_queries_evaluated": 114,
+  "results": [
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 32,
+      "build_time_sec": 1.9,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 6.456399998569395,
+        "p95_ms": 9.021170008782065
+      },
+      "regime_a_filtered": {
+        "p50_ms": 43.79535000771284,
+        "p95_ms": 62.99734499916667
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 64,
+      "build_time_sec": 1.9,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 3.2049000074039213,
+        "p95_ms": 5.429119991458719
+      },
+      "regime_a_filtered": {
+        "p50_ms": 20.875749993138015,
+        "p95_ms": 33.4254650028015
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 128,
+      "build_time_sec": 1.9,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 3.8550500030396506,
+        "p95_ms": 12.601824999728704
+      },
+      "regime_a_filtered": {
+        "p50_ms": 23.28405000298517,
+        "p95_ms": 85.23006499381151
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 32,
+      "build_time_sec": 2.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.374950007942971,
+        "p95_ms": 11.22987500129966
+      },
+      "regime_a_filtered": {
+        "p50_ms": 51.75289999897359,
+        "p95_ms": 68.80179999789104
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 64,
+      "build_time_sec": 2.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.998300003237091,
+        "p95_ms": 10.996685004647588
+      },
+      "regime_a_filtered": {
+        "p50_ms": 53.88004999986151,
+        "p95_ms": 71.20847000478534
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 128,
+      "build_time_sec": 2.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 8.539450005628169,
+        "p95_ms": 11.877215006097686
+      },
+      "regime_a_filtered": {
+        "p50_ms": 63.44985000032466,
+        "p95_ms": 80.2836249982647
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 32,
+      "build_time_sec": 2.13,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.983750008861534,
+        "p95_ms": 10.269499995774822
+      },
+      "regime_a_filtered": {
+        "p50_ms": 53.89974999707192,
+        "p95_ms": 65.64761999907205
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 64,
+      "build_time_sec": 2.13,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.002550002653152,
+        "p95_ms": 9.339574990735855
+      },
+      "regime_a_filtered": {
+        "p50_ms": 51.029499998549,
+        "p95_ms": 68.08311000204411
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 128,
+      "build_time_sec": 2.13,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.029050000710413,
+        "p95_ms": 10.111829999368636
+      },
+      "regime_a_filtered": {
+        "p50_ms": 50.511549998191185,
+        "p95_ms": 75.22046500089345
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 32,
+      "build_time_sec": 2.23,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 8.048049989156425,
+        "p95_ms": 11.699225008487701
+      },
+      "regime_a_filtered": {
+        "p50_ms": 57.28260000614682,
+        "p95_ms": 80.01571500208229
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 64,
+      "build_time_sec": 2.23,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.692400002270006,
+        "p95_ms": 11.91405999998096
+      },
+      "regime_a_filtered": {
+        "p50_ms": 54.00809999991907,
+        "p95_ms": 71.23947499785572
+      }
+    },
+    {
+      "tier_vectors": 1119,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 128,
+      "build_time_sec": 2.23,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 7.522450003307313,
+        "p95_ms": 10.240984993288293
+      },
+      "regime_a_filtered": {
+        "p50_ms": 50.36554999242071,
+        "p95_ms": 63.036415000533445
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 32,
+      "build_time_sec": 3.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 16.05304999247892,
+        "p95_ms": 21.42206500429893
+      },
+      "regime_a_filtered": {
+        "p50_ms": 125.98335000075167,
+        "p95_ms": 158.0769500011229
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 64,
+      "build_time_sec": 3.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 17.61015000374755,
+        "p95_ms": 22.80906000305549
+      },
+      "regime_a_filtered": {
+        "p50_ms": 119.07705000339774,
+        "p95_ms": 151.62695999679272
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 64,
+      "hnsw_ef": 128,
+      "build_time_sec": 3.6,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 12.930999997479375,
+        "p95_ms": 18.02592499734601
+      },
+      "regime_a_filtered": {
+        "p50_ms": 98.22069999790983,
+        "p95_ms": 126.1616000032518
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 32,
+      "build_time_sec": 1.74,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 11.965999998210464,
+        "p95_ms": 34.22837000107389
+      },
+      "regime_a_filtered": {
+        "p50_ms": 60.37810000270838,
+        "p95_ms": 192.47875999571988
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 64,
+      "build_time_sec": 1.74,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 18.67620000120951,
+        "p95_ms": 33.86654999412712
+      },
+      "regime_a_filtered": {
+        "p50_ms": 151.8147999959183,
+        "p95_ms": 201.648869998462
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 16,
+      "ef_construct": 100,
+      "hnsw_ef": 128,
+      "build_time_sec": 1.74,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 17.277649996685795,
+        "p95_ms": 25.744270005816343
+      },
+      "regime_a_filtered": {
+        "p50_ms": 139.94985000317683,
+        "p95_ms": 199.67555000184802
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 32,
+      "build_time_sec": 5.06,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 20.745100002386607,
+        "p95_ms": 36.026095001579954
+      },
+      "regime_a_filtered": {
+        "p50_ms": 192.46684999961872,
+        "p95_ms": 249.98016499448565
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 64,
+      "build_time_sec": 5.06,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 20.53374999377411,
+        "p95_ms": 35.95844499941448
+      },
+      "regime_a_filtered": {
+        "p50_ms": 178.50360000011278,
+        "p95_ms": 211.03863499956788
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 64,
+      "hnsw_ef": 128,
+      "build_time_sec": 5.06,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 19.475000000966247,
+        "p95_ms": 25.800170006550616
+      },
+      "regime_a_filtered": {
+        "p50_ms": 184.7466000035638,
+        "p95_ms": 235.2680300020438
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 32,
+      "build_time_sec": 4.7,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 18.01125000201864,
+        "p95_ms": 28.200750002724803
+      },
+      "regime_a_filtered": {
+        "p50_ms": 164.33705000235932,
+        "p95_ms": 232.6941000057559
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 64,
+      "build_time_sec": 4.7,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 20.194250006170478,
+        "p95_ms": 33.71345000196015
+      },
+      "regime_a_filtered": {
+        "p50_ms": 183.84304999926826,
+        "p95_ms": 254.98965999577192
+      }
+    },
+    {
+      "tier_vectors": 3000,
+      "m": 32,
+      "ef_construct": 100,
+      "hnsw_ef": 128,
+      "build_time_sec": 4.7,
+      "exact_match_top4_pct": 100.0,
+      "regime_b_global": {
+        "p50_ms": 18.232599999464583,
+        "p95_ms": 33.53964499983703
+      },
+      "regime_a_filtered": {
+        "p50_ms": 167.58979999576695,
+        "p95_ms": 205.66424000571712
+      }
+    }
+  ]
+}

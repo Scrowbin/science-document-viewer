@@ -1,0 +1,449 @@
+{
+  "total_flagged": 49,
+  "annotator_split_count": 29,
+  "unanswerable_count": 9,
+  "short_evidence_count": 11,
+  "items": [
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_010",
+      "paper_id": "1801.05147",
+      "paper_title": "Adversarial Learning for Chinese NER from Crowd Annotations",
+      "question": "What crowdsourcing platform is used?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "With the purpose of obtaining evaluation datasets from crowd annotators, we collect the sentences from two domains: Dialog and E-commerce domain. We hire undergraduate students to "
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_011",
+      "paper_id": "1811.00383",
+      "paper_title": "Addressing word-order Divergence in Multilingual Neural Machine Translation for extremely Low Resource Languages",
+      "question": "How do they match words before reordering them?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "We use the CFILT-preorder system for reordering English sentences to match the Indian language word order. It contains two re-ordering systems: (1) generic rules that apply to all "
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_030",
+      "paper_id": "2002.03407",
+      "paper_title": "Abstractive Summarization for Low Resource Data using Domain Transfer and Data Synthesis",
+      "question": "What is the interannotator agreement for the human evaluation?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_037",
+      "paper_id": "1605.06083",
+      "paper_title": "Stereotyping and Bias in the Flickr30K Dataset",
+      "question": "What evaluations methods do they take?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_047",
+      "paper_id": "1612.06685",
+      "paper_title": "Stateology: State-Level Interactive Charting of Language, Feelings, and Values",
+      "question": "How do they obtain psychological dimensions of people?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "We also measure the usage of words related to people's core values as reported by Boyd et al. boyd2015. The sets of words, or themes, were excavated using the Meaning Extraction Me"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_057",
+      "paper_id": "1911.06964",
+      "paper_title": "Learning Autocomplete Systems as a Communication Game",
+      "question": "What user variations have been tested?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "We recruited 100 crowdworkers on Amazon Mechanical Turk (AMT) and measured completion times and accuracies for typing randomly sampled sentences from the Yelp corpus."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_061",
+      "paper_id": "2001.02284",
+      "paper_title": "Multipurpose Intelligent Process Automation via Conversational Assistant",
+      "question": "What kind of repetitive and time-consuming activities does their assistant handle?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "To assist a student with a mathematical question, a tutor has to know the following regular information: What kind of topic (or sub-topic) a student has a problem with. At which ex"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_064",
+      "paper_id": "2002.01664",
+      "paper_title": "Identification of Indian Languages using Ghost-VLAD pooling",
+      "question": "Which 7 Indian languages do they experiment with?",
+      "issue": "Evidence is very brief (5 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 1: Dataset"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_065",
+      "paper_id": "1808.09111",
+      "paper_title": "Unsupervised Learning of Syntactic Structure with Invertible Neural Projections",
+      "question": "What datasets do they evaluate on?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "For both POS tagging and dependency parsing, we run experiments on the Wall Street Journal (WSJ) portion of the Penn Treebank."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_066",
+      "paper_id": "1808.09111",
+      "paper_title": "Unsupervised Learning of Syntactic Structure with Invertible Neural Projections",
+      "question": "Do they evaluate only on English datasets?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "For both POS tagging and dependency parsing, we run experiments on the Wall Street Journal (WSJ) portion of the Penn Treebank."
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_070",
+      "paper_id": "1906.08593",
+      "paper_title": "Conflict as an Inverse of Attention in Sequence Relationship",
+      "question": "On which tasks do they test their conflict method?",
+      "issue": "Evidence is very brief (7 tokens).",
+      "evidence_preview": "Task 1: Quora Duplicate Question Pair Detection"
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_074",
+      "paper_id": "1611.04798",
+      "paper_title": "Toward Multilingual Neural Machine Translation with Universal Encoder and Decoder",
+      "question": "Does their framework automatically optimize for hyperparameters?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_081",
+      "paper_id": "1912.13337",
+      "paper_title": "What Does My QA Model Know? Devising Controlled Probes using Expert Knowledge",
+      "question": "Is WordNet useful for taxonomic reasoning for this task?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "For sources of expert knowledge, we use WordNet, a comprehensive lexical ontology, and other publicly available dictionary resources."
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_087",
+      "paper_id": "1809.01541",
+      "paper_title": "Copenhagen at CoNLL--SIGMORPHON 2018: Multilingual Inflection in Context with Explicit Morphosyntactic Decoding",
+      "question": "What type of inflections are considered?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_089",
+      "paper_id": "1809.09194",
+      "paper_title": "Stochastic Answer Networks for SQuAD 2.0",
+      "question": "What other models do they compare to?",
+      "issue": "Evidence is very brief (8 tokens).",
+      "evidence_preview": "Table TABREF21 reports comparison results in literature published ."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_090",
+      "paper_id": "1809.09194",
+      "paper_title": "Stochastic Answer Networks for SQuAD 2.0",
+      "question": "What is the architecture of the span detector?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "Span detector. We adopt a multi-turn answer module for the span detector BIBREF1 . Formally, at time step INLINEFORM0 in the range of INLINEFORM1 , the state is defined by INLINEFO"
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_095",
+      "paper_id": "1802.06024",
+      "paper_title": "Towards a Continuous Knowledge Learning Engine for Chatbots",
+      "question": "Do they report results only on English data?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_096",
+      "paper_id": "1802.06024",
+      "paper_title": "Towards a Continuous Knowledge Learning Engine for Chatbots",
+      "question": "How much better than the baseline is LiLi?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "Baselines. As none of the existing KBC methods can solve the OKBC problem, we choose various versions of LiLi as baselines. Single: Version of LiLi where we train a single predicti"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_100",
+      "paper_id": "1802.06024",
+      "paper_title": "Towards a Continuous Knowledge Learning Engine for Chatbots",
+      "question": "What are the components of the general knowledge learning engine?",
+      "issue": "Evidence is very brief (6 tokens).",
+      "evidence_preview": "LiLi should have the following capabilities:"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_101",
+      "paper_id": "1809.00530",
+      "paper_title": "Adaptive Semi-supervised Learning for Cross-domain Sentiment Classification",
+      "question": "How many labels do the datasets have?",
+      "issue": "Evidence is very brief (7 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 1: Summary of datasets."
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_104",
+      "paper_id": "1809.00530",
+      "paper_title": "Adaptive Semi-supervised Learning for Cross-domain Sentiment Classification",
+      "question": "What are the source and target domains?",
+      "issue": "Evidence is very brief (7 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 1: Summary of datasets."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_105",
+      "paper_id": "1710.07960",
+      "paper_title": "How big is big enough? Unsupervised word sense disambiguation using a very large corpus",
+      "question": "Did they use a crowdsourcing platform for annotations?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "Finally, the morphosyntactic annotation was performed automatically, which may lead to errors, especially in the case of noisy web text."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_126",
+      "paper_id": "1802.07862",
+      "paper_title": "Multimodal Named Entity Recognition for Short Social Media Posts",
+      "question": "Can named entities in SnapCaptions be discontigious?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "Task: given a caption and a paired image (if used), the goal is to label every token in a caption in BIO scheme (B: beginning, I: inside, O: outside) BIBREF27 ."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_148",
+      "paper_id": "1906.01081",
+      "paper_title": "Handling Divergent Reference Texts when Evaluating Table-to-Text Generation",
+      "question": "Ngrams of which length are aligned using PARENT?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "PARENT PARENT evaluates each instance INLINEFORM0 separately, by computing the precision and recall of INLINEFORM1 against both INLINEFORM2 and INLINEFORM3 ."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_149",
+      "paper_id": "1906.01081",
+      "paper_title": "Handling Divergent Reference Texts when Evaluating Table-to-Text Generation",
+      "question": "How many people participated in their evaluation study of table-to-text models?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "In total around 500 different workers were involved in the annotation."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_154",
+      "paper_id": "1904.09535",
+      "paper_title": "NeuronBlocks: Building Your NLP DNN Models Like Playing Lego",
+      "question": "Do they report results only on English?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "To verify the performance of NeuronBlocks, we conducted extensive experiments for common NLP tasks on public data sets including CoNLL-2003 BIBREF14 , GLUE benchmark BIBREF13 , and"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_156",
+      "paper_id": "1904.09535",
+      "paper_title": "NeuronBlocks: Building Your NLP DNN Models Like Playing Lego",
+      "question": "How do the authors evidence the claim that many engineers find it a big overhead to choose from multiple frameworks, models and optimization techniques?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "Before designing this NLP toolkit, we conducted a survey among engineers and identified a spectrum of three typical personas."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_167",
+      "paper_id": "1609.00559",
+      "paper_title": "Improving Correlation with Human Judgments by Integrating Semantic Similarity with Second--Order Vectors",
+      "question": "How many humans participated?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "MiniMayoSRS: The MayoSRS, developed by PakhomovPMMRC10, consists of 101 clinical term pairs whose relatedness was determined by nine medical coders and three physicians from the Ma"
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_171",
+      "paper_id": "1612.02482",
+      "paper_title": "Improving the Performance of Neural Machine Translation Involving Morphologically Rich Languages",
+      "question": "By how much do they improve the efficacy of the attention mechanism?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_174",
+      "paper_id": "1904.10503",
+      "paper_title": "Fine-Grained Named Entity Recognition using ELMo and Wikidata",
+      "question": "Which other approaches do they compare their model with?",
+      "issue": "Evidence is very brief (8 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 3: Comparison with existing models."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_178",
+      "paper_id": "1912.01772",
+      "paper_title": "A Resource for Computational Experiments on Mapudungun",
+      "question": "How is non-standard pronunciation identified?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "In addition, the transcription includes annotations for noises and disfluencies including aborted words, mispronunciations, poor intelligibility, repeated and corrected words, fals"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_179",
+      "paper_id": "1603.01987",
+      "paper_title": "A matter of words: NLP for quality evaluation of Wikipedia medical articles",
+      "question": "Is it valid to presume a bad medical wikipedia article should not contain much domain-specific jargon?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "The idea of considering infoboxes is not novel: for example, in BIBREF7 the authors noticed that the presence of an infobox is a characteristic featured by good articles. However, "
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_182",
+      "paper_id": "1908.06941",
+      "paper_title": "Why So Down? The Role of Negative (and Positive) Pointwise Mutual Information in Distributional Semantics",
+      "question": "What are the disadvantages to clipping negative PMI?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "$\\mathit {\\texttt {+}PPMI}$ only falters on the RW and analogy tasks, and we hypothesize this is where $\\mathit {\\texttt {-}PMI}$ is useful: in the absence of positive information,"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_184",
+      "paper_id": "1702.03856",
+      "paper_title": "Towards speech-to-text translation without speech recognition",
+      "question": "what is the domain of the corpus?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "We test our system on the CALLHOME Spanish-English speech translation corpus BIBREF10 , a noisy multi-speaker corpus of telephone calls in a variety of Spanish dialects (\u00a7 SECREF3 "
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_187",
+      "paper_id": "1904.01548",
+      "paper_title": "Understanding language-elicited EEG data by predicting it from a fine-tuned language model",
+      "question": "Which two pairs of ERPs from the literature benefit from joint training?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "In future work we also intend to add these types of studies to the ERP predictions. Discussion"
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_191",
+      "paper_id": "1802.00396",
+      "paper_title": "Disunited Nations? A Multiplex Network Approach to Detecting Preference Affinity Blocs using Texts and Votes",
+      "question": "What does a node in the network approach repesent?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_200",
+      "paper_id": "1712.00991",
+      "paper_title": "Mining Supervisor Evaluation and Peer Feedback in Performance Appraisals",
+      "question": "What is the size of the real-life dataset?",
+      "issue": "Evidence is very brief (8 tokens).",
+      "evidence_preview": "The corpus of supervisor assessment has 26972 sentences."
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_201",
+      "paper_id": "1805.08241",
+      "paper_title": "Sparse and Constrained Attention for Neural Machine Translation",
+      "question": "What are the language pairs explored in this paper?",
+      "issue": "Evidence is very brief (9 tokens).",
+      "evidence_preview": "We evaluated our attention transformations on three language pairs."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_208",
+      "paper_id": "2001.09215",
+      "paper_title": "An Iterative Approach for Identifying Complaint Based Tweets in Social Media Platforms",
+      "question": "What language is explored in this paper?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "An example tweet marked as informative: No, metro fares will be reduced ???, but proper fare structure needs to presented right, it's bad !!!."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_214",
+      "paper_id": "1904.07904",
+      "paper_title": "Mitigating the Impact of Speech Recognition Errors on Spoken Question Answering by Adversarial Domain Adaptation",
+      "question": "What was the previous best model?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "The baselines are: (a) trained on S-SQuAD, (b) trained on T-SQuAD and then fine-tuned on S-SQuAD, and (c) previous best model trained on S-SQuAD BIBREF5 by using Dr.QA BIBREF20 ."
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_216",
+      "paper_id": "2003.11645",
+      "paper_title": "Word2Vec: Optimal Hyper-Parameters and Their Impact on NLP Downstream Tasks",
+      "question": "What hyperparameters are explored?",
+      "issue": "Evidence is very brief (7 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 1: Hyper-parameter choices"
+    },
+    {
+      "type": "short_evidence",
+      "question_id": "Q_QASP_219",
+      "paper_id": "2003.11645",
+      "paper_title": "Word2Vec: Optimal Hyper-Parameters and Their Impact on NLP Downstream Tasks",
+      "question": "Do they test both skipgram and c-bow?",
+      "issue": "Evidence is very brief (7 tokens).",
+      "evidence_preview": "FLOAT SELECTED: Table 1: Hyper-parameter choices"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_220",
+      "paper_id": "1909.02304",
+      "paper_title": "Table-to-Text Generation with Effective Hierarchical Encoder on Three Dimensions (Row, Column and Time)",
+      "question": "What is the state-of-the-art model for the task?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "Also, we compared our models with other existing works on this dataset including OpATT BIBREF6 and Neural Content Planning with conditional copy (NCP+CC) BIBREF4."
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_225",
+      "paper_id": "2001.03131",
+      "paper_title": "Offensive Language Detection: A Comparative Analysis",
+      "question": "How do their results compare to state-of-the-art?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_246",
+      "paper_id": "1610.09225",
+      "paper_title": "Sentiment Analysis of Twitter Data for Predicting Stock Market Movements",
+      "question": "Do they remove seasonality from the time series?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "Data Pre-Processing Stock prices data collected is not complete understandably because of weekends and public holidays when the stock market does not function. The missing data is "
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_253",
+      "paper_id": "1904.03288",
+      "paper_title": "Jasper: An End-to-End Convolutional Neural Acoustic Model",
+      "question": "what were the baselines?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'abstractive'.",
+      "evidence_preview": "We compare to other models trained using the same data and report Hub5'00 results in Table TABREF31 ."
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_256",
+      "paper_id": "1909.13714",
+      "paper_title": "Towards Multimodal Understanding of Passenger-Vehicle Interactions in Autonomous Vehicles: Intent/Slot Recognition Utilizing Audio-Visual Data",
+      "question": "Is collected multimodal in cabin dataset public?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'yes_no'.",
+      "evidence_preview": "As our AMIE in-cabin dataset has video and audio recordings, we investigated 3 modalities for the NLU: text, audio, and video."
+    },
+    {
+      "type": "unanswerable_consensus",
+      "question_id": "Q_QASP_257",
+      "paper_id": "1910.05603",
+      "paper_title": "VAIS ASR: Building a conversational speech recognition system using language model combination",
+      "question": "What is the performance reported for the best models in the VLSP 2018 and VLSP 2019 challenges?",
+      "issue": "Unanswerable consensus query (reserved for abstention benchmark).",
+      "evidence_preview": "N/A"
+    },
+    {
+      "type": "annotator_split",
+      "question_id": "Q_QASP_260",
+      "paper_id": "1910.05603",
+      "paper_title": "VAIS ASR: Building a conversational speech recognition system using language model combination",
+      "question": "What are the deep learning architectures used in the task?",
+      "issue": "1 of 2 annotators voted unanswerable; resolved as 'extractive'.",
+      "evidence_preview": "We adopt a DNN-based acoustic model BIBREF0 with 11 hidden layers and the alignment used to train the model is derived from a HMM-GMM model trained with SAT criterion."
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "study": "Part 1b Rigorous Chunking & Truncation Ablation (Dev Set 48 Papers)",
+  "date": "2026-10-17",
+  "evaluator_tau": 0.55,
+  "n_queries": 128,
+  "results_256_cap": {
+    "as_is": {
+      "latency_ms": 2.63,
+      "total_chunks": 1099,
+      "truncated_count": 319,
+      "truncation_pct": 29.03,
+      "within_paper": {
+        "ndcg4": 0.45118470721756687,
+        "mrr5": 0.5140625,
+        "hit1": 35.9375,
+        "hit3": 65.625,
+        "hit5": 79.6875
+      }
+    },
+    "naive_midpoint": {
+      "latency_ms": 2.78,
+      "total_chunks": 1418,
+      "truncated_count": 40,
+      "truncation_pct": 2.82,
+      "within_paper": {
+        "ndcg4": 0.4132945937899413,
+        "mrr5": 0.46562499999999996,
+        "hit1": 30.46875,
+        "hit3": 59.375,
+        "hit5": 75.0
+      }
+    },
+    "sentence_aware": {
+      "latency_ms": 3.21,
+      "total_chunks": 1086,
+      "truncated_count": 0,
+      "truncation_pct": 0.0,
+      "within_paper": {
+        "ndcg4": 0.4628223582301859,
+        "mrr5": 0.5483072916666667,
+        "hit1": 41.40625,
+        "hit3": 65.625,
+        "hit5": 78.90625
+      }
+    },
+    "bootstrap_comparisons": {
+      "naive_vs_asis": {
+        "diff": -0.03789011342762556,
+        "ci_lower": -0.0719298439641704,
+        "ci_upper": -0.009534551973473653,
+        "p_val": 0.005997001499250375
+      },
+      "sentence_vs_asis": {
+        "diff": 0.011637651012619064,
+        "ci_lower": -0.04151974387885859,
+        "ci_upper": 0.06482382953816887,
+        "p_val": 0.6326836581709145
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "all-MiniLM-L6-v2": {
+    "fe_runtime": "ONNX FP32",
+    "pt_runtime": "PyTorch FP32",
+    "mean_cosine": 1.0,
+    "min_cosine": 0.9999998807907104,
+    "max_cosine": 1.000000238418579,
+    "p5_cosine": 0.9999999403953552,
+    "p50_cosine": 1.0,
+    "p95_cosine": 1.0000001192092896,
+    "fe_latency_ms": 8102.8,
+    "pt_latency_ms": 4894.9
+  },
+  "bge-small-en-v1.5": {
+    "fe_runtime": "FastEmbed INT8 ONNX",
+    "pt_runtime": "PyTorch FP32",
+    "mean_cosine": 0.9999991059303284,
+    "min_cosine": 0.9999983310699463,
+    "max_cosine": 0.9999995231628418,
+    "p5_cosine": 0.9999986886978149,
+    "p50_cosine": 0.9999991655349731,
+    "p95_cosine": 0.9999994039535522,
+    "fe_latency_ms": 22164.0,
+    "pt_latency_ms": 13249.9
+  }
+}

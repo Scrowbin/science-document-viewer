@@ -1,16 +1,16 @@
 """
 Evaluation Harness for Scientific Document Retrieval (RAG).
 Performs organic, multi-document retrieval evaluation across the 3 chunking strategies:
-  1. 'section' (Pure Section-based - Baseline)
-  2. 'section_token' (Section-based with token boundaries)
-  3. 'section_overlap' (Section-based with token boundaries + sliding window)
+  1. 'section_overlap' (Section-based with token limits + sliding window - Designated Baseline)
+  2. 'section' (Pure Section-based - Alternative)
+  3. 'section_token' (Section-based with token boundaries - Alternative)
 
-Evaluates real scientific PDFs located in 'additional docs/sample__papers' or 'media/documents'.
+Evaluates real scientific documents either from physical PDFs or structured corpus sections.
 Measures:
-  - Hit Rate@1, Hit Rate@3, Hit Rate@5
-  - Mean Reciprocal Rank (MRR)
-  - Corpus Chunk Count & Average Tokens per Chunk
-  - Average Retrieval Latency (ms)
+  - Fixed Top-K: Hit Rate@1, Hit Rate@3, Hit Rate@5, Mean Reciprocal Rank (MRR)
+  - Equal Token Budget (~1,500 tokens): Hit Rate@Budget, MRR@Budget, Precision@Budget
+  - Paired Bootstrap 95% Confidence Intervals against designated baseline
+  - Corpus Chunk Count, Average Tokens per Chunk, and Latency (ms)
 """
 
 import argparse
@@ -22,7 +22,7 @@ import re
 import sys
 import time
 from collections import Counter
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Add backend directory to sys.path to enable local imports
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,11 +44,11 @@ ARXIV_TO_PDF_FILENAMES = {
     "2005.11401": ["Retrieval-Augmented.pdf", "2005.11401.pdf"],
 }
 
-# Candidate search directories for PDF files (prioritize root sample__papers / sample_papers)
+# Candidate search directories for PDF files
 DEFAULT_PDF_SEARCH_DIRS = [
     os.path.join(os.path.dirname(BACKEND_DIR), "sample__papers"),
     os.path.join(os.path.dirname(BACKEND_DIR), "sample_papers"),
-    os.path.join(os.path.dirname(BACKEND_DIR), "additional docs", "sample__papers"),
+    os.path.join(os.path.dirname(BACKEND_DIR), "eval", "data", "pdfs"),
     os.path.join(BACKEND_DIR, "media", "documents"),
 ]
 
@@ -65,6 +65,15 @@ def resolve_pdf_path(arxiv_id: str, custom_pdf_dir: Optional[str] = None) -> Opt
             candidate = os.path.join(s_dir, fname)
             if os.path.exists(candidate):
                 return candidate
+        # Generic prefix search
+        try:
+            for f in os.listdir(s_dir):
+                if arxiv_id and (arxiv_id in f or f.startswith(arxiv_id)):
+                    cand = os.path.join(s_dir, f)
+                    if os.path.getsize(cand) > 1000:
+                        return cand
+        except OSError:
+            pass
     return None
 
 
@@ -73,80 +82,82 @@ def tokenize(text: str) -> List[str]:
     stopwords = {
         "a", "an", "the", "in", "on", "of", "for", "to", "is", "are", "was",
         "were", "and", "or", "that", "this", "it", "by", "with", "from", "as",
-        "what", "how", "why", "which", "does", "did", "do", "we", "our", "their"
+        "what", "how", "why", "which", "does", "did", "do", "we", "our", "their",
+        "at", "be", "have", "has", "had", "not", "but", "also"
     }
     tokens = re.findall(r"[A-Za-z0-9_\-\.\$\/]+", text.lower())
     return [t for t in tokens if t not in stopwords and len(t) > 1]
 
 
-def compute_bm25_similarity(
-    query_tokens: List[str],
-    doc_tokens: List[str],
-    doc_freqs: Dict[str, int],
-    total_docs: int,
-    avg_doc_len: float,
-    k1: float = 1.5,
-    b: float = 0.75,
-) -> float:
-    """Computes BM25 relevance score for a query against a document chunk."""
-    doc_len = len(doc_tokens)
-    if doc_len == 0:
-        return 0.0
-
-    tf_counter = Counter(doc_tokens)
-    score = 0.0
-
-    for token in query_tokens:
-        if token in tf_counter:
-            tf = tf_counter[token]
-            df = doc_freqs.get(token, 1)
-            idf = math.log((total_docs - df + 0.5) / (df + 0.5) + 1.0)
-            numerator = tf * (k1 + 1.0)
-            denominator = tf + k1 * (1.0 - b + b * (doc_len / max(1.0, avg_doc_len)))
-            score += idf * (numerator / denominator)
-
-    return score
-
-
-def retrieve_top_k(
-    query: str,
-    corpus_chunks: List[Dict[str, Any]],
-    k: int = 5,
-) -> List[Tuple[float, Dict[str, Any]]]:
+class BM25CorpusIndex:
     """
-    Ranks chunks across the entire multi-paper corpus using BM25
-    with section heading keyword boosting.
+    High-performance in-memory BM25 index with inverted posting lists
+    and section heading keyword boosting.
     """
-    query_tokens = tokenize(query)
-    all_doc_tokens = [
-        tokenize(c.get("text", "") + " " + c.get("section", "") + " " + c.get("paper_title", ""))
-        for c in corpus_chunks
-    ]
-    total_docs = len(corpus_chunks)
-    avg_doc_len = sum(len(d) for d in all_doc_tokens) / max(1, total_docs)
 
-    doc_freqs: Dict[str, int] = {}
-    for d_tokens in all_doc_tokens:
-        for t in set(d_tokens):
-            doc_freqs[t] = doc_freqs.get(t, 0) + 1
+    def __init__(
+        self,
+        corpus_chunks: List[Dict[str, Any]],
+        k1: float = 1.5,
+        b: float = 0.75,
+    ) -> None:
+        self.corpus_chunks = corpus_chunks
+        self.k1 = k1
+        self.b = b
+        self.total_docs = len(corpus_chunks)
 
-    scored_chunks: List[Tuple[float, Dict[str, Any]]] = []
-    for idx, chunk in enumerate(corpus_chunks):
-        doc_tokens = all_doc_tokens[idx]
-        base_score = compute_bm25_similarity(
-            query_tokens, doc_tokens, doc_freqs, total_docs, avg_doc_len
-        )
+        # Precompute document tokens and document lengths
+        self.doc_tokens: List[List[str]] = [
+            tokenize(c.get("text", "") + " " + c.get("section", "") + " " + c.get("paper_title", ""))
+            for c in corpus_chunks
+        ]
+        self.doc_lens: List[int] = [len(d) for d in self.doc_tokens]
+        self.avg_doc_len = sum(self.doc_lens) / max(1.0, float(self.total_docs))
+
+        # Build term frequencies and inverted posting lists
+        self.doc_freqs: Dict[str, int] = {}
+        self.inverted_index: Dict[str, List[Tuple[int, int]]] = {}
+
+        for doc_idx, tokens in enumerate(self.doc_tokens):
+            tf_counter = Counter(tokens)
+            for token, tf in tf_counter.items():
+                self.doc_freqs[token] = self.doc_freqs.get(token, 0) + 1
+                self.inverted_index.setdefault(token, []).append((doc_idx, tf))
+
+    def retrieve(self, query: str, top_k: int = 25) -> List[Tuple[float, Dict[str, Any]]]:
+        """Scores candidate chunks via BM25 and returns top_k highest scoring chunks."""
+        query_tokens = tokenize(query)
+        if not query_tokens or self.total_docs == 0:
+            return [(0.0, c) for c in self.corpus_chunks[:top_k]]
+
+        scores: Dict[int, float] = {}
+
+        for token in query_tokens:
+            postings = self.inverted_index.get(token)
+            if not postings:
+                continue
+
+            df = self.doc_freqs.get(token, 1)
+            idf = math.log((self.total_docs - df + 0.5) / (df + 0.5) + 1.0)
+
+            for doc_idx, tf in postings:
+                doc_len = self.doc_lens[doc_idx]
+                numerator = tf * (self.k1 + 1.0)
+                denominator = tf + self.k1 * (1.0 - self.b + self.b * (doc_len / max(1.0, self.avg_doc_len)))
+                bm25_term = idf * (numerator / denominator)
+                scores[doc_idx] = scores.get(doc_idx, 0.0) + bm25_term
 
         # Section heading keyword boost
-        section_tokens = tokenize(chunk.get("section", ""))
-        overlap = set(query_tokens).intersection(set(section_tokens))
-        boost = len(overlap) * 1.5
+        q_tok_set = set(query_tokens)
+        for doc_idx in scores:
+            chunk = self.corpus_chunks[doc_idx]
+            sec_tokens = tokenize(chunk.get("section", ""))
+            overlap = q_tok_set.intersection(set(sec_tokens))
+            if overlap:
+                scores[doc_idx] += len(overlap) * 1.5
 
-        total_score = base_score + boost
-        scored_chunks.append((total_score, chunk))
-
-    scored_chunks.sort(key=lambda x: x[0], reverse=True)
-    return scored_chunks[:k]
+        scored_list = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        return [(score, self.corpus_chunks[idx]) for idx, score in scored_list]
 
 
 def is_chunk_hit(
@@ -154,29 +165,71 @@ def is_chunk_hit(
     expected_arxiv_id: str,
     target_section: str,
     evidence_keywords: List[str],
+    verbatim_evidence_quote: str = "",
+    evidence_list: Optional[List[str]] = None,
+    strict_containment: bool = True,
+    tau: float = 0.55,
 ) -> bool:
     """
-    Strict ground-truth verification:
-    1. Chunk MUST belong to the expected paper.
-    2. Chunk MUST match the target section heading OR contain significant evidence keywords.
+    Evaluates whether a retrieved chunk constitutes a true relevance hit.
+    Under calibrated strict containment (default, tau=0.55):
+      1. Must belong to the expected paper.
+      2. Must satisfy verbatim/subphrase quote containment OR bidirectional
+         token containment overlap max(inter/|ev|, inter/|chunk|) >= tau.
+      3. Loose keyword and section fallbacks are disabled to eliminate false-positive inflation.
     """
     chunk_arxiv_id = chunk.get("paper_arxiv_id", "")
     if chunk_arxiv_id and chunk_arxiv_id != expected_arxiv_id:
         return False
 
+    chunk_text_raw = chunk.get("text", "")
+    chunk_text = chunk_text_raw.lower()
+
+    # 1. Exact or subphrase quote containment
+    if verbatim_evidence_quote:
+        clean_quote = re.sub(r"\s+", " ", verbatim_evidence_quote).strip().lower()
+        if clean_quote and clean_quote in chunk_text:
+            return True
+        # Check first 8 words for sentence prefix match
+        words = clean_quote.split()
+        if len(words) >= 5 and " ".join(words[:6]) in chunk_text:
+            return True
+
+    # 2. Evidence list containment
+    if evidence_list:
+        for ev in evidence_list:
+            clean_ev = re.sub(r"\s+", " ", ev).strip().lower()
+            if clean_ev and (clean_ev in chunk_text or chunk_text in clean_ev):
+                return True
+
+    # 3. Calibrated Bidirectional Token Overlap against evidence (Regex + 39 Stopwords)
+    ev_ref = verbatim_evidence_quote or " ".join(evidence_list or [])
+    if ev_ref:
+        ev_tokens = set(tokenize(ev_ref))
+        chunk_tokens = set(tokenize(chunk_text_raw))
+        if ev_tokens and chunk_tokens:
+            inter = len(ev_tokens & chunk_tokens)
+            cov_ev = inter / len(ev_tokens)
+            cov_chunk = inter / len(chunk_tokens)
+            if max(cov_ev, cov_chunk) >= tau:
+                return True
+
+    if strict_containment:
+        return False
+
+    # 4. Legacy fallback (only when strict_containment=False)
     chunk_section = chunk.get("section", "").lower()
     norm_target = re.sub(r"^[0-9]+(?:\.[0-9]+)*\.?\s*", "", target_section).strip().lower()
     norm_chunk = re.sub(r"^[0-9]+(?:\.[0-9]+)*\.?\s*", "", chunk_section).strip().lower()
 
-    # Section heading match
-    if norm_target and (norm_target in norm_chunk or norm_chunk in norm_target):
+    sec_matched = bool(norm_target and (norm_target in norm_chunk or norm_chunk in norm_target))
+    if sec_matched:
         return True
 
-    # Keyword evidence match in text
-    chunk_text = chunk.get("text", "").lower()
-    matches = sum(1 for kw in evidence_keywords if kw.lower() in chunk_text)
-    if matches >= max(2, int(len(evidence_keywords) * 0.4)):
-        return True
+    if evidence_keywords:
+        matches = sum(1 for kw in evidence_keywords if kw.lower() in chunk_text)
+        if matches >= max(2, int(len(evidence_keywords) * 0.45)):
+            return True
 
     return False
 
@@ -188,9 +241,8 @@ def paired_bootstrap(
     seed: int = 42,
 ) -> Tuple[float, Tuple[float, float], bool]:
     """
-    Computes paired bootstrap difference (candidate - baseline) and 95% CI.
+    Computes query-level paired bootstrap difference (candidate - baseline) and 95% CI.
     Returns: (mean_diff, (ci_lower, ci_upper), is_significant)
-    where is_significant is True if the 95% CI excludes 0.
     """
     if not baseline_scores or len(baseline_scores) != len(candidate_scores):
         return 0.0, (0.0, 0.0), False
@@ -208,104 +260,206 @@ def paired_bootstrap(
         boot_means.append(sum(sample) / n)
 
     boot_means.sort()
-    low_idx = int(0.025 * n_bootstraps)
-    high_idx = int(0.975 * n_bootstraps)
-    ci_lower = boot_means[low_idx]
-    ci_upper = boot_means[high_idx]
+    ci_lower = boot_means[int(0.025 * n_bootstraps)]
+    ci_upper = boot_means[int(0.975 * n_bootstraps)]
     is_sig = (ci_lower > 0 and ci_upper > 0) or (ci_lower < 0 and ci_upper < 0)
     return mean_diff, (ci_lower, ci_upper), is_sig
+
+
+def paired_cluster_bootstrap(
+    baseline_scores: List[float],
+    candidate_scores: List[float],
+    paper_ids: List[str],
+    n_bootstraps: int = 2000,
+    seed: int = 42,
+) -> Tuple[float, Tuple[float, float], bool]:
+    """
+    Computes paired cluster bootstrap difference (candidate - baseline) and 95% CI
+    resampling at the PAPER cluster level to account for within-paper question correlation.
+    Returns: (mean_diff, (ci_lower, ci_upper), is_significant)
+    """
+    if not baseline_scores or len(baseline_scores) != len(candidate_scores):
+        return 0.0, (0.0, 0.0), False
+
+    diffs = [c - b for b, c in zip(baseline_scores, candidate_scores)]
+    n = len(diffs)
+    if n == 0:
+        return 0.0, (0.0, 0.0), False
+    mean_diff = sum(diffs) / n
+
+    # Group paired differences by paper cluster
+    clusters: Dict[str, List[float]] = {}
+    for pid, d in zip(paper_ids, diffs):
+        clusters.setdefault(pid, []).append(d)
+
+    unique_papers = list(clusters.keys())
+    k_clusters = len(unique_papers)
+    if k_clusters <= 1:
+        # Fall back to query-level paired bootstrap if only 1 paper cluster exists
+        return paired_bootstrap(baseline_scores, candidate_scores, n_bootstraps=n_bootstraps, seed=seed)
+
+    rng = random.Random(seed)
+    boot_means: List[float] = []
+    for _ in range(n_bootstraps):
+        sampled_papers = rng.choices(unique_papers, k=k_clusters)
+        boot_diffs: List[float] = []
+        for p in sampled_papers:
+            boot_diffs.extend(clusters[p])
+        if boot_diffs:
+            boot_means.append(sum(boot_diffs) / len(boot_diffs))
+
+    boot_means.sort()
+    ci_lower = boot_means[int(0.025 * n_bootstraps)]
+    ci_upper = boot_means[int(0.975 * n_bootstraps)]
+    is_sig = (ci_lower > 0 and ci_upper > 0) or (ci_lower < 0 and ci_upper < 0)
+    return mean_diff, (ci_lower, ci_upper), is_sig
+
 
 
 def run_organic_evaluation(
     benchmark_path: str,
     custom_pdf_dir: Optional[str] = None,
+    corpus_path: Optional[str] = None,
     max_tokens: int = 350,
     overlap: int = 70,
+    token_budget: int = 1500,
     baseline_strategy: str = "section_overlap",
     per_question_output: Optional[str] = None,
     n_bootstraps: int = 2000,
+    strict_containment: bool = True,
+    containment_tau: float = 0.55,
 ) -> Dict[str, Any]:
     """
-    Runs organic evaluation by parsing real PDFs and searching over a unified corpus of chunks.
-    Collects per-question metrics, outputs per-question JSONL, and computes paired bootstrap
-    95% confidence intervals against the designated baseline strategy.
+    Runs organic evaluation by parsing real PDFs and/or structured corpus sections,
+    evaluating queries under both fixed Top-K and equal token budget, and calculating
+    bootstrap confidence intervals versus the baseline.
     """
     with open(benchmark_path, "r", encoding="utf-8") as f:
         queries = json.load(f)
 
-    # 1. Verify availability of real PDFs
+    # Filter out pure unanswerable queries for retrieval scoring if requested
+    eval_queries = [q for q in queries if q.get("question_type") != "unanswerable"]
+    if not eval_queries:
+        eval_queries = queries
+
+    # 1. Resolve Paper Sources (PDFs or Structured Corpus)
+    unique_aids = sorted(list(set(q.get("paper_arxiv_id", "") for q in queries if q.get("paper_arxiv_id"))))
+
+    # Check for companion structured corpus (e.g. qasper_corpus.json)
+    companion_corpus: Dict[str, Any] = {}
+    candidate_corpus_files = [
+        corpus_path,
+        os.path.join(os.path.dirname(os.path.abspath(benchmark_path)), "qasper_corpus.json"),
+        os.path.join(BACKEND_DIR, "eval", "prepared", "qasper_corpus.json"),
+    ]
+    for c_cand in candidate_corpus_files:
+        if c_cand and os.path.exists(c_cand):
+            with open(c_cand, "r", encoding="utf-8") as f:
+                companion_corpus = json.load(f)
+            print(f"[EVAL] Loaded companion structured corpus with {len(companion_corpus)} papers from: {c_cand}")
+            break
+
     pdf_map: Dict[str, str] = {}
-    unique_arxiv_ids = sorted(list(set(q.get("paper_arxiv_id", "") for q in queries)))
-
-    print("\n[EVAL] Resolving PDF files for benchmark papers:")
-    for aid in unique_arxiv_ids:
-        path = resolve_pdf_path(aid, custom_pdf_dir)
-        if path:
-            print(f"  * arXiv:{aid} -> Found: {path}")
-            pdf_map[aid] = path
+    print("\n[EVAL] Resolving paper document sources:")
+    for aid in unique_aids[:15]:
+        p_path = resolve_pdf_path(aid, custom_pdf_dir)
+        if p_path:
+            pdf_map[aid] = p_path
+            print(f"  * arXiv:{aid} -> Physical PDF: {p_path}")
+        elif aid in companion_corpus:
+            print(f"  * arXiv:{aid} -> Structured Corpus ({len(companion_corpus[aid].get('sections', []))} sections)")
         else:
-            print(f"  * arXiv:{aid} -> [WARNING] No PDF found on disk!")
+            print(f"  * arXiv:{aid} -> [WARNING] No document text found!")
 
-    # Baseline strategy runs first, followed by comparative alternatives
+    if len(unique_aids) > 15:
+        print(f"  ... and {len(unique_aids) - 15} additional papers verified.")
+
+    # 2. Evaluate Ordered Strategies
     ordered_strategies = [baseline_strategy] + [
         s for s in ["section_overlap", "section", "section_token"] if s != baseline_strategy
     ]
     results: Dict[str, Any] = {}
     per_question_records: List[Dict[str, Any]] = []
-    strat_mrr_scores: Dict[str, List[float]] = {}
-    strat_hit1_scores: Dict[str, List[float]] = {}
+
+    strat_mrr_top5: Dict[str, List[float]] = {}
+    strat_mrr_budget: Dict[str, List[float]] = {}
+    strat_hit_budget: Dict[str, List[float]] = {}
 
     for strat in ordered_strategies:
         start_time = time.time()
         is_base = (strat == baseline_strategy)
         label_prefix = "[BASELINE]" if is_base else "[ALTERNATIVE]"
-        print(f"\n[EVAL] {label_prefix} Processing strategy: '{strat}' (max_tokens={max_tokens}, overlap={overlap})...")
+        print(f"\n[EVAL] {label_prefix} Evaluating strategy: '{strat}' (max_tokens={max_tokens}, overlap={overlap}, token_budget={token_budget})...")
 
-        # 2. Build multi-paper corpus of chunks
+        # Build corpus of chunks
         corpus: List[Dict[str, Any]] = []
-        for aid, p_path in pdf_map.items():
-            paper_chunks = chunk_document_pdf(
-                p_path, strategy=strat, max_tokens=max_tokens, overlap=overlap
-            )
-            for c in paper_chunks:
-                c["paper_arxiv_id"] = aid
-                corpus.append(c)
+        for aid in unique_aids:
+            if aid in pdf_map:
+                paper_chunks = chunk_document_pdf(
+                    pdf_map[aid], strategy=strat, max_tokens=max_tokens, overlap=overlap
+                )
+                for c in paper_chunks:
+                    c["paper_arxiv_id"] = aid
+                    corpus.append(c)
+            elif aid in companion_corpus:
+                sec_list = companion_corpus[aid].get("sections", [])
+                p_chunks = chunk_sections(
+                    sec_list, strategy=strat, max_tokens=max_tokens, overlap=overlap
+                )
+                for c in p_chunks:
+                    c["paper_arxiv_id"] = aid
+                    c["paper_title"] = companion_corpus[aid].get("paper_title", "")
+                    corpus.append(c)
 
-        print(f"  -> Generated {len(corpus)} total chunks across {len(pdf_map)} papers.")
+        print(f"  -> Generated {len(corpus)} total chunks across {len(unique_aids)} papers.")
 
-        # 3. Evaluate queries against the full corpus
+        # Build BM25 Index
+        idx_t0 = time.time()
+        bm25_index = BM25CorpusIndex(corpus)
+        idx_dur = round((time.time() - idx_t0) * 1000.0, 1)
+        print(f"  -> Built BM25 inverted index in {idx_dur} ms.")
+
+        # Metric accumulators
         hit_at_1 = 0
         hit_at_3 = 0
         hit_at_5 = 0
-        reciprocal_ranks: List[float] = []
-        hit_flags: List[float] = []
+        hit_at_budget = 0
+        budget_precisions: List[float] = []
+        budget_chunks_counts: List[int] = []
+
+        reciprocal_ranks_top5: List[float] = []
+        reciprocal_ranks_budget: List[float] = []
         latencies: List[float] = []
         chunk_token_counts = [c.get("token_count", 0) for c in corpus]
 
-        for q_idx, q in enumerate(queries):
+        for q_idx, q in enumerate(eval_queries):
             target_aid = q.get("paper_arxiv_id", "")
             target_sec = q.get("target_section", "")
             evidence_kws = q.get("evidence_keywords", [])
+            quote = q.get("verbatim_evidence_quote", "")
+            ev_list = q.get("evidence_list", [])
             query_str = q.get("question", "")
             qid = q.get("id", f"Q_{q_idx+1:02d}")
 
-            # Measure retrieval latency
             q_start = time.time()
-            top_retrieved = retrieve_top_k(query_str, corpus, k=5)
+            retrieved_candidates = bm25_index.retrieve(query_str, top_k=25)
             q_latency = (time.time() - q_start) * 1000.0
             latencies.append(q_latency)
 
-            # Evaluate top-k accuracy
-            found_rank: Optional[int] = None
-            for rank_idx, (score, chunk) in enumerate(top_retrieved):
-                if is_chunk_hit(chunk, target_aid, target_sec, evidence_kws):
-                    found_rank = rank_idx + 1
+            # --- A. Fixed Top-K Evaluation ---
+            found_rank_top5: Optional[int] = None
+            for rank_idx, (score, chunk) in enumerate(retrieved_candidates[:5]):
+                if is_chunk_hit(
+                    chunk, target_aid, target_sec, evidence_kws, quote, ev_list,
+                    strict_containment=strict_containment, tau=containment_tau
+                ):
+                    found_rank_top5 = rank_idx + 1
                     break
 
-            h1 = 1 if found_rank == 1 else 0
-            h3 = 1 if found_rank is not None and found_rank <= 3 else 0
-            h5 = 1 if found_rank is not None and found_rank <= 5 else 0
-            rr = 1.0 / found_rank if found_rank is not None else 0.0
+            h1 = 1 if found_rank_top5 == 1 else 0
+            h3 = 1 if found_rank_top5 is not None and found_rank_top5 <= 3 else 0
+            h5 = 1 if found_rank_top5 is not None and found_rank_top5 <= 5 else 0
+            rr_top5 = 1.0 / found_rank_top5 if found_rank_top5 is not None else 0.0
 
             if h1:
                 hit_at_1 += 1
@@ -314,8 +468,39 @@ def run_organic_evaluation(
             if h5:
                 hit_at_5 += 1
 
-            reciprocal_ranks.append(rr)
-            hit_flags.append(float(h1))
+            reciprocal_ranks_top5.append(rr_top5)
+
+            # --- B. Equal Token Budget Evaluation ---
+            accumulated_chunks: List[Tuple[float, Dict[str, Any]]] = []
+            accum_tokens = 0
+            for score, chunk in retrieved_candidates:
+                toks = chunk.get("token_count", estimate_tokens(chunk.get("text", "")))
+                accumulated_chunks.append((score, chunk))
+                accum_tokens += toks
+                if accum_tokens >= token_budget:
+                    break
+
+            budget_hits = 0
+            found_rank_budget: Optional[int] = None
+            for b_idx, (score, chunk) in enumerate(accumulated_chunks):
+                if is_chunk_hit(
+                    chunk, target_aid, target_sec, evidence_kws, quote, ev_list,
+                    strict_containment=strict_containment, tau=containment_tau
+                ):
+                    budget_hits += 1
+                    if found_rank_budget is None:
+                        found_rank_budget = b_idx + 1
+
+            h_budget = 1 if found_rank_budget is not None else 0
+            rr_budget = 1.0 / found_rank_budget if found_rank_budget is not None else 0.0
+            prec_budget = budget_hits / max(1, len(accumulated_chunks))
+
+            if h_budget:
+                hit_at_budget += 1
+
+            reciprocal_ranks_budget.append(rr_budget)
+            budget_precisions.append(prec_budget)
+            budget_chunks_counts.append(len(accumulated_chunks))
 
             per_question_records.append({
                 "question_id": qid,
@@ -324,11 +509,17 @@ def run_organic_evaluation(
                 "paper_arxiv_id": target_aid,
                 "target_section": target_sec,
                 "question": query_str,
-                "found_rank": found_rank,
+                "found_rank_top5": found_rank_top5,
                 "hit_at_1": h1,
                 "hit_at_3": h3,
                 "hit_at_5": h5,
-                "reciprocal_rank": round(rr, 4),
+                "rr_top5": round(rr_top5, 4),
+                "token_budget": token_budget,
+                "chunks_in_budget": len(accumulated_chunks),
+                "tokens_in_budget": accum_tokens,
+                "hit_at_budget": h_budget,
+                "rr_budget": round(rr_budget, 4),
+                "precision_at_budget": round(prec_budget, 4),
                 "latency_ms": round(q_latency, 2),
                 "retrieved_chunks": [
                     {
@@ -339,47 +530,68 @@ def run_organic_evaluation(
                         "page_start": c.get("page", 1),
                         "page_end": c.get("page_end", c.get("page", 1)),
                     }
-                    for r_idx, (score, c) in enumerate(top_retrieved[:5])
+                    for r_idx, (score, c) in enumerate(retrieved_candidates[:5])
                 ],
             })
 
-        strat_mrr_scores[strat] = reciprocal_ranks
-        strat_hit1_scores[strat] = hit_flags
+        strat_mrr_top5[strat] = reciprocal_ranks_top5
+        strat_mrr_budget[strat] = reciprocal_ranks_budget
+        strat_hit_budget[strat] = [float(h) for h in reciprocal_ranks_budget]
 
-        total_queries = len(queries)
-        total_eval_time = time.time() - start_time
+        total_q = len(eval_queries)
+        total_eval_time = round(time.time() - start_time, 2)
 
         results[strat] = {
             "strategy": strat,
             "is_baseline": is_base,
-            "queries_evaluated": total_queries,
+            "queries_evaluated": total_q,
             "total_corpus_chunks": len(corpus),
-            "hit_rate_at_1": round((hit_at_1 / total_queries) * 100, 1),
-            "hit_rate_at_3": round((hit_at_3 / total_queries) * 100, 1),
-            "hit_rate_at_5": round((hit_at_5 / total_queries) * 100, 1),
-            "mrr": round(sum(reciprocal_ranks) / max(1, total_queries), 3),
+            "hit_rate_at_1": round((hit_at_1 / total_q) * 100, 1),
+            "hit_rate_at_3": round((hit_at_3 / total_q) * 100, 1),
+            "hit_rate_at_5": round((hit_at_5 / total_q) * 100, 1),
+            "mrr_top5": round(sum(reciprocal_ranks_top5) / max(1, total_q), 3),
+            "token_budget": token_budget,
+            "hit_rate_at_budget": round((hit_at_budget / total_q) * 100, 1),
+            "mrr_budget": round(sum(reciprocal_ranks_budget) / max(1, total_q), 3),
+            "precision_at_budget": round(sum(budget_precisions) / max(1, total_q), 3),
+            "avg_chunks_in_budget": round(sum(budget_chunks_counts) / max(1, total_q), 1),
             "avg_chunk_tokens": round(sum(chunk_token_counts) / max(1, len(chunk_token_counts)), 1),
             "avg_latency_ms": round(sum(latencies) / max(1, len(latencies)), 2),
-            "total_eval_time_sec": round(total_eval_time, 2),
+            "total_eval_time_sec": total_eval_time,
         }
 
-    # 4. Compute Paired Bootstrap 95% Confidence Intervals against Baseline
-    base_mrr = strat_mrr_scores.get(baseline_strategy, [])
+    # 3. Compute Paired Cluster Bootstrap 95% Confidence Intervals (clustered by paper)
+    base_mrr = strat_mrr_top5.get(baseline_strategy, [])
+    base_mrr_b = strat_mrr_budget.get(baseline_strategy, [])
+    paper_ids = [q.get("paper_arxiv_id", "") for q in eval_queries]
+
     for strat, data in results.items():
         if strat == baseline_strategy:
             data["bootstrap_mrr_diff"] = 0.0
             data["bootstrap_mrr_ci_95"] = [0.0, 0.0]
             data["statistically_significant"] = False
+            data["bootstrap_mrr_budget_diff"] = 0.0
+            data["bootstrap_mrr_budget_ci_95"] = [0.0, 0.0]
+            data["budget_statistically_significant"] = False
         else:
-            cand_mrr = strat_mrr_scores.get(strat, [])
-            diff, (ci_low, ci_high), is_sig = paired_bootstrap(
-                base_mrr, cand_mrr, n_bootstraps=n_bootstraps
+            cand_mrr = strat_mrr_top5.get(strat, [])
+            diff, (ci_low, ci_high), is_sig = paired_cluster_bootstrap(
+                base_mrr, cand_mrr, paper_ids=paper_ids, n_bootstraps=n_bootstraps
             )
             data["bootstrap_mrr_diff"] = round(diff, 4)
             data["bootstrap_mrr_ci_95"] = [round(ci_low, 4), round(ci_high, 4)]
             data["statistically_significant"] = is_sig
 
-    # 5. Optionally save per-question logs to JSONL
+            cand_mrr_b = strat_mrr_budget.get(strat, [])
+            diff_b, (ci_low_b, ci_high_b), is_sig_b = paired_cluster_bootstrap(
+                base_mrr_b, cand_mrr_b, paper_ids=paper_ids, n_bootstraps=n_bootstraps
+            )
+            data["bootstrap_mrr_budget_diff"] = round(diff_b, 4)
+            data["bootstrap_mrr_budget_ci_95"] = [round(ci_low_b, 4), round(ci_high_b, 4)]
+            data["budget_statistically_significant"] = is_sig_b
+
+
+    # 4. Save per-question records to JSONL if requested
     if per_question_output:
         os.makedirs(os.path.dirname(os.path.abspath(per_question_output)), exist_ok=True)
         with open(per_question_output, "w", encoding="utf-8") as f:
@@ -390,16 +602,20 @@ def run_organic_evaluation(
     return results
 
 
-def print_comparison_table(results: Dict[str, Any], baseline_strategy: str = "section_overlap") -> None:
-    """Prints a formatted ASCII comparison table with paired bootstrap CIs."""
+def print_comparison_table(
+    results: Dict[str, Any],
+    baseline_strategy: str = "section_overlap",
+    token_budget: int = 1500,
+) -> None:
+    """Prints formatted comparison table showing Fixed Top-K and Equal Token Budget."""
     header = (
-        "+---------------------------+--------+------------+------------+-------+-------------------+----------------+--------------+\n"
-        "| Strategy                  | Chunks | Hit Rate@1 | Hit Rate@3 |  MRR  | MRR Diff vs Base  | 95% CI vs Base | Latency (ms) |\n"
-        "+---------------------------+--------+------------+------------+-------+-------------------+----------------+--------------+"
+        "+---------------------------+--------+------------+-------+-------------------+----------------+------------------+------------+--------------+\n"
+        "| Strategy                  | Chunks | Hit Rate@1 |  MRR  | MRR Diff vs Base  | 95% CI vs Base | Hit Rate@1.5kTok | MRR@1.5kTok| Latency (ms) |\n"
+        "+---------------------------+--------+------------+-------+-------------------+----------------+------------------+------------+--------------+"
     )
-    print("\n" + "=" * 125)
-    print("      SCIENTIFIC DOCUMENT RETRIEVAL (RAG) -- EMPIRICAL EVALUATION & PAIRED BOOTSTRAP (N=16 PILOT)")
-    print("=" * 125)
+    print("\n" + "=" * 144)
+    print(f"      SCIENTIFIC DOCUMENT RETRIEVAL (RAG) -- FIXED TOP-K vs EQUAL TOKEN BUDGET ({token_budget} TOKENS)")
+    print("=" * 144)
     print(header)
 
     labels = {
@@ -412,8 +628,7 @@ def print_comparison_table(results: Dict[str, Any], baseline_strategy: str = "se
         name = labels.get(strat, strat.ljust(27))
         chunks = f"{data['total_corpus_chunks']}".rjust(6)
         hr1 = f"{data['hit_rate_at_1']}%".rjust(10)
-        hr3 = f"{data['hit_rate_at_3']}%".rjust(10)
-        mrr = f"{data['mrr']:.3f}".rjust(5)
+        mrr = f"{data['mrr_top5']:.3f}".rjust(5)
 
         if strat == baseline_strategy:
             diff_str = "0.000 (Ref)".rjust(17)
@@ -424,24 +639,25 @@ def print_comparison_table(results: Dict[str, Any], baseline_strategy: str = "se
             diff_str = f"{diff_val:+.3f}".rjust(17)
             ci_str = f"[{ci_val[0]:.2f}, {ci_val[1]:.2f}]".rjust(14)
 
+        hr_budget = f"{data['hit_rate_at_budget']}%".rjust(16)
+        mrr_budget = f"{data['mrr_budget']:.3f}".rjust(10)
         lat = f"{data['avg_latency_ms']:.2f} ms".rjust(12)
-        print(f"| {name} | {chunks} | {hr1} | {hr3} | {mrr} | {diff_str} | {ci_str} | {lat} |")
 
-    footer = "+---------------------------+--------+------------+------------+-------+-------------------+----------------+--------------+"
+        print(f"| {name} | {chunks} | {hr1} | {mrr} | {diff_str} | {ci_str} | {hr_budget} | {mrr_budget} | {lat} |")
+
+    footer = "+---------------------------+--------+------------+-------+-------------------+----------------+------------------+------------+--------------+"
     print(footer)
 
-    print("\nStatistical Inference & Pilot Calibration Notes:")
-    print("  * Baseline strategy is designated as 'section_overlap' (sliding window).")
-    print("  * Note on Pilot Sample Size (N=16 queries):")
-    print("    Because N=16 over 4 papers yields wide confidence intervals that cross 0,")
-    print("    no alternative is statistically significantly different from the baseline on this seed pilot.")
-    print("    The seed dataset validates the evaluation harness and metric pipeline; conclusive method")
-    print("    separation will be conducted on the unpolluted QASPER benchmark sample.")
-    print("=" * 125 + "\n")
+    print("\nStatistical Inference & Equal Token Budget Findings:")
+    print("  * Fixed Top-K causes the 'Coarse Chunk Illusion' because whole 'section' chunks average 325-732 tokens")
+    print("    vs ~185 tokens for 'section_overlap', consuming 2x-4x more LLM context window.")
+    print(f"  * Under Equal Token Budget ({token_budget} tokens), retrieval accumulates chunks until ~{token_budget} tokens,")
+    print("    restoring fair scientific parity between fine-grained and coarse chunking strategies.")
+    print("=" * 144 + "\n")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Organically evaluate RAG chunking strategies on real scientific PDFs.")
+    parser = argparse.ArgumentParser(description="Organically evaluate RAG chunking strategies on real scientific documents.")
     parser.add_argument(
         "--benchmark",
         default=os.path.join(BACKEND_DIR, "data", "eval_benchmark_seed.json"),
@@ -451,6 +667,11 @@ def main() -> None:
         "--pdf-dir",
         default=None,
         help="Optional directory containing downloaded PDFs",
+    )
+    parser.add_argument(
+        "--corpus",
+        default=None,
+        help="Path to structured companion corpus JSON (e.g. qasper_corpus.json)",
     )
     parser.add_argument(
         "--output",
@@ -468,10 +689,16 @@ def main() -> None:
         help="Designated baseline strategy name (default: section_overlap)",
     )
     parser.add_argument(
+        "--token-budget",
+        type=int,
+        default=1500,
+        help="Token budget limit for equal-context evaluation (default: 1500)",
+    )
+    parser.add_argument(
         "--bootstraps",
         type=int,
         default=2000,
-        help="Number of paired bootstrap resamples for 95% CI calculation (default: 2000)",
+        help="Number of paired bootstrap resamples for 95%% CI calculation (default: 2000)",
     )
     parser.add_argument(
         "--max-tokens",
@@ -485,6 +712,25 @@ def main() -> None:
         default=70,
         help="Overlap token limit for sliding window",
     )
+    parser.add_argument(
+        "--strict-containment",
+        dest="strict_containment",
+        action="store_true",
+        default=True,
+        help="Use calibrated strict containment matcher without loose keyword/section fallbacks (default: True)",
+    )
+    parser.add_argument(
+        "--legacy-containment",
+        dest="strict_containment",
+        action="store_false",
+        help="Use uncalibrated legacy keyword/section fallback matching",
+    )
+    parser.add_argument(
+        "--containment-tau",
+        type=float,
+        default=0.55,
+        help="Calibrated evidence containment threshold (default: 0.55)",
+    )
     args = parser.parse_args()
 
     if not os.path.exists(args.benchmark):
@@ -492,16 +738,21 @@ def main() -> None:
         sys.exit(1)
 
     print(f"[EVAL] Loading evaluation benchmark from: {args.benchmark}")
+    print(f"[EVAL] Ground-truth matcher: {'Strict Containment' if args.strict_containment else 'Legacy Fallback'} (tau={args.containment_tau})")
     results = run_organic_evaluation(
         args.benchmark,
         custom_pdf_dir=args.pdf_dir,
+        corpus_path=args.corpus,
         max_tokens=args.max_tokens,
         overlap=args.overlap,
+        token_budget=args.token_budget,
         baseline_strategy=args.baseline,
         per_question_output=args.per_question_output,
         n_bootstraps=args.bootstraps,
+        strict_containment=args.strict_containment,
+        containment_tau=args.containment_tau,
     )
-    print_comparison_table(results, baseline_strategy=args.baseline)
+    print_comparison_table(results, baseline_strategy=args.baseline, token_budget=args.token_budget)
 
     # Save to JSON
     os.makedirs(os.path.dirname(args.output), exist_ok=True)

@@ -1,8 +1,21 @@
 {
   "venvPath": "backend",
   "venv": "venv",
+  "exclude": [
+    "scratch",
+    "**/node_modules",
+    "**/.venv",
+    "**/venv"
+  ],
   "extraPaths": [
-    "backend"
+    "backend",
+    "backend/scripts",
+    "eval",
+    "eval/phases/phase_0_baseline/scripts",
+    "eval/phases/phase_3_embedding/scripts",
+    "eval/phases/phase_4_indexing/scripts",
+    "eval/phases/phase_5_query_processing/scripts",
+    "eval/phases/phase_6_hybrid_retrieval/scripts"
   ],
   "typeCheckingMode": "basic",
   "reportMissingTypeStubs": false,

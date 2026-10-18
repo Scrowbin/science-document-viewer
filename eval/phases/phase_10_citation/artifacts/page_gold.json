@@ -1,0 +1,183 @@
+{
+  "total_items": 16,
+  "gold_accuracy_pct": 100.0,
+  "auto_assigned_pct": 93.8,
+  "items": [
+    {
+      "id": "Q_ATTN_01",
+      "paper_arxiv_id": "1706.03762",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Attention.pdf",
+      "target_section": "3.1 Encoder and Decoder Stacks",
+      "expected_page": 3,
+      "detected_page": 3,
+      "confidence": 1.0,
+      "match_type": "exact_substring",
+      "is_correct": true
+    },
+    {
+      "id": "Q_ATTN_02",
+      "paper_arxiv_id": "1706.03762",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Attention.pdf",
+      "target_section": "3.2.1 Scaled Dot-Product Attention",
+      "expected_page": 4,
+      "detected_page": 4,
+      "confidence": 0.86,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_ATTN_03",
+      "paper_arxiv_id": "1706.03762",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Attention.pdf",
+      "target_section": "5.3 Optimizer",
+      "expected_page": 7,
+      "detected_page": 7,
+      "confidence": 0.833,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_ATTN_04",
+      "paper_arxiv_id": "1706.03762",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Attention.pdf",
+      "target_section": "3.5 Positional Encoding",
+      "expected_page": 6,
+      "detected_page": 6,
+      "confidence": 0.9,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RES_01",
+      "paper_arxiv_id": "1512.03385",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\deep_residual.pdf",
+      "target_section": "3.2 Identity Mapping by Shortcuts",
+      "expected_page": 3,
+      "detected_page": 3,
+      "confidence": 0.887,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RES_02",
+      "paper_arxiv_id": "1512.03385",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\deep_residual.pdf",
+      "target_section": "3.3 Network Architectures",
+      "expected_page": 6,
+      "detected_page": 6,
+      "confidence": 0.9,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RES_03",
+      "paper_arxiv_id": "1512.03385",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\deep_residual.pdf",
+      "target_section": "4.1 ImageNet Classification",
+      "expected_page": 7,
+      "detected_page": 7,
+      "confidence": 1.0,
+      "match_type": "exact_substring",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RES_04",
+      "paper_arxiv_id": "1512.03385",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\deep_residual.pdf",
+      "target_section": "1. Introduction",
+      "expected_page": 1,
+      "detected_page": 1,
+      "confidence": 1.0,
+      "match_type": "exact_substring",
+      "is_correct": true
+    },
+    {
+      "id": "Q_LORA_01",
+      "paper_arxiv_id": "2106.09685",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\LoRa.pdf",
+      "target_section": "4.1 Low-Rank Parametrized Update Matrices",
+      "expected_page": 4,
+      "detected_page": 4,
+      "confidence": 0.869,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_LORA_02",
+      "paper_arxiv_id": "2106.09685",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\LoRa.pdf",
+      "target_section": "4.1 Low-Rank Parametrized Update Matrices",
+      "expected_page": 4,
+      "detected_page": 4,
+      "confidence": 0.88,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_LORA_03",
+      "paper_arxiv_id": "2106.09685",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\LoRa.pdf",
+      "target_section": "1. Introduction",
+      "expected_page": 1,
+      "detected_page": 1,
+      "confidence": 0.883,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_LORA_04",
+      "paper_arxiv_id": "2106.09685",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\LoRa.pdf",
+      "target_section": "4.1 Low-Rank Parametrized Update Matrices",
+      "expected_page": 1,
+      "detected_page": 1,
+      "confidence": 1.0,
+      "match_type": "exact_substring",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RAG_01",
+      "paper_arxiv_id": "2005.11401",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Retrieval-Augmented.pdf",
+      "target_section": "2.1 Models",
+      "expected_page": 3,
+      "detected_page": 3,
+      "confidence": 0.9,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RAG_02",
+      "paper_arxiv_id": "2005.11401",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Retrieval-Augmented.pdf",
+      "target_section": "2.2 Retriever: DPR",
+      "expected_page": 3,
+      "detected_page": 3,
+      "confidence": 0.9,
+      "match_type": "token_density",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RAG_03",
+      "paper_arxiv_id": "2005.11401",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Retrieval-Augmented.pdf",
+      "target_section": "2.2 Retriever: DPR",
+      "expected_page": 4,
+      "detected_page": 4,
+      "confidence": 1.0,
+      "match_type": "exact_substring",
+      "is_correct": true
+    },
+    {
+      "id": "Q_RAG_04",
+      "paper_arxiv_id": "2005.11401",
+      "pdf_path": "C:\\DACNTT\\sample__papers\\Retrieval-Augmented.pdf",
+      "target_section": "1. Introduction",
+      "expected_page": 1,
+      "detected_page": 1,
+      "confidence": 0.868,
+      "match_type": "token_density",
+      "is_correct": true
+    }
+  ]
+}

@@ -88,7 +88,7 @@ def locate_evidence_in_pdf(
     for page_idx in range(len(doc)):
         page = doc[page_idx]
         page_num = page_idx + 1
-        raw_text = page.get_text("text")
+        raw_text = str(page.get_text("text"))
         norm_page = normalize_text(raw_text)
 
         # Tier 1: Exact substring match

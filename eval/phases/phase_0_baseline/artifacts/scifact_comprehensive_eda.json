@@ -1,0 +1,47 @@
+{
+  "dataset_name": "SciFact",
+  "domain": "Biomedical Scientific Claims Verification",
+  "corpus_statistics": {
+    "total_abstracts": 5183,
+    "mean_abstract_words": 201.81092031641907,
+    "std_abstract_words": 85.99929633477934,
+    "p50_abstract_words": 192.0,
+    "p95_abstract_words": 341.0,
+    "min_abstract_words": 26,
+    "max_abstract_words": 1524,
+    "mean_sentences_per_abstract": 8.865907775419641,
+    "p50_sentences_per_abstract": 8.0,
+    "mean_title_words": 12.817094346903337
+  },
+  "claims_split_distribution": {
+    "train_claims": 809,
+    "dev_claims": 300,
+    "test_claims": 300,
+    "total_claims": 1409
+  },
+  "claim_length_statistics": {
+    "mean_words_per_claim": 12.311568488289566,
+    "std_words_per_claim": 4.744143708517846,
+    "p50_words_per_claim": 12.0,
+    "p95_words_per_claim": 21.0,
+    "min_words_per_claim": 3,
+    "max_words_per_claim": 39
+  },
+  "label_distribution": {
+    "NOINFO_OR_UNVERIFIED": 716,
+    "CONTRADICT": 463,
+    "SUPPORT": 832
+  },
+  "label_percentages": {
+    "NOINFO_OR_UNVERIFIED": 35.6,
+    "CONTRADICT": 23.02,
+    "SUPPORT": 41.37
+  },
+  "retrieval_evidence_characteristics": {
+    "claims_with_zero_cited_docs": 300,
+    "claims_with_single_cited_doc": 1008,
+    "claims_with_multiple_cited_docs": 101,
+    "mean_cited_docs_per_claim": 0.893541518807665,
+    "mean_evidence_sentences_when_evidenced": 2.0072150072150072
+  }
+}

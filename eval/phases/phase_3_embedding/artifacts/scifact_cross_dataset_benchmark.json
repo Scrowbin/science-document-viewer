@@ -1,0 +1,57 @@
+[
+  {
+    "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+    "embedding_dim": 384,
+    "latency_ms": 0.33,
+    "peak_rss_mb": 546.5,
+    "ndcg10": 0.6484032131749053,
+    "recall10": 0.7883333333333333,
+    "recall100": 0.925,
+    "mrr10": 0.6068452380952382,
+    "map10": 0.5989462962962963
+  },
+  {
+    "model_name": "BAAI/bge-small-en-v1.5",
+    "embedding_dim": 384,
+    "latency_ms": 0.27,
+    "peak_rss_mb": 663.6,
+    "ndcg10": 0.7056756050898959,
+    "recall10": 0.8295555555555556,
+    "recall100": 0.9433333333333334,
+    "mrr10": 0.6725211640211641,
+    "map10": 0.6612939153439154
+  },
+  {
+    "model_name": "intfloat/e5-small-v2",
+    "embedding_dim": 384,
+    "latency_ms": 1.2,
+    "peak_rss_mb": 597.6,
+    "ndcg10": 0.6955040667745666,
+    "recall10": 0.8151111111111112,
+    "recall100": 0.931,
+    "mrr10": 0.6662248677248677,
+    "map10": 0.6512195767195768
+  },
+  {
+    "model_name": "allenai/specter2_base (with adhoc_query adapter)",
+    "embedding_dim": 768,
+    "latency_ms": 1.48,
+    "peak_rss_mb": 1123.8,
+    "ndcg10": 0.6722269535738464,
+    "recall10": 0.7951666666666667,
+    "recall100": 0.9423333333333332,
+    "mrr10": 0.6367248677248676,
+    "map10": 0.6285925925925926
+  },
+  {
+    "model_name": "BM25 (WordPiece)",
+    "embedding_dim": "Lexical",
+    "latency_ms": 10.06,
+    "peak_rss_mb": 457.2,
+    "ndcg10": 0.6737186964741033,
+    "recall10": 0.8292222222222222,
+    "recall100": 0.9053333333333334,
+    "mrr10": 0.6299801587301588,
+    "map10": 0.6184947089947089
+  }
+]

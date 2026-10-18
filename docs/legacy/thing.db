@@ -1,0 +1,197 @@
+// DBML Schema for Scientific Document Manager (Zotero-style with RAG & Collab)
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  id integer [pk, increment]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  password varchar [not null]
+  created_at datetime [default: `now()`]
+}
+
+Table collections {
+  id integer [pk, increment]
+  owner_id integer [not null]
+  parent_id integer [null] // Nested tree view (Parent-child folders)
+  name varchar [not null]
+  color varchar
+  created_at datetime [default: `now()`]
+}
+
+Table documents {
+  id integer [pk, increment]
+  owner_id integer [not null]
+  primary_collection_id integer [null] // Priority folder for UI display
+  title varchar [not null]
+  short_title varchar
+  item_type varchar
+  repository varchar
+  archive_id varchar
+  doi varchar
+  url varchar
+  genre varchar
+  date datetime
+  language varchar
+  license varchar
+  version varchar
+  citation_key varchar
+  loc_in_archive varchar
+  file_path varchar // Physical PDF storage path
+  file_size integer // File size in bytes
+  rag_status varchar [default: 'PENDING'] // PENDING, INDEXING, INDEXED, FAILED
+  extra varchar
+  date_added datetime [default: `now()`]
+  date_modified datetime [default: `now()`]
+}
+
+Table document_collections {
+  document_id integer [not null]
+  collection_id integer [not null]
+
+  indexes {
+    (document_id, collection_id) [pk]
+  }
+}
+
+Table authors {
+  id integer [pk, increment]
+  first_name varchar
+  last_name varchar
+}
+
+Table document_authors {
+  document_id integer [not null]
+  author_id integer [not null]
+  author_order integer [not null]
+
+  indexes {
+    (document_id, author_id) [pk]
+  }
+}
+
+Table tags {
+  id integer [pk, increment]
+  name varchar [not null, unique]
+}
+
+Table document_tags {
+  document_id integer [not null]
+  tag_id integer [not null]
+
+  indexes {
+    (document_id, tag_id) [pk]
+  }
+}
+
+Table domains {
+  id integer [pk, increment]
+  name varchar [not null, unique]
+}
+
+Table document_domains {
+  document_id integer [not null]
+  domain_id integer [not null]
+
+  indexes {
+    (document_id, domain_id) [pk]
+  }
+}
+
+// PDF Direct Annotations & Page-specific Notes
+Table annotations {
+  id integer [pk, increment]
+  document_id integer [not null]
+  user_id integer [not null]
+  page_number integer [not null]
+  type varchar [not null] // 'highlight', 'note', 'underline'
+  color varchar [default: '#ffeb3b']
+  rects text // JSON array of bounding box coordinates [{x1,y1,x2,y2}]
+  selected_text text
+  comment text
+  created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
+}
+
+// Personal & Research Notes
+Table notes {
+  id integer [pk, increment]
+  user_id integer [not null]
+  document_id integer [null] // Nullable: standalone note or doc-attached
+  title varchar [not null]
+  content text
+  created_at datetime [default: `now()`]
+  updated_at datetime [default: `now()`]
+}
+
+// Google Drive-style Permissions & Sharing (Document Level)
+Table document_shares {
+  id integer [pk, increment]
+  document_id integer [not null]
+  shared_with_user_id integer [not null]
+  permission varchar [not null] // 'VIEW', 'COMMENT', 'EDIT'
+  created_at datetime [default: `now()`]
+
+  indexes {
+    (document_id, shared_with_user_id) [unique]
+  }
+}
+
+// Google Drive-style Permissions & Sharing (Folder/Collection Level)
+// Inherited automatically by child documents
+Table collection_shares {
+  id integer [pk, increment]
+  collection_id integer [not null]
+  shared_with_user_id integer [not null]
+  permission varchar [not null] // 'VIEW', 'COMMENT', 'EDIT'
+  created_at datetime [default: `now()`]
+
+  indexes {
+    (collection_id, shared_with_user_id) [unique]
+  }
+}
+
+// Manual & Automatic Cross-document Relationships
+Table related_documents {
+  document_id_1 integer [not null]
+  document_id_2 integer [not null]
+  relation_type varchar [default: 'manual'] // 'manual', 'same_author', 'same_domain'
+  created_at datetime [default: `now()`]
+
+  indexes {
+    (document_id_1, document_id_2) [pk]
+  }
+}
+
+// Foreign Key References
+Ref: collections.owner_id > users.id
+Ref: collections.parent_id > collections.id
+
+Ref: documents.owner_id > users.id
+Ref: documents.primary_collection_id > collections.id
+
+Ref: document_collections.document_id > documents.id
+Ref: document_collections.collection_id > collections.id
+
+Ref: document_authors.document_id > documents.id
+Ref: document_authors.author_id > authors.id
+
+Ref: document_tags.document_id > documents.id
+Ref: document_tags.tag_id > tags.id
+
+Ref: document_domains.document_id > documents.id
+Ref: document_domains.domain_id > domains.id
+
+Ref: annotations.document_id > documents.id
+Ref: annotations.user_id > users.id
+
+Ref: notes.user_id > users.id
+Ref: notes.document_id > documents.id
+
+Ref: document_shares.document_id > documents.id
+Ref: document_shares.shared_with_user_id > users.id
+
+Ref: collection_shares.collection_id > collections.id
+Ref: collection_shares.shared_with_user_id > users.id
+
+Ref: related_documents.document_id_1 > documents.id
+Ref: related_documents.document_id_2 > documents.id

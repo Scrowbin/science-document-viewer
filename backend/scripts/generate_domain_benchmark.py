@@ -238,7 +238,7 @@ def verify_domain_benchmark(
 
         # Inspect PDF
         doc = pymupdf.open(pdf_path)
-        raw_pages = [page.get_text("text") for page in doc]
+        raw_pages = [str(page.get_text("text")) for page in doc]
         doc.close()
         full_text = " ".join([re.sub(r"-\s*\n\s*", "", p) for p in raw_pages])
         norm_full = re.sub(r"\s+", " ", full_text).lower()

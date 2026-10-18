@@ -1,0 +1,246 @@
+{
+  "matcher_sensitivity": {
+    "whitespace": {
+      "0.4": {
+        "tp": 31,
+        "fp": 26,
+        "fn": 2,
+        "tn": 21,
+        "accuracy": 65.0,
+        "precision": 54.4,
+        "recall": 93.9,
+        "f1": 68.9
+      },
+      "0.5": {
+        "tp": 28,
+        "fp": 17,
+        "fn": 5,
+        "tn": 30,
+        "accuracy": 72.5,
+        "precision": 62.2,
+        "recall": 84.8,
+        "f1": 71.8
+      },
+      "0.55": {
+        "tp": 27,
+        "fp": 7,
+        "fn": 6,
+        "tn": 40,
+        "accuracy": 83.8,
+        "precision": 79.4,
+        "recall": 81.8,
+        "f1": 80.6
+      },
+      "0.6": {
+        "tp": 26,
+        "fp": 5,
+        "fn": 7,
+        "tn": 42,
+        "accuracy": 85.0,
+        "precision": 83.9,
+        "recall": 78.8,
+        "f1": 81.2
+      }
+    },
+    "regex_no_stopwords": {
+      "0.4": {
+        "tp": 31,
+        "fp": 28,
+        "fn": 2,
+        "tn": 19,
+        "accuracy": 62.5,
+        "precision": 52.5,
+        "recall": 93.9,
+        "f1": 67.4
+      },
+      "0.5": {
+        "tp": 28,
+        "fp": 13,
+        "fn": 5,
+        "tn": 34,
+        "accuracy": 77.5,
+        "precision": 68.3,
+        "recall": 84.8,
+        "f1": 75.7
+      },
+      "0.55": {
+        "tp": 27,
+        "fp": 5,
+        "fn": 6,
+        "tn": 42,
+        "accuracy": 86.2,
+        "precision": 84.4,
+        "recall": 81.8,
+        "f1": 83.1
+      },
+      "0.6": {
+        "tp": 25,
+        "fp": 5,
+        "fn": 8,
+        "tn": 42,
+        "accuracy": 83.8,
+        "precision": 83.3,
+        "recall": 75.8,
+        "f1": 79.4
+      }
+    },
+    "regex_39_stopwords": {
+      "0.4": {
+        "tp": 26,
+        "fp": 12,
+        "fn": 7,
+        "tn": 35,
+        "accuracy": 76.2,
+        "precision": 68.4,
+        "recall": 78.8,
+        "f1": 73.2
+      },
+      "0.5": {
+        "tp": 24,
+        "fp": 4,
+        "fn": 9,
+        "tn": 43,
+        "accuracy": 83.8,
+        "precision": 85.7,
+        "recall": 72.7,
+        "f1": 78.7
+      },
+      "0.55": {
+        "tp": 24,
+        "fp": 2,
+        "fn": 9,
+        "tn": 45,
+        "accuracy": 86.2,
+        "precision": 92.3,
+        "recall": 72.7,
+        "f1": 81.4
+      },
+      "0.6": {
+        "tp": 24,
+        "fp": 2,
+        "fn": 9,
+        "tn": 45,
+        "accuracy": 86.2,
+        "precision": 92.3,
+        "recall": 72.7,
+        "f1": 81.4
+      }
+    },
+    "wordpiece": {
+      "0.4": {
+        "tp": 31,
+        "fp": 37,
+        "fn": 2,
+        "tn": 10,
+        "accuracy": 51.2,
+        "precision": 45.6,
+        "recall": 93.9,
+        "f1": 61.4
+      },
+      "0.5": {
+        "tp": 29,
+        "fp": 25,
+        "fn": 4,
+        "tn": 22,
+        "accuracy": 63.7,
+        "precision": 53.7,
+        "recall": 87.9,
+        "f1": 66.7
+      },
+      "0.55": {
+        "tp": 28,
+        "fp": 17,
+        "fn": 5,
+        "tn": 30,
+        "accuracy": 72.5,
+        "precision": 62.2,
+        "recall": 84.8,
+        "f1": 71.8
+      },
+      "0.6": {
+        "tp": 27,
+        "fp": 12,
+        "fn": 6,
+        "tn": 35,
+        "accuracy": 77.5,
+        "precision": 69.2,
+        "recall": 81.8,
+        "f1": 75.0
+      }
+    }
+  },
+  "bm25_retrieval": [
+    {
+      "tokenizer": "whitespace",
+      "scope": "within_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "whitespace",
+      "scope": "cross_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "regex_no_stopwords",
+      "scope": "within_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "regex_no_stopwords",
+      "scope": "cross_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "regex_39_stopwords",
+      "scope": "within_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "regex_39_stopwords",
+      "scope": "cross_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "wordpiece",
+      "scope": "within_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    },
+    {
+      "tokenizer": "wordpiece",
+      "scope": "cross_paper",
+      "mrr5": 0.0,
+      "ndcg4": 0.0,
+      "hit1": 0.0,
+      "hit3": 0.0,
+      "hit5": 0.0
+    }
+  ]
+}
