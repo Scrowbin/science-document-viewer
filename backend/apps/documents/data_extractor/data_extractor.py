@@ -1,9 +1,11 @@
 from json import load
+from django.http import JsonResponse
+from pathlib import Path
 import requests
 from dotenv import load_dotenv
 import os
 import arxiv
-from manual_pdf_parser import auto_extract_metadata
+from .manual_pdf_parser import auto_extract_metadata
 from grobid_client.grobid_client import GrobidClient
 
 load_dotenv()
@@ -56,27 +58,41 @@ def arxiv_id_extractor(arxiv_id):
         return None
 
 
-def ai_extractor_metadata(path):
-    client = GrobidClient(config_path="./grobid.json")
-    output_dir = path.parent / "grobid_output"
+def ai_extractor_metadata(path) -> Path:
+    document_path = Path(path)
+    # client = GrobidClient(config_path="./grobid.json")
+    client = GrobidClient()
+    output_dir = document_path.parent / "grobid_output"
     output_dir.mkdir(exist_ok=True)
     client.process(
         service="processFulltextDocument",
-        input_path=str(path),
+        input_path=str(document_path),
         output=str(output_dir),
         consolidate_header=True,
         consolidate_citations=True,
         include_raw_citations=True,
         segment_sentences=True,
-        markdown_output=True,
         force=True,
     )
 
-    markdown_path = output_dir / f"{path.stem}.md"
-    tei_path = output_dir / f"{path.stem}.tei.xml"
+    tei_path = output_dir / f"{document_path.stem}.tei.xml"
 
-    return {
-        "markdown": markdown_path.read_text(encoding="utf-8"),
-        "markdown_path": markdown_path,
-        "tei_path": tei_path,
-    }
+    return tei_path
+
+
+def data_extractor(path):
+    try:
+        result = ai_extractor_metadata(path)
+        if result:
+            return result
+    except Exception as e:
+        print(f"GROBID failed: {e}")
+
+    try:
+        result = auto_extract_metadata(path)
+        if result:
+            return result
+    except Exception as e:
+        print(f"Auto extractor failed: {e}")
+
+    return None
