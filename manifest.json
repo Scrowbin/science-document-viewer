@@ -1,0 +1,43 @@
+{
+  "manifest_version": "1.0",
+  "project": "Scientific Document Manager (Zotero-style with AI & Collaboration)",
+  "protocol": "EMBEDDING_EVAL_PLAN.md",
+  "protocol_version": "3.5-preregistered",
+  "freeze_timestamp_iso": "2026-10-18T15:15:00+09:00",
+  "pre_registration_status": "FROZEN_AND_APPROVED",
+  "approved_by": "Researcher",
+  "files": {
+    "EMBEDDING_EVAL_PLAN.md": {
+      "path": "EMBEDDING_EVAL_PLAN.md",
+      "sha256": "174579c7acf2c9d2b48a8502639db93eb1e9131c08af102896e32095ff2035d3",
+      "role": "Canonical Pre-Registered Experimental Plan and Evaluation Blueprint"
+    },
+    "eval/prepared/expansion_decision.json": {
+      "path": "eval/prepared/expansion_decision.json",
+      "sha256": "dc0ceda2d467e3d70ec5b24fb0927213fbcb5790485263c2ed6b6639f736a73d",
+      "role": "Pre-flight Gate G10 Monte Carlo Power Simulation and Sizing Lock",
+      "chosen_tier": "Tier 2",
+      "k_papers": 800
+    }
+  },
+  "locked_parameters": {
+    "primary_confirmatory_family_m": 3,
+    "hypothesis_testing_convention": "two_sided",
+    "alpha": 0.05,
+    "alpha_min_holm": 0.016666666666666666,
+    "sesoi_qasper_ndcg_10": 0.03,
+    "permutation_iterations_P": 5000,
+    "bootstrap_replicates_B": 5000,
+    "random_seed": 42,
+    "expansion_ladder": {
+      "tier_0_k": 416,
+      "tier_1_k": 597,
+      "tier_2_k": 800
+    },
+    "hardware_limits": {
+      "docker_cpus": 4,
+      "docker_memory_reservation_gb": 4.0,
+      "docker_memory_limit_gb": 6.0
+    }
+  }
+}

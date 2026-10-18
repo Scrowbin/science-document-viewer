@@ -38,12 +38,52 @@ from .chunking_utils import chunk_document, estimate_tokens
 logger = logging.getLogger(__name__)
 
 # Model dimension mapping
-MODEL_DIMENSIONS = {
+MODEL_DIMENSIONS: Dict[str, int] = {
     "intfloat/e5-small-v2": 384,
     "BAAI/bge-small-en-v1.5": 384,
     "all-MiniLM-L6-v2": 384,
     "sentence-transformers/all-MiniLM-L6-v2": 384,
+    "thenlper/gte-small": 384,
+    "Snowflake/snowflake-arctic-embed-s": 384,
+    "Snowflake/snowflake-arctic-embed-m-v1.5": 768,
+    "nomic-ai/nomic-embed-text-v1.5": 768,
+    "nomic-ai/modernbert-embed-base": 768,
+    "Snowflake/snowflake-arctic-embed-m-v2.0": 768,
+    "mixedbread-ai/mxbai-embed-large-v1": 1024,
 }
+
+# Centralized model prefix specifications for asymmetric dense embeddings
+MODEL_PREFIX_SPECS: Dict[str, Dict[str, str]] = {
+    "intfloat/e5-small-v2": {"query": "query: ", "passage": "passage: "},
+    "BAAI/bge-small-en-v1.5": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+    "sentence-transformers/all-MiniLM-L6-v2": {"query": "", "passage": ""},
+    "all-MiniLM-L6-v2": {"query": "", "passage": ""},
+    "thenlper/gte-small": {"query": "", "passage": ""},
+    "Snowflake/snowflake-arctic-embed-s": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+    "Snowflake/snowflake-arctic-embed-m-v1.5": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+    "Snowflake/snowflake-arctic-embed-m-v2.0": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+    "nomic-ai/nomic-embed-text-v1.5": {"query": "search_query: ", "passage": "search_document: "},
+    "nomic-ai/modernbert-embed-base": {"query": "search_query: ", "passage": "search_document: "},
+    "mixedbread-ai/mxbai-embed-large-v1": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+}
+
+
+def get_model_prefix(model_name: str, is_query: bool = False) -> str:
+    """
+    Returns model-specific prefix for query or passage/document embedding.
+    Centralized mapping preventing silent representation space corruption.
+    """
+    for key, spec in MODEL_PREFIX_SPECS.items():
+        if key in model_name:
+            return spec["query"] if is_query else spec["passage"]
+    if "e5" in model_name:
+        return "query: " if is_query else "passage: "
+    if any(k in model_name for k in ["bge", "arctic", "mxbai"]):
+        return "Represent this sentence for searching relevant passages: " if is_query else ""
+    if any(k in model_name for k in ["nomic", "modernbert"]):
+        return "search_query: " if is_query else "search_document: "
+    return ""
+
 
 
 class RagService:
@@ -108,21 +148,29 @@ class RagService:
                 self._is_st_model = False
         return self._embedder
 
+    def embed(self, text_or_texts: Any, is_query: bool = False) -> Any:
+        """
+        Public embedding method with centralized asymmetric prefix application.
+        Accepts single str or list of str; returns single vector or list of vectors.
+        """
+        if isinstance(text_or_texts, str):
+            res = self._embed_texts([text_or_texts], is_query=is_query)
+            return res[0] if res else []
+        elif isinstance(text_or_texts, list):
+            return self._embed_texts(text_or_texts, is_query=is_query)
+        else:
+            raise TypeError(f"Expected str or List[str], got {type(text_or_texts)}")
+
     def _embed_texts(self, texts: List[str], is_query: bool = False) -> List[List[float]]:
         """
         Embeds texts with proper model-specific asymmetrical prefixing and normalization.
-        e5-small-v2 requires 'passage: ' for documents and 'query: ' for queries.
+        Uses centralized get_model_prefix mapping.
         """
         if not texts:
             return []
 
-        if "e5" in self.model_name:
-            prefix = "query: " if is_query else "passage: "
-            formatted_texts = [prefix + t for t in texts]
-        elif "bge" in self.model_name and is_query:
-            formatted_texts = ["Represent this sentence for searching relevant passages: " + t for t in texts]
-        else:
-            formatted_texts = texts
+        prefix = get_model_prefix(self.model_name, is_query=is_query)
+        formatted_texts = [prefix + t if not t.startswith(prefix) else t for t in texts] if prefix else texts
 
         embedder_inst = self.embedder
         if self._is_st_model:
@@ -418,16 +466,22 @@ class DocumentRAG:
         self.document_id = document_id
         self.documents = documents
         self.content = [doc.page_content for doc in self.documents]
+        self.model_name = getattr(settings, "EMBEDDING_MODEL", "intfloat/e5-small-v2")
 
         # BM25 setup
         tokenized_corpus = [text.lower().split() for text in self.content]
         self.bm25 = BM25Okapi(tokenized_corpus)
 
-        # Dense embedding setup
+        # Dense embedding setup with proper passage prefixing
         self.embedding_model = get_embedding_model()
         if self.content:
+            passage_prefix = get_model_prefix(self.model_name, is_query=False)
+            formatted_content = [
+                passage_prefix + t if passage_prefix and not t.startswith(passage_prefix) else t
+                for t in self.content
+            ]
             self.embeddings = self.embedding_model.encode(
-                self.content,
+                formatted_content,
                 normalize_embeddings=True,
                 convert_to_numpy=True,
                 show_progress_bar=False,
@@ -435,9 +489,15 @@ class DocumentRAG:
         else:
             self.embeddings = np.array([])
 
-    def embed(self, text: str) -> np.ndarray:
+    def embed(self, text: str, is_query: bool = True) -> np.ndarray:
+        """
+        Embeds a single query or passage string using model-specific asymmetric prefixes.
+        Defaults to is_query=True for retrieval similarity searches.
+        """
+        prefix = get_model_prefix(self.model_name, is_query=is_query)
+        formatted_text = prefix + text if prefix and not text.startswith(prefix) else text
         return self.embedding_model.encode(
-            [text], normalize_embeddings=True, convert_to_numpy=True
+            [formatted_text], normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False
         )[0]
 
     def hybrid_search(self, query: str, top_k: int = 5) -> List[Tuple[Document, float]]:
@@ -515,10 +575,11 @@ def reindex_document(doc_id: int, file_path: str) -> Optional[DocumentRAG]:
 def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Optional[str]:
     """Calls Ollama /api/generate and returns response text or None."""
     try:
+        timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
         resp = requests.post(
             f"{ollama_url}/api/generate",
             json={"model": model_name, "prompt": prompt, "stream": False},
-            timeout=15,
+            timeout=timeout,
         )
         if resp.status_code == 200:
             data = resp.json()
@@ -641,3 +702,4 @@ def summarize_document(
         f"### 3. Key Findings & Discussion\n{last}..."
     )
     return {"summary": fallback, "sources": sources, "model": "Grounded Hybrid RAG (Local)"}
+

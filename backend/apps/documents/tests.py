@@ -518,5 +518,49 @@ class RagServiceTestCase(TestCase):
         doc_ids_retrieved = {c["document_id"] for score, c in fused}
         self.assertEqual(doc_ids_retrieved, {"doc_1", "doc_2"}, "Both doc_1 and doc_2 chunks must survive without collision!")
 
+    def test_rag_pipeline_query_document_and_chat_endpoint(self):
+        """Verifies end-to-end RAG retrieval and generation with test question from benchmark suite."""
+        import os
+        from django.conf import settings
+        from django.core.files import File
+        from .services.rag_service import query_document
+
+        pdf_path = str(settings.BASE_DIR.parent / "sample_documents" / "attention.pdf")
+        if not os.path.exists(pdf_path):
+            self.skipTest("sample_documents/attention.pdf not found")
+
+        # Test question Q_ATTN_02 from benchmark test suite
+        question = "Why does Scaled Dot-Product Attention divide the dot products of queries and keys by the square root of d_k?"
+
+        # 1. Direct service layer test
+        res = query_document(doc_id=99998, file_path=pdf_path, question=question, doc_title="Attention Is All You Need")
+        self.assertIn("answer", res)
+        self.assertTrue(len(res["sources"]) > 0)
+        self.assertEqual(res["sources"][0]["page"], 4)
+
+        # 2. REST API /chat/ action endpoint test
+        user = User.objects.create_user(username='rag_endpoint_user', password='password123')
+        doc = Document.objects.create(
+            owner=user,
+            title='Attention Is All You Need',
+            doi='10.48550/arXiv.1706.03762'
+        )
+        with open(pdf_path, "rb") as f:
+            doc.file.save("attention_test.pdf", File(f), save=True)
+
+        try:
+            client = APIClient()
+            client.force_authenticate(user=user)
+            chat_resp = client.post(f"/api/v1/documents/{doc.id}/chat/", {"question": question}, format="json")
+            self.assertEqual(chat_resp.status_code, status.HTTP_200_OK)
+            chat_data = chat_resp.json()
+            self.assertIn("answer", chat_data)
+            self.assertTrue(len(chat_data["sources"]) > 0)
+            self.assertEqual(chat_data["sources"][0]["page"], 4)
+        finally:
+            if doc.file and os.path.exists(doc.file.path):
+                doc.file.delete(save=False)
+
+
 
 

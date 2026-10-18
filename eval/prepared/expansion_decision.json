@@ -1,0 +1,110 @@
+{
+  "gate": "Gate G10 & Gate G13",
+  "protocol_version": "3.5-preregistered",
+  "timestamp_iso": "2026-10-18T06:20:50Z",
+  "dgp_specification": {
+    "method": "empirical_cluster_residual_resampling",
+    "candidate_selection_rule": "top_n_max_cluster_sd",
+    "selected_worst_case_candidate": "e5-small-v2",
+    "selected_cluster_sd": 0.25625491294598635,
+    "all_evaluated_candidates_sd": {
+      "e5-small-v2": 0.25625491294598635,
+      "bge-small-en-v1.5": 0.2108047261033222,
+      "all-mpnet-base-v2": 0.2297232291421618
+    },
+    "sesoi_ndcg_10": 0.03,
+    "in_sample_bias_mitigation": "residuals_centered_strictly_at_sesoi"
+  },
+  "simulation_parameters": {
+    "monte_carlo_draws_s": 2000,
+    "random_seed": 42,
+    "alpha_min_holm": 0.016666666666666666,
+    "primary_family_m": 3
+  },
+  "power_curve": {
+    "200": {
+      "k_papers": 200,
+      "estimated_queries": 610,
+      "power": 0.269,
+      "mc_se": 0.0099,
+      "mean_delta": 0.0297,
+      "mean_se": 0.01659,
+      "power_percent": 26.9
+    },
+    "300": {
+      "k_papers": 300,
+      "estimated_queries": 915,
+      "power": 0.4135,
+      "mc_se": 0.011,
+      "mean_delta": 0.0296,
+      "mean_se": 0.01353,
+      "power_percent": 41.35
+    },
+    "400": {
+      "k_papers": 400,
+      "estimated_queries": 1220,
+      "power": 0.582,
+      "mc_se": 0.011,
+      "mean_delta": 0.0301,
+      "mean_se": 0.01171,
+      "power_percent": 58.2
+    },
+    "416": {
+      "k_papers": 416,
+      "estimated_queries": 1268,
+      "power": 0.58,
+      "mc_se": 0.011,
+      "mean_delta": 0.03,
+      "mean_se": 0.0115,
+      "power_percent": 58.0
+    },
+    "500": {
+      "k_papers": 500,
+      "estimated_queries": 1525,
+      "power": 0.6895,
+      "mc_se": 0.0103,
+      "mean_delta": 0.0301,
+      "mean_se": 0.01048,
+      "power_percent": 68.95
+    },
+    "597": {
+      "k_papers": 597,
+      "estimated_queries": 1820,
+      "power": 0.76,
+      "mc_se": 0.0095,
+      "mean_delta": 0.0299,
+      "mean_se": 0.00962,
+      "power_percent": 76.0
+    },
+    "700": {
+      "k_papers": 700,
+      "estimated_queries": 2135,
+      "power": 0.8425,
+      "mc_se": 0.0081,
+      "mean_delta": 0.0299,
+      "mean_se": 0.00887,
+      "power_percent": 84.25
+    },
+    "800": {
+      "k_papers": 800,
+      "estimated_queries": 2440,
+      "power": 0.8945,
+      "mc_se": 0.0069,
+      "mean_delta": 0.0299,
+      "mean_se": 0.00831,
+      "power_percent": 89.45
+    }
+  },
+  "expansion_decision": {
+    "chosen_tier": "Tier 2",
+    "k_selected": 800,
+    "decision_code": "TIER_2_EXPANSION_TRIGGERED",
+    "cohort_description": "pool_tier_1_with_untouched_train (800 papers, ~2400 queries; leaves 385 train untouched; 0 dev overlap)",
+    "target_power": 0.8,
+    "power_at_k416": 0.58,
+    "power_at_k597": 0.76,
+    "power_at_k800": 0.8945,
+    "justification": "Power at Tier 1 K=597 (76.0%) is below 80%; Tier 2 pooling of 203 untouched train papers achieves 89.5% >= 80% power."
+  },
+  "lock_status": "FROZEN_BEFORE_STAGE_2"
+}

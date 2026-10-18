@@ -319,6 +319,35 @@ While QASPER serves as our primary developmental corpus and within-paper passage
     3. *Zero-Shot Production Assurance for Zotero Users:* Because our desktop application serves researchers across biology, medicine, and chemistry in addition to computer science, this benchmark mathematically verified that `intfloat/e5-small-v2` transfers zero-shot with outstanding recall (0.9310 Recall@100), justifying freezing it as the monorepo's production default.
   - **Serialized Benchmark Artifact:** [`eval/phases/phase_3_embedding/artifacts/scifact_cross_dataset_benchmark.json`](file:///c:/DACNTT/eval/phases/phase_3_embedding/artifacts/scifact_cross_dataset_benchmark.json).
 
+* **Unified Practical Thesis Embedding Benchmark Framework (11 Models <= 335M on Unified 207-Paper Cohort):**
+  To align the research with practical computer science thesis standards, eliminate bureaucratic gatekeeping, and produce publication-ready Pareto frontier figures for desktop deployment:
+  1. **Unified High-Power Corpus:** All embedding benchmarks run on the complete unified **207-paper / 615-query / 5,194-chunk dataset** on disk (`eval/prepared/`). Multi-gate blockers, manual 100-pair audits, and synthetic expansion ladders are permanently superseded.
+  2. **Open-Source Scope (<= 335M Parameters):** The evaluated model pool is strictly confined to open-source **MIT / Apache-2.0 models <= 335M parameters** compatible with local single-node CPU deployment alongside Ollama on a 16 GB RAM workstation:
+     - Baseline: `BM25 [WordPiece Subwords]`
+     - 22M: `sentence-transformers/all-MiniLM-L6-v2` (384d, Apache-2.0)
+     - 33M: `intfloat/e5-small-v2` (384d, MIT)
+     - 33M: `BAAI/bge-small-en-v1.5` (384d, MIT)
+     - 33M: `thenlper/gte-small` (384d, Apache-2.0)
+     - 33M: `Snowflake/snowflake-arctic-embed-s` (384d, Apache-2.0)
+     - 109M: `Snowflake/snowflake-arctic-embed-m-v1.5` (768d, Apache-2.0)
+     - 137M: `nomic-ai/nomic-embed-text-v1.5` (768d, Apache-2.0)
+     - 149M: `nomic-ai/modernbert-embed-base` (768d, Apache-2.0)
+     - 305M: `Snowflake/snowflake-arctic-embed-m-v2.0` (768d, Apache-2.0)
+     - 335M: `mixedbread-ai/mxbai-embed-large-v1` (1024d, Apache-2.0)
+     *(Gated/licensed models like `google/embeddinggemma-300m` and oversized models like `Qwen/Qwen3-Embedding-0.6B` are discarded).*
+  3. **Exact Search Decoupled from HNSW:** Embedding representation quality is measured via exact brute-force cosine similarity (NumPy BLAS on FP32 unit-normalized vectors) within each paper's chunk pool, cleanly decoupled from approximate nearest-neighbor indexing (Qdrant HNSW).
+  4. **Primary & Secondary Metrics:**
+     - Primary: **nDCG@10** (evaluating overall ranking quality across top candidates).
+     - Secondary: **nDCG@4** (prompt context token window), **Recall@20**, and **MRR@10**.
+     - Statistical inference: 95% confidence intervals via paper-cluster bootstrap resampling ($B=2,000$, `seed=42`) and two-sided paired $p$-values against `all-MiniLM-L6-v2`.
+  5. **Hardware & Efficiency Profiling (AMD Ryzen 5 5600):**
+     - Thread allocation: `torch.set_num_threads(4)`.
+     - Document indexing throughput (chunks/sec at batch size $B=32$).
+     - Single-query latency (P50/P95 in ms, $B=1$, across 100 queries with 10 untimed warm-ups).
+     - Peak resident RAM (`psutil.Process().memory_info().rss` in MB).
+     - Artifacts: Publication-grade **Pareto frontier plots** (`eval/results/figures/`) and markdown thesis report (`eval/results/THESIS_EMBEDDING_REPORT.md`).
+  6. **Production Prefix Integrity:** Unified model prefix management in `rag_service.py` via `MODEL_PREFIX_SPECS` and `get_model_prefix()` ensures that models requiring asymmetric prefixes (e.g. `e5-small-v2`, `bge-small-en-v1.5`, `snowflake-arctic-embed-*`, `nomic-ai/*`) receive them in both evaluation and production.
+
 * **Architectural Analysis: What Has Been Answered vs What Remains Unanswered:**
   1. **What has been definitively answered for the embedding stage:**
      - **Passage-level Retrieval Superiority:** `intfloat/e5-small-v2` is conclusively the champion dense embedding model for scientific passage retrieval, beating the base model by $+0.0671$ nDCG@4 ($p=0.0004^*$, FWER-significant) and BGE by $+0.0493$ nDCG@4 ($p=0.0012^*$, FWER-significant) under high statistical power (78.3%-85.5% observed clustered power).
@@ -503,6 +532,7 @@ While QASPER serves as our primary developmental corpus and within-paper passage
 | **Vector DB Latency** | Qdrant Regime A (Filter) | ~25 Chunks (570 Queries) | Pooled P50 Latency | **29.07 ms** | N/A | P95 = 48.36 ms, P99 = 57.97 ms | `step4_indexing_pareto_results.json` | High; linear SQLite payload scan overhead |
 | **Vector DB Footprint**| Qdrant SQLite Storage | 1,119 Chunks (384-d FP32) | On-Disk Storage | **4.43 MB** | N/A | Peak Traced Python Heap: 20.27 MB | `step4_indexing_pareto_results.json` | High; verified on disk |
 | **HNSW Scale Parity** | Standalone Docker Qdrant | Held-Out Chunks vs BLAS | Exact ID Match Top-4/20 | **100.0%** (114/114) | BLAS Oracle | Verified across $M \in \{16, 32\}$, $ef \in \{32..128\}$ | `step4_hnsw_scale_pareto.json` | High; exact graph traversal equivalence |
+| **HNSW Multi-Model Scaling** | Qdrant Server HNSW ($M=16, ef_s=64$) | 4,108 Chunks (487 Queries) | ANN Recall@10 vs Exact BLAS | **100.0%** (E5/MiniLM), **99.01%** (ModernBERT) | BLAS Oracle | Latency P50: 4.17-5.87 ms, QPS: 170-240, $\Delta \text{nDCG@10} = 0.0000$ | `hnsw_benchmark_results.csv` | High; empirical multi-model parameter sweep |
 | **Hybrid RRF ($k=60$)**| Dense E5 + WordPiece BM25 | Held-Out (48 Papers, 114 Qs) | Within-Paper Recall@20 | **0.9279** (nDCG@4: 0.3095)| 0.8577 (Dense Base)| **+0.0702 Recall@20** ($\Delta \text{nDCG@4} = \mathbf{+0.1101^*}, p=0.0010^*$) | `step6_hybrid_rrf_benchmark.json` | High; maximizes candidate reranking ceiling |
 | **Hybrid RRF ($k=20$)**| Dense E5 + WordPiece BM25 | Held-Out (48 Papers, 114 Qs) | Within-Paper nDCG@4 | **0.3305** (Rec@20: 0.9140)| 0.1994 (Dense Base)| **+0.1311 [+0.0839, +0.1842]** ($p=0.0010^*$) | `step6_hybrid_rrf_benchmark.json` | High; tighter reciprocal penalty |
 | **Citation Attribution**| PyMuPDF Evidence Locators | 35 PDFs (132 Questions) | Citation Recall@4 | **68.8%** | Random ($N=22$) | Hallucination Rate: **31.2%** (unverified fallbacks) | `backend/data/citation_evaluation_results.json` | Moderate; cross-page boundary issue |

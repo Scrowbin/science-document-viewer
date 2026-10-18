@@ -1,0 +1,492 @@
+{
+  "metadata": {
+    "title": "Unified Open-Source Embedding Benchmark for Academic Passage Retrieval",
+    "date": "2026-10-18 15:45:57",
+    "corpus": {
+      "active_papers": 207,
+      "total_queries": 615,
+      "total_chunks": 5207,
+      "tau_threshold": 0.55
+    },
+    "hardware": {
+      "cpu": "AMD Ryzen 5 5600 6-Core Processor",
+      "threads": 4,
+      "ram_total_gb": 13.69
+    },
+    "eval_framework": {
+      "metric_primary": "nDCG@10",
+      "metrics_secondary": [
+        "nDCG@4",
+        "Recall@20",
+        "MRR@10"
+      ],
+      "similarity": "exact_brute_force_cosine (NumPy BLAS on FP32)",
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 42
+    }
+  },
+  "models": [
+    {
+      "id": "bm25",
+      "name": "BM25 [WordPiece Subwords]",
+      "short_name": "BM25",
+      "type": "sparse",
+      "dim": null,
+      "params_m": 0.0,
+      "license": "MIT",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.4805,
+          "ci_95": [
+            0.448,
+            0.513
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.3779
+        },
+        "recall20": {
+          "mean": 0.9363
+        },
+        "mrr10": {
+          "mean": 0.4197
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 14673.3,
+        "query_latency_p50_ms": 0.1,
+        "query_latency_p95_ms": 0.21,
+        "peak_ram_mb": 477.9
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.022,
+        "ci_95": [
+          -0.0522,
+          0.0091
+        ],
+        "p_value": 0.1739,
+        "significant_05": false
+      }
+    },
+    {
+      "id": "all-MiniLM-L6-v2",
+      "name": "sentence-transformers/all-MiniLM-L6-v2",
+      "short_name": "MiniLM-L6",
+      "type": "dense",
+      "dim": 384,
+      "params_m": 22.7,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5026,
+          "ci_95": [
+            0.4746,
+            0.5315
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.3938
+        },
+        "recall20": {
+          "mean": 0.9483
+        },
+        "mrr10": {
+          "mean": 0.4417
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 19.0,
+        "query_latency_p50_ms": 19.3,
+        "query_latency_p95_ms": 30.01,
+        "peak_ram_mb": 593.1
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ],
+        "p_value": 1.0,
+        "significant_05": false
+      }
+    },
+    {
+      "id": "e5-small-v2",
+      "name": "intfloat/e5-small-v2",
+      "short_name": "E5-Small-v2",
+      "type": "dense",
+      "dim": 384,
+      "params_m": 33.4,
+      "license": "MIT",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5522,
+          "ci_95": [
+            0.5253,
+            0.5778
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4588
+        },
+        "recall20": {
+          "mean": 0.9623
+        },
+        "mrr10": {
+          "mean": 0.5046
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 6.5,
+        "query_latency_p50_ms": 30.26,
+        "query_latency_p95_ms": 40.81,
+        "peak_ram_mb": 659.8
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0497,
+        "ci_95": [
+          0.0262,
+          0.0741
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "id": "bge-small-en-v1.5",
+      "name": "BAAI/bge-small-en-v1.5",
+      "short_name": "BGE-Small-v1.5",
+      "type": "dense",
+      "dim": 384,
+      "params_m": 33.4,
+      "license": "MIT",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5209,
+          "ci_95": [
+            0.4901,
+            0.552
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4214
+        },
+        "recall20": {
+          "mean": 0.9542
+        },
+        "mrr10": {
+          "mean": 0.4671
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 6.5,
+        "query_latency_p50_ms": 34.14,
+        "query_latency_p95_ms": 44.62,
+        "peak_ram_mb": 672.3
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0183,
+        "ci_95": [
+          -0.0027,
+          0.0393
+        ],
+        "p_value": 0.083,
+        "significant_05": false
+      }
+    },
+    {
+      "id": "gte-small",
+      "name": "thenlper/gte-small",
+      "short_name": "GTE-Small",
+      "type": "dense",
+      "dim": 384,
+      "params_m": 33.4,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.4659,
+          "ci_95": [
+            0.4358,
+            0.4957
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.3585
+        },
+        "recall20": {
+          "mean": 0.9329
+        },
+        "mrr10": {
+          "mean": 0.4171
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 6.3,
+        "query_latency_p50_ms": 29.42,
+        "query_latency_p95_ms": 37.43,
+        "peak_ram_mb": 684.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.0367,
+        "ci_95": [
+          -0.0599,
+          -0.0135
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "id": "snowflake-arctic-embed-s",
+      "name": "Snowflake/snowflake-arctic-embed-s",
+      "short_name": "Arctic-Embed-S",
+      "type": "dense",
+      "dim": 384,
+      "params_m": 33.2,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5417,
+          "ci_95": [
+            0.5115,
+            0.5714
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4453
+        },
+        "recall20": {
+          "mean": 0.9523
+        },
+        "mrr10": {
+          "mean": 0.4927
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 7.0,
+        "query_latency_p50_ms": 30.45,
+        "query_latency_p95_ms": 40.43,
+        "peak_ram_mb": 672.1
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0392,
+        "ci_95": [
+          0.0171,
+          0.0625
+        ],
+        "p_value": 0.002,
+        "significant_05": true
+      }
+    },
+    {
+      "id": "snowflake-arctic-embed-m-v1.5",
+      "name": "Snowflake/snowflake-arctic-embed-m-v1.5",
+      "short_name": "Arctic-Embed-M-v1.5",
+      "type": "dense",
+      "dim": 768,
+      "params_m": 108.9,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5472,
+          "ci_95": [
+            0.5186,
+            0.5756
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4531
+        },
+        "recall20": {
+          "mean": 0.9433
+        },
+        "mrr10": {
+          "mean": 0.5
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 2.4,
+        "query_latency_p50_ms": 74.44,
+        "query_latency_p95_ms": 108.48,
+        "peak_ram_mb": 956.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0447,
+        "ci_95": [
+          0.0219,
+          0.067
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "id": "nomic-embed-text-v1.5",
+      "name": "nomic-ai/nomic-embed-text-v1.5",
+      "short_name": "Nomic-Embed-v1.5",
+      "type": "dense",
+      "dim": 768,
+      "params_m": 137.0,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5133,
+          "ci_95": [
+            0.4843,
+            0.5422
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4219
+        },
+        "recall20": {
+          "mean": 0.9553
+        },
+        "mrr10": {
+          "mean": 0.4665
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 1.6,
+        "query_latency_p50_ms": 110.19,
+        "query_latency_p95_ms": 147.64,
+        "peak_ram_mb": 1128.1
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0108,
+        "ci_95": [
+          -0.0106,
+          0.0337
+        ],
+        "p_value": 0.3418,
+        "significant_05": false
+      }
+    },
+    {
+      "id": "modernbert-embed-base",
+      "name": "nomic-ai/modernbert-embed-base",
+      "short_name": "ModernBERT-Embed",
+      "type": "dense",
+      "dim": 768,
+      "params_m": 149.0,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5872,
+          "ci_95": [
+            0.5586,
+            0.6166
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4937
+        },
+        "recall20": {
+          "mean": 0.9642
+        },
+        "mrr10": {
+          "mean": 0.5438
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 1.8,
+        "query_latency_p50_ms": 103.39,
+        "query_latency_p95_ms": 129.75,
+        "peak_ram_mb": 1161.7
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0846,
+        "ci_95": [
+          0.0627,
+          0.1075
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "id": "snowflake-arctic-embed-m-v2.0",
+      "name": "Snowflake/snowflake-arctic-embed-m-v2.0",
+      "short_name": "Arctic-Embed-M-v2.0",
+      "type": "dense_custom",
+      "dim": 768,
+      "params_m": 305.0,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.4809,
+          "ci_95": [
+            0.4512,
+            0.509
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.3742
+        },
+        "recall20": {
+          "mean": 0.9481
+        },
+        "mrr10": {
+          "mean": 0.4203
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 2.2,
+        "query_latency_p50_ms": 114.49,
+        "query_latency_p95_ms": 141.04,
+        "peak_ram_mb": 1399.5
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.0216,
+        "ci_95": [
+          -0.0465,
+          0.0033
+        ],
+        "p_value": 0.095,
+        "significant_05": false
+      }
+    },
+    {
+      "id": "mxbai-embed-large-v1",
+      "name": "mixedbread-ai/mxbai-embed-large-v1",
+      "short_name": "MXBAI-Large-v1",
+      "type": "dense",
+      "dim": 1024,
+      "params_m": 335.1,
+      "license": "Apache-2.0",
+      "metrics": {
+        "ndcg10": {
+          "mean": 0.5064,
+          "ci_95": [
+            0.4776,
+            0.5344
+          ]
+        },
+        "ndcg4": {
+          "mean": 0.4177
+        },
+        "recall20": {
+          "mean": 0.9469
+        },
+        "mrr10": {
+          "mean": 0.4611
+        }
+      },
+      "efficiency": {
+        "indexing_throughput_chunks_sec": 0.6,
+        "query_latency_p50_ms": 275.34,
+        "query_latency_p95_ms": 338.23,
+        "peak_ram_mb": 1292.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0039,
+        "ci_95": [
+          -0.0173,
+          0.0265
+        ],
+        "p_value": 0.7236,
+        "significant_05": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "timestamp_utc": "2026-10-18T14:14:10.063101Z",
+  "model_name": "intfloat/e5-small-v2",
+  "safe_name": "intfloat__e5-small-v2",
+  "embedding_dim": 384,
+  "num_documents": 4108,
+  "num_queries": 487,
+  "specs": {
+    "query_prefix": "query: ",
+    "passage_prefix": "passage: ",
+    "dim": 384,
+    "normalize": true,
+    "trust_remote_code": false
+  },
+  "relevance_tau": 0.55,
+  "doc_encode_time_seconds": 0.0,
+  "query_encode_time_seconds": 0.0,
+  "sha256_checksums": {
+    "doc_embeddings.npy": "ac7a0fca57e1e199300b8e9611f09e2f1a9f01e845bece3c963744ada9d1156f",
+    "query_embeddings.npy": "49845537d4b301e7a61f74283a9aa1e6a2a8968aa1f43c36e49dac543e4c80f5",
+    "doc_ids.json": "d97cba49bf9592c321c2b0fdf5d181dcaa204a003bc5618841b49fe26d642a73",
+    "query_ids.json": "87fa7bb03b71837701083ba53511650809a15e94466540c0d6c5f72cb60f4630",
+    "query_paper_map.json": "c14b5431a2e58031a6303d5e41166f9faba396ed77d07459d4bd0146f62ba8f3",
+    "qrels.json": "85273b9626fd3af4c3bb9866990cfe71700351026ba93c845a9feb74688aa9f2",
+    "corpus_metadata.jsonl": "198ca5b20ae6e94072d501474f0f1274afab884e21e13618a99c88c528684d17"
+  },
+  "hardware_environment": "AMD Ryzen 5 5600 6-Core / 12-Thread CPU, 16 GB RAM"
+}
