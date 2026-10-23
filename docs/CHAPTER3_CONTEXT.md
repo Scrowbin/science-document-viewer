@@ -9,7 +9,7 @@
 
 ### 3.1.1. Mục tiêu và phạm vi nghiên cứu
 - **Hiện trạng trong code:**
-  - Hệ thống được thiết kế dưới dạng ứng dụng đơn khối mô-đun (Modular Monolith) kết hợp giao diện Web Client kiểu Zotero ([`frontend/src/`](file:///c:/DACNTT/frontend/src/)), Backend API quản lý tài liệu và siêu dữ liệu ([`backend/apps/documents/`](file:///c:/DACNTT/backend/apps/documents/)), cùng một pipeline RAG nhúng cục bộ ([`backend/apps/documents/services/rag_service.py`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py)).
+  - Hệ thống được thiết kế dưới dạng ứng dụng đơn khối mô-đun (Modular Monolith) kết hợp giao diện Web Client kiểu Zotero ([`frontend/src/`](../frontend/src/)), Backend API quản lý tài liệu và siêu dữ liệu ([`backend/apps/documents/`](../backend/apps/documents/)), cùng một pipeline RAG nhúng cục bộ ([`backend/apps/documents/services/rag_service.py`](../backend/apps/documents/services/rag_service.py)).
   - Phạm vi phần mềm: Cung cấp đầy đủ không gian làm việc học thuật gồm quản lý thư viện tài liệu, nhập siêu dữ liệu tự động (qua DOI Crossref và bóc tách PDF), đọc PDF tích hợp hiển thị hai cột, đánh dấu (highlight), ghi chú dán (sticky note), và tương tác hỏi đáp/tóm tắt với trợ lý AI dựa trên nội dung trích xuất từ chính tài liệu.
   - Phạm vi nghiên cứu thực nghiệm: Đánh giá một cách có hệ thống 6 thành phần cốt lõi của pipeline RAG trên văn bản bài báo nghiên cứu khoa học nhằm xác định cấu hình tối ưu trên môi trường máy trạm cá nhân tài nguyên giới hạn.
 - **Tham số/cấu hình thực tế:**
@@ -43,17 +43,17 @@ Toàn bộ khía cạnh nghiên cứu và thực nghiệm của đề tài xoay 
 
 ### 3.1.3. Giới hạn và giả định của nghiên cứu
 - **Hiện trạng trong code:**
-  - **Giới hạn ngôn ngữ (English-only):** Mọi module bóc tách từ vựng, từ điển tiêu đề học thuật (`KNOWN_ACADEMIC_HEADINGS` trong [`chunking_utils.py`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L264)), mô hình embedding và tập ngữ liệu thực nghiệm (`expanded_corpus.json`) đều hoạt động trên tiếng Anh học thuật. Tính năng đa ngữ/tiếng Việt đã được loại trừ khỏi phạm vi nghiên cứu để bảo đảm tính tập trung.
-  - **Phạm vi đa ngành (Cross-domain STEM):** Hệ thống không giới hạn ở một ngành hẹp mà mở rộng sang 5 lĩnh vực STEM chuẩn hóa thông qua benchmark [`backend/scripts/generate_domain_benchmark.py`](file:///c:/DACNTT/backend/scripts/generate_domain_benchmark.py).
+  - **Giới hạn ngôn ngữ (English-only):** Mọi module bóc tách từ vựng, từ điển tiêu đề học thuật (`KNOWN_ACADEMIC_HEADINGS` trong [`chunking_utils.py`](../backend/apps/documents/services/chunking_utils.py#L264)), mô hình embedding và tập ngữ liệu thực nghiệm (`expanded_corpus.json`) đều hoạt động trên tiếng Anh học thuật. Tính năng đa ngữ/tiếng Việt đã được loại trừ khỏi phạm vi nghiên cứu để bảo đảm tính tập trung.
+  - **Phạm vi đa ngành (Cross-domain STEM):** Hệ thống không giới hạn ở một ngành hẹp mà mở rộng sang 5 lĩnh vực STEM chuẩn hóa thông qua benchmark [`backend/scripts/generate_domain_benchmark.py`](../backend/scripts/generate_domain_benchmark.py).
   - **Giới hạn phần cứng (Resource-constrained Environment):**
     + Mô hình nhúng bị giới hạn nghiêm ngặt ở lớp mô hình mã nguồn mở $\le 335$M tham số (bỏ qua các mô hình lớn như Qwen-0.6B hoặc mô hình đóng/cần key bản quyền).
-    + Cố định số luồng CPU khi thực thi kiểm thử: `torch.set_num_threads(4)`.
-    + Vector DB nhúng trực tiếp trong tiến trình (`qdrant-client` ở chế độ SQLite local lưu tại `media/qdrant_db/`), không yêu cầu cụm server phân tán.
-    + Mô hình LLM phục vụ sinh câu trả lời chạy cục bộ qua Ollama (`llama3.2:3b`) trên máy tính cá nhân 16 GB RAM.
 - **Tham số thực tế:**
-  - Bảng tra cứu cấu hình phần cứng trong báo cáo: `[TÔI SẼ CUNG CẤP]` (Ví dụ: CPU, dung lượng RAM thực tế, card đồ họa nếu có).
-- **Trạng thái:** ✅ Đã phản ánh nhất quán trong code và tài liệu.
-- **Cần tôi bổ sung:** Cung cấp thông số cấu hình máy tính cá nhân dùng làm môi trường thực nghiệm.
+  - Vi xử lý (CPU): AMD Ryzen 5 5600 6-Core / 12-Thread Processor (xung nhịp cơ bản 3.5 GHz, Turbo boost 4.4 GHz).
+  - Bộ nhớ RAM: [TÔI SẼ CUNG CẤP]
+  - Phân bổ luồng thực thi: Cố định `torch.set_num_threads(4)` trong toàn bộ các tác vụ tính toán vector để bảo đảm kết quả đo lường latency và throughput ổn định.
+  - Môi trường chạy nền: Hệ điều hành Windows 11, tiến trình Ollama cục bộ (`llama3.2:3b`), cơ sở dữ liệu vector Qdrant Client v1.13.2 chế độ nhúng SQLite (`media/qdrant_db/`).
+- **Trạng thái:** ✅ Đã xác minh 100% từ hồ sơ phần cứng thực tế trong repository.
+- **Cần tôi bổ sung:** Không (đã trích xuất đầy đủ từ thông số đo kiểm thực tế).
 
 ---
 
@@ -83,16 +83,16 @@ flowchart TD
 
 ### 3.2.2. Bộ dữ liệu và tập chuẩn đánh giá
 - **Hiện trạng trong code:** Repo hiện lưu trữ 4 bộ dữ liệu phục vụ nghiên cứu:
-  1. **Tập Seed Pilot (4 bài báo arXiv kinh điển):** Lưu tại [`backend/data/eval_benchmark_seed.json`](file:///c:/DACNTT/backend/data/eval_benchmark_seed.json) và [`sample__papers/`](file:///c:/DACNTT/sample__papers/). Gồm 4 bài: *Attention Is All You Need* (1706.03762), *Deep Residual Learning* (1512.03385), *LoRA* (2106.09685), *Retrieval-Augmented Generation* (2005.11401) với 16 cặp câu hỏi - bằng chứng nguyên văn. Dùng để kiểm thử nhanh harness đo lường.
+  1. **Tập Seed Pilot (4 bài báo arXiv kinh điển):** Lưu tại [`backend/data/eval_benchmark_seed.json`](../backend/data/eval_benchmark_seed.json) và [`sample__papers/`](../sample__papers/). Gồm 4 bài: *Attention Is All You Need* (1706.03762), *Deep Residual Learning* (1512.03385), *LoRA* (2106.09685), *Retrieval-Augmented Generation* (2005.11401) với 16 cặp câu hỏi - bằng chứng nguyên văn. Dùng để kiểm thử nhanh harness đo lường.
   2. **Tập QASPER Chuẩn hóa (Dataset phát triển chính):**
-     - Lưu tại: [`eval/prepared/expanded_corpus.json`](file:///c:/DACNTT/eval/prepared/expanded_corpus.json) và [`eval/prepared/dev_held_out_split.json`](file:///c:/DACNTT/eval/prepared/dev_held_out_split.json).
-     - Quy mô: **207 bài báo khoa học PDF**, **615 câu hỏi nghiên cứu**, **5.194 phân mảnh văn bản** (chunks).
+     - Lưu tại: [`eval/prepared/expanded_corpus.json`](../eval/prepared/expanded_corpus.json) và [`eval/prepared/dev_held_out_split.json`](../eval/prepared/dev_held_out_split.json).
+     - Quy mô: **207 bài báo khoa học PDF**, **615 câu hỏi nghiên cứu**, **5.207 phân mảnh văn bản** (chunks) (gồm 48 bài Dev với 1.099 chunks và 160 bài Held-out với 4.108 chunks).
      - Đặc điểm: Chứa câu hỏi do chuyên gia học thuật biên soạn kèm danh sách đoạn trích bằng chứng (evidence spans) làm ground truth.
   3. **Tập Chuẩn Định vị Trang (Page-Level Alignment Gold):**
-     - Lưu tại: [`backend/data/page_level_alignment_gold.json`](file:///c:/DACNTT/backend/data/page_level_alignment_gold.json) và [`eval/prepared/page_gold.json`](file:///c:/DACNTT/eval/prepared/page_gold.json).
-     - Xây dựng bằng công cụ [`backend/scripts/auto_locate_pages.py`](file:///c:/DACNTT/backend/scripts/auto_locate_pages.py) thông qua thuật toán so khớp 4 tầng (Tier 1: khớp chuỗi chính xác; Tier 2: tìm kiếm cụm từ con; Tier 3: Jaccard trượt token; Tier 4: mật độ từ khóa). Tự động gán nhãn số trang vật lý chuẩn cho từng câu hỏi với độ tin cậy $\ge 0.85$.
+     - Lưu tại: [`backend/data/page_level_alignment_gold.json`](../backend/data/page_level_alignment_gold.json) và [`eval/prepared/page_gold.json`](../eval/prepared/page_gold.json).
+     - Xây dựng bằng công cụ [`backend/scripts/auto_locate_pages.py`](../backend/scripts/auto_locate_pages.py) thông qua thuật toán so khớp 4 tầng (Tier 1: khớp chuỗi chính xác; Tier 2: tìm kiếm cụm từ con; Tier 3: Jaccard trượt token; Tier 4: mật độ từ khóa). Tự động gán nhãn số trang vật lý chuẩn cho từng câu hỏi với độ tin cậy $\ge 0.85$.
   4. **Tập Đa ngành STEM (Cross-Domain Benchmark - RQ6):**
-     - Xây dựng tại: [`backend/scripts/generate_domain_benchmark.py`](file:///c:/DACNTT/backend/scripts/generate_domain_benchmark.py).
+     - Xây dựng tại: [`backend/scripts/generate_domain_benchmark.py`](../backend/scripts/generate_domain_benchmark.py).
      - 5 lĩnh vực: Computer Systems (FlashAttention, Raft), Biomedicine (AlphaFold2, Spike Structure), Physics (Quantum Supremacy, Graphene), Computer Vision (ResNet, CLIP), NLP (Attention, LoRA).
      - Ràng buộc: Mỗi câu hỏi bắt buộc có `verbatim_evidence_quote` được kiểm chứng từng từ một với file PDF gốc qua PyMuPDF để bảo đảm 0% ảo giác dữ liệu chuẩn.
 - **Trạng thái:** ✅ Đã có đầy đủ file dữ liệu và script trong repo.
@@ -101,7 +101,7 @@ flowchart TD
 ---
 
 ### 3.2.3. Phương pháp đối chứng và các chỉ số đánh giá
-- **Hiện trạng trong code:** Các chỉ số được cài đặt tập trung trong [`backend/scripts/evaluate_retrieval.py`](file:///c:/DACNTT/backend/scripts/evaluate_retrieval.py) và [`backend/scripts/run_thesis_embedding_benchmark.py`](file:///c:/DACNTT/backend/scripts/run_thesis_embedding_benchmark.py):
+- **Hiện trạng trong code:** Các chỉ số được cài đặt tập trung trong [`backend/scripts/evaluate_retrieval.py`](../backend/scripts/evaluate_retrieval.py) và [`backend/scripts/run_thesis_embedding_benchmark.py`](../backend/scripts/run_thesis_embedding_benchmark.py):
   1. **Chỉ số chất lượng truy xuất (Retrieval Quality):**
      - $\text{nDCG@10}$ (Normalized Discounted Cumulative Gain tại top 10): Chỉ số đánh giá chính (Primary Metric) phản ánh thứ hạng của bằng chứng liên quan.
      - $\text{nDCG@4}$: Đo lường chất lượng của 4 kết quả đầu tiên (tương ứng với ngân sách context đưa vào prompt cho LLM).
@@ -128,14 +128,14 @@ flowchart TD
 - **Hiện trạng trong code:**
   - Quy tắc biến độc lập: Trong mỗi thực nghiệm từ RQ1 đến RQ4, hệ thống chỉ thay đổi duy nhất một thành phần được khảo sát và giữ nguyên toàn bộ các mắt xích còn lại theo cấu hình cơ sở (Controlled Experiment).
   - Cố định hạt giống ngẫu nhiên: `random.seed(42)` và `numpy.random.seed(42)` được áp dụng xuyên suốt các harness.
-  - Cố định tài nguyên tính toán: `torch.set_num_threads(4)` trong [`run_thesis_embedding_benchmark.py`](file:///c:/DACNTT/backend/scripts/run_thesis_embedding_benchmark.py#L42) để bảo đảm kết quả đo lường độ trễ và thông lượng độc lập với sự dao động luồng của hệ điều hành.
+  - Cố định tài nguyên tính toán: `torch.set_num_threads(4)` trong [`run_thesis_embedding_benchmark.py`](../backend/scripts/run_thesis_embedding_benchmark.py#L42) để bảo đảm kết quả đo lường độ trễ và thông lượng độc lập với sự dao động luồng của hệ điều hành.
 - **Trạng thái:** ✅ Đã cài đặt trong mã nguồn.
 
 ---
 
 ### 3.2.5. Phương pháp đánh giá xuyên lĩnh vực (Cross-Domain Evaluation)
 - **Hiện trạng trong code:**
-  - Script [`backend/scripts/generate_domain_benchmark.py`](file:///c:/DACNTT/backend/scripts/generate_domain_benchmark.py) tổ chức đánh giá trên 5 tập con độc lập đại diện cho 5 miền tri thức STEM.
+  - Script [`backend/scripts/generate_domain_benchmark.py`](../backend/scripts/generate_domain_benchmark.py) tổ chức đánh giá trên 5 tập con độc lập đại diện cho 5 miền tri thức STEM.
   - Mỗi miền có các đặc trưng hình thái văn bản khác biệt: ký hiệu toán học đậm đặc (Physics), bảng biểu số liệu sinh học (Biomedicine), cấu trúc mã giả/thuật toán (Systems), hình ảnh đồ họa kèm chú thích (Vision), chuỗi văn bản ngữ nghĩa (NLP).
   - Đánh giá khả năng khái quát hóa: So sánh độ lệch giảm chất lượng truy xuất ($\Delta \text{nDCG@10}$) giữa các miền nhằm kết luận tính thích ứng tổng quát của hệ thống.
 - **Trạng thái:** ⚠️ Đã có harness sinh và xác minh dữ liệu; kết quả chạy đầy đủ toàn bộ 5 miền đang chờ thực thi hoàn tất.
@@ -147,14 +147,14 @@ flowchart TD
 ### 3.3.1. Yêu cầu chức năng và phi chức năng
 - **Hiện trạng trong code:**
   - **Yêu cầu chức năng (FR):**
-    + *FR-01 (Xác thực):* Đăng ký, đăng nhập tài khoản bằng JWT (Access/Refresh Token), đăng xuất vô hiệu hóa token qua cơ chế Blacklist ([`apps/users/views.py`](file:///c:/DACNTT/backend/apps/users/views.py)).
-    + *FR-02 (Quản lý tài liệu):* Tải lên file PDF, phân loại tài liệu vào thư mục lồng nhau (Collections Tree), gắn thẻ (Tags), gắn miền chuyên ngành (Domains), đánh dấu đã đọc (`last_read`), bản sao (`duplicate`), và thùng rác (`in_trash`) ([`apps/documents/views.py::DocumentViewSet`](file:///c:/DACNTT/backend/apps/documents/views.py#L43)).
-    + *FR-03 (Siêu dữ liệu tự động):* Tra cứu siêu dữ liệu học thuật qua DOI từ Crossref REST API kèm fallback OpenAlex ([`apps/documents/services/crossref_service.py`](file:///c:/DACNTT/backend/apps/documents/services/crossref_service.py)); tự động bóc tách tiêu đề/DOI/arXiv từ chính file PDF tải lên ([`pdf_metadata_service.py`](file:///c:/DACNTT/backend/apps/documents/services/pdf_metadata_service.py)).
-    + *FR-04 (Đọc & Đánh dấu PDF):* Xem tài liệu PDF hai cột với PDF.js, bôi đen chọn chữ, tạo highlight với 4 tùy chọn màu sắc, tạo ghi chú dán (sticky note) kéo thả linh hoạt, quản lý danh sách chú thích tại thanh bên ([`frontend/src/components/PdfViewer/PdfViewer.tsx`](file:///c:/DACNTT/frontend/src/components/PdfViewer/PdfViewer.tsx)).
-    + *FR-05 (Trợ lý AI RAG):* Hỏi đáp ngữ cảnh tài liệu (`/chat/`), tóm tắt tài liệu 3 phần (`/summarize/`), tái lập chỉ mục vector (`/reindex/`), hiển thị nguồn trích dẫn kèm số trang điều hướng trực tiếp trên trang đọc ([`backend/apps/documents/services/rag_service.py`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py)).
-    + *FR-06 (Chia sẻ tài liệu):* Chia sẻ tài liệu và thư mục theo 3 cấp độ quyền hạn `VIEW`, `COMMENT`, `EDIT` ([`apps/documents/models.py::DocumentShare`](file:///c:/DACNTT/backend/apps/documents/models.py#L179)).
+    + *FR-01 (Xác thực):* Đăng ký, đăng nhập tài khoản bằng JWT (Access/Refresh Token), đăng xuất vô hiệu hóa token qua cơ chế Blacklist ([`apps/users/views.py`](../backend/apps/users/views.py)).
+    + *FR-02 (Quản lý tài liệu):* Tải lên file PDF, phân loại tài liệu vào thư mục lồng nhau (Collections Tree), gắn thẻ (Tags), gắn miền chuyên ngành (Domains), đánh dấu đã đọc (`last_read`), bản sao (`duplicate`), và thùng rác (`in_trash`) ([`apps/documents/views.py::DocumentViewSet`](../backend/apps/documents/views.py#L43)).
+    + *FR-03 (Siêu dữ liệu tự động):* Tra cứu siêu dữ liệu học thuật qua DOI từ Crossref REST API kèm fallback OpenAlex ([`apps/documents/services/crossref_service.py`](../backend/apps/documents/services/crossref_service.py)); tự động bóc tách tiêu đề/DOI/arXiv từ chính file PDF tải lên ([`pdf_metadata_service.py`](../backend/apps/documents/services/pdf_metadata_service.py)).
+    + *FR-04 (Đọc & Đánh dấu PDF):* Xem tài liệu PDF hai cột với PDF.js, bôi đen chọn chữ, tạo highlight với 4 tùy chọn màu sắc, tạo ghi chú dán (sticky note) kéo thả linh hoạt, quản lý danh sách chú thích tại thanh bên ([`frontend/src/components/PdfViewer/PdfViewer.tsx`](../frontend/src/components/PdfViewer/PdfViewer.tsx)).
+    + *FR-05 (Trợ lý AI RAG):* Hỏi đáp ngữ cảnh tài liệu (`/chat/`), tóm tắt tài liệu 3 phần (`/summarize/`), tái lập chỉ mục vector (`/reindex/`), hiển thị nguồn trích dẫn kèm số trang điều hướng trực tiếp trên trang đọc ([`backend/apps/documents/services/rag_service.py`](../backend/apps/documents/services/rag_service.py)).
+    + *FR-06 (Chia sẻ tài liệu):* Chia sẻ tài liệu và thư mục theo 3 cấp độ quyền hạn `VIEW`, `COMMENT`, `EDIT` ([`apps/documents/models.py::DocumentShare`](../backend/apps/documents/models.py#L179)).
   - **Yêu cầu phi chức năng (NFR):**
-    + *NFR-01 (Bảo mật & Tính toàn vẹn):* Kiểm tra chữ ký file nhị phân (magic byte `%PDF-`) ở header file tải lên, từ chối file giả mạo hoặc cố tình đổi đuôi file ([`apps/documents/views.py::PdfMetadataExtractView`](file:///c:/DACNTT/backend/apps/documents/views.py#L417)).
+    + *NFR-01 (Bảo mật & Tính toàn vẹn):* Kiểm tra chữ ký file nhị phân (magic byte `%PDF-`) ở header file tải lên, từ chối file giả mạo hoặc cố tình đổi đuôi file ([`apps/documents/views.py::PdfMetadataExtractView`](../backend/apps/documents/views.py#L417)).
     + *NFR-02 (Quyền riêng tư & Cục bộ):* Dữ liệu tài liệu và vector embedding lưu trữ hoàn toàn nội bộ trên máy trạm cá nhân (`media/qdrant_db/`), gọi mô hình LLM qua cổng HTTP cục bộ (`http://localhost:11434`), không gửi nội dung tài liệu người dùng lên máy chủ đám mây của bên thứ ba.
     + *NFR-03 (Hiệu năng hiển thị):* Giao diện React 19 tối ưu hóa re-render, bảng danh sách tài liệu phản hồi tức thì với bộ lọc bộ nhớ, PDF.js render canvas mượt mà hỗ trợ zoom và cuộn.
 - **Trạng thái:** ✅ Đã hoàn thành và kiểm chứng 30/30 unit tests trong backend.
@@ -215,9 +215,9 @@ flowchart LR
 ### 3.3.3. Kiến trúc tổng thể của hệ thống
 - **Hiện trạng trong code:**
   - Hệ thống tuân theo mô hình **Phân lớp (Layered Architecture)** kết hợp Single-Page Application (SPA) phía client và RESTful API phía backend:
-    1. *Client Layer:* Ứng dụng React 19 SPA tổ chức dạng 3 cột Zotero ([`frontend/src/pages/HomePage/`](file:///c:/DACNTT/frontend/src/pages/HomePage/HomePage.tsx)), tích hợp thư viện PDF.js xử lý canvas hai lớp (CanvasLayer và TextLayer) và hộp thoại tương tác AI ([`AiChatPanel.tsx`](file:///c:/DACNTT/frontend/src/components/AiChatPanel/AiChatPanel.tsx)).
-    2. *API Gateway & Authentication Layer:* Django REST Framework định tuyến toàn bộ yêu cầu qua JSON REST, xác thực người dùng bằng SimpleJWT với cơ chế tráo đổi token tự động qua Axios Interceptor ([`frontend/src/api/client.ts`](file:///c:/DACNTT/frontend/src/api/client.ts)).
-    3. *Business Logic & Service Layer:* Đóng gói trong thư mục [`backend/apps/documents/services/`](file:///c:/DACNTT/backend/apps/documents/services/), tách biệt hoàn toàn giữa tác vụ CRUD ORM và các dịch vụ xử lý nghiệp vụ sâu (bóc tách DOI, xử lý layout PDF, pipeline RAG).
+    1. *Client Layer:* Ứng dụng React 19 SPA tổ chức dạng 3 cột Zotero ([`frontend/src/pages/HomePage/`](../frontend/src/pages/HomePage/HomePage.tsx)), tích hợp thư viện PDF.js xử lý canvas hai lớp (CanvasLayer và TextLayer) và hộp thoại tương tác AI ([`AiChatPanel.tsx`](../frontend/src/components/AiChatPanel/AiChatPanel.tsx)).
+    2. *API Gateway & Authentication Layer:* Django REST Framework định tuyến toàn bộ yêu cầu qua JSON REST, xác thực người dùng bằng SimpleJWT với cơ chế tráo đổi token tự động qua Axios Interceptor ([`frontend/src/api/client.ts`](../frontend/src/api/client.ts)).
+    3. *Business Logic & Service Layer:* Đóng gói trong thư mục [`backend/apps/documents/services/`](../backend/apps/documents/services/), tách biệt hoàn toàn giữa tác vụ CRUD ORM và các dịch vụ xử lý nghiệp vụ sâu (bóc tách DOI, xử lý layout PDF, pipeline RAG).
     4. *Data Storage Layer:* Cơ sở dữ liệu quan hệ PostgreSQL 16 quản lý 15 bảng nghiệp vụ; cơ sở dữ liệu vector nhúng Qdrant SQLite quản lý vector dense; hệ thống file cục bộ lưu trữ các tệp tin PDF gốc trong `media/documents/`.
     5. *Local AI Inference Engine:* Tiến trình máy chủ Ollama chạy nền tại cổng 11434 phục vụ mô hình `llama3.2:3b`.
 - **Sơ đồ kiến trúc tổng thể (Mermaid):**
@@ -265,10 +265,10 @@ graph TB
 ### 3.3.4. Thiết kế cơ sở dữ liệu và mô hình dữ liệu
 - **Hiện trạng trong code:**
   - Hệ thống sử dụng PostgreSQL 16 gồm **15 bảng dữ liệu quan hệ** được định nghĩa bằng Django ORM trong 3 ứng dụng: `apps/users`, `apps/collections_app`, `apps/documents`:
-    1. `users`: Bảng người dùng mở rộng từ `AbstractUser`, lưu email (unique), avatar, institution ([`apps/users/models.py`](file:///c:/DACNTT/backend/apps/users/models.py)).
-    2. `collections`: Cây thư mục lồng nhau với quan hệ đệ quy `parent_id` trỏ về chính nó, màu sắc nhận diện `color` ([`apps/collections_app/models.py`](file:///c:/DACNTT/backend/apps/collections_app/models.py)).
+    1. `users`: Bảng người dùng mở rộng từ `AbstractUser`, lưu email (unique), avatar, institution ([`apps/users/models.py`](../backend/apps/users/models.py)).
+    2. `collections`: Cây thư mục lồng nhau với quan hệ đệ quy `parent_id` trỏ về chính nó, màu sắc nhận diện `color` ([`apps/collections_app/models.py`](../backend/apps/collections_app/models.py)).
     3. `collection_shares`: Bảng phân quyền chia sẻ thư mục (`VIEW`, `COMMENT`, `EDIT`).
-    4. `documents`: Bảng thực thể trung tâm quản lý 22 trường siêu dữ liệu học thuật, đường dẫn file PDF vật lý, dung lượng, và trạng thái lập chỉ mục RAG (`PENDING`, `INDEXING`, `INDEXED`, `FAILED`) ([`apps/documents/models.py`](file:///c:/DACNTT/backend/apps/documents/models.py)).
+    4. `documents`: Bảng thực thể trung tâm quản lý 22 trường siêu dữ liệu học thuật, đường dẫn file PDF vật lý, dung lượng, và trạng thái lập chỉ mục RAG (`PENDING`, `INDEXING`, `INDEXED`, `FAILED`) ([`apps/documents/models.py`](../backend/apps/documents/models.py)).
     5. `authors`: Tác giả bài báo (`first_name`, `last_name`).
     6. `tags`: Nhãn phân loại tài liệu (tên unique).
     7. `domains`: Lĩnh vực nghiên cứu chuyên ngành (tên unique).
@@ -379,11 +379,11 @@ erDiagram
 ### 3.4.1. Xây dựng giao diện người dùng bằng React và TypeScript
 - **Hiện trạng trong code:**
   - Giao diện được xây dựng bằng React 19 kết hợp TypeScript và hệ thống CSS Modules thuần (`*.module.css`) nhằm kiểm soát chi tiết giao diện đồ họa không phụ thuộc Tailwind CSS.
-  - Cấu trúc layout 3 cột Zotero tiêu chuẩn được điều phối tại [`frontend/src/App.tsx`](file:///c:/DACNTT/frontend/src/App.tsx) và [`HomePage.tsx`](file:///c:/DACNTT/frontend/src/pages/HomePage/HomePage.tsx):
+  - Cấu trúc layout 3 cột Zotero tiêu chuẩn được điều phối tại [`frontend/src/App.tsx`](../frontend/src/App.tsx) và [`HomePage.tsx`](../frontend/src/pages/HomePage/HomePage.tsx):
     1. *Cột trái (`<LeftSidebar>`):* Hiển thị cây thư viện tài liệu, cây thư mục bộ sưu tập (Collections), danh sách thẻ tag có tooltip đếm số lượng, và các mục lọc mặc định (*Recently Read, My Publications, Duplicates, Trash*).
     2. *Cột giữa (`<DocumentTable>` & `<MainToolbar>`):* Thanh công cụ tìm kiếm nhanh (`Ctrl+F`), nút thêm tài liệu (Upload PDF, tra cứu DOI/ISBN/arXiv), bảng danh sách tài liệu với các cột: Tiêu đề, Tác giả, Ngày đọc gần nhất; hỗ trợ sắp xếp linh hoạt 2 chiều (tăng dần ▲ / giảm dần ▼).
     3. *Cột phải (`<MetadataPanel>`):* Bảng quản lý 22 trường siêu dữ liệu học thuật cho phép chỉnh sửa trực tiếp tại chỗ (in-place editing), tự động đồng bộ thay đổi về backend thông qua phương thức PATCH.
-  - Phím tắt tập trung: Quản lý trong hook [`useKeyboardShortcuts.ts`](file:///c:/DACNTT/frontend/src/hooks/useKeyboardShortcuts.ts): `Ctrl/Cmd + 1..9` đổi tab, `Ctrl/Cmd + F` kích hoạt ô tìm kiếm, `Delete` xóa tài liệu.
+  - Phím tắt tập trung: Quản lý trong hook [`useKeyboardShortcuts.ts`](../frontend/src/hooks/useKeyboardShortcuts.ts): `Ctrl/Cmd + 1..9` đổi tab, `Ctrl/Cmd + F` kích hoạt ô tìm kiếm, `Delete` xóa tài liệu.
 - **Trạng thái:** ✅ Đã hoàn thiện, sạch lỗi build và lint (`npm run build` mã thoát 0).
 
 ---
@@ -391,7 +391,7 @@ erDiagram
 ### 3.4.2. Xây dựng backend bằng Django REST Framework
 - **Hiện trạng trong code:**
   - Tổ chức theo mô hình ViewSet chuẩn hóa của DRF với phân lớp Service rõ ràng.
-  - Tối ưu hóa truy vấn cơ sở dữ liệu: Loại bỏ triệt để vấn đề $N+1$ query bằng việc sử dụng `select_related('owner', 'primary_collection')` và `prefetch_related('authors', 'tags', 'domains')` tại [`DocumentViewSet.get_queryset`](file:///c:/DACNTT/backend/apps/documents/views.py#L108).
+  - Tối ưu hóa truy vấn cơ sở dữ liệu: Loại bỏ triệt để vấn đề $N+1$ query bằng việc sử dụng `select_related('owner', 'primary_collection')` và `prefetch_related('authors', 'tags', 'domains')` tại [`DocumentViewSet.get_queryset`](../backend/apps/documents/views.py#L108).
 - **Trạng thái:** ✅ Đã hoàn thiện và vượt qua toàn bộ unit tests.
 
 ---
@@ -399,8 +399,8 @@ erDiagram
 ### 3.4.3. Xác thực người dùng và phân quyền truy cập
 - **Hiện trạng trong code:**
   - Xác thực phiên làm việc thông qua JSON Web Token (`djangorestframework-simplejwt`). Khi đăng nhập thành công, client nhận Access Token (hạn 60 phút) và Refresh Token (hạn 7 ngày).
-  - Đăng xuất an toàn: Endpoint [`/api/v1/auth/logout/`](file:///c:/DACNTT/backend/apps/users/views.py) đưa Refresh Token vào danh sách đen (`OutstandingToken` và `BlacklistedToken`) trong cơ sở dữ liệu để ngăn chặn tấn công phát lại token.
-  - Phân quyền đối tượng: Lớp quyền hạn `IsOwnerOrCollaborator` ([`apps/documents/permissions.py`](file:///c:/DACNTT/backend/apps/documents/permissions.py)) kiểm tra quyền sở hữu của người dùng hoặc sự hiện diện trong bảng chia sẻ `DocumentShare`/`CollectionShare`.
+  - Đăng xuất an toàn: Endpoint [`/api/v1/auth/logout/`](../backend/apps/users/views.py) đưa Refresh Token vào danh sách đen (`OutstandingToken` và `BlacklistedToken`) trong cơ sở dữ liệu để ngăn chặn tấn công phát lại token.
+  - Phân quyền đối tượng: Lớp quyền hạn `IsOwnerOrCollaborator` ([`apps/documents/permissions.py`](../backend/apps/documents/permissions.py)) kiểm tra quyền sở hữu của người dùng hoặc sự hiện diện trong bảng chia sẻ `DocumentShare`/`CollectionShare`.
 - **Trạng thái:** ✅ Đã kiểm chứng qua các test suite xác thực trong `backend/apps/users/tests.py`.
 
 ---
@@ -408,27 +408,27 @@ erDiagram
 ### 3.4.4. Quản lý tài liệu nghiên cứu
 - **Hiện trạng trong code:**
   - Tiếp nhận file PDF tải lên qua parser đa phần tử (`MultiPartParser`).
-  - Kiểm tra an toàn nhị phân: Xác thực magic byte header `%PDF-` trong [`PdfMetadataExtractView`](file:///c:/DACNTT/backend/apps/documents/views.py#L417) và validator định dạng file [`FileExtensionValidator(allowed_extensions=['pdf'])`](file:///c:/DACNTT/backend/apps/documents/models.py#L82).
-  - Tự động kích hoạt luồng lập chỉ mục RAG ngầm: Khi tài liệu được tạo mới kèm file PDF, hàm [`trigger_rag_ingestion`](file:///c:/DACNTT/backend/apps/documents/services/webhook_service.py) sẽ được gọi để chuyển đổi trạng thái tài liệu sang `INDEXING` và nạp vào vector store.
+  - Kiểm tra an toàn nhị phân: Xác thực magic byte header `%PDF-` trong [`PdfMetadataExtractView`](../backend/apps/documents/views.py#L417) và validator định dạng file [`FileExtensionValidator(allowed_extensions=['pdf'])`](../backend/apps/documents/models.py#L82).
+  - Tự động kích hoạt luồng lập chỉ mục RAG ngầm: Khi tài liệu được tạo mới kèm file PDF, hàm [`trigger_rag_ingestion`](../backend/apps/documents/services/webhook_service.py) sẽ được gọi để chuyển đổi trạng thái tài liệu sang `INDEXING` và nạp vào vector store.
 - **Trạng thái:** ✅ Đã hoàn thiện và kiểm thử với các file PDF thực tế.
 
 ---
 
 ### 3.4.5. Quản lý siêu dữ liệu tài liệu và tích hợp Crossref
 - **Hiện trạng trong code:**
-  - Cấu hình dữ liệu 22 trường siêu dữ liệu học thuật theo tiêu chuẩn Zotero được định nghĩa tập trung tại [`frontend/src/constants/metadataConfig.ts`](file:///c:/DACNTT/frontend/src/constants/metadataConfig.ts).
-  - Mô-đun tích hợp Crossref ([`crossref_service.py`](file:///c:/DACNTT/backend/apps/documents/services/crossref_service.py)) cung cấp cơ chế dự phòng 3 tầng:
+  - Cấu hình dữ liệu 22 trường siêu dữ liệu học thuật theo tiêu chuẩn Zotero được định nghĩa tập trung tại [`frontend/src/constants/metadataConfig.ts`](../frontend/src/constants/metadataConfig.ts).
+  - Mô-đun tích hợp Crossref ([`crossref_service.py`](../backend/apps/documents/services/crossref_service.py)) cung cấp cơ chế dự phòng 3 tầng:
     1. *Tầng 1 (Chính):* Truy vấn trực tiếp API Crossref (`https://api.crossref.org/works/{doi}`) với User-Agent chuẩn học thuật, chuẩn hóa mã DOI qua hàm `clean_doi`.
     2. *Tầng 2 (Dự phòng nhanh):* Tự động chuyển tiếp sang OpenAlex API (`https://api.openalex.org/works/doi:{doi}`) khi Crossref bị nghẽn mạng hoặc quá hạn thời gian (timeout 6s), khôi phục tóm tắt bài báo từ chỉ mục đảo (`abstract_inverted_index`).
     3. *Tầng 3 (Bộ nhớ đệm mẫu):* Lưu trữ sẵn các bài báo kinh điển để bảo đảm demo luôn thành công không bị gián đoạn mạng bên ngoài.
-  - Mô-đun bóc tách PDF cục bộ ([`pdf_metadata_service.py`](file:///c:/DACNTT/backend/apps/documents/services/pdf_metadata_service.py)): Quét trang đầu của file PDF bằng PyMuPDF để trích xuất số arXiv (regex `ARXIV_ID_REGEX`) hoặc mã DOI (regex `DOI_REGEX`), tự động cập nhật lại tiêu đề và tác giả vào cơ sở dữ liệu.
+  - Mô-đun bóc tách PDF cục bộ ([`pdf_metadata_service.py`](../backend/apps/documents/services/pdf_metadata_service.py)): Quét trang đầu của file PDF bằng PyMuPDF để trích xuất số arXiv (regex `ARXIV_ID_REGEX`) hoặc mã DOI (regex `DOI_REGEX`), tự động cập nhật lại tiêu đề và tác giả vào cơ sở dữ liệu.
 - **Trạng thái:** ✅ Đã hoàn thiện, có unit tests riêng kiểm tra chuẩn hóa DOI và fallback.
 
 ---
 
 ### 3.4.6. Đọc PDF, đánh dấu nội dung, ghi chú và quản lý tài liệu
 - **Hiện trạng trong code:**
-  - Thành phần [`PdfViewer.tsx`](file:///c:/DACNTT/frontend/src/components/PdfViewer/PdfViewer.tsx) sử dụng phiên bản `pdfjs-dist` ^6.3.289 kết hợp Web Worker cục bộ.
+  - Thành phần [`PdfViewer.tsx`](../frontend/src/components/PdfViewer/PdfViewer.tsx) sử dụng phiên bản `pdfjs-dist` ^6.3.289 kết hợp Web Worker cục bộ.
   - Lớp văn bản (TextLayer) được dựng đè chính xác lên thẻ canvas, cho phép người dùng bôi đen chọn chữ học thuật hai cột tự nhiên.
   - Công cụ đánh dấu (Highlighting): Người dùng chọn văn bản, bảng màu nổi bật cung cấp 4 màu (`#ffeb3b` vàng, `#a7f3d0` xanh lá, `#fbcfe8` hồng, `#bfdbfe` xanh dương). Tọa độ vùng chọn được chuẩn hóa thành mảng đối tượng `rects` và lưu trữ trong bảng `annotations`.
   - Ghi chú dán (Sticky Note): Người dùng có thể gắn ghi chú vào bất kỳ vị trí nào trên trang PDF, hỗ trợ kéo thả tự do với cơ chế kẹp biên (boundary clamping) ngăn ghi chú bị kéo trôi ra ngoài trang giấy.
@@ -439,7 +439,7 @@ erDiagram
 
 ### 3.4.7. Tích hợp trợ lý AI vào ứng dụng
 - **Hiện trạng trong code:**
-  - Khung hội thoại AI ([`AiChatPanel.tsx`](file:///c:/DACNTT/frontend/src/components/AiChatPanel/AiChatPanel.tsx)) tích hợp trực tiếp bên cạnh trang đọc PDF.
+  - Khung hội thoại AI ([`AiChatPanel.tsx`](../frontend/src/components/AiChatPanel/AiChatPanel.tsx)) tích hợp trực tiếp bên cạnh trang đọc PDF.
   - Cung cấp sẵn các mẫu lời nhắc khởi động (Starter Prompts): "What problem does this paper solve?", "Explain the core methodology & architecture", "What are the key experimental benchmarks?".
   - Nút thao tác nhanh "Tóm tắt tài liệu" (Summarize Document) và "Tái lập chỉ mục" (Re-index Document).
   - Tích hợp trích dẫn số trang tương tác: Mỗi câu trả lời đi kèm danh sách bằng chứng dạng huy hiệu `[Trang X]`. Khi nhấp chuột vào huy hiệu, hàm callback `onJumpToPage(pageNumber)` sẽ tự động cuộn trang PDF của trình đọc đến đúng vị trí chứa thông tin.
@@ -451,12 +451,12 @@ erDiagram
 
 ### 3.5.1. Trích xuất văn bản từ tài liệu PDF (RQ1)
 - **Hiện trạng trong code:**
-  - Triển khai thuật toán trích xuất bám sát cấu trúc bố cục (layout-aware) tại hàm [`extract_sections_from_pdf`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L286) bằng thư viện `PyMuPDF` (`fitz`).
+  - Triển khai thuật toán trích xuất bám sát cấu trúc bố cục (layout-aware) tại hàm [`extract_sections_from_pdf`](../backend/apps/documents/services/chunking_utils.py#L286) bằng thư viện `PyMuPDF` (`fitz`).
   - Cơ chế nhận diện tiêu đề mục (Heading Detection):
     + Quét từng khối văn bản (`page.get_text("dict")`), phân tích kích thước phông chữ và cờ in đậm (`flags & 2`).
     + Tự động ghép nối các tiêu đề bị ngắt dòng hoặc phân tách chữ hoa nhỏ (small-caps, ví dụ ghép `1\nIntroduction` thành `1 Introduction` hoặc `L O RA` thành `LoRA`).
     + Đối chiếu với tập từ khóa đề mục khoa học kinh điển `KNOWN_ACADEMIC_HEADINGS` kết hợp nhận diện số thứ tự đề mục (e.g. `1.1`, `III.A`).
-  - Đường dẫn phụ trợ GROBID: Hàm [`process_pdf_with_grobid`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L159) kết nối tới client GROBID để bóc tách tệp XML theo chuẩn TEI và lưu trữ tại `xml_store/`.
+  - Đường dẫn phụ trợ GROBID: Hàm [`process_pdf_with_grobid`](../backend/apps/documents/services/chunking_utils.py#L159) kết nối tới client GROBID để bóc tách tệp XML theo chuẩn TEI và lưu trữ tại `xml_store/`.
 - **Tham số thực tế:** Thư viện `pymupdf==1.28.2`, kích thước tiêu đề hợp lệ $3 \le \text{len} < 85$ ký tự.
 - **Trạng thái:** ✅ Đã có trong mã nguồn và được đánh giá trong RQ1.
 
@@ -464,7 +464,7 @@ erDiagram
 
 ### 3.5.2. Phân mảnh văn bản (Chunking) (RQ2)
 - **Hiện trạng trong code:**
-  - Cài đặt tại hàm [`chunk_sections`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L409) và [`chunk_document_pdf`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L496).
+  - Cài đặt tại hàm [`chunk_sections`](../backend/apps/documents/services/chunking_utils.py#L409) và [`chunk_document_pdf`](../backend/apps/documents/services/chunking_utils.py#L496).
   - Hỗ trợ 3 chiến lược phân mảnh có cấu trúc:
     1. `section`: Giữ nguyên toàn bộ nội dung của từng đề mục thành một phân mảnh duy nhất (bảo toàn trọn vẹn ngữ nghĩa khối nhưng có thể vượt ngân sách token của mô hình nhúng).
     2. `section_token`: Phân chia đề mục thành các khối nhỏ dựa trên giới hạn token nghiêm ngặt, sử dụng dấu ngắt câu (`\n\n`, `\n`, `. `, `; `) mà không có chồng lấp (no overlap).
@@ -473,7 +473,7 @@ erDiagram
   - Chiến lược mặc định trong hệ thống: `strategy = "section_overlap"`.
   - Giới hạn token tối đa: `max_tokens = 400` (tương đương khoảng 1.600 ký tự).
   - Độ dài chồng lấp: `overlap = 80` tokens (tương đương khoảng 320 ký tự).
-  - Hệ số ước lượng token cho tiếng Anh khoa học: $1 \text{ từ} \approx 1.33 \text{ tokens}$ ([`estimate_tokens`](file:///c:/DACNTT/backend/apps/documents/services/chunking_utils.py#L278)).
+  - Hệ số ước lượng token cho tiếng Anh khoa học: $1 \text{ từ} \approx 1.33 \text{ tokens}$ ([`estimate_tokens`](../backend/apps/documents/services/chunking_utils.py#L278)).
   - API thanh tra phân mảnh: `GET /api/v1/documents/{id}/chunks/?strategy=...&max_tokens=...&overlap=...`.
 - **Trạng thái:** ✅ Đã hoàn thiện và có endpoint thanh tra trực quan.
 
@@ -481,11 +481,11 @@ erDiagram
 
 ### 3.5.3. Biểu diễn văn bản bằng embedding (RQ3)
 - **Hiện trạng trong code:**
-  - Đóng gói trong lớp [`RagService`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L89) sử dụng thư viện `SentenceTransformer`.
+  - Đóng gói trong lớp [`RagService`](../backend/apps/documents/services/rag_service.py#L89) sử dụng thư viện `SentenceTransformer`.
   - Mô hình quán quân thực nghiệm được chọn: **`intfloat/e5-small-v2`** (kích thước vector 384 chiều, kích thước mô hình ~130MB, giấy phép MIT).
   - **Quy tắc tiền tố bất đối xứng (Asymmetric Prefix Integrity):**
     + Các mô hình hiện đại như họ E5, BGE, Nomic yêu cầu tiền tố đặc thù để phân định không gian biểu diễn giữa câu hỏi truy vấn và đoạn văn bản tài liệu.
-    + Hàm [`get_model_prefix`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L71) và từ điển `MODEL_PREFIX_SPECS` tự động thêm tiền tố trước khi đưa vào hàm encode:
+    + Hàm [`get_model_prefix`](../backend/apps/documents/services/rag_service.py#L71) và từ điển `MODEL_PREFIX_SPECS` tự động thêm tiền tố trước khi đưa vào hàm encode:
       * Đối với `intfloat/e5-small-v2`: Câu hỏi được gắn `"query: "`, đoạn văn bản tài liệu được gắn `"passage: "`.
       * Đối với `nomic-ai/modernbert-embed-base`: Câu hỏi được gắn `"search_query: "`, đoạn văn bản được gắn `"search_document: "`.
       * Đối với `all-MiniLM-L6-v2`: Tiền tố rỗng `""` (mô hình đối xứng).
@@ -508,15 +508,15 @@ erDiagram
 ### 3.5.5. Truy xuất ngữ cảnh liên quan (RQ4)
 - **Hiện trạng trong code:**
   - Hệ thống cung cấp hai cơ chế truy xuất:
-    1. *Truy xuất Dense Cosine:* Tìm kiếm vector tương đồng thông qua hàm nhân ma trận `embeddings @ query_emb` ([`rag_service.py:DocumentRAG.hybrid_search`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L512)).
+    1. *Truy xuất Dense Cosine:* Tìm kiếm vector tương đồng thông qua hàm nhân ma trận `embeddings @ query_emb` ([`rag_service.py:DocumentRAG.hybrid_search`](../backend/apps/documents/services/rag_service.py#L512)).
     2. *Truy xuất Lexical Thưa BM25:* Sử dụng thuật toán `BM25Okapi` từ thư viện `rank_bm25` trên tập từ vựng đã chuẩn hóa chữ thường.
     3. *Truy xuất Lai Reciprocal Rank Fusion (Hybrid RRF):*
-       - Cài đặt tại hàm [`RagService.search_hybrid_rrf`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L372) và [`DocumentRAG.hybrid_search`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L503).
+       - Cài đặt tại hàm [`RagService.search_hybrid_rrf`](../backend/apps/documents/services/rag_service.py#L372) và [`DocumentRAG.hybrid_search`](../backend/apps/documents/services/rag_service.py#L503).
        - Thuật toán kết hợp điểm số theo thứ hạng nghịch đảo:
          $$\text{RRF Score}(d) = \frac{1}{k + r_{\text{dense}}(d)} + \frac{1}{k + r_{\text{bm25}}(d)}$$
          với hằng số làm mịn $k = 60$.
        - Ngăn ngừa xung đột: Định danh phân mảnh được định danh toàn cục theo cấu trúc `{doc_id}::{chunk_id}`.
-       - Tích lũy theo ngân sách token (Equal Token Budget Accumulation): Hàm [`search_dense_budget`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L344) tích lũy các đoạn trích cho đến khi chạm ngưỡng ngân sách token tối đa của prompt (thay vì cố định số lượng top-k), ngăn chặn việc thiên vị các phân mảnh có kích thước quá ngắn.
+       - Tích lũy theo ngân sách token (Equal Token Budget Accumulation): Hàm [`search_dense_budget`](../backend/apps/documents/services/rag_service.py#L344) tích lũy các đoạn trích cho đến khi chạm ngưỡng ngân sách token tối đa của prompt (thay vì cố định số lượng top-k), ngăn chặn việc thiên vị các phân mảnh có kích thước quá ngắn.
 - **Tham số thực tế:** $k_{\text{rrf}} = 60$, số ứng viên mỗi nhánh trước khi gộp: $2 \times \text{top\_k}$, số kết quả lấy ra cuối cùng: $\text{top\_k} = 5$.
 - **Trạng thái:** ✅ Đã hoàn thiện và được đánh giá trong RQ4.
 
@@ -524,8 +524,8 @@ erDiagram
 
 ### 3.5.6. Xây dựng ngữ cảnh đầu vào và sinh câu trả lời bằng LLM (RQ5)
 - **Hiện trạng trong code:**
-  - Điều phối tại hàm [`query_document`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L593) và [`summarize_document`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L651).
-  - Tích hợp mô hình ngôn ngữ lớn cục bộ: Gọi tiến trình Ollama qua hàm [`_generate_with_ollama`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L575) gửi yêu cầu POST đến `http://localhost:11434/api/generate` với tham số `stream: False`, thời gian chờ `timeout: 60s`.
+  - Điều phối tại hàm [`query_document`](../backend/apps/documents/services/rag_service.py#L593) và [`summarize_document`](../backend/apps/documents/services/rag_service.py#L651).
+  - Tích hợp mô hình ngôn ngữ lớn cục bộ: Gọi tiến trình Ollama qua hàm [`_generate_with_ollama`](../backend/apps/documents/services/rag_service.py#L575) gửi yêu cầu POST đến `http://localhost:11434/api/generate` với tham số `stream: False`, thời gian chờ `timeout: 60s`.
   - Mô hình mặc định cấu hình trong hệ thống: **`llama3.2:3b`**.
   - **Mẫu lời nhắc hỏi đáp (Q&A Prompt Template):**
     ```text
@@ -572,12 +572,12 @@ erDiagram
 
 ### 3.6.1. Thực nghiệm lựa chọn công cụ trích xuất PDF (RQ1)
 - **Hiện trạng trong code:**
-  - Script thực thi: [`backend/scripts/evaluate_step1_full_dev.py`](file:///c:/DACNTT/backend/scripts/evaluate_step1_full_dev.py) và [`evaluate_extraction.py`](file:///c:/DACNTT/backend/scripts/evaluate_extraction.py).
+  - Script thực thi: [`backend/scripts/evaluate_step1_full_dev.py`](../backend/scripts/evaluate_step1_full_dev.py) và [`evaluate_extraction.py`](../backend/scripts/evaluate_extraction.py).
   - Phương pháp đối chứng: So sánh công cụ trích xuất layout-aware PyMuPDF so với kết quả phân tích cấu trúc của GROBID TEI XML trên tập dữ liệu chuẩn.
   - Các chỉ số đo lường: Character Error Rate ($1 - \text{CER}$), Section Heading Recall.
   - Kết quả thực tế ghi nhận trong repo:
-    + Trên tập Pilot (4 bài báo): Heading Recall đạt $100\%$.
-    + Trên tập Dev (207 bài báo): Heading Recall trung bình đạt $56.5\%$, độ tương đồng ký tự $1 - \text{CER} = 37.3\%$.
+    + Trên tập Pilot (4 bài báo: Attention, ResNet, LoRA, RAG): Heading Recall đạt $100\%$.
+    + Trên tập Dev (47 bài báo đánh giá, lấy 5.000 ký tự đầu tiên đối sánh với văn bản TeX của QASPER, không loại bỏ headers/footers/references): Heading Recall trung bình đạt $56.5\%$, độ tương đồng ký tự $1 - \text{CER} = 37.3\%$.
 - **Trạng thái:** ✅ Đã có script và kết quả thực tế trên tập dữ liệu.
 - **Cần tôi bổ sung:** Bổ sung so sánh bổ sung với thư viện `pypdf` thông thường nếu muốn minh họa rõ hơn sự vượt trội của giải pháp layout-aware.
 
@@ -585,12 +585,12 @@ erDiagram
 
 ### 3.6.2. Thực nghiệm so sánh các phương pháp chunking (RQ2)
 - **Hiện trạng trong code:**
-  - Script thực thi: [`backend/scripts/evaluate_part1b_chunking.py`](file:///c:/DACNTT/backend/scripts/evaluate_part1b_chunking.py).
+  - Script thực thi: [`backend/scripts/evaluate_part1b_chunking.py`](../backend/scripts/evaluate_part1b_chunking.py).
   - Phương pháp đối chứng: So sánh 4 phương pháp phân mảnh: (1) Cố định theo số ký tự/điểm giữa (Midpoint), (2) Phân mảnh thuần theo đề mục (`section`), (3) Phân mảnh theo đề mục kết hợp ngưỡng token không chồng lấp (`section_token`), và (4) Phân mảnh đề mục có cửa sổ trượt chồng lấp (`section_overlap`).
   - Các chỉ số đo lường: Tỷ lệ cắt cụt từ tố âm thầm (Silent subword truncation rate %), Số token trung bình mỗi chunk, Hiệu quả truy xuất ($\text{nDCG@4}$).
   - Kết quả thực tế ghi nhận trong repo:
-    + Phương pháp `section_token` và `section_overlap` đạt **$0.0\%$ tỷ lệ cắt cụt từ tố**, trong khi phương pháp cố định ký tự có nguy cơ ngắt ngang giữa câu hoặc vượt độ dài context của mô hình embedding.
-    + Hiệu quả truy xuất $\text{nDCG@4}$ của phân mảnh theo cấu trúc đạt **$0.4628$** so với **$0.4133$** của phương pháp chia điểm giữa thông thường.
+    + Phương pháp `sentence_aware` đạt **$0.0\%$ tỷ lệ cắt cụt từ tố** (với 1.086 chunks), trong khi phương pháp cố định `as_is` (1.400 ký tự) có $29.0\%$ đoạn bị cắt cụt và `naive_midpoint` có $2.82\%$ đoạn bị cắt cụt.
+    + Hiệu quả truy xuất $\text{nDCG@4}$ trên 48 bài báo Dev (128 câu hỏi) sử dụng mô hình `all-MiniLM-L6-v2` (receptive field 256 tokens) đạt **$0.4628$** với phân mảnh theo ranh giới câu (`sentence_aware`) so với **$0.4133$** của phương pháp chia điểm giữa thông thường (`naive_midpoint`, $\Delta = -0.0495$, $p = 0.0060^*$). Khác biệt so với nDCG@4 của E5-small ở RQ3 là do khác mô hình, khác receptive field và khác quy mô tập dữ liệu.
 - **Trạng thái:** ✅ Đã có script và kết quả thực tế.
 - **Cần tôi bổ sung:** Thực hiện liên kết đo lường bổ sung từ các loại chunking đến chất lượng câu trả lời cuối cùng của LLM.
 
@@ -598,8 +598,8 @@ erDiagram
 
 ### 3.6.3. Thực nghiệm so sánh các mô hình embedding (RQ3)
 - **Hiện trạng trong code:**
-  - Script thực thi: [`backend/scripts/run_thesis_embedding_benchmark.py`](file:///c:/DACNTT/backend/scripts/run_thesis_embedding_benchmark.py).
-  - Kết quả lưu trữ tại: [`eval/results/thesis_embedding_benchmark.json`](file:///c:/DACNTT/eval/results/thesis_embedding_benchmark.json) và báo cáo [`eval/results/THESIS_EMBEDDING_REPORT.md`](file:///c:/DACNTT/eval/results/THESIS_EMBEDDING_REPORT.md).
+  - Script thực thi: [`backend/scripts/run_thesis_embedding_benchmark.py`](../backend/scripts/run_thesis_embedding_benchmark.py).
+  - Kết quả lưu trữ tại: [`eval/results/thesis_embedding_benchmark.json`](../eval/results/thesis_embedding_benchmark.json) và báo cáo [`eval/results/THESIS_EMBEDDING_REPORT.md`](../eval/results/THESIS_EMBEDDING_REPORT.md).
   - Quy mô thực nghiệm: Đánh giá đồng thời trên toàn bộ **207 bài báo / 615 câu hỏi / 5.207 phân mảnh** trên môi trường CPU cố định 4 luồng.
   - Danh sách mô hình so sánh ($\le 335$M tham số):
     1. `sentence-transformers/all-MiniLM-L6-v2` (Mô hình cơ sở - Baseline, 22M tham số, 384 chiều)
@@ -609,22 +609,22 @@ erDiagram
     5. `nomic-ai/modernbert-embed-base` (149M tham số, 768 chiều, ngữ cảnh dài 8.192 tokens)
   - Kết quả thực nghiệm chính thức trích xuất từ dữ liệu:
 
-| Mô hình Embedding | Chiều Vector | nDCG@10 | nDCG@4 | Recall@20 | MRR@10 | Latency P50 (ms) | Throughput (chunks/s) | Peak RAM (MB) | Paired $p$-value (so với MiniLM) |
+| Mô hình Embedding | Chiều Vector | nDCG@10 [95% CI] | nDCG@4 | Recall@20 | MRR@10 | Latency P50 (ms) | Throughput (chunks/s) | Peak RAM (MB) | Paired $p$-value (so với MiniLM) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `all-MiniLM-L6-v2` | 384 | 0.5026 | 0.4578 | 0.9024 | 0.4431 | **19.30** | **315.2** | **685** | — (Cơ sở) |
-| **`intfloat/e5-small-v2`** | 384 | **0.5522** | **0.5098** | **0.9382** | **0.4950** | 30.26 | 198.4 | 799 | **$0.0000^*$** |
-| `bge-small-en-v1.5` | 384 | 0.5410 | 0.4985 | 0.9250 | 0.4812 | 31.10 | 192.1 | 805 | $0.0002^*$ |
-| `snowflake-arctic-embed-s` | 384 | 0.5385 | 0.4920 | 0.9210 | 0.4780 | 32.50 | 185.0 | 812 | $0.0005^*$ |
-| `modernbert-embed-base` | 768 | 0.5872 | 0.5412 | 0.9510 | 0.5320 | 103.40 | 58.2 | 1.840 | $0.0000^*$ |
+| `all-MiniLM-L6-v2` | 384 | 0.5026 [0.4746, 0.5315] | 0.3938 | 0.9483 | 0.4417 | **19.30** | **19.0** | **593.1** | — (Cơ sở) |
+| **`intfloat/e5-small-v2`** | 384 | **0.5522** [0.5253, 0.5778] | **0.4588** | 0.9623 | **0.5046** | 30.26 | 6.5 | 659.8 | **$0.0010^*$** |
+| `BAAI/bge-small-en-v1.5` | 384 | 0.5209 [0.4901, 0.5520] | 0.4214 | 0.9542 | 0.4671 | 34.14 | 6.5 | 672.3 | $0.0830$ (ns) |
+| `Snowflake/snowflake-arctic-embed-s` | 384 | 0.5417 [0.5115, 0.5714] | 0.4453 | 0.9523 | 0.4927 | 30.45 | 7.0 | 672.1 | $0.0020^*$ |
+| `nomic-ai/modernbert-embed-base` | 768 | 0.5872 [0.5586, 0.6166] | 0.4937 | **0.9642** | 0.5438 | 103.39 | 1.8 | 1161.7 | **$0.0010^*$** |
 
 - **Nhận xét khoa học:** Mô hình `intfloat/e5-small-v2` mang lại sự cân bằng tối ưu vượt trội cho môi trường CPU máy trạm: tăng đáng kể chất lượng xếp hạng ($\Delta \text{nDCG@10} = +0.0496$, có ý nghĩa thống kê cao $p < 0.001$), trong khi độ trễ truy vấn chỉ 30.26 ms và chiếm chưa đến 800 MB RAM (so với ModernBERT tiêu tốn 1.84 GB RAM và độ trễ cao gấp 3.4 lần).
 - **Trạng thái:** ✅ Đã hoàn thành 100% với số liệu thực chứng đầy đủ.
 
 ---
 
-### 3.6.4. Thực nghiệm so sánh các phương pháp truy xuất (RQ4)
+### 3.6.4. Thực nghiệm so sánh các phương pháp truy xuất (RQ4) *(CHƯA CHẠY LẠI / CHƯA KIỂM CHỨNG – làm ở đợt sau)*
 - **Hiện trạng trong code:**
-  - Script thực thi: [`backend/scripts/evaluate_step6_hybrid_rrf.py`](file:///c:/DACNTT/backend/scripts/evaluate_step6_hybrid_rrf.py) và [`evaluate_expanded_hybrid_rrf.py`](file:///c:/DACNTT/backend/scripts/evaluate_expanded_hybrid_rrf.py).
+  - Script thực thi: [`backend/scripts/evaluate_step6_hybrid_rrf.py`](../backend/scripts/evaluate_step6_hybrid_rrf.py) và [`evaluate_expanded_hybrid_rrf.py`](../backend/scripts/evaluate_expanded_hybrid_rrf.py).
   - Phương pháp đối chứng: So sánh 3 chiến lược truy xuất độc lập trên cùng tập dữ liệu (160 bài báo / 487 câu hỏi):
     1. *Dense-only:* Truy xuất vector Cosine thuần túy bằng `intfloat/e5-small-v2`.
     2. *Lexical BM25-only:* Truy xuất từ khóa thưa BM25 thuần túy.
@@ -636,7 +636,7 @@ erDiagram
 
 ---
 
-### 3.6.5. Thực nghiệm so sánh các mô hình LLM (RQ5)
+### 3.6.5. Thực nghiệm so sánh các mô hình LLM (RQ5) *(CHƯA CHẠY LẠI / CHƯA KIỂM CHỨNG – làm ở đợt sau)*
 - **Hiện trạng trong code:**
   - Hệ thống hiện tại đã tích hợp sẵn và chạy ổn định mô hình **`llama3.2:3b`** qua Ollama cục bộ cho chức năng hỏi đáp và tóm tắt.
   - Tuy nhiên, **chưa có kịch bản script thực nghiệm chuyên biệt** để tự động chạy so sánh đa mô hình LLM (ví dụ: `llama3.2:3b` vs `phi3:mini` vs `qwen2.5:3b`) với cùng một bộ câu hỏi, cùng ngữ cảnh đầu vào và đo đạc độ chính xác/độ trung thực (faithfulness).
@@ -651,7 +651,7 @@ erDiagram
 
 ---
 
-### 3.6.6. Đánh giá chất lượng câu trả lời và pipeline RAG hoàn chỉnh
+### 3.6.6. Đánh giá chất lượng câu trả lời và pipeline RAG hoàn chỉnh *(CHƯA CHẠY LẠI / CHƯA KIỂM CHỨNG – làm ở đợt sau)*
 - **Hiện trạng trong code:**
   - Cấu hình RAG hoàn chỉnh được tích hợp trong hệ thống là sự kết hợp của các thành phần tối ưu nhất qua các bước:
     * Extraction: PyMuPDF Layout-Aware Heading Detection.
@@ -664,9 +664,9 @@ erDiagram
 
 ---
 
-### 3.6.7. Đánh giá khả năng áp dụng trên các lĩnh vực nghiên cứu khác nhau (RQ6)
+### 3.6.7. Đánh giá khả năng áp dụng trên các lĩnh vực nghiên cứu khác nhau (RQ6) *(CHƯA CHẠY LẠI / CHƯA KIỂM CHỨNG – làm ở đợt sau)*
 - **Hiện trạng trong code:**
-  - Mã nguồn: [`backend/scripts/generate_domain_benchmark.py`](file:///c:/DACNTT/backend/scripts/generate_domain_benchmark.py).
+  - Mã nguồn: [`backend/scripts/generate_domain_benchmark.py`](../backend/scripts/generate_domain_benchmark.py).
   - Thiết kế thực nghiệm: Chạy cấu hình pipeline RAG hoàn chỉnh ở trên xuyên suốt 5 bộ tài liệu thuộc 5 chuyên ngành: Systems, Biomedicine, Physics, Computer Vision, và NLP.
   - Mục tiêu đo lường: Đánh giá độ suy giảm của $\text{nDCG@10}$ và độ chính xác câu trả lời trên từng miền chuyên ngành để kết luận xem hệ thống có duy trì được hiệu quả ổn định khi gặp các dạng văn bản có cấu trúc phi chuẩn (nhiều công thức toán, bảng biểu sinh học phức tạp) hay không.
 - **Trạng thái:** ⚠️ Đã có harness sinh dữ liệu và kiểm chứng bằng chứng không ảo giác; đang chờ chạy kiểm thử lấy số liệu hoàn tất cho toàn bộ 5 miền.
@@ -682,23 +682,23 @@ erDiagram
 | **RQ1** | PDF Text Extraction | `chunking_utils.py::extract_sections_from_pdf`<br>`pdf_metadata_service.py` | `evaluate_step1_full_dev.py`<br>`evaluate_extraction.py` | 1-CER, Heading Recall | 207 bài báo Dev QASPER + 4 bài Pilot | ✅ **Đã hoàn thành** (Heading Recall: 56.5% dev, 100% pilot) |
 | **RQ2** | Document Chunking | `chunking_utils.py::chunk_sections`<br>`views.py::DocumentViewSet.chunks` | `evaluate_part1b_chunking.py` | Subword Truncation Rate (%), Token Count, nDCG@4 | 207 bài báo Dev QASPER | ✅ **Đã hoàn thành** (0.0% truncation với section_token/overlap) |
 | **RQ3** | Embedding Models | `rag_service.py::RagService`<br>`rag_service.py::get_model_prefix` | `run_thesis_embedding_benchmark.py` | nDCG@10, nDCG@4, Recall@20, MRR@10, Latency P50/P95, Throughput, Peak RAM, Bootstrap 95% CI, $p$-value | 207 bài báo, 615 câu hỏi, 5.207 chunks | ✅ **Đã hoàn thành 100%** (`e5-small-v2` = 0.5522 nDCG@10, $p < 0.001$) |
-| **RQ4** | Retrieval Strategies (Dense vs Hybrid RRF) | `rag_service.py::DocumentRAG.hybrid_search`<br>`rag_service.py::search_hybrid_rrf` | `evaluate_step6_hybrid_rrf.py`<br>`evaluate_retrieval.py` | Hit@1, Hit@3, Hit@5, Recall@20, MRR, nDCG@10 | 160 bài báo, 487 câu hỏi | ✅ **Đã hoàn thành** (Hybrid RRF Hit@5 = 74.3%, tăng +5.8% so với Dense) |
-| **RQ5** | Large Language Models | `rag_service.py::query_document`<br>`rag_service.py::_generate_with_ollama` | *Chưa có script so sánh đa LLM* | Answer Correctness, Faithfulness, Inference Latency | Cần tập 50-100 QA từ QASPER dev | ⚠️ **Mã nguồn đã nối Ollama**, ❌ **Chưa có script so sánh đối chứng đa mô hình** |
-| **RQ6** | Cross-Domain Applicability | `generate_domain_benchmark.py`<br>`rag_service.py` | `generate_domain_benchmark.py --verify` | $\Delta \text{nDCG@10}$, Cross-domain Hit@5 | 5 chuyên ngành STEM (10 bài báo đại diện) | ⚠️ **Harness xác minh đã xong**, ❌ **Đang chờ chạy đo lường toàn diện** |
+| **RQ4** | Retrieval Strategies (Dense vs Hybrid RRF) *(Chưa kiểm chứng - làm đợt sau)* | `rag_service.py::DocumentRAG.hybrid_search`<br>`rag_service.py::search_hybrid_rrf` | `evaluate_step6_hybrid_rrf.py`<br>`evaluate_retrieval.py` | Hit@1, Hit@3, Hit@5, Recall@20, MRR, nDCG@10 | 160 bài báo, 487 câu hỏi | ✅ **Đã hoàn thành** (Hybrid RRF Hit@5 = 74.3%, tăng +5.8% so với Dense) |
+| **RQ5** | Large Language Models *(Chưa kiểm chứng - làm đợt sau)* | `rag_service.py::query_document`<br>`rag_service.py::_generate_with_ollama` | *Chưa có script so sánh đa LLM* | Answer Correctness, Faithfulness, Inference Latency | Cần tập 50-100 QA từ QASPER dev | ⚠️ **Mã nguồn đã nối Ollama**, ❌ **Chưa có script so sánh đối chứng đa mô hình** |
+| **RQ6** | Cross-Domain Applicability *(Chưa kiểm chứng - làm đợt sau)* | `generate_domain_benchmark.py`<br>`rag_service.py` | `generate_domain_benchmark.py --verify` | $\Delta \text{nDCG@10}$, Cross-domain Hit@5 | 5 chuyên ngành STEM (10 bài báo đại diện) | ⚠️ **Harness xác minh đã xong**, ❌ **Đang chờ chạy đo lường toàn diện** |
 
 ---
 
 ### 2. Danh sách mâu thuẫn / lệch pha giữa Code, README và Tài liệu
 1. **Mâu thuẫn mô hình embedding mặc định:**
    - *Tài liệu cũ / README ban đầu:* Ghi nhận hệ thống sử dụng mô hình cơ sở `all-MiniLM-L6-v2`.
-   - *Mã nguồn thực tế:* Trong [`backend/apps/documents/services/rag_service.py:122,444`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L122), mô hình mặc định chính thức là `intfloat/e5-small-v2` (quán quân thực nghiệm với nDCG@10 = 0.5522). Đã được cập nhật đồng bộ lại trên nhánh `chore/align-with-rq`.
+   - *Mã nguồn thực tế:* Trong [`backend/apps/documents/services/rag_service.py:122,444`](../backend/apps/documents/services/rag_service.py#L122), mô hình mặc định chính thức là `intfloat/e5-small-v2` (quán quân thực nghiệm với nDCG@10 = 0.5522). Đã được cập nhật đồng bộ lại trên nhánh `chore/align-with-rq`.
 2. **Mâu thuẫn phương thức phân mảnh tài liệu:**
    - *Tài liệu cũ / README ban đầu:* Mô tả sử dụng `RecursiveCharacterTextSplitter` với kích thước 900 ký tự, overlap 150.
    - *Mã nguồn thực tế:* Điểm vào của dịch vụ RAG dùng cấu trúc đề mục layout-aware `extract_sections_from_pdf` và hàm `chunk_sections` với kích thước `max_tokens=400, overlap=80` (tương đương 1.600 ký tự, 320 ký tự overlap) để bảo toàn cấu trúc phân đoạn bài báo.
 3. **Mâu thuẫn trong hàm nạp RAG của ViewSet:**
-   - Trong [`rag_service.py:548`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py#L548), hàm `get_or_create_rag` gọi `chunk_document(file_path)`, hàm này cố gắng kết nối GROBID trước rồi mới fallback PyMuPDF. Trong khi đó, endpoint `/chunks/` và các script đánh giá lại gọi trực tiếp `chunk_document_pdf` dùng PyMuPDF layout-aware. Cần thống nhất dùng `chunk_document_pdf` cho cả hai luồng để tránh phụ thuộc GROBID khi chạy demo.
+   - Trong [`rag_service.py:548`](../backend/apps/documents/services/rag_service.py#L548), hàm `get_or_create_rag` gọi `chunk_document(file_path)`, hàm này cố gắng kết nối GROBID trước rồi mới fallback PyMuPDF. Trong khi đó, endpoint `/chunks/` và các script đánh giá lại gọi trực tiếp `chunk_document_pdf` dùng PyMuPDF layout-aware. Cần thống nhất dùng `chunk_document_pdf` cho cả hai luồng để tránh phụ thuộc GROBID khi chạy demo.
 4. **Mô phỏng tại Frontend khi Backend chưa chạy:**
-   - Trong [`frontend/src/api/ragApi.ts`](file:///c:/DACNTT/frontend/src/api/ragApi.ts), nếu backend RAG không phản hồi, client tự kích hoạt hàm `getSimulatedAnswer` với câu trả lời mẫu cho bài báo *Attention Is All You Need*. Điều này giúp demo giao diện không bị gián đoạn nhưng có thể gây nhầm lẫn là RAG giả lập nếu backend chưa được bật tiến trình Ollama.
+   - Trong [`frontend/src/api/ragApi.ts`](../frontend/src/api/ragApi.ts), nếu backend RAG không phản hồi, client tự kích hoạt hàm `getSimulatedAnswer` với câu trả lời mẫu cho bài báo *Attention Is All You Need*. Điều này giúp demo giao diện không bị gián đoạn nhưng có thể gây nhầm lẫn là RAG giả lập nếu backend chưa được bật tiến trình Ollama.
 
 ---
 
