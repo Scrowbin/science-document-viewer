@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "experiment": "RQ1 PDF Extractor Evaluation",
+    "timestamp": "20261024_000639",
+    "seed": 42,
+    "torch_threads": 4,
+    "papers_evaluated": 47,
+    "baseline_engine": "pymupdf_plain",
+    "champion_selected": "pymupdf_plain",
+    "champion_rationale": "Selected pymupdf_plain based on top composite ranking: nDCG@10 = 0.5274, Evidence Coverage = 37.59%, Latency = 10.19 ms/page."
+  },
+  "summary": [
+    {
+      "engine": "pymupdf_plain",
+      "available": true,
+      "evidence_coverage_pct": 37.59,
+      "char_accuracy_pct": 33.09,
+      "reading_order_concordance": 0.9894,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 10.19,
+      "peak_ram_mb": 1228.7,
+      "downstream_ndcg10": {
+        "mean": 0.5274,
+        "ci_95": [
+          0.4724,
+          0.5839
+        ]
+      },
+      "downstream_recall20": 0.9424,
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ],
+        "p_value": 1.0,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pymupdf_layout",
+      "available": true,
+      "evidence_coverage_pct": 33.16,
+      "char_accuracy_pct": 32.78,
+      "reading_order_concordance": 0.9894,
+      "heading_f1": 48.01,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 26.16,
+      "peak_ram_mb": 1164.9,
+      "downstream_ndcg10": {
+        "mean": 0.51,
+        "ci_95": [
+          0.4398,
+          0.5822
+        ]
+      },
+      "downstream_recall20": 0.8887,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.0175,
+        "ci_95": [
+          -0.0755,
+          0.0387
+        ],
+        "p_value": 0.5597,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pypdf",
+      "available": true,
+      "evidence_coverage_pct": 29.61,
+      "char_accuracy_pct": 32.28,
+      "reading_order_concordance": 0.9787,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 61.72,
+      "peak_ram_mb": 1286.2,
+      "downstream_ndcg10": {
+        "mean": 0.5174,
+        "ci_95": [
+          0.4597,
+          0.5792
+        ]
+      },
+      "downstream_recall20": 0.9509,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.0101,
+        "ci_95": [
+          -0.0446,
+          0.0236
+        ],
+        "p_value": 0.5867,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pdfminer.six",
+      "available": true,
+      "evidence_coverage_pct": 35.82,
+      "char_accuracy_pct": 33.44,
+      "reading_order_concordance": 0.9713,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 107.1,
+      "peak_ram_mb": 1169.2,
+      "downstream_ndcg10": {
+        "mean": 0.5131,
+        "ci_95": [
+          0.4615,
+          0.5696
+        ]
+      },
+      "downstream_recall20": 0.9373,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.0143,
+        "ci_95": [
+          -0.0601,
+          0.028
+        ],
+        "p_value": 0.5457,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pdfplumber",
+      "available": true,
+      "evidence_coverage_pct": 9.86,
+      "char_accuracy_pct": 3.99,
+      "reading_order_concordance": 0.5319,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 195.36,
+      "peak_ram_mb": 1236.4,
+      "downstream_ndcg10": {
+        "mean": 0.3769,
+        "ci_95": [
+          0.3108,
+          0.4442
+        ]
+      },
+      "downstream_recall20": 0.7513,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.1505,
+        "ci_95": [
+          -0.2258,
+          -0.0732
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "engine": "grobid",
+      "available": false,
+      "error": "GROBID server offline or unreachable (HTTPConnectionPool(host='localhost', port=8070): Max retries exceeded with url: /api/isalive (Caused by ConnectTimeoutError(<HTTPConnection(host='localhost', port=8070) at 0x1b25d3c8810>, 'Connection to localhost timed out. (connect timeout=1.5)')))"
+    }
+  ]
+}
