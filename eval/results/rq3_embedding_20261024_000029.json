@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "title": "RQ3: Dense Embedding Representation Benchmark (Retrieval Only)",
+    "timestamp": "2026-10-23 23:56:35",
+    "scope_notice": "RQ3 hien chi danh gia hieu qua truy xuat; phan answer quality voi LLM de dot sau.",
+    "experimental_controls": {
+      "extractor": "pymupdf_layout",
+      "chunker": "section_token",
+      "relevance_tau": 0.5,
+      "torch_threads": 4,
+      "similarity": "exact_brute_force_cosine (NumPy BLAS FP32)",
+      "bootstrap_resamples": 2000,
+      "bootstrap_seed": 42
+    },
+    "dataset_consistency": {
+      "active_papers": 2,
+      "total_chunks": 55,
+      "total_queries": 4
+    }
+  },
+  "models": [
+    {
+      "id": "all-MiniLM-L6-v2",
+      "name": "sentence-transformers/all-MiniLM-L6-v2",
+      "short_name": "MiniLM-L6-v2",
+      "dim": 384,
+      "params_m": 22.7,
+      "license": "Apache-2.0",
+      "max_seq_length": 256,
+      "truncation": {
+        "truncated_chunks": 31,
+        "total_chunks": 55,
+        "truncation_rate_pct": 56.36
+      },
+      "metrics": {
+        "ndcg10": 0.7153,
+        "ndcg10_ci95": [
+          0.7153,
+          0.7153
+        ],
+        "ndcg4": 0.6642,
+        "recall20": 1.0,
+        "mrr10": 0.8125,
+        "hit1": 0.75,
+        "hit3": 0.75,
+        "hit5": 1.0
+      },
+      "efficiency": {
+        "latency_p50_ms": 18.03,
+        "latency_p95_ms": 22.4,
+        "throughput_chunks_sec": 13.9,
+        "peak_rss_mb": 448.8
+      },
+      "paired_test_vs_baseline": {
+        "delta_ndcg10": 0.0,
+        "p_value_raw": 1.0,
+        "p_value_adjusted": 1.0,
+        "significant_05": false,
+        "correction": "Holm-Bonferroni"
+      }
+    },
+    {
+      "id": "e5-small-v2",
+      "name": "intfloat/e5-small-v2",
+      "short_name": "E5-Small-v2",
+      "dim": 384,
+      "params_m": 33.4,
+      "license": "MIT",
+      "max_seq_length": 512,
+      "truncation": {
+        "truncated_chunks": 0,
+        "total_chunks": 55,
+        "truncation_rate_pct": 0.0
+      },
+      "metrics": {
+        "ndcg10": 0.7689,
+        "ndcg10_ci95": [
+          0.7224,
+          0.8155
+        ],
+        "ndcg4": 0.7143,
+        "recall20": 1.0,
+        "mrr10": 0.875,
+        "hit1": 0.75,
+        "hit3": 1.0,
+        "hit5": 1.0
+      },
+      "efficiency": {
+        "latency_p50_ms": 38.85,
+        "latency_p95_ms": 41.22,
+        "throughput_chunks_sec": 4.2,
+        "peak_rss_mb": 491.5
+      },
+      "paired_test_vs_baseline": {
+        "delta_ndcg10": -0.0536,
+        "delta_ndcg10_ci95": [
+          -0.1001,
+          -0.007
+        ],
+        "p_value_raw": 0.001,
+        "p_value_adjusted": 0.004,
+        "significant_05": true,
+        "correction": "Holm-Bonferroni"
+      }
+    },
+    {
+      "id": "bge-small-en-v1.5",
+      "name": "BAAI/bge-small-en-v1.5",
+      "short_name": "BGE-Small-v1.5",
+      "dim": 384,
+      "params_m": 33.4,
+      "license": "MIT",
+      "max_seq_length": 512,
+      "truncation": {
+        "truncated_chunks": 0,
+        "total_chunks": 55,
+        "truncation_rate_pct": 0.0
+      },
+      "metrics": {
+        "ndcg10": 0.7023,
+        "ndcg10_ci95": [
+          0.6892,
+          0.7153
+        ],
+        "ndcg4": 0.643,
+        "recall20": 1.0,
+        "mrr10": 0.625,
+        "hit1": 0.5,
+        "hit3": 0.5,
+        "hit5": 1.0
+      },
+      "efficiency": {
+        "latency_p50_ms": 37.79,
+        "latency_p95_ms": 46.13,
+        "throughput_chunks_sec": 4.0,
+        "peak_rss_mb": 490.4
+      },
+      "paired_test_vs_baseline": {
+        "delta_ndcg10": 0.013,
+        "delta_ndcg10_ci95": [
+          0.0,
+          0.0261
+        ],
+        "p_value_raw": 0.5047,
+        "p_value_adjusted": 0.5047,
+        "significant_05": false,
+        "correction": "Holm-Bonferroni"
+      }
+    },
+    {
+      "id": "snowflake-arctic-embed-s",
+      "name": "Snowflake/snowflake-arctic-embed-s",
+      "short_name": "Arctic-Embed-S",
+      "dim": 384,
+      "params_m": 33.2,
+      "license": "Apache-2.0",
+      "max_seq_length": 512,
+      "truncation": {
+        "truncated_chunks": 0,
+        "total_chunks": 55,
+        "truncation_rate_pct": 0.0
+      },
+      "metrics": {
+        "ndcg10": 0.8832,
+        "ndcg10_ci95": [
+          0.7664,
+          1.0
+        ],
+        "ndcg4": 0.8832,
+        "recall20": 1.0,
+        "mrr10": 1.0,
+        "hit1": 1.0,
+        "hit3": 1.0,
+        "hit5": 1.0
+      },
+      "efficiency": {
+        "latency_p50_ms": 40.16,
+        "latency_p95_ms": 46.61,
+        "throughput_chunks_sec": 4.1,
+        "peak_rss_mb": 488.2
+      },
+      "paired_test_vs_baseline": {
+        "delta_ndcg10": -0.1679,
+        "delta_ndcg10_ci95": [
+          -0.2847,
+          -0.0511
+        ],
+        "p_value_raw": 0.001,
+        "p_value_adjusted": 0.004,
+        "significant_05": true,
+        "correction": "Holm-Bonferroni"
+      }
+    },
+    {
+      "id": "modernbert-embed-base",
+      "name": "nomic-ai/modernbert-embed-base",
+      "short_name": "ModernBERT-Embed",
+      "dim": 768,
+      "params_m": 149.0,
+      "license": "Apache-2.0",
+      "max_seq_length": 8192,
+      "truncation": {
+        "truncated_chunks": 0,
+        "total_chunks": 55,
+        "truncation_rate_pct": 0.0
+      },
+      "metrics": {
+        "ndcg10": 0.8329,
+        "ndcg10_ci95": [
+          0.75,
+          0.9158
+        ],
+        "ndcg4": 0.7783,
+        "recall20": 1.0,
+        "mrr10": 0.8333,
+        "hit1": 0.75,
+        "hit3": 1.0,
+        "hit5": 1.0
+      },
+      "efficiency": {
+        "latency_p50_ms": 128.48,
+        "latency_p95_ms": 135.69,
+        "throughput_chunks_sec": 0.8,
+        "peak_rss_mb": 884.9
+      },
+      "paired_test_vs_baseline": {
+        "delta_ndcg10": -0.1176,
+        "delta_ndcg10_ci95": [
+          -0.2004,
+          -0.0347
+        ],
+        "p_value_raw": 0.001,
+        "p_value_adjusted": 0.004,
+        "significant_05": true,
+        "correction": "Holm-Bonferroni"
+      }
+    }
+  ],
+  "dual_axis_conclusions": {
+    "best_retrieval_quality": {
+      "model_id": "snowflake-arctic-embed-s",
+      "model_name": "Snowflake/snowflake-arctic-embed-s",
+      "ndcg10": 0.8832,
+      "rationale": "Highest retrieval nDCG@10 rank performance across evaluation set."
+    },
+    "chosen_deployment_model": {
+      "model_id": "all-MiniLM-L6-v2",
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+      "ndcg10": 0.7153,
+      "latency_p50_ms": 18.03,
+      "peak_rss_mb": 448.8,
+      "rationale": "Optimal Pareto trade-off between statistical accuracy, low CPU latency, and low memory footprint."
+    }
+  }
+}

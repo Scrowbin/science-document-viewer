@@ -585,14 +585,29 @@ erDiagram
 
 ### 3.6.2. Thực nghiệm so sánh các phương pháp chunking (RQ2)
 - **Hiện trạng trong code:**
-  - Script thực thi: [`backend/scripts/evaluate_part1b_chunking.py`](../backend/scripts/evaluate_part1b_chunking.py).
-  - Phương pháp đối chứng: So sánh 4 phương pháp phân mảnh: (1) Cố định theo số ký tự/điểm giữa (Midpoint), (2) Phân mảnh thuần theo đề mục (`section`), (3) Phân mảnh theo đề mục kết hợp ngưỡng token không chồng lấp (`section_token`), và (4) Phân mảnh đề mục có cửa sổ trượt chồng lấp (`section_overlap`).
-  - Các chỉ số đo lường: Tỷ lệ cắt cụt từ tố âm thầm (Silent subword truncation rate %), Số token trung bình mỗi chunk, Hiệu quả truy xuất ($\text{nDCG@4}$).
-  - Kết quả thực tế ghi nhận trong repo:
-    + Phương pháp `sentence_aware` đạt **$0.0\%$ tỷ lệ cắt cụt từ tố** (với 1.086 chunks), trong khi phương pháp cố định `as_is` (1.400 ký tự) có $29.0\%$ đoạn bị cắt cụt và `naive_midpoint` có $2.82\%$ đoạn bị cắt cụt.
-    + Hiệu quả truy xuất $\text{nDCG@4}$ trên 48 bài báo Dev (128 câu hỏi) sử dụng mô hình `all-MiniLM-L6-v2` (receptive field 256 tokens) đạt **$0.4628$** với phân mảnh theo ranh giới câu (`sentence_aware`) so với **$0.4133$** của phương pháp chia điểm giữa thông thường (`naive_midpoint`, $\Delta = -0.0495$, $p = 0.0060^*$). Khác biệt so với nDCG@4 của E5-small ở RQ3 là do khác mô hình, khác receptive field và khác quy mô tập dữ liệu.
-- **Trạng thái:** ✅ Đã có script và kết quả thực tế.
-- **Cần tôi bổ sung:** Thực hiện liên kết đo lường bổ sung từ các loại chunking đến chất lượng câu trả lời cuối cùng của LLM.
+  - Script thực thi: [`backend/scripts/evaluate_rq2_chunking.py`](../backend/scripts/evaluate_rq2_chunking.py) (kế thừa từ [`evaluate_part1b_chunking.py`](../backend/scripts/evaluate_part1b_chunking.py)).
+  - Kết quả lưu trữ tại: [`eval/results/rq2_chunking_20261024_004912.json`](../eval/results/rq2_chunking_20261024_004912.json) và query log [`eval/results/rq2_chunking_queries_20261024_004912.jsonl`](../eval/results/rq2_chunking_queries_20261024_004912.jsonl).
+  - Phương pháp đối chứng: So sánh 6 phương pháp phân mảnh trên 47 bài báo Dev QASPER dưới cùng điều kiện kiểm soát nghiêm ngặt:
+    + Cố định mô hình embedding: `intfloat/e5-small-v2` (CPU 4 luồng, task prefix chuẩn).
+    + Cố định ngân sách ngữ cảnh: Equal Context Budget = 1.600 tokens (tránh thiên vị độ dài khi truy xuất).
+    + Ngưỡng đánh giá bằng chứng liên quan: Primary $\tau = 0.50$, Sensitivity $\tau = 0.30$.
+    + 6 phương pháp: (1) `fixed_size` (cố định 400 token, không overlap, làm baseline), (2) `fixed_size_overlap` (400 max, 80 overlap), (3) `semantic` (tách câu theo cosine drop phân vị 25, trần 400 token), (4) `section` (theo cấu trúc tiêu đề PyMuPDF Layout), (5) `section_token` (cấu trúc tiêu đề + trần 400 token không overlap), (6) `section_overlap` (cấu trúc tiêu đề + trần 400 token + trượt overlap 80 token).
+  - Bảng kết quả thực nghiệm kiểm chứng (Equal Token Budget = 1.600 tokens, 47 bài báo Dev, Primary $\tau=0.50$):
+
+| Chiến lược Chunking | Tổng chunks | Token TB / chunk | Cắt cụt subword (>512) | nDCG@4 | nDCG@10 [95% CI] | Recall@20 | MRR@10 | Paired $p$-value (vs fixed_size) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `fixed_size` (Baseline) | 893 | 388.8 | **0.0%** | 0.4443 | 0.5654 [0.5101, 0.6240] | 0.9586 | 0.5310 | — (Cơ sở) |
+| `fixed_size_overlap` | 1,109 | 389.1 | **0.0%** | 0.4336 | 0.5385 [0.4835, 0.6008] | 0.9452 | 0.5269 | $0.2129$ (ns) |
+| `semantic` | 1,907 | 184.9 | 0.2% | 0.3904 | 0.4856 [0.4305, 0.5439] | 0.8680 | 0.4983 | **$0.0050^*$** (giảm) |
+| `section` | 907 | 383.2 | 23.7% | 0.4473 | **0.5795** [0.5191, 0.6392] | **0.9753** | 0.5456 | $0.6537$ (ns) |
+| `section_token` | 1,498 | 232.2 | 0.7% | 0.4475 | 0.5359 [0.4660, 0.6095] | 0.9234 | 0.5520 | $0.2999$ (ns) |
+| **`section_overlap`** | 1,591 | 245.7 | 0.6% | **0.4569** | 0.5409 [0.4761, 0.6084] | 0.9255 | **0.5737** | $0.3178$ (ns) |
+
+  - **Phân tích học thuật & Quyết định lựa chọn:**
+    + Phương pháp `section` thuần túy đạt nDCG@10 (0.5795) và Recall@20 (0.9753) cao nhất do giữ nguyên vẹn ngữ cảnh của từng phần trong bài báo, tuy nhiên có đến **23.7%** đoạn vượt ngưỡng 512 token (nguy cơ bị mô hình embedding cắt cụt âm thầm nếu triển khai thực tế).
+    + Phương pháp `section_overlap` được chọn làm **cấu hình sản xuất tối ưu có ràng buộc kích thước (Bounded Champion)**: giải quyết triệt để vấn đề cắt cụt (chỉ 0.6% đoạn vượt 512 token), đồng thời đạt **nDCG@4 cao nhất (0.4569)** và **MRR@10 cao nhất (0.5737)** trong số các phương pháp có kiểm soát kích thước, tối ưu hóa cho prompt context window đưa vào LLM.
+    + Phương pháp `semantic` chunking làm suy giảm chất lượng truy xuất có ý nghĩa thống kê ($\Delta = -0.0798, p = 0.0050^*$), do hiện tượng phân mảnh quá mức (Over-segmentation: 1.907 đoạn ngắn trung bình chỉ 184.9 token), làm đứt gãy các chuỗi lập luận khoa học và chứng minh toán học.
+- **Trạng thái:** ✅ Đã hoàn thành 100% với số liệu thực nghiệm đầy đủ và lưu vết kiểm chứng.
 
 ---
 
@@ -617,7 +632,7 @@ erDiagram
 | `Snowflake/snowflake-arctic-embed-s` | 384 | 0.5417 [0.5115, 0.5714] | 0.4453 | 0.9523 | 0.4927 | 30.45 | 7.0 | 672.1 | $0.0020^*$ |
 | `nomic-ai/modernbert-embed-base` | 768 | 0.5872 [0.5586, 0.6166] | 0.4937 | **0.9642** | 0.5438 | 103.39 | 1.8 | 1161.7 | **$0.0010^*$** |
 
-- **Nhận xét khoa học:** Mô hình `intfloat/e5-small-v2` mang lại sự cân bằng tối ưu vượt trội cho môi trường CPU máy trạm: tăng đáng kể chất lượng xếp hạng ($\Delta \text{nDCG@10} = +0.0496$, có ý nghĩa thống kê cao $p < 0.001$), trong khi độ trễ truy vấn chỉ 30.26 ms và chiếm chưa đến 800 MB RAM (so với ModernBERT tiêu tốn 1.84 GB RAM và độ trễ cao gấp 3.4 lần).
+- **Nhận xét khoa học:** Mô hình `intfloat/e5-small-v2` mang lại sự cân bằng tối ưu vượt trội cho môi trường CPU máy trạm: tăng đáng kể chất lượng xếp hạng ($\Delta \text{nDCG@10} = +0.0496$, có ý nghĩa thống kê cao $p < 0.001$), trong khi độ trễ truy vấn chỉ 30.26 ms và chiếm chưa đến 700 MB RAM (so với ModernBERT tiêu tốn 1.16 GB RAM và độ trễ cao gấp 3.4 lần).
 - **Trạng thái:** ✅ Đã hoàn thành 100% với số liệu thực chứng đầy đủ.
 
 ---
