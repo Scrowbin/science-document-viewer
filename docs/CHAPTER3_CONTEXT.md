@@ -754,3 +754,35 @@ erDiagram
    - Bạn có muốn tôi thực thi chạy đo lường trực tiếp trên 5 miền của `generate_domain_benchmark.py` để xuất bảng số liệu chính thức cho mục 3.6.7 không?
 3. **Cung cấp thông số phần cứng cá nhân:**
    - Bạn hãy cung cấp thông số CPU, RAM thực tế của máy để tôi thay thế vào các vị trí `[TÔI SẼ CUNG CẤP]` trong tài liệu.
+
+---
+
+## 3.7. Danh mục sơ đồ thiết kế hệ thống và đối chiếu nghiên cứu
+
+Chi tiết kết quả kiểm toán thiết kế hệ thống, quy trình nghiệp vụ và phân tích mã nguồn được lưu trữ tại báo cáo chuyên sâu: [`docs/SYSTEM_DESIGN_AUDIT.md`](./SYSTEM_DESIGN_AUDIT.md).
+
+### 3.7.1. Danh mục sơ đồ đề xuất cho luận văn tốt nghiệp
+
+| Số hiệu hình | Tên sơ đồ | Mã nguồn sơ đồ | Mức độ ưu tiên | Vị trí khuyến nghị trong luận văn | Giá trị truyền tải học thuật |
+| :---: | :--- | :--- | :---: | :--- | :--- |
+| **Hình 3.1** | Kiến trúc tổng thể hệ thống (System Architecture) | [`docs/diagrams/system-architecture.mmd`](./diagrams/system-architecture.mmd) | **Cốt lõi (Essential)** | Mục 3.3 (Kiến trúc tổng thể hệ thống) | Minh họa rõ ràng 9 thành phần: React 19 SPA, Django 5 Modular Monolith, PostgreSQL 16, Qdrant SQLite nhúng, và Ollama LLM. |
+| **Hình 3.2** | Sơ đồ thực thể quan hệ (ERD Relational Database) | [`docs/diagrams/erd.mmd`](./diagrams/erd.mmd) | **Cốt lõi (Essential)** | Mục 3.3.4 (Thiết kế cơ sở dữ liệu) | Đặc tả 15 bảng quan hệ PostgreSQL, phân định ranh giới giữa 12 bảng hiện hành và 3 bảng mở rộng. |
+| **Hình 3.3** | Biểu đồ tuần tự nạp và lập chỉ mục tài liệu (Ingestion Sequence) | [`docs/diagrams/document-ingestion-sequence.mmd`](./diagrams/document-ingestion-sequence.mmd) | **Cốt lõi (Essential)** | Mục 3.4.4 (Quản lý và lập chỉ mục tài liệu) | Thể hiện luồng xử lý ghi: kiểm tra magic bytes `%PDF-`, xem trước trích xuất, luồng chạy ngầm in-process, và lưu trữ vector vào Qdrant. |
+| **Hình 3.4** | Biểu đồ tuần tự hỏi đáp RAG và trích dẫn số trang (RAG Q&A Sequence) | [`docs/diagrams/rag-question-answer-sequence.mmd`](./diagrams/rag-question-answer-sequence.mmd) | **Cốt lõi (Essential)** | Mục 3.5 (Tích hợp trợ lý AI & Hỏi đáp) | Thể hiện luồng đọc: truy xuất lai RRF (Dense + BM25), gọi Ollama `llama3.2:3b`, cơ chế fallback, và nhảy trang canvas qua badge `[Trang X]`. |
+| **Hình 3.5** | Biểu đồ ca sử dụng hệ thống (System Use Cases) | [`docs/diagrams/use-case.mmd`](./diagrams/use-case.mmd) | **Khuyến nghị (Recommended)** | Mục 3.3.2 (Phân tích ca sử dụng) | Tổng hợp năng lực người dùng Researcher trên 4 phân hệ: Tài khoản, Thư viện, Đọc/chú thích, và Trợ lý AI. |
+| **Hình 3.6** | Biểu đồ hoạt động quy trình người dùng (User Workflow) | [`docs/diagrams/user-workflow.mmd`](./diagrams/user-workflow.mmd) | **Khuyến nghị (Recommended)** | Mục 3.3.2 (Quy trình thao tác người dùng) | Trực quan hóa 2 hành trình chính: (1) Nạp/tổ chức tài liệu và (2) Đọc/hỏi đáp trợ lý AI. |
+
+---
+
+### 3.7.2. Bảng đối chiếu cấu hình nghiên cứu thực nghiệm (RQ1–RQ3) và ứng dụng thực tế
+
+| Mắt xích Pipeline | Cấu hình nghiên cứu kiểm chứng trong RQ1–RQ3 | Cấu hình ứng dụng kiểm chứng trong code | Quan hệ (Giống / Khác) | Ý nghĩa đối với luận văn |
+| :--- | :--- | :--- | :---: | :--- |
+| **Trích xuất văn bản PDF** | So sánh PyMuPDF Layout-Aware vs GROBID TEI XML vs `pypdf` trên 207 bài Dev QASPER và 4 bài Pilot. Đo 1-CER và Heading Recall (100% pilot, 56.5% dev). | Trình trích xuất chính: PyMuPDF Layout-Aware (`chunking_utils.py::extract_sections_from_pdf`). Trình dự phòng phụ: GROBID TEI XML (`process_pdf_with_grobid`). | **Giống nhau ở bộ engine chính** | PyMuPDF được chứng minh thực nghiệm vượt trội và được chọn làm engine sản xuất vì chạy nội bộ không cần máy chủ ngoài. |
+| **Chiến lược phân mảnh (Chunking)** | Đánh giá 6 chiến lược đơn tầng và 1 chiến lược phân cấp (`hierarchical` small-to-big) trên 47 bài Dev dưới ngân sách 1.600 tokens. `hierarchical` đạt quán quân ($\text{nDCG@10} = 0.6880$, $p=0.0010^*$). Trong nhóm đơn tầng, `section_overlap` tối ưu nhất ($\text{nDCG@4} = 0.4569$). | Mặc định vận hành: `section_overlap` (`max_tokens=400, overlap=80`). Hỗ trợ kiểm tra live qua modal `<ChunkInspectorModal>` và API `/chunks/`. `hierarchical` chưa đưa lên UI. | **Khác biệt giữa mặc định runtime và quán quân nghiên cứu** | Luận văn trình bày `section_overlap` là cấu hình đang chạy thực tế, và phân tích `hierarchical` là định hướng nâng cấp tiềm năng đã được chứng minh định lượng. |
+| **Mô hình Dense Embedding** | Đo kiểm 5 mô hình $\le 335$M tham số trên CPU AMD Ryzen 5 5600 (4 luồng) qua 207 bài / 615 câu hỏi / 5.207 chunks. Quán quân cân bằng CPU: `intfloat/e5-small-v2` ($\text{nDCG@10} = 0.5522$, $p < 0.001$, Latency P50 = 30.26ms, Peak RAM = 659.8MB). | Mặc định vận hành: `intfloat/e5-small-v2` (384 chiều, khoảng cách cosine) trong `rag_service.py` qua SentenceTransformers với FastEmbed fallback. Áp tiền tố bất đối xứng chuẩn (`query: ` và `passage: `). | **Hoàn toàn giống nhau** | Kết quả thực nghiệm RQ3 trực tiếp chứng minh và lựa chọn mô hình đang hoạt động trên hệ thống thực tế. |
+| **Tìm kiếm vector & Lập chỉ mục** | Tính toán độ tương đồng Cosine chính xác (Exact BLAS) trên ma trận vector FP32 L2-normalized bằng NumPy, tách rời khỏi sai số xấp xỉ đồ thị HNSW. | `QdrantClient(path='media/qdrant_db')` chế độ nhúng SQLite cục bộ. Ở chế độ này, Qdrant quét cosine chính xác trên bảng SQLite theo `document_id`. | **Hoàn toàn tương đồng về mặt toán học** | Cơ sở dữ liệu vector nhúng ở chế độ local bảo đảm kết quả xếp hạng thực tế hoàn toàn trùng khớp với đánh giá khoa học trong thực nghiệm. |
+| **Tiền tố tác vụ (Task Prefixes)** | Áp dụng tiền tố đối xứng/bất đối xứng kiểm tra qua `test_prefixes.py`: `"query: "` và `"passage: "` cho dòng E5. | Hàm tập trung `get_model_prefix` và từ điển `MODEL_PREFIX_SPECS` trong `rag_service.py`, tự động gắn tiền tố khi nạp vector và khi truy vấn. | **Hoàn toàn giống nhau** | Tránh hiện tượng suy giảm không gian biểu diễn do thiếu tiền tố truy vấn ở cả mã nguồn và thực nghiệm. |
+| **Chiến lược truy xuất** | So sánh Dense-only vs BM25-only vs Hybrid RRF ($k=60$). Hybrid đạt Hit@5 = 74.3% (vượt Dense 68.5% và BM25 63.1%). | `DocumentRAG.hybrid_search` cài đặt Hybrid RRF ($k=60$) kết hợp điểm Dense Cosine và BM25Okapi, trích xuất top-5 chunks. | **Hoàn toàn giống nhau** | Hệ thống áp dụng chính xác thuật toán Hybrid RRF với cùng tham số $k=60$ đã được kiểm chứng. |
+| **Sinh lời đáp qua LLM** | Khảo sát mô hình ngôn ngữ lớn cục bộ qua Ollama (`llama3.2:3b`). | Ollama cục bộ (`llama3.2:3b`) tại `http://localhost:11434` kèm cơ chế Grounded Synthesis Fallback khi máy chủ AI tạm ngắt kết nối. | **Hoàn toàn giống nhau** | Hệ thống thực tế gọi trực tiếp mô hình `llama3.2:3b` trên máy trạm cá nhân. |
+

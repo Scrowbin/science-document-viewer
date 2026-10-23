@@ -30,24 +30,24 @@ RECOMMENDED_DOMAIN_PAPERS = {
             "filename": "FlashAttention.pdf",
         },
         {
-            "arxiv_id": "1407.7027",
-            "title": "In Search of an Understandable Consensus Algorithm (Extended Version)",
-            "domain": "Distributed Systems & Reliability",
-            "filename": "Raft.pdf",
+            "arxiv_id": "1909.08053",
+            "title": "Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism",
+            "domain": "Distributed Systems & Model Parallelism",
+            "filename": "Megatron_LM.pdf",
         },
     ],
     "biomedicine": [
         {
-            "arxiv_id": "2106.05943",
-            "title": "Highly accurate protein structure prediction with AlphaFold",
-            "domain": "Biomedicine & Structural Biology",
-            "filename": "AlphaFold2.pdf",
+            "arxiv_id": "1505.04597",
+            "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+            "domain": "Biomedicine & Medical Imaging",
+            "filename": "UNet_Biomedical.pdf",
         },
         {
-            "arxiv_id": "2003.10931",
-            "title": "Cryo-EM structure of the 2019-nCoV spike in the prefusion conformation",
-            "domain": "Virology & Structural Immunology",
-            "filename": "Spike_Structure.pdf",
+            "arxiv_id": "1901.08746",
+            "title": "BioBERT: a pre-trained biomedical language representation model for biomedical text mining",
+            "domain": "Biomedical Text Mining & Bioinformatics",
+            "filename": "BioBERT.pdf",
         },
     ],
     "physics": [
@@ -58,10 +58,10 @@ RECOMMENDED_DOMAIN_PAPERS = {
             "filename": "Quantum_Supremacy.pdf",
         },
         {
-            "arxiv_id": "0808.2659",
-            "title": "Electronic properties of graphene",
-            "domain": "Condensed Matter Physics & Nanomaterials",
-            "filename": "Graphene_Properties.pdf",
+            "arxiv_id": "1707.03476",
+            "title": "Breaking the 49-Qubit Barrier in the Simulation of Quantum Circuits",
+            "domain": "Quantum Physics & Classical Simulation",
+            "filename": "Quantum_Simulation.pdf",
         },
     ],
     "vision": [
@@ -157,8 +157,15 @@ Output ONLY valid JSON following this schema:
 
 
 ARXIV_TO_PDF_FILENAMES = {
+    "2205.14135": ["FlashAttention.pdf"],
+    "1909.08053": ["Megatron_LM.pdf"],
+    "1505.04597": ["UNet_Biomedical.pdf"],
+    "1901.08746": ["BioBERT.pdf"],
+    "1910.11333": ["Quantum_Supremacy.pdf"],
+    "1707.03476": ["Quantum_Simulation.pdf"],
+    "1512.03385": ["deep_residual.pdf"],
+    "2103.00020": ["CLIP.pdf"],
     "1706.03762": ["Attention.pdf", "1706.03762v7.pdf"],
-    "1512.03385": ["deep_residual.pdf", "1512.03385.pdf"],
     "2106.09685": ["LoRa.pdf", "2106.09685.pdf"],
     "2005.11401": ["Retrieval-Augmented.pdf", "2005.11401.pdf"],
 }
