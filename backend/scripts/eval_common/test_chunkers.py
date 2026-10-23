@@ -102,3 +102,34 @@ def test_chunk_document_unified():
     c_fixed = chunk_document_unified(sections, strategy="fixed_size", max_tokens=40)
     assert len(c_fixed) >= 1
     assert c_fixed[0]["strategy"] == "fixed_size"
+    # 3. Hierarchical
+    c_hier = chunk_document_unified(sections, strategy="hierarchical")
+    assert len(c_hier) >= 2
+    assert "parent_id" in c_hier[0]
+
+
+def test_chunk_hierarchical():
+    long_section_text = " ".join([f"word{i}" for i in range(250)])
+    sections = [
+        {"heading": "Abstract", "text": "Short abstract text.", "start_page": 1},
+        {"heading": "Architecture", "text": long_section_text, "start_page": 2},
+    ]
+    chunks = chunk_document_unified(sections, strategy="hierarchical", paper_id="test_hier")
+    assert len(chunks) >= 3
+    for c in chunks:
+        assert "parent_id" in c
+        assert "parent_text" in c
+        assert "parent_tokens" in c
+        assert c["paper_arxiv_id"] == "test_hier"
+        assert c["strategy"] == "hierarchical"
+
+
+if __name__ == "__main__":
+    test_estimate_tokens()
+    test_split_sentences()
+    test_chunk_fixed_size()
+    test_chunk_fixed_size_overlap()
+    test_chunk_semantic()
+    test_chunk_document_unified()
+    test_chunk_hierarchical()
+    print("ALL 7 CHUNKER UNIT TESTS PASSED CLEANLY.")

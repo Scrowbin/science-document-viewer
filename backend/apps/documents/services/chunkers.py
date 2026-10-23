@@ -223,6 +223,80 @@ def chunk_semantic(
     return chunks
 
 
+def chunk_hierarchical(
+    sections: List[Dict[str, Any]],
+    child_max_tokens: int = 200,
+    child_overlap: int = 40,
+    paper_id: str = "doc",
+) -> List[Dict[str, Any]]:
+    """
+    Hierarchical (Small-to-Big) chunking strategy:
+      - Parent level: Document sections preserving full discourse boundaries.
+      - Child level: Granular sub-chunks (200 tokens max, 40 overlap) for precise vector embedding.
+      - Each child carries parent metadata ('parent_id', 'parent_text', 'parent_tokens')
+        and formats text with parent heading context for enriched semantic matching.
+    """
+    child_chunks: List[Dict[str, Any]] = []
+    child_max_words = max(15, int(child_max_tokens / 1.33))
+    child_overlap_words = max(0, int(child_overlap / 1.33))
+    step_words = max(10, child_max_words - child_overlap_words)
+
+    for sec_idx, sec in enumerate(sections):
+        parent_id = f"{paper_id}_parent_{sec_idx:03d}"
+        heading = sec.get("heading") or sec.get("title") or "Untitled Section"
+        parent_text = (sec.get("text") or "").strip()
+        first_page = sec.get("start_page", sec.get("page", 1))
+        if not parent_text:
+            continue
+
+        parent_tokens = estimate_tokens(parent_text)
+        words = parent_text.split()
+
+        if len(words) <= child_max_words:
+            chunk_text = parent_text
+            formatted_text = f"[{heading}]\n{chunk_text}" if heading != "Untitled Section" else chunk_text
+            child_chunks.append({
+                "chunk_id": f"{parent_id}_c000",
+                "paper_arxiv_id": paper_id,
+                "parent_id": parent_id,
+                "parent_text": parent_text,
+                "parent_tokens": parent_tokens,
+                "section": heading,
+                "page": first_page,
+                "strategy": "hierarchical",
+                "token_count": estimate_tokens(chunk_text),
+                "text": formatted_text,
+                "child_text": chunk_text,
+                "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
+            })
+            continue
+
+        start_idx = 0
+        c_idx = 0
+        while start_idx < len(words):
+            slice_words = words[start_idx : start_idx + child_max_words]
+            chunk_text = " ".join(slice_words)
+            formatted_text = f"[{heading}]\n{chunk_text}" if heading != "Untitled Section" else chunk_text
+            child_chunks.append({
+                "chunk_id": f"{parent_id}_c{c_idx:03d}",
+                "paper_arxiv_id": paper_id,
+                "parent_id": parent_id,
+                "parent_text": parent_text,
+                "parent_tokens": parent_tokens,
+                "section": heading,
+                "page": first_page,
+                "strategy": "hierarchical",
+                "token_count": estimate_tokens(chunk_text),
+                "text": formatted_text,
+                "child_text": chunk_text,
+                "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
+            })
+            c_idx += 1
+            start_idx += step_words
+
+    return child_chunks
+
+
 def chunk_document_unified(
     sections: List[Dict[str, Any]],
     strategy: str = "section_overlap",
@@ -233,7 +307,7 @@ def chunk_document_unified(
     paper_id: str = "doc",
 ) -> List[Dict[str, Any]]:
     """
-    Unified entry point for all 6 chunking strategies.
+    Unified entry point for all 7 chunking strategies.
     Preserves exact backwards compatibility with chunk_sections.
     """
     if strategy == "fixed_size":
@@ -244,6 +318,8 @@ def chunk_document_unified(
         if embedder is None:
             raise ValueError("strategy='semantic' requires an initialized embedder instance")
         return chunk_semantic(sections, embedder=embedder, max_tokens=max_tokens, percentile_threshold=semantic_percentile, paper_id=paper_id)
+    elif strategy in ("hierarchical", "hierarchical_child"):
+        return chunk_hierarchical(sections, child_max_tokens=200, child_overlap=40, paper_id=paper_id)
     else:
         # Standard structure-aware strategies: section, section_token, section_overlap
         from .chunking_utils import chunk_sections

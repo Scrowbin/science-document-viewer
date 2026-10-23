@@ -599,15 +599,18 @@ erDiagram
 | `fixed_size` (Baseline) | 893 | 388.8 | **0.0%** | 0.4443 | 0.5654 [0.5101, 0.6240] | 0.9586 | 0.5310 | — (Cơ sở) |
 | `fixed_size_overlap` | 1,109 | 389.1 | **0.0%** | 0.4336 | 0.5385 [0.4835, 0.6008] | 0.9452 | 0.5269 | $0.2129$ (ns) |
 | `semantic` | 1,907 | 184.9 | 0.2% | 0.3904 | 0.4856 [0.4305, 0.5439] | 0.8680 | 0.4983 | **$0.0050^*$** (giảm) |
-| `section` | 907 | 383.2 | 23.7% | 0.4473 | **0.5795** [0.5191, 0.6392] | **0.9753** | 0.5456 | $0.6537$ (ns) |
+| `section` | 907 | 383.2 | 23.7% | 0.4473 | 0.5795 [0.5191, 0.6392] | 0.9753 | 0.5456 | $0.6537$ (ns) |
 | `section_token` | 1,498 | 232.2 | 0.7% | 0.4475 | 0.5359 [0.4660, 0.6095] | 0.9234 | 0.5520 | $0.2999$ (ns) |
-| **`section_overlap`** | 1,591 | 245.7 | 0.6% | **0.4569** | 0.5409 [0.4761, 0.6084] | 0.9255 | **0.5737** | $0.3178$ (ns) |
+| `section_overlap` | 1,591 | 245.7 | 0.6% | 0.4569 | 0.5409 [0.4761, 0.6084] | 0.9255 | 0.5737 | $0.3178$ (ns) |
+| **`hierarchical` (Small-to-Big)** | 2,618 | 158.3 | **0.0%** | **0.5933** | **0.6880** [0.6348, 0.7371] | **0.9873** | **0.6468** | **$0.0010^*$** (vượt trội) |
+| `hierarchical_child` | 2,618 | 158.3 | **0.0%** | 0.3791 | 0.4473 [0.3883, 0.5052] | 0.7781 | 0.4816 | **$0.0020^*$** (giảm nếu không bung parent) |
 
   - **Phân tích học thuật & Quyết định lựa chọn:**
-    + Phương pháp `section` thuần túy đạt nDCG@10 (0.5795) và Recall@20 (0.9753) cao nhất do giữ nguyên vẹn ngữ cảnh của từng phần trong bài báo, tuy nhiên có đến **23.7%** đoạn vượt ngưỡng 512 token (nguy cơ bị mô hình embedding cắt cụt âm thầm nếu triển khai thực tế).
-    + Phương pháp `section_overlap` được chọn làm **cấu hình sản xuất tối ưu có ràng buộc kích thước (Bounded Champion)**: giải quyết triệt để vấn đề cắt cụt (chỉ 0.6% đoạn vượt 512 token), đồng thời đạt **nDCG@4 cao nhất (0.4569)** và **MRR@10 cao nhất (0.5737)** trong số các phương pháp có kiểm soát kích thước, tối ưu hóa cho prompt context window đưa vào LLM.
+    + **Phương pháp `hierarchical` (Small-to-Big Parent Document Retrieval) đạt hiệu quả vượt trội toàn diện**: đạt **nDCG@10 = 0.6880** (tăng $+0.1225$, $p = 0.0010^*$), **nDCG@4 = 0.5933**, **Recall@20 = 0.9873** và **0.0% nguy cơ cắt cụt subword**. Cơ chế này tận dụng vector chunk con nhỏ (158 token) để đạt độ nhạy so khớp ngữ nghĩa cực cao, sau đó mở rộng ngữ cảnh cha (parent section) để cung cấp trọn vẹn lập luận học thuật cho LLM trong ngân sách 1.600 token.
+    + Khi không mở rộng ngữ cảnh cha (`hierarchical_child`), điểm số giảm mạnh xuống nDCG@10 = 0.4473 ($p=0.0020^*$). Điều này chứng minh thực nghiệm giả thuyết rằng các đoạn văn bản quá ngắn bị mất tính toàn vẹn thông tin nếu không được hỗ trợ bởi ngữ cảnh phân cấp cha.
+    + Trong các phương pháp phân mảnh đơn tầng (Flat Chunking), `section_overlap` vẫn là giải pháp cân bằng tốt nhất (0.6% cắt cụt, nDCG@4 = 0.4569).
     + Phương pháp `semantic` chunking làm suy giảm chất lượng truy xuất có ý nghĩa thống kê ($\Delta = -0.0798, p = 0.0050^*$), do hiện tượng phân mảnh quá mức (Over-segmentation: 1.907 đoạn ngắn trung bình chỉ 184.9 token), làm đứt gãy các chuỗi lập luận khoa học và chứng minh toán học.
-- **Trạng thái:** ✅ Đã hoàn thành 100% với số liệu thực nghiệm đầy đủ và lưu vết kiểm chứng.
+- **Trạng thái:** ✅ Đã hoàn thành 100% với số liệu thực nghiệm đầy đủ và lưu vết kiểm chứng (`eval/results/rq2_chunking_20261024_013443.json`).
 
 ---
 

@@ -73,6 +73,8 @@ CHUNK_STRATEGIES = [
     "section",
     "section_token",
     "section_overlap",
+    "hierarchical",
+    "hierarchical_child",
 ]
 
 
@@ -83,10 +85,13 @@ def evaluate_retrieval_with_matrix(
     paper_id: str,
     tau: float = 0.50,
     context_budget_tokens: int = 1600,
+    is_hierarchical_parent: bool = False,
 ) -> Dict[str, Any]:
     """
     Evaluates dense retrieval across precomputed similarity matrix for given paper and queries.
     Avoids re-encoding chunks or queries when evaluating sensitivity thresholds or different metrics.
+    When is_hierarchical_parent is True, performs Small-to-Big retrieval:
+    fine-grained child chunks are scored, but unique parent sections are retrieved into context.
     """
     if len(chunks) == 0 or len(queries) == 0:
         return {
@@ -105,50 +110,114 @@ def evaluate_retrieval_with_matrix(
     budget_cov_list = []
     query_records = []
 
-    for q_idx, q in enumerate(queries):
-        quote = q.get("verbatim_evidence_quote", "")
-        ev_list = q.get("evidence_list", [])
-        R_q = count_relevant_chunks(chunks, paper_id, quote, ev_list, tau=tau)
+    if is_hierarchical_parent:
+        unique_parents: Dict[str, Dict[str, Any]] = {}
+        for c in chunks:
+            p_id = c.get("parent_id")
+            if p_id and p_id not in unique_parents:
+                unique_parents[p_id] = {
+                    "chunk_id": p_id,
+                    "paper_arxiv_id": paper_id,
+                    "section": c.get("section", ""),
+                    "page": c.get("page", 1),
+                    "text": c.get("parent_text", ""),
+                    "token_count": c.get("parent_tokens", estimate_tokens(c.get("parent_text", ""))),
+                }
 
-        ranked_indices = np.argsort(-sim_matrix[q_idx])
-        ranked_rels = [
-            1 if is_chunk_hit(chunks[i], paper_id, quote, ev_list, tau=tau) else 0
-            for i in ranked_indices
-        ]
+        for q_idx, q in enumerate(queries):
+            quote = q.get("verbatim_evidence_quote", "")
+            ev_list = q.get("evidence_list", [])
+            R_q = count_relevant_chunks(list(unique_parents.values()), paper_id, quote, ev_list, tau=tau)
 
-        ndcg4 = compute_ndcg(ranked_rels, R_q, k=4)
-        ndcg10 = compute_ndcg(ranked_rels, R_q, k=10)
-        rec20 = compute_recall(ranked_rels, R_q, k=20)
-        mrr10 = compute_mrr(ranked_rels, k=10)
+            ranked_child_indices = np.argsort(-sim_matrix[q_idx])
+            seen_parents = set()
+            ranked_parents = []
+            for c_idx in ranked_child_indices:
+                p_id = chunks[c_idx].get("parent_id")
+                if p_id and p_id not in seen_parents:
+                    seen_parents.add(p_id)
+                    ranked_parents.append(unique_parents[p_id])
 
-        # Equal Token Budget Context Coverage:
-        # Accumulate top-ranked chunks until total tokens reach context_budget_tokens
-        accum_tokens = 0
-        budget_has_evidence = 0
-        for r_idx in ranked_indices:
-            c = chunks[r_idx]
-            accum_tokens += c.get("token_count", estimate_tokens(c.get("text", "")))
-            if is_chunk_hit(c, paper_id, quote, ev_list, tau=tau):
-                budget_has_evidence = 1
-            if accum_tokens >= context_budget_tokens:
-                break
+            ranked_rels = [
+                1 if is_chunk_hit(p, paper_id, quote, ev_list, tau=tau) else 0
+                for p in ranked_parents
+            ]
 
-        ndcg4_list.append(ndcg4)
-        ndcg10_list.append(ndcg10)
-        rec20_list.append(rec20)
-        mrr10_list.append(mrr10)
-        budget_cov_list.append(budget_has_evidence)
+            ndcg4 = compute_ndcg(ranked_rels, R_q, k=4)
+            ndcg10 = compute_ndcg(ranked_rels, R_q, k=10)
+            rec20 = compute_recall(ranked_rels, R_q, k=20)
+            mrr10 = compute_mrr(ranked_rels, k=10)
 
-        query_records.append({
-            "paper_arxiv_id": paper_id,
-            "query_id": q.get("id", q.get("query_id")),
-            "ndcg4": round(ndcg4, 4),
-            "ndcg10": round(ndcg10, 4),
-            "recall20": round(rec20, 4),
-            "mrr10": round(mrr10, 4),
-            "budget_covered": budget_has_evidence,
-            "R_q": R_q,
-        })
+            accum_tokens = 0
+            budget_has_evidence = 0
+            for p in ranked_parents:
+                accum_tokens += p.get("token_count", estimate_tokens(p.get("text", "")))
+                if is_chunk_hit(p, paper_id, quote, ev_list, tau=tau):
+                    budget_has_evidence = 1
+                if accum_tokens >= context_budget_tokens:
+                    break
+
+            ndcg4_list.append(ndcg4)
+            ndcg10_list.append(ndcg10)
+            rec20_list.append(rec20)
+            mrr10_list.append(mrr10)
+            budget_cov_list.append(budget_has_evidence)
+
+            query_records.append({
+                "paper_arxiv_id": paper_id,
+                "query_id": q.get("id", q.get("query_id")),
+                "ndcg4": round(ndcg4, 4),
+                "ndcg10": round(ndcg10, 4),
+                "recall20": round(rec20, 4),
+                "mrr10": round(mrr10, 4),
+                "budget_covered": budget_has_evidence,
+                "R_q": R_q,
+            })
+    else:
+        for q_idx, q in enumerate(queries):
+            quote = q.get("verbatim_evidence_quote", "")
+            ev_list = q.get("evidence_list", [])
+            R_q = count_relevant_chunks(chunks, paper_id, quote, ev_list, tau=tau)
+
+            ranked_indices = np.argsort(-sim_matrix[q_idx])
+            ranked_rels = [
+                1 if is_chunk_hit(chunks[i], paper_id, quote, ev_list, tau=tau) else 0
+                for i in ranked_indices
+            ]
+
+            ndcg4 = compute_ndcg(ranked_rels, R_q, k=4)
+            ndcg10 = compute_ndcg(ranked_rels, R_q, k=10)
+            rec20 = compute_recall(ranked_rels, R_q, k=20)
+            mrr10 = compute_mrr(ranked_rels, k=10)
+
+            # Equal Token Budget Context Coverage:
+            # Accumulate top-ranked chunks until total tokens reach context_budget_tokens
+            accum_tokens = 0
+            budget_has_evidence = 0
+            for r_idx in ranked_indices:
+                c = chunks[r_idx]
+                accum_tokens += c.get("token_count", estimate_tokens(c.get("text", "")))
+                if is_chunk_hit(c, paper_id, quote, ev_list, tau=tau):
+                    budget_has_evidence = 1
+                if accum_tokens >= context_budget_tokens:
+                    break
+
+            ndcg4_list.append(ndcg4)
+            ndcg10_list.append(ndcg10)
+            rec20_list.append(rec20)
+            mrr10_list.append(mrr10)
+            budget_cov_list.append(budget_has_evidence)
+
+            query_records.append({
+                "paper_arxiv_id": paper_id,
+                "query_id": q.get("id", q.get("query_id")),
+                "ndcg4": round(ndcg4, 4),
+                "ndcg10": round(ndcg10, 4),
+                "recall20": round(rec20, 4),
+                "mrr10": round(mrr10, 4),
+                "budget_covered": budget_has_evidence,
+                "R_q": R_q,
+            })
 
     return {
         "ndcg4": ndcg4_list,
@@ -173,7 +242,7 @@ def run_rq2_chunking_benchmark(
 
     print("=" * 80)
     print("RQ2: COMPREHENSIVE DOCUMENT CHUNKING BENCHMARK (RETRIEVAL ONLY)")
-    print("Strategies: fixed_size, fixed_size_overlap, semantic, section, section_token, section_overlap")
+    print(f"Strategies: {', '.join(CHUNK_STRATEGIES)}")
     print(f"Fixed Embedding: intfloat/e5-small-v2 (CPU 4 threads) | Equal Context Budget: {context_budget_tokens} tokens")
     print(f"Relevance Thresholds: Primary tau={tau_primary:.2f}, Sensitivity tau={tau_secondary:.2f}")
     print(f"Scope: RQ2 hiện chỉ đánh giá hiệu quả truy xuất; phần answer quality để đợt sau.")
@@ -306,6 +375,7 @@ def run_rq2_chunking_benchmark(
                 paper_id=aid,
                 tau=tau_primary,
                 context_budget_tokens=context_budget_tokens,
+                is_hierarchical_parent=(st == "hierarchical"),
             )
             strat_data[st]["queries_by_paper_ndcg10_pri"][aid].extend(res_pri["ndcg10"])
             strat_data[st]["queries_by_paper_ndcg4_pri"][aid].extend(res_pri["ndcg4"])
@@ -321,6 +391,7 @@ def run_rq2_chunking_benchmark(
                 paper_id=aid,
                 tau=tau_secondary,
                 context_budget_tokens=context_budget_tokens,
+                is_hierarchical_parent=(st == "hierarchical"),
             )
             strat_data[st]["queries_by_paper_ndcg10_sec"][aid].extend(res_sec["ndcg10"])
             strat_data[st]["queries_by_paper_ndcg4_sec"][aid].extend(res_sec["ndcg4"])
