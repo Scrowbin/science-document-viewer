@@ -1,4 +1,5 @@
 """Django settings for Scientific Document Manager project."""
+
 import os
 from pathlib import Path
 from datetime import timedelta

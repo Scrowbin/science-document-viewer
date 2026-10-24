@@ -163,6 +163,7 @@ def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
     """
     try:
         from grobid_client.grobid_client import GrobidClient
+        import shutil, tempfile
 
         project_root = Path(settings.BASE_DIR).parent
         xml_store = project_root / "xml_store"
@@ -170,22 +171,38 @@ def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
 
         config_path = os.path.join(settings.BASE_DIR, "grobid.json")
 
-        client = GrobidClient(config_path=config_path)
-        client.process(
-            service="processFulltextDocument",
-            input_path=pdf_path,
-            output=str(xml_store),
-            consolidate_header=True,
-            consolidate_citations=False,
-            include_raw_citations=False,
-            segment_sentences=True,
-            force=True,
-        )
+        # GrobidClient.process() requires a DIRECTORY, not a file path.
+        # Copy the single PDF into a temp dir, then process that dir.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            pdf_name = Path(pdf_path).name
+            shutil.copy2(pdf_path, os.path.join(tmp_dir, pdf_name))
 
+            client = GrobidClient(config_path=config_path)
+            client.process(
+                service="processFulltextDocument",
+                input_path=tmp_dir,
+                output=str(xml_store),
+                consolidate_header=True,
+                consolidate_citations=False,
+                include_raw_citations=False,
+                segment_sentences=True,
+                force=True,
+                n=1,
+            )
+
+        # GROBID outputs <stem>.tei.xml; handle double-extension cases too
         stem = Path(pdf_path).stem
         xml_file = xml_store / f"{stem}.tei.xml"
+        if not xml_file.exists():
+            candidates = list(xml_store.glob(f"{stem}*.xml"))
+            if candidates:
+                xml_file = sorted(candidates)[-1]
+
         if xml_file.exists():
+            logger.info(f"GROBID produced XML: {xml_file}")
             return xml_file.read_text(encoding="utf-8")
+        else:
+            logger.warning(f"GROBID ran but produced no XML for {pdf_path}")
     except Exception as e:
         logger.warning(f"GROBID TEI XML extraction failed for {pdf_path}: {e}")
 

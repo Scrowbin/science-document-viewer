@@ -158,20 +158,29 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
         )
 
     def to_internal_value(self, data):
-        # Normalize date before DRF DateTimeField validation
-        if 'date' in data:
-            date_val = data.get('date')
-            if not date_val or (isinstance(date_val, str) and not date_val.strip()):
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
-                data['date'] = None
-            elif isinstance(date_val, str):
-                cleaned = date_val.strip()
-                if len(cleaned) == 4 and cleaned.isdigit():
-                    data = data.copy() if hasattr(data, 'copy') else dict(data)
-                    data['date'] = f"{cleaned}-01-01T00:00:00Z"
-                elif len(cleaned) == 7 and cleaned[:4].isdigit() and cleaned[4] == '-' and cleaned[5:].isdigit():
-                    data = data.copy() if hasattr(data, 'copy') else dict(data)
-                    data['date'] = f"{cleaned}-01T00:00:00Z"
+        # QueryDict (multipart) keeps each key's last value only.
+        # Build a plain Python dict first so we can store real lists.
+        list_fields = ('author_names', 'tag_names', 'domain_names')
+        if hasattr(data, 'getlist'):
+            plain: dict = {}
+            for key in data.keys():
+                if key in list_fields:
+                    plain[key] = data.getlist(key)
+                else:
+                    plain[key] = data[key]
+            data = plain
+
+        # Normalize date: "2016" → "2016-01-01T00:00:00Z", "2016-05" → "2016-05-01T00:00:00Z"
+        date_val = data.get('date')
+        if date_val is None or (isinstance(date_val, str) and not date_val.strip()):
+            data['date'] = None
+        elif isinstance(date_val, str):
+            cleaned = date_val.strip()
+            if len(cleaned) == 4 and cleaned.isdigit():
+                data['date'] = f"{cleaned}-01-01T00:00:00Z"
+            elif len(cleaned) == 7 and cleaned[:4].isdigit() and cleaned[4] == '-' and cleaned[5:].isdigit():
+                data['date'] = f"{cleaned}-01T00:00:00Z"
+
         return super().to_internal_value(data)
 
     def to_representation(self, instance):

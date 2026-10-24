@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Document } from '../types';
 import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
 import { MOCK_DOCUMENTS } from '../data/mockData';
-import { createEmptyMetadata } from '../utils/documentDefaults';
 
 type ToastFn = (msg: string, type?: 'success' | 'error') => void;
 
@@ -338,32 +337,15 @@ export function useDocuments(): UseDocumentsReturn {
       showToast(`Added "${newDoc.title}" to library!`);
       handleCancelUpload();
       onOpenPdf(docWithRead);
-    } catch (err) {
-      console.warn('Backend file upload failed, creating local document:', err);
-      const cleanTitle = uploadPreviewMeta.title;
-      const fileUrl = URL.createObjectURL(uploadModalFile);
-      const localDoc: Document = {
-        id: `doc-${Date.now()}`,
-        title: cleanTitle,
-        creator: uploadPreviewMeta.authors?.join(', ') || 'Uploaded Document',
-        lastRead: 'Just now',
-        file: fileUrl,
-        metadata: createEmptyMetadata(cleanTitle, {
-          itemType: uploadPreviewMeta.item_type || 'journalArticle',
-          repository: uploadPreviewMeta.repository || 'Local Upload',
-          date: uploadPreviewMeta.date || new Date().getFullYear().toString(),
-          authors: uploadPreviewMeta.authors?.length ? uploadPreviewMeta.authors : ['Uploaded Document'],
-          extra: uploadPreviewMeta.extra || '',
-          doi: uploadPreviewMeta.doi || '',
-          tags: uploadPreviewMeta.tags || [],
-          domains: uploadPreviewMeta.domains || [],
-        }),
-      };
-      setDocuments((prev) => [localDoc, ...prev]);
-      setSelectedDocId(localDoc.id);
-      showToast(`Added "${cleanTitle}" to library!`);
-      handleCancelUpload();
-      onOpenPdf(localDoc);
+    } catch (err: unknown) {
+      // Surface the real error — do NOT create a phantom local doc.
+      // Phantom docs have fake string IDs (e.g. "doc-1234") and can never
+      // be RAG-indexed or served by the backend.
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string } }; message?: string };
+      const detail = axiosErr.response?.data?.detail || axiosErr.message || 'Unknown error';
+      const httpStatus = axiosErr.response?.status ?? 0;
+      console.error('[Upload] Backend createDocument failed:', httpStatus, detail, err);
+      showToast(`Upload failed (${httpStatus}): ${detail}. Check console for details.`);
     }
   }, [uploadModalFile, uploadPreviewMeta, handleCancelUpload]);
 

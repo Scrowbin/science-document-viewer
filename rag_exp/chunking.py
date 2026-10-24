@@ -6,6 +6,7 @@ from langchain_text_splitters import (
 from langchain_core.documents import Document
 from utils import extract_structured_body, assemble_full_text
 from langchain_experimental.text_splitter import SemanticChunker
+from langchain_huggingface import HuggingFaceEmbeddings
 
 
 def recursive_chunker(
@@ -74,7 +75,11 @@ def fixed_size_chunker(xml_text, chunk_size=550, chunk_overlap=150, benchmark=Fa
     return documents
 
 
-def semantic_chunker(xml_text, embeddings, benchmark=False):
+def semantic_chunker(xml_text, embeddings=None, benchmark=False):
+    if embeddings is None:
+        embeddings = HuggingFaceEmbeddings(
+            model_name="ibm-granite/granite-embedding-125m-english"
+        )
     text_splitter = SemanticChunker(
         embeddings=embeddings,
         breakpoint_threshold_type="percentile",
