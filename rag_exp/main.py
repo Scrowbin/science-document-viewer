@@ -1,11 +1,11 @@
-from dataclasses import dataclass, field
-from typing import Callable, List, Dict, Any
 import argparse
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List
 
 from chunking import fixed_size_chunker, recursive_chunker, semantic_chunker
 from eval import dataset_passthrough, evaluate_chunk_strategy, qasper_passthrough
-from ranx import evaluate
 from langchain_huggingface import HuggingFaceEmbeddings
+from ranx import evaluate
 
 # Registry mapping string names to actual chunker functions
 CHUNKER_REGISTRY: Dict[str, Callable] = {
@@ -28,6 +28,7 @@ class Config:
     embedding_model: str = "ibm-granite/granite-embedding-125m-english"
     dataset: str = "qasper"
     batch_size: int = 128
+    compare_all: bool = False
     metrics: List[str] = field(
         default_factory=lambda: ["precision@5", "recall@5", "f1@5", "ndcg@5"]
     )
@@ -42,7 +43,7 @@ class Config:
             type=str,
             default="fixed",
             choices=list(CHUNKER_REGISTRY.keys()),
-            help="Chunking strategy to apply",
+            help="Chunking strategy to apply (ignored if --compare-all is set)",
         )
         parser.add_argument(
             "--model",
@@ -63,6 +64,11 @@ class Config:
             help="Batch size for embedding encoding",
         )
         parser.add_argument(
+            "--compare-all",
+            action="store_true",
+            help="Run all strategies in CHUNKER_REGISTRY and generate a ranx comparison report",
+        )
+        parser.add_argument(
             "--metrics",
             nargs="+",
             default=["precision@5", "recall@5", "f1@5", "ndcg@5"],
@@ -75,6 +81,7 @@ class Config:
             embedding_model=args.model,
             dataset=args.dataset,
             batch_size=args.batch_size,
+            compare_all=args.compare_all,
             metrics=args.metrics,
         )
 
@@ -92,22 +99,46 @@ def main(cfg: Config) -> None:
     else:
         docs, qrels, queries = dataset_passthrough(cfg.dataset)
 
-    # 3. Resolve Chunker Strategy
-    chunker = CHUNKER_REGISTRY.get(cfg.chunking_strategy)
-    if chunker is None:
-        raise ValueError(
-            f"Unsupported chunking strategy '{cfg.chunking_strategy}'. "
-            f"Available: {list(CHUNKER_REGISTRY.keys())}"
+    # 3. Comparative Benchmark Path
+    if cfg.compare_all:
+        print(
+            f"\n=== Running Comparative Evaluation Across All Strategies "
+            f"| Model: {cfg.embedding_model} | Dataset: {cfg.dataset} ==="
         )
+        report = evaluate_chunk_strategy(
+            docs=docs,
+            queries=queries,
+            qrels=qrels,
+            embed_model=embed_model,
+            chunker_registry=CHUNKER_REGISTRY,
+            compare_all=True,
+            metrics=cfg.metrics,
+        )
+        print(report)
 
-    # 4. Run Evaluation
-    run = evaluate_chunk_strategy(chunker, docs, queries, embed_model)
+    # 4. Single Strategy Evaluation Path
+    else:
+        chunker = CHUNKER_REGISTRY.get(cfg.chunking_strategy)
+        if chunker is None:
+            raise ValueError(
+                f"Unsupported chunking strategy '{cfg.chunking_strategy}'. "
+                f"Available: {list(CHUNKER_REGISTRY.keys())}"
+            )
 
-    print(
-        f"--- Strategy: {cfg.chunking_strategy} | Model: {cfg.embedding_model} | Dataset: {cfg.dataset} ---"
-    )
-    results = evaluate(qrels, run, cfg.metrics)
-    print(results)
+        print(
+            f"\n--- Strategy: {cfg.chunking_strategy} | "
+            f"Model: {cfg.embedding_model} | Dataset: {cfg.dataset} ---"
+        )
+        run = evaluate_chunk_strategy(
+            docs=docs,
+            queries=queries,
+            qrels=qrels,
+            embed_model=embed_model,
+            chunk_fn=chunker,
+            compare_all=False,
+        )
+        results = evaluate(qrels, run, cfg.metrics)
+        print(results)
 
 
 if __name__ == "__main__":

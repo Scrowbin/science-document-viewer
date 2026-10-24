@@ -23,43 +23,84 @@ def dataset_passthrough(dataset_name):
     return docs, qrels, queries
 
 
-def evaluate_chunk_strategy(chunk_fn, docs, queries, embed_model):
-    chunk_corpus = []
-    chunk_map = []  # Maps chunk_index -> parent_doc_id
+def evaluate_chunk_strategy(
+    docs,
+    queries,
+    embed_model,
+    chunk_fn=None,
+    qrels=None,
+    chunker_registry=None,
+    compare_all=False,
+    metrics=None,
+):
+    # Inner helper to generate a ranx.Run for a given chunking function
+    def build_run(fn, run_name):
+        chunk_corpus = []
+        chunk_map = []  # Maps chunk_index -> parent_doc_id
 
-    # Chunk all documents
-    for doc in docs:
-        chunks = chunk_fn(doc.text, benchmark=True)
-        for c in chunks:
-            chunk_corpus.append(c.page_content)
-            chunk_map.append(doc.doc_id)
+        # Chunk all documents
+        for doc in docs:
+            chunks = fn(doc.text, benchmark=True)
+            for c in chunks:
+                chunk_corpus.append(c.page_content)
+                chunk_map.append(doc.doc_id)
 
-    # Encode chunks
-    chunk_embeddings = np.array(embed_model.embed_documents(chunk_corpus))
-    # Run retrieval for each query
-    run_dict = {}
-    for q in queries:
-        query_emb = np.array(embed_model.embed_query(q.text))
-        # Cosine Similarity
-        scores = query_emb @ chunk_embeddings.T
+        # Encode chunks
+        chunk_embeddings = np.array(embed_model.embed_documents(chunk_corpus))
 
-        # Retrieve Top-10 Chunks
-        top_k_idx = np.argsort(scores)[::-1][:10]
+        # Run retrieval for each query
+        run_dict = {}
+        for q in queries:
+            query_emb = np.array(embed_model.embed_query(q.text))
+            # Cosine Similarity
+            scores = query_emb @ chunk_embeddings.T
 
-        run_dict[q.query_id] = {}
-        for idx in top_k_idx:
-            parent_doc_id = chunk_map[idx]
-            score = float(scores[idx])
+            # Retrieve Top-10 Chunks
+            top_k_idx = np.argsort(scores)[::-1][:10]
 
-            # Map back to Parent Doc ID for ranx ground truth matching
-            # Keep the highest chunk score if multiple chunks come from the same document
-            if (
-                parent_doc_id not in run_dict[q.query_id]
-                or score > run_dict[q.query_id][parent_doc_id]
-            ):
-                run_dict[q.query_id][parent_doc_id] = score
+            run_dict[q.query_id] = {}
+            for idx in top_k_idx:
+                parent_doc_id = chunk_map[idx]
+                score = float(scores[idx])
 
-    return Run(run_dict)
+                # Map back to Parent Doc ID for ranx ground truth matching
+                # Keep the highest chunk score if multiple chunks come from the same document
+                if (
+                    parent_doc_id not in run_dict[q.query_id]
+                    or score > run_dict[q.query_id][parent_doc_id]
+                ):
+                    run_dict[q.query_id][parent_doc_id] = score
+
+        run = Run(run_dict)
+        run.name = run_name
+        return run
+
+    if compare_all:
+        if not chunker_registry or not qrels or not metrics:
+            raise ValueError(
+                "compare_all requires chunker_registry, qrels, and metrics to be provided."
+            )
+
+        runs = []
+        for name, fn in chunker_registry.items():
+            print(f"Generating run for '{name}' chunking strategy...")
+            runs.append(build_run(fn, run_name=name))
+
+        print("\nComparing runs...")
+        # Compare statistically (t-test / norm difference)
+        report = compare(
+            qrels=qrels,
+            runs=runs,
+            metrics=metrics,
+            max_p=0.05,  # Statistical significance cutoff
+        )
+        return report
+    else:
+        if not chunk_fn:
+            raise ValueError(
+                "A single chunk_fn must be provided if compare_all is False."
+            )
+        return build_run(chunk_fn, run_name="single_run")
 
 
 # 4. Generate Runs
