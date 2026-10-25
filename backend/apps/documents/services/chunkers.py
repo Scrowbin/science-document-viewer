@@ -245,12 +245,13 @@ def chunk_hierarchical(
         parent_id = f"{paper_id}_parent_{sec_idx:03d}"
         heading = sec.get("heading") or sec.get("title") or "Untitled Section"
         parent_text = (sec.get("text") or "").strip()
-        first_page = sec.get("start_page", sec.get("page", 1))
+        first_page = sec.get("page_start", sec.get("start_page", sec.get("page", 1)))
         if not parent_text:
             continue
 
         parent_tokens = estimate_tokens(parent_text)
         words = parent_text.split()
+        word_spans = [(m.start(), m.end()) for m in re.finditer(r"\S+", parent_text)]
 
         if len(words) <= child_max_words:
             chunk_text = parent_text
@@ -267,6 +268,9 @@ def chunk_hierarchical(
                 "token_count": estimate_tokens(chunk_text),
                 "text": formatted_text,
                 "child_text": chunk_text,
+                "char_start": 0,
+                "char_end": len(parent_text),
+                "chunk_index": 0,
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
             })
             continue
@@ -275,7 +279,15 @@ def chunk_hierarchical(
         c_idx = 0
         while start_idx < len(words):
             slice_words = words[start_idx : start_idx + child_max_words]
-            chunk_text = " ".join(slice_words)
+            if not slice_words:
+                break
+            
+            # Compute exact character offsets within parent_text using word spans
+            char_start = word_spans[start_idx][0]
+            last_word_idx = min(len(word_spans) - 1, start_idx + len(slice_words) - 1)
+            char_end = word_spans[last_word_idx][1]
+            chunk_text = parent_text[char_start:char_end]
+
             formatted_text = f"[{heading}]\n{chunk_text}" if heading != "Untitled Section" else chunk_text
             child_chunks.append({
                 "chunk_id": f"{parent_id}_c{c_idx:03d}",
@@ -289,6 +301,9 @@ def chunk_hierarchical(
                 "token_count": estimate_tokens(chunk_text),
                 "text": formatted_text,
                 "child_text": chunk_text,
+                "char_start": char_start,
+                "char_end": char_end,
+                "chunk_index": c_idx,
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
             })
             c_idx += 1

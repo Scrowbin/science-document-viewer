@@ -223,7 +223,7 @@ def holm_bonferroni_correction(
         accum = adj_p
 
     # Reconstruct original order
-    results = [None] * m
+    results: List[Dict[str, Union[float, bool]]] = [{} for _ in range(m)]
     for rank, orig_idx in enumerate(sorted_indices):
         adj_val = adj_p_sorted[rank]
         results[orig_idx] = {

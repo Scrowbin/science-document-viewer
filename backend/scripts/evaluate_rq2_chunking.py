@@ -16,9 +16,13 @@ Experimental Controls:
   - Uniform Relevance Rule: Evidence containment threshold tau = X (tested with primary X=0.50 and sensitivity X=0.30).
   - Statistical Rigor: 95% Confidence Intervals via Paper-Cluster Bootstrap (B=2000, seed=42) and paired test vs fixed_size.
 
-Scope Notice:
-  "RQ2 hien chi danh gia hieu qua truy xuat; phan answer quality de dot sau."
-  (Answer quality evaluation with LLM generation is explicitly deferred to later work).
+Scope Notice & Methodological Disclaimer:
+  - "RQ2 hien chi danh gia hieu qua truy xuat; phan answer quality de dot sau."
+  - NO RERANKER OR CROSS-ENCODER IS USED. Retrieval is strictly single-stage dense cosine via e5-small-v2.
+  - The elevated metrics for hierarchical (nDCG@10=0.6880, Recall@20=0.9873) stem mechanically from:
+    1) Parent unit surface area: Evaluation units are whole sections (mean 258.5 words), covering evidence far more easily than 200-token chunks (confirmed by hierarchical_child dropping to 0.4473).
+    2) Ceiling effect of Recall@20: Academic papers average 13.36 sections; Top-20 parent retrieval effectively captures <=100% of the entire document's sections.
+    3) Max-child score propagation: The best-scoring 150-word child immediately promotes the entire parent section to the top rank.
 """
 
 import argparse

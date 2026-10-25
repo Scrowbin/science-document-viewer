@@ -1,0 +1,10 @@
+﻿category,metric,count,percentage,notes
+Benchmark Universe,Total Annotated QASPER Papers,1585,100.0%,"Train (888), Dev (281), Test (416)"
+Local Inventory,Papers with Local Physical PDF,61,3.85%,"61 unique PDFs on disk (47 in eval/pdfs/dev, 35 in eval/data/pdfs)"
+Local Inventory,Papers Missing Local PDF,1524,96.15%,"1,524 papers without local PDF"
+Physical Usability,PDFs Successfully Opened (PyMuPDF),61,100.0%,61/61 local PDFs open cleanly without corruption
+Physical Usability,Text Extraction Success (>100 chars),61,100.0%,"61/61 local PDFs yield high-density text (mean 5,197 words)"
+Ground-Truth Alignment,Total Questions in Local Papers,195,—,195 questions across 61 local papers
+Ground-Truth Alignment,Questions with Text Evidence,185,100.0%,185 questions require text passage evidence
+Ground-Truth Alignment,Evidence Verifiably Aligned in PDF,185,100.0%,185/185 evidenced queries match extracted PDF content
+Remote Feasibility,ArXiv PDF Probe Success Rate,24,96.0%,24/25 sample papers return HTTP 200 (edge cases like 1802.00396 return 404)

@@ -15,7 +15,8 @@ import {
 
 export interface AiChatPanelProps {
   document: Document;
-  onJumpToPage: (pageNumber: number) => void;
+  onJumpToPage: (pageNumber: number, source?: ChatSource) => void;
+  activeCitationChunkId?: string | null;
   onClose?: () => void;
 }
 
@@ -55,6 +56,7 @@ function createWelcomeMessage(doc: Document): ChatMessage {
 export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   document: doc,
   onJumpToPage,
+  activeCitationChunkId,
   onClose,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => [createWelcomeMessage(doc)]);
@@ -328,18 +330,22 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
                   <div className={styles.sourcesSection}>
                     <span className={styles.sourcesSectionLabel}>Retrieved Citations:</span>
                     <div className={styles.sourcesBadgeRow}>
-                      {msg.sources.map((src: ChatSource, sIdx: number) => (
-                        <button
-                          key={sIdx}
-                          type="button"
-                          className={styles.pageCitationBadge}
-                          onClick={() => onJumpToPage(src.page)}
-                          title={src.snippet ? `"${src.snippet}" — Click to navigate` : `Jump to Page ${src.page}`}
-                        >
-                          <FaBookOpen style={{ fontSize: 10 }} />
-                          <span>Page {src.page}</span>
-                        </button>
-                      ))}
+                      {msg.sources.map((src: ChatSource, sIdx: number) => {
+                        const isActive = activeCitationChunkId === src.chunk_id;
+                        const hasSection = src.section && !src.section.toLowerCase().startsWith('page ');
+                        return (
+                          <button
+                            key={sIdx}
+                            type="button"
+                            className={`${styles.pageCitationBadge} ${isActive ? styles.pageCitationBadgeActive : ''}`}
+                            onClick={() => onJumpToPage(src.page, src)}
+                            title={src.snippet ? `[${src.section || `Page ${src.page}`}]\n"${src.snippet}"\nClick to jump & highlight section in document` : `Jump to Page ${src.page}`}
+                          >
+                            <FaBookOpen style={{ fontSize: 10 }} />
+                            <span>Page {src.page}{hasSection ? ` • ${src.section}` : ''}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

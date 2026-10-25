@@ -1,0 +1,12 @@
+﻿model_id,name,short_name,type,params_m,dim,license,ndcg10_mean,ndcg10_ci95_low,ndcg10_ci95_high,ndcg4_mean,recall20_mean,mrr10_mean,diff_ndcg10_vs_minilm,diff_ci95_low,diff_ci95_high,p_value_nominal,significant_05,query_latency_p50_ms,query_latency_p95_ms,indexing_throughput_chunks_sec,peak_ram_mb
+bm25,BM25 [WordPiece Subwords],BM25,sparse,0.0,,MIT,0.4805,0.4480,0.5130,0.3779,0.9363,0.4197,-0.0220,-0.0522,0.0091,0.1739,False,0.10,0.21,14673.3,477.9
+all-MiniLM-L6-v2,sentence-transformers/all-MiniLM-L6-v2,MiniLM-L6,dense,22.7,384,Apache-2.0,0.5026,0.4746,0.5315,0.3938,0.9483,0.4417,0.0000,0.0000,0.0000,1.0000,False,19.30,30.01,19.0,593.1
+e5-small-v2,intfloat/e5-small-v2,E5-Small-v2,dense,33.4,384,MIT,0.5522,0.5253,0.5778,0.4588,0.9623,0.5046,0.0497,0.0262,0.0741,0.0010,True,30.26,40.81,6.5,659.8
+bge-small-en-v1.5,BAAI/bge-small-en-v1.5,BGE-Small-v1.5,dense,33.4,384,MIT,0.5209,0.4901,0.5520,0.4214,0.9542,0.4671,0.0183,-0.0027,0.0393,0.0830,False,34.14,44.62,6.5,672.3
+gte-small,thenlper/gte-small,GTE-Small,dense,33.4,384,Apache-2.0,0.4659,0.4358,0.4957,0.3585,0.9329,0.4171,-0.0367,-0.0599,-0.0135,0.0010,True,29.42,37.43,6.3,684.0
+snowflake-arctic-embed-s,Snowflake/snowflake-arctic-embed-s,Arctic-Embed-S,dense,33.2,384,Apache-2.0,0.5417,0.5115,0.5714,0.4453,0.9523,0.4927,0.0392,0.0171,0.0625,0.0020,True,30.45,40.43,7.0,672.1
+snowflake-arctic-embed-m-v1.5,Snowflake/snowflake-arctic-embed-m-v1.5,Arctic-Embed-M-v1.5,dense,108.9,768,Apache-2.0,0.5472,0.5186,0.5756,0.4531,0.9433,0.5000,0.0447,0.0219,0.0670,0.0010,True,74.44,108.48,2.4,956.0
+nomic-embed-text-v1.5,nomic-ai/nomic-embed-text-v1.5,Nomic-Embed-v1.5,dense,137.0,768,Apache-2.0,0.5133,0.4843,0.5422,0.4219,0.9553,0.4665,0.0108,-0.0106,0.0337,0.3418,False,110.19,147.64,1.6,1128.1
+modernbert-embed-base,nomic-ai/modernbert-embed-base,ModernBERT-Embed,dense,149.0,768,Apache-2.0,0.5872,0.5586,0.6166,0.4937,0.9642,0.5438,0.0846,0.0627,0.1075,0.0010,True,103.39,129.75,1.8,1161.7
+snowflake-arctic-embed-m-v2.0,Snowflake/snowflake-arctic-embed-m-v2.0,Arctic-Embed-M-v2.0,dense_custom,305.0,768,Apache-2.0,0.4809,0.4512,0.5090,0.3742,0.9481,0.4203,-0.0216,-0.0465,0.0033,0.0950,False,114.49,141.04,2.2,1399.5
+mxbai-embed-large-v1,mixedbread-ai/mxbai-embed-large-v1,MXBAI-Large-v1,dense,335.1,1024,Apache-2.0,0.5064,0.4776,0.5344,0.4177,0.9469,0.4611,0.0039,-0.0173,0.0265,0.7236,False,275.34,338.23,0.6,1292.0

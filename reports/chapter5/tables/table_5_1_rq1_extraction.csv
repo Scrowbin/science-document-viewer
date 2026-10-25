@@ -1,0 +1,7 @@
+﻿engine,display_name,available,evidence_coverage_pct,char_accuracy_pct,heading_f1_pct,reading_order_concordance,latency_per_page_ms,peak_ram_mb,ndcg10_mean,ndcg10_ci95_low,ndcg10_ci95_high,recall20,diff_ndcg10_vs_plain,diff_ci95_low,diff_ci95_high,p_value_nominal,significant_05
+pymupdf_plain,PyMuPDF (Plain Text - Baseline),True,37.59,33.09,0.00,0.9894,10.19,1228.7,0.5274,0.4724,0.5839,0.9424,0.0000,0.0000,0.0000,1.0000,False
+pymupdf_layout,PyMuPDF (Layout-Aware),True,33.16,32.78,48.01,0.9894,26.16,1164.9,0.5100,0.4398,0.5822,0.8887,-0.0175,-0.0755,0.0387,0.5597,False
+pypdf,pypdf (Pure Python),True,29.61,32.28,0.00,0.9787,61.72,1286.2,0.5174,0.4597,0.5792,0.9509,-0.0101,-0.0446,0.0236,0.5867,False
+pdfminer.six,pdfminer.six,True,35.82,33.44,0.00,0.9713,107.10,1169.2,0.5131,0.4615,0.5696,0.9373,-0.0143,-0.0601,0.0280,0.5457,False
+pdfplumber,pdfplumber,True,9.86,3.99,0.00,0.5319,195.36,1236.4,0.3769,0.3108,0.4442,0.7513,-0.1505,-0.2258,-0.0732,0.0010,True
+grobid,GROBID (TEI XML - Offline/Unavailable),False,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A

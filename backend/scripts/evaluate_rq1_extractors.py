@@ -192,7 +192,7 @@ def extract_pymupdf_plain(pdf_path: Path) -> ExtractorOutput:
 
     for page_idx in range(page_count):
         page = doc[page_idx]
-        text = page.get_text("text")
+        text = str(page.get_text("text"))
         full_text_parts.append(text)
         for para in text.split("\n\n"):
             para_str = para.strip()

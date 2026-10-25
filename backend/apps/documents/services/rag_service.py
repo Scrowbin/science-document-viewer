@@ -22,6 +22,7 @@ Task 1D Infrastructure Finding:
 
 import logging
 import os
+import threading
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -85,6 +86,38 @@ def get_model_prefix(model_name: str, is_query: bool = False) -> str:
     return ""
 
 
+def window_around_child(
+    parent_text: str,
+    char_start: int,
+    char_end: int,
+    pad_words: int = 250,
+) -> Tuple[str, bool]:
+    """
+    Windows an over-long parent section around the matched child text span.
+    Preserves exact evidence span while bounding prompt token consumption.
+    Returns (windowed_text, is_windowed).
+    """
+    if not parent_text:
+        return "", False
+
+    char_start = max(0, min(char_start, len(parent_text)))
+    char_end = max(char_start, min(char_end, len(parent_text)))
+    matched_span = parent_text[char_start:char_end]
+
+    words_before = parent_text[:char_start].split()
+    words_after = parent_text[char_end:].split()
+
+    if len(words_before) <= pad_words and len(words_after) <= pad_words:
+        return parent_text, False
+
+    slice_before = " ".join(words_before[-pad_words:]) if words_before else ""
+    slice_after = " ".join(words_after[:pad_words]) if words_after else ""
+
+    prefix = f"... {slice_before} " if len(words_before) > pad_words else (f"{slice_before} " if slice_before else "")
+    suffix = f" {slice_after} ..." if len(words_after) > pad_words else (f" {slice_after}" if slice_after else "")
+    windowed = f"{prefix}{matched_span}{suffix}".strip()
+    return windowed, True
+
 
 class RagService:
     """
@@ -93,6 +126,7 @@ class RagService:
     """
 
     _instance: Optional["RagService"] = None
+    _lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,
@@ -180,29 +214,42 @@ class RagService:
             return [v.tolist() for v in embedder_inst.embed(formatted_texts)]
 
     @classmethod
-    def get_instance(cls) -> "RagService":
-        """Singleton accessor for shared Django application lifecycle."""
+    def get_instance(cls, **kwargs) -> "RagService":
+        """Thread-safe lazy singleton accessor for shared Django application lifecycle."""
         if cls._instance is None:
-            cls._instance = cls()
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = cls(**kwargs)
         return cls._instance
 
-    def ensure_collection(self, collection_name: str) -> None:
+    @classmethod
+    def reset_instance(cls) -> None:
+        """Resets singleton instance (useful for test isolation)."""
+        with cls._lock:
+            cls._instance = None
+
+    def ensure_collection(self, collection_name: str, is_vectorless: bool = False) -> None:
         """
         Creates collection if it does not already exist.
-        In Qdrant local embedded mode, storage is SQLite/exact brute-force by design.
-        HNSW parameters are omitted to reflect embedded exact search semantics.
+        Supports standard vector collections (384-dim COSINE) and vectorless companion collections
+        (vectors_config={}) used for hierarchical parent metadata storage.
         """
         collections = [c.name for c in self.client.get_collections().collections]
         if collection_name not in collections:
-            self.client.create_collection(
-                collection_name=collection_name,
-                vectors_config=qmodels.VectorParams(
-                    size=self.vector_dim,
-                    distance=qmodels.Distance.COSINE,
-                ),
-            )
-            # Create payload indices (note: payload indices are documented for server Qdrant;
-            # in local mode Qdrant performs in-process linear payload filtering)
+            if is_vectorless:
+                self.client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config={},
+                )
+            else:
+                self.client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config=qmodels.VectorParams(
+                        size=self.vector_dim,
+                        distance=qmodels.Distance.COSINE,
+                    ),
+                )
+            # Create payload indices
             try:
                 self.client.create_payload_index(
                     collection_name=collection_name,
@@ -214,6 +261,11 @@ class RagService:
                     field_name="document_id",
                     field_schema=qmodels.PayloadSchemaType.KEYWORD,
                 )
+                self.client.create_payload_index(
+                    collection_name=collection_name,
+                    field_name="parent_id",
+                    field_schema=qmodels.PayloadSchemaType.KEYWORD,
+                )
             except Exception as e:
                 logger.debug("Payload index creation note: %s", e)
 
@@ -222,25 +274,40 @@ class RagService:
         collection_name: str,
         chunks: List[Dict[str, Any]],
         recreate: bool = False,
+        chunking_strategy: Optional[str] = None,
     ) -> int:
         """
         Embeds a list of text chunks and indexes them into Qdrant.
-        Each chunk is required to have 'text' and at least one of 'document_id' or 'paper_arxiv_id'.
+        When chunks belong to hierarchical strategy (carry 'parent_id' and 'parent_text'):
+          1. Embeds and indexes fine-grained child chunks into collection_name.
+          2. Extracts unique parent sections and indexes them into companion collection {collection_name}_parents.
         Point IDs are deterministic across document and chunk IDs to guarantee cross-document
         isolation and re-indexing idempotency.
         """
-        if recreate and self.client.collection_exists(collection_name):
-            self.client.delete_collection(collection_name)
+        parents_collection = f"{collection_name}_parents"
+        if recreate:
+            if self.client.collection_exists(collection_name):
+                self.client.delete_collection(collection_name)
+            if self.client.collection_exists(parents_collection):
+                self.client.delete_collection(parents_collection)
 
         self.ensure_collection(collection_name)
         if not chunks:
             return 0
+
+        # Detect hierarchical strategy
+        is_hierarchical = any(
+            c.get("strategy") == "hierarchical" or (bool(c.get("parent_id")) and bool(c.get("parent_text")))
+            for c in chunks
+        )
 
         # Extract texts for batch embedding with passage prefix
         texts = [c.get("text", "") for c in chunks]
         embeddings = self._embed_texts(texts, is_query=False)
 
         points: List[qmodels.PointStruct] = []
+        unique_parents: Dict[str, Dict[str, Any]] = {}
+
         for idx, (chunk, vector) in enumerate(zip(chunks, embeddings)):
             chunk_text = chunk.get("text", "")
 
@@ -258,17 +325,49 @@ class RagService:
             page_start = chunk.get("page_start", chunk.get("page", 1))
             page_end = chunk.get("page_end", page_start)
 
+            strat = "hierarchical" if is_hierarchical else chunk.get("strategy", "section_overlap")
             payload = {
                 "chunk_id": chunk_id,
+                "child_id": chunk.get("child_id", chunk_id),
+                "parent_id": str(chunk.get("parent_id", "")),
                 "document_id": str(chunk.get("document_id", "")),
                 "text": chunk_text,
+                "child_text": chunk.get("child_text", chunk_text),
                 "section": chunk.get("section", ""),
+                "section_title": chunk.get("section", ""),
+                "char_start": chunk.get("char_start", 0),
+                "char_end": chunk.get("char_end", len(chunk.get("child_text", chunk_text))),
+                "chunk_index": chunk.get("chunk_index", idx),
                 "page_start": page_start,
                 "page_end": page_end,
+                "page_number": page_start,
                 "token_count": chunk.get("token_count", estimate_tokens(chunk_text)),
                 "paper_arxiv_id": str(chunk.get("paper_arxiv_id", "")),
-                "paper_title": chunk.get("paper_title", ""),
+                "strategy": strat,
+                "version": "1.0",
             }
+
+            # If hierarchical, record parent
+            if is_hierarchical:
+                p_id = chunk.get("parent_id")
+                p_text = chunk.get("parent_text", "")
+                if p_id and p_text and p_id not in unique_parents:
+                    unique_parents[p_id] = {
+                        "parent_id": p_id,
+                        "document_id": str(chunk.get("document_id", "")),
+                        "paper_arxiv_id": str(chunk.get("paper_arxiv_id", "")),
+                        "section": chunk.get("section", ""),
+                        "section_title": chunk.get("section", ""),
+                        "parent_text": p_text,
+                        "text": p_text,
+                        "token_count": chunk.get("parent_tokens", estimate_tokens(p_text)),
+                        "page_start": page_start,
+                        "page_end": page_end,
+                        "page_number": page_start,
+                        "strategy": "hierarchical",
+                        "version": "1.0",
+                        "_doc_ident": doc_ident_str,
+                    }
 
             # Task 1A: Deterministic, idempotent UUID without idx
             pt_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{collection_name}::{doc_ident_str}::{chunk_id}"))
@@ -280,10 +379,51 @@ class RagService:
                 )
             )
 
-        # Batch upsert points
+        # Batch upsert child points
         self.client.upsert(collection_name=collection_name, points=points)
-        logger.info("Successfully indexed %d chunks into collection '%s'", len(points), collection_name)
+
+        # Batch upsert unique parents to companion collection (Option b)
+        if unique_parents:
+            self.ensure_collection(parents_collection, is_vectorless=True)
+            parent_points: List[qmodels.PointStruct] = []
+            for p_id, p_info in unique_parents.items():
+                p_doc_ident = p_info.pop("_doc_ident", "doc")
+                p_pt_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{parents_collection}::{p_doc_ident}::{p_id}"))
+                parent_points.append(
+                    qmodels.PointStruct(
+                        id=p_pt_id,
+                        vector={},
+                        payload=p_info,
+                    )
+                )
+            self.client.upsert(collection_name=parents_collection, points=parent_points)
+            logger.info(
+                "Indexed %d child vectors into '%s' and %d parents into companion '%s'",
+                len(points), collection_name, len(parent_points), parents_collection
+            )
+        else:
+            logger.info("Successfully indexed %d chunks into collection '%s'", len(points), collection_name)
+
         return len(points)
+
+    def delete_document_index(self, doc_id: int) -> None:
+        """
+        Permanently deletes all vectors and parent payloads for a given document.
+        Deletes collection 'doc_{doc_id}' and companion 'doc_{doc_id}_parents'.
+        """
+        coll_name = f"doc_{doc_id}"
+        parents_coll = f"{coll_name}_parents"
+        try:
+            if self.client.collection_exists(coll_name):
+                self.client.delete_collection(coll_name)
+        except Exception as e:
+            logger.warning(f"Failed to delete Qdrant collection {coll_name}: {e}")
+
+        try:
+            if self.client.collection_exists(parents_coll):
+                self.client.delete_collection(parents_coll)
+        except Exception as e:
+            logger.warning(f"Failed to delete Qdrant collection {parents_coll}: {e}")
 
     def search_dense(
         self,
@@ -335,6 +475,135 @@ class RagService:
             results.append((float(hit.score), payload))
         return results
 
+    def search_hierarchical(
+        self,
+        collection_name: str,
+        query: str,
+        token_budget: int = 1600,
+        candidate_pool: int = 20,
+        max_parent_tokens: int = 800,
+        filter_arxiv_id: Optional[str] = None,
+        filter_document_id: Optional[str] = None,
+        preprocess_mode: Optional[str] = None,
+    ) -> List[Tuple[float, Dict[str, Any]]]:
+        """
+        Hierarchical Small-to-Big retrieval:
+          1. Dense search on fine-grained child vectors in collection_name (top-K candidate pool).
+          2. Group hits by parent_id, ranking parents by their highest child similarity score.
+          3. Deduplicate parents and expand: fetch full parent discourse text from companion
+             collection f"{collection_name}_parents" (or fallback to child payload).
+          4. Over-long parent windowing guardrail: If a parent section exceeds max_parent_tokens,
+             window around the matched child with context padding to prevent context starvation.
+          5. Context budget enforcement: Accumulate parent blocks until token_budget (1,600 tokens) is reached.
+          6. Returns (score, context_block) containing parent text for LLM generation while preserving
+             matched child text and character offsets for in-canvas PDF citation highlighting.
+        """
+        if not self.client.collection_exists(collection_name):
+            return []
+
+        # 1. Search child candidates
+        child_candidates = self.search_dense(
+            collection_name=collection_name,
+            query=query,
+            top_k=candidate_pool,
+            filter_arxiv_id=filter_arxiv_id,
+            filter_document_id=filter_document_id,
+            preprocess_mode=preprocess_mode,
+        )
+        if not child_candidates:
+            return []
+
+        # 2. Group by parent_id, keeping the best child score and metadata
+        parent_hits: Dict[str, Dict[str, Any]] = {}
+        for score, child_payload in child_candidates:
+            p_id = child_payload.get("parent_id") or child_payload.get("chunk_id", "")
+            if p_id not in parent_hits:
+                parent_hits[p_id] = {
+                    "score": score,
+                    "best_child": child_payload,
+                    "child_count": 1,
+                }
+            else:
+                parent_hits[p_id]["child_count"] += 1
+
+        # 3. Retrieve unique parents from companion collection
+        parents_col = f"{collection_name}_parents"
+        has_parents_col = self.client.collection_exists(parents_col)
+        parent_records_map: Dict[str, Dict[str, Any]] = {}
+
+        if has_parents_col:
+            point_ids_to_fetch = []
+            id_to_pid_map = {}
+            for p_id, item in parent_hits.items():
+                best_c = item["best_child"]
+                doc_ident = best_c.get("document_id") or best_c.get("paper_arxiv_id") or "doc"
+                pt_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{parents_col}::{doc_ident}::{p_id}"))
+                point_ids_to_fetch.append(pt_id)
+                id_to_pid_map[pt_id] = p_id
+
+            if point_ids_to_fetch:
+                try:
+                    retrieved_pts = self.client.retrieve(collection_name=parents_col, ids=point_ids_to_fetch)
+                    for rec in retrieved_pts:
+                        p_payload = rec.payload or {}
+                        p_id = p_payload.get("parent_id") or id_to_pid_map.get(str(rec.id))
+                        if p_id:
+                            parent_records_map[p_id] = p_payload
+                except Exception as e:
+                    logger.warning("Failed to retrieve parent records from '%s': %s", parents_col, e)
+
+        # 4. Expand context and enforce token budget
+        accumulated: List[Tuple[float, Dict[str, Any]]] = []
+        accum_tokens = 0
+
+        for p_id, item in parent_hits.items():
+            best_c = item["best_child"]
+            p_payload = parent_records_map.get(p_id, {})
+
+            parent_text = p_payload.get("parent_text") or best_c.get("parent_text") or best_c.get("text", "")
+            parent_tokens = p_payload.get("token_count") or best_c.get("parent_tokens") or estimate_tokens(parent_text)
+            char_start = best_c.get("char_start", 0)
+            char_end = best_c.get("char_end", len(parent_text))
+
+            # Guardrail against over-long parents
+            if parent_tokens > max_parent_tokens:
+                context_text, is_win = window_around_child(parent_text, char_start, char_end, pad_words=200)
+                used_tokens = estimate_tokens(context_text)
+            else:
+                context_text = parent_text
+                is_win = False
+                used_tokens = parent_tokens
+
+            if accum_tokens + used_tokens > token_budget and accumulated:
+                logger.debug("Hierarchical retrieval budget filled (%d + %d > %d)", accum_tokens, used_tokens, token_budget)
+                break
+
+            context_block = {
+                "parent_id": p_id,
+                "parent_text": parent_text,
+                "text": context_text,
+                "section": p_payload.get("section") or best_c.get("section", ""),
+                "page": best_c.get("page_start", best_c.get("page", 1)),
+                "page_start": best_c.get("page_start", best_c.get("page", 1)),
+                "page_end": best_c.get("page_end", best_c.get("page_start", 1)),
+                "token_count": used_tokens,
+                "parent_tokens": parent_tokens,
+                "is_windowed": is_win,
+                "score": item["score"],
+                "strategy": "hierarchical",
+                "matched_child_id": best_c.get("chunk_id"),
+                "matched_child_text": best_c.get("child_text") or best_c.get("text"),
+                "char_start": char_start,
+                "char_end": char_end,
+                "document_id": best_c.get("document_id", ""),
+                "paper_arxiv_id": best_c.get("paper_arxiv_id", ""),
+                "paper_title": best_c.get("paper_title", ""),
+            }
+            accumulated.append((item["score"], context_block))
+            accum_tokens += used_tokens
+
+        return accumulated
+
     def search_dense_with_token_budget(
         self,
         collection_name: str,
@@ -344,11 +613,26 @@ class RagService:
         filter_arxiv_id: Optional[str] = None,
         filter_document_id: Optional[str] = None,
         preprocess_mode: Optional[str] = None,
+        strategy: Optional[str] = None,
     ) -> List[Tuple[float, Dict[str, Any]]]:
         """
         Retrieves top candidate chunks and accumulates them until the prompt token budget is filled.
-        Guarantees scientific parity across differing chunk sizes and supports document scoping.
+        Supports both flat and hierarchical strategies (dispatches to search_hierarchical if
+        strategy='hierarchical' or companion parents collection exists).
         """
+        has_parents = self.client.collection_exists(f"{collection_name}_parents")
+        active_strategy = strategy or getattr(settings, "CHUNKING_STRATEGY", "hierarchical")
+        if has_parents and (active_strategy == "hierarchical" or strategy == "hierarchical"):
+            return self.search_hierarchical(
+                collection_name=collection_name,
+                query=query,
+                token_budget=token_budget,
+                candidate_pool=candidate_pool,
+                filter_arxiv_id=filter_arxiv_id,
+                filter_document_id=filter_document_id,
+                preprocess_mode=preprocess_mode,
+            )
+
         candidates = self.search_dense(
             collection_name=collection_name,
             query=query,
@@ -459,22 +743,67 @@ def get_embedding_model() -> Any:
 class DocumentRAG:
     """
     RAG engine for a single document combining dense vector embedding + BM25 sparse search
-    with Reciprocal Rank Fusion (RRF).
+    with Reciprocal Rank Fusion (RRF). Supports both flat and hierarchical (small-to-big) chunking.
+    Dense candidates are retrieved from Qdrant (filtered to document), with in-memory matrix fallback.
     """
 
-    def __init__(self, document_id: int, documents: List[Document]) -> None:
+    def __init__(
+        self,
+        document_id: int,
+        documents: List[Document],
+        embeddings: Optional[np.ndarray] = None,
+        unique_parents: Optional[Dict[str, Dict[str, Any]]] = None,
+        collection_name: Optional[str] = None,
+    ) -> None:
         self.document_id = document_id
         self.documents = documents
+        self.collection_name = collection_name or f"doc_{document_id}"
         self.content = [doc.page_content for doc in self.documents]
         self.model_name = getattr(settings, "EMBEDDING_MODEL", "intfloat/e5-small-v2")
 
-        # BM25 setup
+        # Hierarchical parent metadata compilation
+        self.is_hierarchical = any(
+            doc.metadata.get("strategy") == "hierarchical" or bool(doc.metadata.get("parent_id"))
+            for doc in self.documents
+        )
+        if unique_parents is not None:
+            self.unique_parents = unique_parents
+        else:
+            self.unique_parents = {}
+            if self.is_hierarchical:
+                for doc in self.documents:
+                    p_id = doc.metadata.get("parent_id")
+                    p_text = doc.metadata.get("parent_text", "")
+                    if p_id and p_text and p_id not in self.unique_parents:
+                        self.unique_parents[p_id] = {
+                            "parent_id": p_id,
+                            "parent_text": p_text,
+                            "token_count": doc.metadata.get("parent_tokens", estimate_tokens(p_text)),
+                            "section": doc.metadata.get("section", ""),
+                            "page": doc.metadata.get("page", 1),
+                        }
+
+        # Build lookup table for mapping chunk_id and child_id to document index
+        self.chunk_id_to_idx: Dict[Any, int] = {}
+        for idx, doc in enumerate(self.documents):
+            cid = doc.metadata.get("chunk_id")
+            if cid is not None:
+                self.chunk_id_to_idx[cid] = idx
+                self.chunk_id_to_idx[str(cid)] = idx
+            chid = doc.metadata.get("child_id")
+            if chid is not None:
+                self.chunk_id_to_idx[chid] = idx
+                self.chunk_id_to_idx[str(chid)] = idx
+
+        # BM25 setup (rebuilt from child texts in self.content)
         tokenized_corpus = [text.lower().split() for text in self.content]
         self.bm25 = BM25Okapi(tokenized_corpus)
 
-        # Dense embedding setup with proper passage prefixing
-        self.embedding_model = get_embedding_model()
-        if self.content:
+        # Dense embedding setup
+        self._embedding_model: Optional[Any] = None
+        if embeddings is not None and len(embeddings) > 0:
+            self.embeddings = embeddings
+        elif self.content:
             passage_prefix = get_model_prefix(self.model_name, is_query=False)
             formatted_content = [
                 passage_prefix + t if passage_prefix and not t.startswith(passage_prefix) else t
@@ -489,6 +818,12 @@ class DocumentRAG:
         else:
             self.embeddings = np.array([])
 
+    @property
+    def embedding_model(self) -> Any:
+        if self._embedding_model is None:
+            self._embedding_model = get_embedding_model()
+        return self._embedding_model
+
     def embed(self, text: str, is_query: bool = True) -> np.ndarray:
         """
         Embeds a single query or passage string using model-specific asymmetric prefixes.
@@ -501,20 +836,74 @@ class DocumentRAG:
         )[0]
 
     def hybrid_search(self, query: str, top_k: int = 5) -> List[Tuple[Document, float]]:
-        if not self.documents or len(self.embeddings) == 0:
+        if not self.documents:
             return []
 
         num_docs = len(self.documents)
         retrieve_k = min(50, num_docs)
 
-        # 1. Dense retrieval
-        query_emb = self.embed(query)
-        dense_scores = self.embeddings @ query_emb
-        dense_top = np.argsort(dense_scores)[::-1][:retrieve_k]
+        # 1. Dense retrieval via Qdrant (query_points filtered to document)
+        rag_service = RagService.get_instance()
+        dense_top: List[int] = []
+        try:
+            dense_candidates = rag_service.search_dense(
+                collection_name=self.collection_name,
+                query=query,
+                top_k=retrieve_k,
+                filter_document_id=str(self.document_id),
+            )
+            if not dense_candidates and rag_service.client.collection_exists(self.collection_name):
+                # Fallback to search without filter if collection is dedicated to this doc
+                dense_candidates = rag_service.search_dense(
+                    collection_name=self.collection_name,
+                    query=query,
+                    top_k=retrieve_k,
+                )
+
+            seen_dense_idx = set()
+            dense_scores_by_idx: Dict[int, float] = {}
+            for score, payload in dense_candidates:
+                idx = None
+                cid = payload.get("chunk_id")
+                if cid in self.chunk_id_to_idx:
+                    idx = self.chunk_id_to_idx[cid]
+                elif cid is not None and str(cid) in self.chunk_id_to_idx:
+                    idx = self.chunk_id_to_idx[str(cid)]
+                else:
+                    chid = payload.get("child_id")
+                    if chid in self.chunk_id_to_idx:
+                        idx = self.chunk_id_to_idx[chid]
+                    elif chid is not None and str(chid) in self.chunk_id_to_idx:
+                        idx = self.chunk_id_to_idx[str(chid)]
+                    elif "chunk_seq" in payload:
+                        seq = payload["chunk_seq"]
+                        if 0 <= int(seq) < num_docs:
+                            idx = int(seq)
+                    else:
+                        c_idx = payload.get("chunk_index")
+                        if c_idx is not None and 0 <= int(c_idx) < num_docs:
+                            idx = int(c_idx)
+
+                if idx is not None and idx not in seen_dense_idx:
+                    dense_top.append(idx)
+                    dense_scores_by_idx[idx] = float(score)
+                    seen_dense_idx.add(idx)
+        except Exception as e:
+            logger.warning("Qdrant dense search failed for doc %s: %s", self.document_id, e)
+            dense_top = []
+            dense_scores_by_idx = {}
+
+        # Fallback to in-memory vector dot product if Qdrant returned nothing
+        if not dense_top and len(self.embeddings) > 0:
+            query_emb = self.embed(query)
+            dense_scores = self.embeddings @ query_emb
+            dense_top = list(np.argsort(dense_scores)[::-1][:retrieve_k])
+            for idx in dense_top:
+                dense_scores_by_idx[idx] = float(dense_scores[idx])
 
         # 2. Sparse retrieval (BM25)
         bm25_scores = self.bm25.get_scores(query.lower().split())
-        bm25_top = np.argsort(bm25_scores)[::-1][:retrieve_k]
+        bm25_top = list(np.argsort(bm25_scores)[::-1][:retrieve_k])
 
         # 3. Reciprocal Rank Fusion (RRF)
         rrf_scores: Dict[int, float] = {}
@@ -528,58 +917,336 @@ class DocumentRAG:
 
         ranked_indices = sorted(
             rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
-        )[: min(top_k, num_docs)]
+        )
 
-        return [(self.documents[i], float(rrf_scores[i])) for i in ranked_indices]
+        # If hierarchical: Expand child hits to unique parent sections, windowing over-long parents
+        if self.is_hierarchical:
+            parent_results: List[Tuple[Document, float]] = []
+            seen_parents = set()
+            accum_tokens = 0
+            token_budget = getattr(settings, "RAG_CONTEXT_BUDGET", 1600)
+            max_parent_tokens = getattr(settings, "RAG_MAX_PARENT_TOKENS", 800)
+
+            for idx in ranked_indices:
+                child_doc = self.documents[idx]
+                p_id = child_doc.metadata.get("parent_id")
+                if not p_id or p_id in seen_parents:
+                    continue
+                seen_parents.add(p_id)
+
+                parent_info = self.unique_parents.get(p_id, {})
+                parent_text = parent_info.get("parent_text") or child_doc.metadata.get("parent_text", child_doc.page_content)
+                p_tokens = parent_info.get("token_count", estimate_tokens(parent_text))
+
+                char_start = child_doc.metadata.get("char_start", 0)
+                char_end = child_doc.metadata.get("char_end", len(parent_text))
+                if p_tokens > max_parent_tokens:
+                    context_text, is_win = window_around_child(parent_text, char_start, char_end, pad_words=200)
+                    used_tokens = estimate_tokens(context_text)
+                else:
+                    context_text = parent_text
+                    is_win = False
+                    used_tokens = p_tokens
+
+                if accum_tokens + used_tokens > token_budget and parent_results:
+                    break
+
+                meta = dict(child_doc.metadata)
+                meta["parent_text"] = parent_text
+                meta["matched_child_id"] = child_doc.metadata.get("chunk_id")
+                meta["matched_child_text"] = child_doc.metadata.get("child_text", child_doc.page_content)
+                meta["token_count"] = used_tokens
+                meta["parent_tokens"] = p_tokens
+                meta["is_windowed"] = is_win
+                meta["strategy"] = "hierarchical"
+                meta["dense_score"] = dense_scores_by_idx.get(idx, 0.0)
+
+                parent_doc = Document(page_content=context_text, metadata=meta)
+                parent_results.append((parent_doc, float(rrf_scores[idx])))
+                accum_tokens += used_tokens
+
+            return parent_results[:top_k]
+
+        flat_results = []
+        for i in ranked_indices[: min(top_k, num_docs)]:
+            d = self.documents[i]
+            meta = dict(d.metadata)
+            meta["dense_score"] = dense_scores_by_idx.get(i, 0.0)
+            flat_results.append((Document(page_content=d.page_content, metadata=meta), float(rrf_scores[i])))
+        return flat_results
 
 
-def get_or_create_rag(doc_id: int, file_path: str) -> Optional[DocumentRAG]:
+def evict_rag_instance(doc_id: int) -> None:
+    """Evicts cached in-memory DocumentRAG instance."""
+    if doc_id in _rag_instances:
+        del _rag_instances[doc_id]
+
+
+def delete_document_qdrant_data(doc_id: int) -> None:
+    """Deletes Qdrant collections for a document using RagService."""
+    rag_service = RagService.get_instance()
+    rag_service.delete_document_index(doc_id)
+
+
+def build_rag_from_qdrant(doc_id: int, coll_name: Optional[str] = None) -> Optional[DocumentRAG]:
     """
-    Returns existing DocumentRAG instance from cache or creates a new one by chunking.
+    Reconstructs a DocumentRAG instance entirely from persistent Qdrant storage.
+    Loads child points (vectors and payloads) and parent texts from {collection}_parents,
+    rebuilds BM25 from child texts, and instantiates DocumentRAG without re-parsing
+    or re-embedding the document.
+    Returns None if the collection is missing or incomplete.
+    """
+    rag_service = RagService.get_instance()
+    collection_name = coll_name or f"doc_{doc_id}"
+
+    try:
+        if not rag_service.client.collection_exists(collection_name):
+            return None
+
+        count_info = rag_service.client.count(collection_name)
+        if count_info.count == 0:
+            return None
+
+        # 1. Scroll all child points with payload and vectors
+        records = []
+        offset = None
+        while True:
+            batch, offset = rag_service.client.scroll(
+                collection_name=collection_name,
+                offset=offset,
+                limit=1000,
+                with_payload=True,
+                with_vectors=True,
+            )
+            records.extend(batch)
+            if offset is None or not batch:
+                break
+
+        if not records:
+            return None
+
+        # Completeness check: points must have vectors
+        first_vec = records[0].vector
+        if first_vec is None or (isinstance(first_vec, (list, np.ndarray)) and len(first_vec) == 0):
+            return None
+
+        # Sort points by chunk_seq (or chunk_index) to restore original document sequence
+        records.sort(
+            key=lambda r: (r.payload or {}).get("chunk_seq", (r.payload or {}).get("chunk_index", 0))
+        )
+
+        # 2. Scroll parent texts from companion collection if it exists
+        parents_collection = f"{collection_name}_parents"
+        unique_parents: Dict[str, Dict[str, Any]] = {}
+        if rag_service.client.collection_exists(parents_collection):
+            p_offset = None
+            while True:
+                p_batch, p_offset = rag_service.client.scroll(
+                    collection_name=parents_collection,
+                    offset=p_offset,
+                    limit=1000,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                for rec in p_batch:
+                    p_payload = rec.payload or {}
+                    p_id = p_payload.get("parent_id")
+                    if p_id:
+                        p_text = p_payload.get("parent_text") or p_payload.get("text", "")
+                        unique_parents[p_id] = {
+                            "parent_id": p_id,
+                            "parent_text": p_text,
+                            "token_count": p_payload.get("token_count", estimate_tokens(p_text)),
+                            "section": p_payload.get("section", ""),
+                            "page": p_payload.get("page_start", p_payload.get("page_number", 1)),
+                        }
+                if p_offset is None or not p_batch:
+                    break
+
+        # 3. Reconstruct Document objects and vector array
+        documents: List[Document] = []
+        vectors: List[List[float]] = []
+
+        is_hierarchical_detected = False
+        for rec in records:
+            payload = rec.payload or {}
+            chunk_text = payload.get("text", "")
+            meta = dict(payload)
+            page_start = meta.get("page_start", meta.get("page_number", meta.get("page", 1)))
+            meta["page"] = page_start
+            meta["page_start"] = page_start
+            meta["page_end"] = meta.get("page_end", page_start)
+            meta["page_number"] = page_start
+
+            p_id = meta.get("parent_id")
+            if p_id:
+                is_hierarchical_detected = True
+                if p_id in unique_parents and not meta.get("parent_text"):
+                    meta["parent_text"] = unique_parents[p_id]["parent_text"]
+
+            documents.append(Document(page_content=chunk_text, metadata=meta))
+            vectors.append(rec.vector if isinstance(rec.vector, list) else list(rec.vector))
+
+        # Check for completeness of hierarchical data
+        if is_hierarchical_detected and not unique_parents:
+            for doc in documents:
+                p_id = doc.metadata.get("parent_id")
+                p_text = doc.metadata.get("parent_text", "")
+                if p_id and p_text and p_id not in unique_parents:
+                    unique_parents[p_id] = {
+                        "parent_id": p_id,
+                        "parent_text": p_text,
+                        "token_count": doc.metadata.get("parent_tokens", estimate_tokens(p_text)),
+                        "section": doc.metadata.get("section", ""),
+                        "page": doc.metadata.get("page", 1),
+                    }
+            if not unique_parents:
+                logger.warning(
+                    "Qdrant collection %s has hierarchical child chunks but parent texts are missing",
+                    collection_name,
+                )
+                return None
+
+        embeddings = np.array(vectors, dtype=np.float32)
+
+        rag = DocumentRAG(
+            document_id=doc_id,
+            documents=documents,
+            embeddings=embeddings,
+            unique_parents=unique_parents,
+            collection_name=collection_name,
+        )
+        return rag
+    except Exception as e:
+        logger.warning("Failed to build DocumentRAG from Qdrant for doc %s: %s", doc_id, e)
+        return None
+
+
+def ingest_document(
+    doc_id: int, file_path: str, strategy: Optional[str] = None
+) -> Tuple[int, Optional[DocumentRAG]]:
+    """
+    Full ingestion pipeline matching thesis specification:
+    1. Extracts sections and chunks text (hierarchical Small-to-Big by default).
+    2. Writes 384-dim dense vectors & payloads to Qdrant collection 'doc_{doc_id}',
+       and parent texts to companion collection 'doc_{doc_id}_parents'.
+    3. Builds in-memory DocumentRAG instance from Qdrant vectors and payloads,
+       cached in _rag_instances[doc_id] for sub-ms chat.
+    Returns (num_indexed_points, rag_instance).
+    """
+    if not file_path or not os.path.exists(file_path):
+        logger.warning(f"File path missing or invalid for doc {doc_id}: {file_path}")
+        return 0, None
+
+    active_strategy = strategy or getattr(settings, "CHUNKING_STRATEGY", "hierarchical")
+    logger.info(f"Ingesting document {doc_id} from {file_path} (strategy={active_strategy})...")
+    chunks = chunk_document(file_path, strategy=active_strategy)
+    if not chunks:
+        logger.warning(f"No chunks generated for doc {doc_id}")
+        return 0, None
+
+    # Transform Document objects into chunk dicts with document identifiers
+    chunks_data = []
+    for idx, d in enumerate(chunks):
+        item = dict(d.metadata)
+        item["text"] = d.page_content
+        item["document_id"] = str(doc_id)
+        item["paper_arxiv_id"] = f"doc_{doc_id}"
+        item["chunk_seq"] = idx
+        item["chunk_index"] = idx
+        d.metadata["chunk_seq"] = idx
+        d.metadata["chunk_index"] = idx
+        d.metadata["document_id"] = str(doc_id)
+        chunks_data.append(item)
+
+    # 1. Index into persistent Qdrant collection
+    coll_name = f"doc_{doc_id}"
+    rag_service = RagService.get_instance()
+    indexed_count = rag_service.index_chunks(
+        collection_name=coll_name,
+        chunks=chunks_data,
+        recreate=True,
+        chunking_strategy=active_strategy,
+    )
+
+    # 2. Build DocumentRAG instance from persistent Qdrant storage (without duplicate embedding)
+    rag = build_rag_from_qdrant(doc_id, coll_name=coll_name)
+    if rag is None:
+        logger.warning("Falling back to in-memory DocumentRAG creation for doc %s", doc_id)
+        rag = DocumentRAG(doc_id, chunks, collection_name=coll_name)
+
+    _rag_instances[doc_id] = rag
+    return indexed_count, rag
+
+
+def get_or_create_rag(
+    doc_id: int, file_path: str, strategy: Optional[str] = None
+) -> Optional[DocumentRAG]:
+    """
+    Returns existing DocumentRAG instance from cache or rebuilds from Qdrant.
+    Re-parses and re-embeds ONLY if the document's collection is missing or incomplete.
+    Supports strategy override ('section_overlap' or 'hierarchical').
     """
     if doc_id in _rag_instances:
         return _rag_instances[doc_id]
 
+    coll_name = f"doc_{doc_id}"
+    rag_service = RagService.get_instance()
+
+    # Try rebuilding from persistent Qdrant first
+    rag = None
+    try:
+        if rag_service.client.collection_exists(coll_name):
+            rag = build_rag_from_qdrant(doc_id, coll_name=coll_name)
+    except Exception as e:
+        logger.warning(f"Failed to rebuild DocumentRAG from Qdrant for doc {doc_id}: {e}")
+        rag = None
+
+    if rag is not None:
+        _rag_instances[doc_id] = rag
+        return rag
+
+    # Collection missing or incomplete: re-parse and re-embed from physical file
     if not file_path or not os.path.exists(file_path):
         logger.warning(f"File path missing or invalid for doc {doc_id}: {file_path}")
         return None
 
-    logger.info(f"Indexing document {doc_id} from {file_path}...")
-    chunks = chunk_document(file_path)
-    if not chunks:
-        logger.warning(f"No chunks generated for doc {doc_id}")
-        return None
-
-    rag = DocumentRAG(doc_id, chunks)
-    _rag_instances[doc_id] = rag
-
-    # Update database status
-    try:
-        from ..models import Document as DocModel
-        DocModel.objects.filter(id=doc_id).update(rag_status="INDEXED")
-    except Exception as e:
-        logger.warning(f"Failed to update rag_status in DB for doc {doc_id}: {e}")
+    indexed_count, rag = ingest_document(doc_id, file_path, strategy=strategy)
+    if rag:
+        try:
+            from ..models import Document as DocModel
+            DocModel.objects.filter(id=doc_id).update(rag_status="INDEXED")
+        except Exception as e:
+            logger.warning(f"Failed to update rag_status in DB for doc {doc_id}: {e}")
 
     return rag
 
 
-def reindex_document(doc_id: int, file_path: str) -> Optional[DocumentRAG]:
+def reindex_document(
+    doc_id: int, file_path: str, strategy: Optional[str] = None
+) -> Optional[DocumentRAG]:
     """
-    Clears cache for doc_id and re-runs chunking & embedding.
+    Clears cache for doc_id and re-runs ingestion & embedding with specified or default strategy.
     """
-    if doc_id in _rag_instances:
-        del _rag_instances[doc_id]
-    return get_or_create_rag(doc_id, file_path)
+    evict_rag_instance(doc_id)
+    indexed_count, rag = ingest_document(doc_id, file_path, strategy=strategy)
+    if rag:
+        try:
+            from ..models import Document as DocModel
+            DocModel.objects.filter(id=doc_id).update(rag_status="INDEXED")
+        except Exception as e:
+            logger.warning(f"Failed to update rag_status in DB for doc {doc_id}: {e}")
+    return rag
 
 
 def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Optional[str]:
     """Calls Ollama /api/generate and returns response text or None."""
     try:
-        timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
+        read_timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
         resp = requests.post(
             f"{ollama_url}/api/generate",
             json={"model": model_name, "prompt": prompt, "stream": False},
-            timeout=timeout,
+            timeout=(3.0, read_timeout),
         )
         if resp.status_code == 200:
             data = resp.json()
@@ -606,14 +1273,49 @@ def query_document(
 
     top_chunks = rag.hybrid_search(question, top_k=5)
 
+    REFUSAL_MESSAGE = "The document does not contain sufficient relevant information to answer this question."
+
+    min_similarity = getattr(settings, "RAG_MIN_SIMILARITY_SCORE", 0.80)
+    top_dense_score = max(
+        (float(doc.metadata.get("dense_score", 0.0)) for doc, _ in top_chunks),
+        default=0.0,
+    )
+
+    if not top_chunks or top_dense_score < min_similarity:
+        logger.info(
+            "Query relevance below threshold for doc %s (top_dense_score=%.4f < %.4f). Returning refusal response.",
+            doc_id,
+            top_dense_score,
+            min_similarity,
+        )
+        return {
+            "answer": REFUSAL_MESSAGE,
+            "sources": [],
+            "model": "Grounded Hybrid RAG (Local)",
+        }
+
     sources = []
     for doc, score in top_chunks:
         page = doc.metadata.get("page", 1)
-        chunk_id = doc.metadata.get("chunk_id", f"chunk-p{page}")
-        snippet = doc.page_content.strip().replace("\n", " ")
+        chunk_id = doc.metadata.get("matched_child_id", doc.metadata.get("chunk_id", f"chunk-p{page}"))
+        section = doc.metadata.get("section", "")
+        # For citation highlighting, preserve exact matched child text and offsets
+        matched_text = doc.metadata.get("matched_child_text", doc.page_content).strip()
+        raw_text = doc.page_content.strip()
+        snippet = matched_text.replace("\n", " ")
         if len(snippet) > 180:
             snippet = snippet[:180] + "..."
-        sources.append({"page": page, "chunk_id": chunk_id, "snippet": snippet})
+        sources.append({
+            "page": page,
+            "chunk_id": chunk_id,
+            "section": section,
+            "snippet": snippet,
+            "text": matched_text,
+            "parent_id": doc.metadata.get("parent_id"),
+            "char_start": doc.metadata.get("char_start"),
+            "char_end": doc.metadata.get("char_end"),
+            "parent_text": doc.metadata.get("parent_text"),
+        })
 
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
     model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
@@ -626,7 +1328,9 @@ def query_document(
     prompt = (
         f'You are a precise academic research assistant reading "{doc_title or "the document"}".\n'
         f"Use ONLY the provided context below to answer the user's question clearly and accurately.\n"
-        f"If the answer is not contained in the context, synthesize the most relevant details available.\n\n"
+        f"Respond in the same language as the user's question (e.g. if the question is in Vietnamese, answer in Vietnamese using the English context as the factual ground).\n"
+        f"If the answer is not contained in the context, state clearly: '{REFUSAL_MESSAGE}'\n"
+        f"Do NOT extrapolate, speculate, or fabricate details beyond the provided context.\n\n"
         f"Context:\n{context_str}\n\nQuestion: {question}\n\nAnswer:"
     )
 
@@ -670,11 +1374,24 @@ def summarize_document(
     sources = []
     for doc, _ in rep_chunks:
         page = doc.metadata.get("page", 1)
-        chunk_id = doc.metadata.get("chunk_id", f"summary-p{page}")
-        snippet = doc.page_content.strip().replace("\n", " ")
+        chunk_id = doc.metadata.get("matched_child_id", doc.metadata.get("chunk_id", f"summary-p{page}"))
+        section = doc.metadata.get("section", "")
+        matched_text = doc.metadata.get("matched_child_text", doc.page_content).strip()
+        raw_text = doc.page_content.strip()
+        snippet = matched_text.replace("\n", " ")
         if len(snippet) > 150:
             snippet = snippet[:150] + "..."
-        sources.append({"page": page, "chunk_id": chunk_id, "snippet": snippet})
+        sources.append({
+            "page": page,
+            "chunk_id": chunk_id,
+            "section": section,
+            "snippet": snippet,
+            "text": matched_text,
+            "parent_id": doc.metadata.get("parent_id"),
+            "char_start": doc.metadata.get("char_start"),
+            "char_end": doc.metadata.get("char_end"),
+            "parent_text": doc.metadata.get("parent_text"),
+        })
 
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
     model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")

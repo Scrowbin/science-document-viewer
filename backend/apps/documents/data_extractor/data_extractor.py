@@ -81,12 +81,14 @@ def ai_extractor_metadata(path) -> Path:
 
 
 def data_extractor(path):
-    try:
-        result = ai_extractor_metadata(path)
-        if result:
-            return result
-    except Exception as e:
-        print(f"GROBID failed: {e}")
+    from django.conf import settings
+    if getattr(settings, "USE_GROBID", False):
+        try:
+            result = ai_extractor_metadata(path)
+            if result:
+                return result
+        except Exception as e:
+            print(f"GROBID failed: {e}")
 
     try:
         result = auto_extract_metadata(path)

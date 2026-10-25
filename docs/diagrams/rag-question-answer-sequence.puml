@@ -1,0 +1,120 @@
+@startuml
+!theme plain
+skinparam dpi 300
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam roundcorner 6
+skinparam participantPadding 12
+skinparam boxPadding 10
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceGroupBorderThickness 1.2
+skinparam sequenceLifeLineBorderColor #2B5797
+skinparam sequenceLifeLineBackgroundColor #E8EFF9
+
+autonumber "<b>[00]</b>"
+
+title <b>HÌNH 4.5. SƠ ĐỒ TUẦN TỰ QUY TRÌNH HỎI ĐÁP SỬ DỤNG RAG VÀ ĐIỀU HƯỚNG TRÍCH DẪN</b>\n<size:10>(Kiểm chứng trực tiếp từ mã nguồn: backend/apps/documents/ & frontend/src/components/AiChatPanel/)</size>
+
+actor User as "Nhà nghiên cứu\n(Researcher)" #FAFAFA
+
+box "Tầng Trình diễn (Frontend - React 19)" #F0F4F8
+    participant UI_Chat as "Khung Trợ lý AI\n<AiChatPanel>" #E3F2FD
+    participant UI_Viewer as "Trình đọc PDF.js\n<PdfViewer>" #E3F2FD
+end box
+
+box "Tầng Điều khiển (Backend - Django DRF)" #F0FDF4
+    participant API as "Bộ điều khiển API\nDocumentViewSet (/chat/)" #E8F5E9
+end box
+
+box "Động cơ RAG & Truy xuất (Embedded RAG Engine)" #FAF5FF
+    participant RAG as "Dịch vụ RAG nhúng\nrag_service / DocumentRAG" #FFF3E0
+    database VDB as "Bảng chỉ mục lai\n(Dense Vectors + BM25Okapi)" #F3E5F5
+end box
+
+box "Mô hình Ngôn ngữ cục bộ (Local LLM Server)" #FFF8E1
+    participant LLM as "Máy chủ Ollama Cục bộ\nllama3.2:3b (Port 11434)" #FFF8E1
+end box
+
+== 1. Tiếp nhận câu hỏi & Kiểm tra quyền truy cập (Query Reception & Permission Validation) ==
+
+User -> UI_Chat: Nhập câu hỏi chuyên sâu từ giao diện đọc (ví dụ: "Giải thích phương pháp đề xuất")
+activate UI_Chat
+UI_Chat -> API: POST /api/v1/documents/{id}/chat/\n(Payload JSON: { "question": "..." })
+activate API
+
+API -> API: Xác thực JWT token của người dùng\nKiểm tra quyền truy cập tài liệu qua IsOwnerOrCollaborator
+API -> API: Kiểm tra tính hợp lệ của tham số: question.strip() != ""
+
+API -> RAG: query_document(doc_id={id}, file_path, question, doc_title)
+activate RAG
+
+== 2. Chuẩn bị truy vấn (Query Representation & Preparation) ==
+
+RAG -> RAG: get_or_create_rag(doc_id, file_path): Nạp/truy xuất chỉ mục trong bộ nhớ
+RAG -> RAG: Chuẩn bị biểu diễn Dày đặc (Dense): Gán tiền tố bắt buộc prefix="query: "\nMã hóa vector truy vấn 384 chiều bằng intfloat/e5-small-v2 (L2-normalized)
+RAG -> RAG: Chuẩn bị biểu diễn Từ khóa (Sparse): Chuyển câu hỏi thành chữ thường và tách từ\ntokenized_query = question.lower().split()
+
+== 3. Truy xuất nội dung liên quan & Hợp nhất thứ hạng (Hybrid Retrieval & RRF) ==
+
+RAG -> VDB: Truy xuất Dense: Nhân tích vô hướng tính Cosine Similarity\ndense_scores = self.embeddings @ query_emb
+activate VDB
+VDB --> RAG: Trả về danh sách điểm tương đồng ngữ nghĩa (Dense Top-K)
+deactivate VDB
+
+RAG -> VDB: Truy xuất Sparse: Tính điểm tần suất thuật ngữ qua BM25Okapi\nbm25_scores = self.bm25.get_scores(tokenized_query)
+activate VDB
+VDB --> RAG: Trả về danh sách điểm khớp từ khóa (BM25 Top-K)
+deactivate VDB
+
+RAG -> RAG: Áp dụng thuật toán Reciprocal Rank Fusion (RRF, hằng số k=60):\nRRF_score(d) = 1/(60 + rank_dense) + 1/(60 + rank_bm25)
+RAG -> RAG: Lọc và chọn Top-5 phân đoạn có điểm RRF cao nhất (top_chunks)
+
+== 4. Tổng hợp ngữ cảnh đầu vào (Context Assembly & Prompt Packaging) ==
+
+RAG -> RAG: Bóc tách siêu dữ liệu từng phân đoạn: page, section_title, chunk_id\nTrích xuất đoạn tóm lược snippet (giới hạn <= 180 ký tự phục vụ trích dẫn)
+RAG -> RAG: Đóng gói chuỗi ngữ cảnh: "--- Snippet (Page X, Section Y) ---\n{page_content}"
+RAG -> RAG: Thiết lập Prompt hoàn chỉnh với vai trò học thuật chuẩn mực (academic persona):\n"You are a precise academic research assistant reading '{doc_title}'...\nUse ONLY the provided context below to answer... Context: {context_str}\nQuestion: {question}"
+
+== 5. Sinh câu trả lời với LLM cục bộ (Local LLM Generation & Fallback) ==
+
+RAG -> LLM: POST http://localhost:11434/api/generate\n(Payload JSON: { "model": "llama3.2:3b", "prompt": prompt, "stream": false })
+activate LLM
+
+alt Máy chủ Ollama hoạt động bình thường (Online)
+    LLM --> RAG: HTTP 200 OK {"response": "Phương pháp cốt lõi của nghiên cứu tập trung vào..."}
+    RAG -> RAG: Đóng gói câu trả lời với model = "llama3.2:3b (Local RAG)"
+else Ollama ngoại tuyến hoặc quá thời gian chờ (Timeout 60s)
+    LLM --x RAG: Lỗi kết nối / Máy chủ chưa bật / Quá thời gian chờ (Timeout)
+    RAG -> RAG: Kích hoạt cơ chế Tổng hợp có căn cứ dự phòng (Grounded Synthesis Fallback)\nBiên dịch trực tiếp 3 trích đoạn hàng đầu kèm tiêu đề mục và số trang
+    RAG -> RAG: Đóng gói câu trả lời với model = "Grounded Hybrid RAG (Local)"
+end
+deactivate LLM
+
+== 6. Trả kết quả, hiển thị nguồn và điều hướng tài liệu (Return, Citations & Navigation) ==
+
+RAG --> API: Trả về dict cấu trúc: { answer, sources: [{ page, chunk_id, snippet }], model }
+deactivate RAG
+
+API --> UI_Chat: HTTP 200 OK (JSON phản hồi câu trả lời kèm nguồn trích dẫn)
+deactivate API
+
+UI_Chat --> User: Kết xuất câu trả lời định dạng Markdown sinh động\nHiển thị danh sách các huy hiệu nguồn trích dẫn tương tác [Page X]
+deactivate UI_Chat
+
+User -> UI_Chat: Rà chuột xem snippet hoặc nhấp chuột vào huy hiệu [Page 2]
+activate UI_Chat
+UI_Chat -> UI_Viewer: onJumpToPage(2)
+activate UI_Viewer
+UI_Viewer -> UI_Viewer: jumpToPage(2): setCurrentPage(2), scrollArea.scrollTop = 0
+note over UI_Viewer
+  Xác thực mã nguồn:
+  Hệ thống điều hướng trực tiếp khung đọc đến đúng Trang 2 của tài liệu.
+  (Không bôi màu highlight trên canvas; đoạn trích ngữ cảnh snippet
+  được hiển thị tại tooltip của huy hiệu để người dùng đối chiếu).
+end note
+UI_Viewer --> User: Chuyển khung đọc trực tiếp đến Trang 2 của tài liệu gốc
+deactivate UI_Viewer
+deactivate UI_Chat
+
+@enduml

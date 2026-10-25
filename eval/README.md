@@ -25,7 +25,7 @@ This document represents the **consolidated, definitive, and unified research re
 | **3** | Dense Embedding Selection    | Within-Paper nDCG@10 / @4  | e5-small-v2 (0.5522) & ModernBERT win| 🟢 Complete      |
 | **4** | Vector Storage (Qdrant)      | Exact Retrieval & Latency  | In-memory reader / Qdrant collection | 🟢 Complete      |
 | **5** | Query Preprocessing          | Task Prefixes & Text Clean  | Task prefixes verified for e5/bge    | 🟢 Complete      |
-| **6** | Hybrid RRF Retrieval         | Candidate Pool Recall@20   | RRF k=60 achieves 0.956 Recall@20    | 🟢 Complete      |
+| **6** | Hybrid Retrieval (Test)      | Context nDCG@10 (Test)      | Convex (0.5806*) / RRF (0.5662)      | 🟢 Complete      |
 | **7** | Context Assembly             | Token Budget Packing        | Context formatted with source tags   | 🟢 Complete      |
 | **8** | Local LLM Generation (Ollama)| Grounded QA & Faithfulness  | llama3.2:3b grounded prompt template | 🟢 Complete      |
 | **9** | Page Attribution & Citation  | Citation Precision & Recall| Page locator mapped to PDF canvas    | 🟢 Complete      |
@@ -441,6 +441,23 @@ While QASPER serves as our primary developmental corpus and within-paper passage
   1. **Top-Rank Ceiling Boost:** Across all 487 queries, fusing lexical BM25 with dense E5 raises Hit@5 from **71.9% to 74.3%** and Recall@4 from **0.556 to 0.574**, demonstrating that keyword matching retrieves exact numerical identifiers, dataset names, and symbols that dense embeddings occasionally miss.
   2. **Production Default Confirmed:** `Hybrid RRF (k=60)` reliably achieves $\ge 74.1\%$ Hit@5 and 0.956 Recall@20 without requiring runtime score calibration or parameter tuning, confirming its role as the production first-stage retrieval engine.
   3. Serialized to [`eval/phases/phase_6_hybrid_retrieval/artifacts/expanded_160_hybrid_rrf_benchmark.json`](file:///c:/DACNTT/eval/phases/phase_6_hybrid_retrieval/artifacts/expanded_160_hybrid_rrf_benchmark.json).
+
+* **Definitive Held-Out QASPER Test Split Benchmark ($K=408 \text{ papers}, N=1,310 \text{ queries}, 14,035 \text{ chunks}$):**
+  Executed via [`eval/phases/phase_6_hybrid_retrieval/scripts/evaluate_full_qasper_rq4_hybrid.py`](file:///c:/DACNTT/eval/phases/phase_6_hybrid_retrieval/scripts/evaluate_full_qasper_rq4_hybrid.py) with hierarchical Small-to-Big parent expansion under a 1,600-token budget and 5-parent cap:
+
+| Strategy / Arm | nDCG@10 (Primary) | nDCG@4 | Recall@20 | MRR@10 | Hit@5 (%) | $\Delta$ vs. Dense [95% CI] | $p_{\text{raw}}$ | $p_{\text{adj}}$ (Holm) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Dense Only (`e5-small-v2`)** | **0.5655** | 0.5724 | 0.6366 | 0.6415 | 82.7% | Baseline (0.0) | — | — |
+| **BM25 Only (WordPiece)** | **0.5065** | 0.5135 | 0.5908 | 0.5688 | 77.9% | -0.0589 [-0.0788; -0.0390] | 0.0010 | **0.0030\*** |
+| **Hybrid RRF ($k=60$) [Prod]** | **0.5662** | 0.5747 | 0.6413 | 0.6368 | 83.1% | +0.0008 [-0.0110; +0.0130] | 0.8696 | 0.8696 |
+| **Hybrid Convex ($\alpha=0.7$)** | **0.5806** | 0.5870 | 0.6525 | 0.6556 | 84.5% | **+0.0152 [+0.0045; +0.0262]** | 0.0070 | **0.0140\*** |
+
+*\* Indicates statistically significant difference from Dense Only baseline at $\alpha=0.05$ after Holm-Bonferroni correction ($m=3$).*
+
+  - **Key Confirmatory Finding:** `Hybrid Convex (alpha=0.7)` achieves a statistically significant improvement over `Dense Only` on the primary metric ($\text{nDCG@10} = 0.5806$, $\Delta = +0.0152$, 95% CI $[+0.0045, +0.0262]$, $p_{\text{adj}} = 0.0140 < 0.05$), confirming the value of asymmetric weighted score fusion.
+  - **Equivalence / Comparability:** `Hybrid RRF (k=60)` achieves retrieval performance comparable to `Dense Only` ($\text{nDCG@10} = 0.5662$, $\Delta = +0.0008, p_{\text{adj}} = 0.8696$), preserving dense semantics without requiring score normalization calibration.
+  - **Comprehensive 9-Part Report:** See [`eval/phases/phase_6_hybrid_retrieval/artifacts/RQ4_QASPER_TEST_HIERARCHICAL_REPORT.md`](file:///c:/DACNTT/eval/phases/phase_6_hybrid_retrieval/artifacts/RQ4_QASPER_TEST_HIERARCHICAL_REPORT.md) and raw artifact [`rq4_qasper_test_hierarchical_benchmark.json`](file:///c:/DACNTT/eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_qasper_test_hierarchical_benchmark.json).
+
 
 ---
 

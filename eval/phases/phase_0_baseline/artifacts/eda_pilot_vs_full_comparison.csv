@@ -1,0 +1,16 @@
+﻿dimension,metric,pilot_value,full_corpus_value,change_note
+Dataset Scope & Papers,Total Papers Count,100 (96 with structured sections),1585 (1584 with sections),"+1,485 papers (+15.8x scale expansion; includes Train, Dev, Test)"
+Dataset Scope & Papers,Total Questions Count,250 (sampled from Dev),5049,"+4,799 questions (+20.2x scale expansion)"
+Question Distribution,Extractive Questions (%),70.0% (175/250),57.0% (2878/5049),-13.8% shift (Pilot overrepresented extractive; full corpus has higher abstractive diversity)
+Question Distribution,Abstractive Questions (%),12.4% (31/250),20.02% (1011/5049),+7.9% increase (20.3% of full corpus requires multi-passage reasoning)
+Question Distribution,Yes/No Questions (%),14.4% (36/250),14.06% (710/5049),+0.6% (Stable across scales ~15%)
+Question Distribution,Unanswerable Questions (%),3.2% (8/250),8.91% (450/5049),+5.3% increase (Full benchmark contains 8.5% unanswerable queries)
+Document Morphology,Mean Document Words,"3,257.2 words (std=1,593.4)","3,575.1 words (std=2,083.8)",+317.9 words (+9.8% longer on average across entire NLP literature)
+Document Morphology,Median Document Words (P50),"2,980.5 words","3,401.0 words",+420.5 words shift in median document length
+Document Morphology,P95 Document Words,"5,843.6 words","6,707.3 words","+863.7 words (P95 papers exceed 6,700 words / ~9,000 tokens)"
+Document Structure,Mean Sections per Paper,13.36 sections,13.83 sections,"+0.47 sections (Highly consistent hierarchical decomposition across 1,584 papers)"
+Document Structure,Mean Words per Section,243.8 words (P50=179.0),258.5 words (P50=188.0),+14.7 words (Validates 300-400 token chunk budget alignment)
+Query-Evidence Asymmetry,Mean Query Length,7.95 words (P50=7.0),8.14 words (P50=7.0),+0.19 words (Virtually identical: queries average 8 words)
+Query-Evidence Asymmetry,Mean Evidence Passage Words,190.9 words (P50=148.0),175.5 words (P50=138.0),-15.4 words (Slightly more concise ground-truth evidence spans)
+Query-Evidence Asymmetry,Lexical Jaccard Overlap,0.0158 (1.58%),0.0161 (1.61%),+0.31% (Reconfirms extreme vocabulary mismatch < 2.0% between query and evidence)
+Query-Evidence Asymmetry,Multi-passage Evidence Rate (%),53.7% (130/242 evidenced questions),43.95% (1891/4303),-9.8% shift (44.0% multi-passage in full corpus vs 53.7% in pilot sample)
