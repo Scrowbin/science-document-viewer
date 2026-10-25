@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "benchmark": "RQ4 Multi-Stage Hybrid Retrieval Benchmark",
+    "dataset": "QASPER v0.3 Canonical [DEV]",
+    "total_papers": 276,
+    "total_queries": 892,
+    "total_chunks": 9698,
+    "chunking_strategy": "hierarchical",
+    "containment_tau": 0.5,
+    "k_rrf": 60,
+    "context_budget_tokens": 1600,
+    "n_bootstraps": 2000,
+    "timestamp": "2026-10-25 15:19:30",
+    "elapsed_seconds": 24.32
+  },
+  "arms": {
+    "Dense Only (e5-small-v2)": {
+      "ndcg10": 0.561,
+      "ndcg4": 0.5649,
+      "recall20": 0.6499,
+      "mrr10": 0.6093,
+      "hit1": 47.42,
+      "hit3": 75.34,
+      "hit5": 80.49,
+      "delta_vs_dense": 0.0,
+      "ci_vs_dense": [
+        0.0,
+        0.0
+      ],
+      "p_raw_vs_dense": 1.0,
+      "p_adj_vs_dense": 1.0,
+      "significant_vs_dense": false,
+      "delta_vs_bm25": 0.07500707744156816,
+      "p_raw_vs_bm25": 0.0009995002498750624
+    },
+    "BM25 Only (WordPiece)": {
+      "ndcg10": 0.486,
+      "ndcg4": 0.4895,
+      "recall20": 0.5818,
+      "mrr10": 0.5254,
+      "hit1": 37.89,
+      "hit3": 67.26,
+      "hit5": 73.77,
+      "delta_vs_dense": -0.07500707744156816,
+      "ci_vs_dense": [
+        -0.09783957051729186,
+        -0.051739238007801266
+      ],
+      "p_raw_vs_dense": 0.0009995002498750624,
+      "p_adj_vs_dense": 0.002999,
+      "significant_vs_dense": true,
+      "delta_vs_bm25": 0.0,
+      "p_raw_vs_bm25": 1.0
+    },
+    "Hybrid RRF (k=60) [Prod]": {
+      "ndcg10": 0.5573,
+      "ndcg4": 0.5613,
+      "recall20": 0.6448,
+      "mrr10": 0.6061,
+      "hit1": 47.31,
+      "hit3": 74.22,
+      "hit5": 80.38,
+      "delta_vs_dense": -0.0037097159730004135,
+      "ci_vs_dense": [
+        -0.019454160392267054,
+        0.011614939724097485
+      ],
+      "p_raw_vs_dense": 0.6336831584207896,
+      "p_adj_vs_dense": 1.0,
+      "significant_vs_dense": false,
+      "delta_vs_bm25": 0.07129736146856776,
+      "p_raw_vs_bm25": 0.0009995002498750624
+    },
+    "Hybrid Convex (alpha=0.7)": {
+      "ndcg10": 0.565,
+      "ndcg4": 0.5704,
+      "recall20": 0.6422,
+      "mrr10": 0.6172,
+      "hit1": 48.99,
+      "hit3": 75.11,
+      "hit5": 80.04,
+      "delta_vs_dense": 0.004008712185486482,
+      "ci_vs_dense": [
+        -0.00984229116915111,
+        0.016885642810515616
+      ],
+      "p_raw_vs_dense": 0.5407296351824088,
+      "p_adj_vs_dense": 1.0,
+      "significant_vs_dense": false,
+      "delta_vs_bm25": 0.07901578962705465,
+      "p_raw_vs_bm25": 0.0009995002498750624
+    }
+  }
+}

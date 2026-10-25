@@ -159,8 +159,11 @@ def fixed_size_chunk(pure_tei_xml: str, chunk_size: int = 550, chunk_overlap: in
 def process_pdf_with_grobid(pdf_path: str) -> Optional[str]:
     """
     Uses GrobidClient to process a PDF and return TEI XML text.
-    Saves output in project-root/xml_store/. Returns None if GROBID is unavailable.
+    Bypassed if USE_GROBID is False (default for lightweight local deployment).
     """
+    if not getattr(settings, "USE_GROBID", False):
+        return None
+
     try:
         from grobid_client.grobid_client import GrobidClient
         import shutil, tempfile
@@ -253,15 +256,77 @@ def chunk_pdf_fallback(
     return documents
 
 
-def chunk_document(pdf_path: str) -> List[Document]:
+def chunk_document(pdf_path: str, strategy: Optional[str] = None) -> List[Document]:
     """
     Main entry point for document chunking (used by RAG service).
-    Attempts GROBID TEI XML chunking first, falling back to PyMuPDF page-by-page chunking.
+    Attempts layout-aware section extraction first (extract_sections_from_pdf).
+    Uses strategy from argument or settings.CHUNKING_STRATEGY ('section_overlap' or 'hierarchical').
+    Falls back to GROBID TEI XML and then plain page-by-page chunking.
     """
     if not pdf_path or not os.path.exists(pdf_path):
         return []
 
-    # Try GROBID first
+    active_strategy = strategy or getattr(settings, "CHUNKING_STRATEGY", "hierarchical")
+    paper_id = Path(pdf_path).stem
+
+    # 1. Try layout-aware PyMuPDF section extraction first
+    try:
+        sections = extract_sections_from_pdf(pdf_path)
+        if sections:
+            if active_strategy in ("hierarchical", "hierarchical_child"):
+                from .chunkers import chunk_hierarchical
+                raw_chunks = chunk_hierarchical(
+                    sections,
+                    child_max_tokens=200,
+                    child_overlap=40,
+                    paper_id=paper_id,
+                )
+                docs = [
+                    Document(
+                        page_content=c["text"],
+                        metadata={
+                            "chunk_id": c.get("chunk_id", f"chunk_{i+1:02d}"),
+                            "child_id": c.get("chunk_id", f"chunk_{i+1:02d}"),
+                            "parent_id": c.get("parent_id", ""),
+                            "parent_text": c.get("parent_text", ""),
+                            "parent_tokens": c.get("parent_tokens", 0),
+                            "child_text": c.get("child_text", ""),
+                            "char_start": c.get("char_start", 0),
+                            "char_end": c.get("char_end", len(c.get("child_text", ""))),
+                            "chunk_index": c.get("chunk_index", i),
+                            "page": c.get("page", 1),
+                            "section": c.get("section", "Section"),
+                            "chunk_size": len(c.get("text", "")),
+                            "token_count": c.get("token_count", estimate_tokens(c.get("text", ""))),
+                            "strategy": "hierarchical",
+                        },
+                    )
+                    for i, c in enumerate(raw_chunks)
+                ]
+                logger.info(f"Successfully chunked {len(docs)} hierarchical children for {pdf_path}")
+                return docs
+            else:
+                sec_chunks = chunk_sections(sections, strategy=active_strategy, max_tokens=400, overlap=80)
+                if sec_chunks:
+                    docs = [
+                        Document(
+                            page_content=c["text"],
+                            metadata={
+                                "chunk_id": c.get("chunk_id", f"chunk_{i+1:02d}"),
+                                "page": c.get("page", 1),
+                                "section": c.get("section", "Section"),
+                                "chunk_size": len(c.get("text", "")),
+                                "strategy": active_strategy,
+                            },
+                        )
+                        for i, c in enumerate(sec_chunks)
+                    ]
+                    logger.info(f"Successfully chunked {len(docs)} sections via layout-aware {active_strategy} for {pdf_path}")
+                    return docs
+    except Exception as e:
+        logger.warning(f"Layout-aware section chunking failed for {pdf_path}, trying fallbacks: {e}")
+
+    # 2. Try GROBID if available
     xml_text = process_pdf_with_grobid(pdf_path)
     if xml_text:
         docs = recursive_chunker(xml_text)
@@ -269,9 +334,10 @@ def chunk_document(pdf_path: str) -> List[Document]:
             logger.info(f"Successfully chunked {len(docs)} sections via GROBID TEI XML")
             return docs
 
-    # Fallback to PyMuPDF page extraction
+    # 3. Fallback to PyMuPDF page-by-page extraction
     logger.info(f"Using PyMuPDF fallback chunking for {pdf_path}")
     return chunk_pdf_fallback(pdf_path)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -518,7 +584,12 @@ def chunk_document_pdf(
 ) -> List[Dict[str, Any]]:
     """
     High-level entry point to extract and chunk a research paper PDF using
-    the section-based chunking strategies (for evaluation pipeline).
+    the section-based chunking strategies (for evaluation pipeline / chunks API).
+    Supports: 'section', 'section_token', 'section_overlap', 'hierarchical'.
     """
     sections = extract_sections_from_pdf(pdf_path)
+    paper_id = Path(pdf_path).stem
+    if strategy in ("hierarchical", "hierarchical_child"):
+        from .chunkers import chunk_hierarchical
+        return chunk_hierarchical(sections, child_max_tokens=200, child_overlap=40, paper_id=paper_id)
     return chunk_sections(sections, strategy=strategy, max_tokens=max_tokens, overlap=overlap)

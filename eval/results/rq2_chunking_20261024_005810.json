@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "experiment": "RQ2 Document Chunking Strategy Evaluation",
+    "scope_notice": "RQ2 hi\u1ec7n ch\u1ec9 \u0111\u00e1nh gi\u00e1 hi\u1ec7u qu\u1ea3 truy xu\u1ea5t; ph\u1ea7n answer quality \u0111\u1ec3 \u0111\u1ee3t sau.",
+    "timestamp": "20261024_005810",
+    "seed": 42,
+    "torch_threads": 4,
+    "papers_evaluated": 2,
+    "context_budget_tokens": 1600,
+    "baseline_strategy": "fixed_size",
+    "champion_selected": "hierarchical",
+    "champion_rationale": "Selected hierarchical with top nDCG@10 = 0.7877, Recall@20 = 1.0, Truncation Rate = 0.0%."
+  },
+  "summary": [
+    {
+      "strategy": "fixed_size",
+      "total_chunks": 33,
+      "avg_tokens_per_chunk": 389.2,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.6056,
+          "ci_95": [
+            0.4572,
+            0.7541
+          ]
+        },
+        "ndcg4": 0.4357,
+        "recall20": 1.0,
+        "mrr10": 0.5,
+        "context_budget_coverage_pct": 75.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.7815,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ],
+        "p_value": 1.0,
+        "significant_05": false
+      }
+    },
+    {
+      "strategy": "fixed_size_overlap",
+      "total_chunks": 41,
+      "avg_tokens_per_chunk": 389.1,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.662,
+          "ci_95": [
+            0.6127,
+            0.7114
+          ]
+        },
+        "ndcg4": 0.4178,
+        "recall20": 1.0,
+        "mrr10": 0.675,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.6881,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0564,
+        "ci_95": [
+          -0.1414,
+          0.2542
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    },
+    {
+      "strategy": "semantic",
+      "total_chunks": 72,
+      "avg_tokens_per_chunk": 181.3,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.4424,
+          "ci_95": [
+            0.3512,
+            0.5336
+          ]
+        },
+        "ndcg4": 0.225,
+        "recall20": 1.0,
+        "mrr10": 0.3937,
+        "context_budget_coverage_pct": 75.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.4691,
+        "recall20": 0.95
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.1633,
+        "ci_95": [
+          -0.2205,
+          -0.1061
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "strategy": "section",
+      "total_chunks": 35,
+      "avg_tokens_per_chunk": 367.4,
+      "subword_truncation_rate_pct": 14.29,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.7406,
+          "ci_95": [
+            0.6658,
+            0.8155
+          ]
+        },
+        "ndcg4": 0.686,
+        "recall20": 1.0,
+        "mrr10": 0.7083,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.5227,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.135,
+        "ci_95": [
+          -0.0883,
+          0.3582
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    },
+    {
+      "strategy": "section_token",
+      "total_chunks": 55,
+      "avg_tokens_per_chunk": 234.0,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.7689,
+          "ci_95": [
+            0.7224,
+            0.8155
+          ]
+        },
+        "ndcg4": 0.7143,
+        "recall20": 1.0,
+        "mrr10": 0.875,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.5898,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.1633,
+        "ci_95": [
+          -0.0317,
+          0.3582
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    },
+    {
+      "strategy": "section_overlap",
+      "total_chunks": 59,
+      "avg_tokens_per_chunk": 244.7,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.7143,
+          "ci_95": [
+            0.6131,
+            0.8155
+          ]
+        },
+        "ndcg4": 0.7143,
+        "recall20": 1.0,
+        "mrr10": 0.875,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.5328,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.1087,
+        "ci_95": [
+          -0.1409,
+          0.3582
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    },
+    {
+      "strategy": "hierarchical",
+      "total_chunks": 94,
+      "avg_tokens_per_chunk": 161.4,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.7877,
+          "ci_95": [
+            0.75,
+            0.8255
+          ]
+        },
+        "ndcg4": 0.7877,
+        "recall20": 1.0,
+        "mrr10": 0.7083,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.5884,
+        "recall20": 1.0
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.1821,
+        "ci_95": [
+          0.0714,
+          0.2928
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "strategy": "hierarchical_child",
+      "total_chunks": 94,
+      "avg_tokens_per_chunk": 161.4,
+      "subword_truncation_rate_pct": 0.0,
+      "primary_metrics": {
+        "tau": 0.5,
+        "ndcg10": {
+          "mean": 0.634,
+          "ci_95": [
+            0.5179,
+            0.75
+          ]
+        },
+        "ndcg4": 0.4717,
+        "recall20": 1.0,
+        "mrr10": 0.5083,
+        "context_budget_coverage_pct": 100.0
+      },
+      "sensitivity_metrics": {
+        "tau": 0.3,
+        "ndcg10": 0.4208,
+        "recall20": 0.7875
+      },
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0283,
+        "ci_95": [
+          -0.2361,
+          0.2928
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    }
+  ]
+}

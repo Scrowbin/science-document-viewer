@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
@@ -35,6 +35,11 @@ class DocumentApiTestCase(TestCase):
         self.user1 = User.objects.create_user(username='researcher1', email='res1@univ.edu', password='password123')
         self.user2 = User.objects.create_user(username='researcher2', email='res2@univ.edu', password='password123')
         self.client.force_authenticate(user=self.user1)
+
+    def tearDown(self):
+        from .services.webhook_service import join_all_ingest_threads
+        join_all_ingest_threads()
+        super().tearDown()
 
     def test_create_document_with_file_upload(self):
         pdf_content = b"%PDF-1.4 mock pdf content test"
@@ -548,6 +553,10 @@ class RagServiceTestCase(TestCase):
         with open(pdf_path, "rb") as f:
             doc.file.save("attention_test.pdf", File(f), save=True)
 
+        from .services.rag_service import delete_document_qdrant_data, evict_rag_instance
+        delete_document_qdrant_data(doc.id)
+        evict_rag_instance(doc.id)
+
         try:
             client = APIClient()
             client.force_authenticate(user=user)
@@ -558,8 +567,584 @@ class RagServiceTestCase(TestCase):
             self.assertTrue(len(chat_data["sources"]) > 0)
             self.assertEqual(chat_data["sources"][0]["page"], 4)
         finally:
+            delete_document_qdrant_data(doc.id)
+            evict_rag_instance(doc.id)
             if doc.file and os.path.exists(doc.file.path):
                 doc.file.delete(save=False)
+
+    def test_rag_pipeline_low_relevance_refusal_guardrail(self):
+        """Verifies that an off-topic question below the relevance cutoff returns the strict refusal message with no sources."""
+        import os
+        from django.conf import settings
+        from django.core.files import File
+        from .services.rag_service import query_document, delete_document_qdrant_data, evict_rag_instance
+
+        pdf_path = str(settings.BASE_DIR.parent / "sample_documents" / "attention.pdf")
+        if not os.path.exists(pdf_path):
+            self.skipTest("sample_documents/attention.pdf not found")
+
+        irrelevant_question = "What is the traditional culinary recipe for baking chocolate chip cookies with sea salt?"
+
+        delete_document_qdrant_data(99997)
+        evict_rag_instance(99997)
+
+        # 1. Direct service query test
+        res = query_document(doc_id=99997, file_path=pdf_path, question=irrelevant_question, doc_title="Attention Is All You Need")
+        expected_refusal = "The document does not contain sufficient relevant information to answer this question."
+        self.assertEqual(res["answer"], expected_refusal)
+        self.assertEqual(res["sources"], [], "Refusal response must not cite sources for irrelevant queries")
+
+        # 2. REST API /chat/ endpoint test
+        user = User.objects.create_user(username='rag_refusal_user', password='password123')
+        doc = Document.objects.create(
+            owner=user,
+            title='Attention Is All You Need',
+            doi='10.48550/arXiv.1706.03762'
+        )
+        with open(pdf_path, "rb") as f:
+            doc.file.save("attention_refusal_test.pdf", File(f), save=True)
+
+        delete_document_qdrant_data(doc.id)
+        evict_rag_instance(doc.id)
+
+        try:
+            client = APIClient()
+            client.force_authenticate(user=user)
+            chat_resp = client.post(f"/api/v1/documents/{doc.id}/chat/", {"question": irrelevant_question}, format="json")
+            self.assertEqual(chat_resp.status_code, status.HTTP_200_OK)
+            chat_data = chat_resp.json()
+            self.assertEqual(chat_data["answer"], expected_refusal)
+            self.assertEqual(chat_data["sources"], [])
+        finally:
+            delete_document_qdrant_data(doc.id)
+            evict_rag_instance(doc.id)
+            if doc.file and os.path.exists(doc.file.path):
+                doc.file.delete(save=False)
+
+    def test_hierarchical_chunk_integrity_and_character_offsets(self):
+        """Verifies hierarchical child chunks have exact char_start/char_end offsets in parent_text."""
+        from .services.chunkers import chunk_hierarchical
+
+        sections = [
+            {
+                "title": "1. Introduction",
+                "text": "Deep learning architectures have transformed natural language processing. " * 30,
+                "page_start": 1,
+                "page_end": 2,
+            },
+            {
+                "title": "2. Background",
+                "text": "Short section within limits.",
+                "page_start": 2,
+                "page_end": 2,
+            },
+        ]
+
+        chunks = chunk_hierarchical(sections, child_max_tokens=200, child_overlap=40, paper_id="test_doc")
+        self.assertTrue(len(chunks) > 1)
+
+        # Check offsets for each chunk
+        for c in chunks:
+            self.assertIn("char_start", c)
+            self.assertIn("char_end", c)
+            self.assertIn("parent_id", c)
+            self.assertIn("parent_text", c)
+            self.assertIn("chunk_index", c)
+            # Integrity check: parent_text slice matches child_text
+            sliced = c["parent_text"][c["char_start"]:c["char_end"]]
+            self.assertEqual(sliced, c["child_text"])
+
+    def test_hierarchical_qdrant_companion_collection_and_deduplication(self):
+        """Verifies RagService provisions companion parents collection, dedupes parents, and enforces budget."""
+        from .services.rag_service import RagService
+
+        rag = RagService(in_memory=True)
+        coll = "test_hier_coll"
+
+        # Construct hierarchical chunks with 2 parents and 3 children
+        chunks = [
+            {
+                "document_id": "doc_100",
+                "chunk_id": "p0_c0",
+                "parent_id": "p0",
+                "parent_text": "Parent section 0 with full discourse text. " * 20,
+                "text": "[Section 0]\nChild 0 of parent 0 with neural network discussion.",
+                "child_text": "Child 0 of parent 0 with neural network discussion.",
+                "section": "Section 0",
+                "page_start": 1,
+                "page_end": 1,
+                "char_start": 0,
+                "char_end": 51,
+                "strategy": "hierarchical",
+            },
+            {
+                "document_id": "doc_100",
+                "chunk_id": "p0_c1",
+                "parent_id": "p0",
+                "parent_text": "Parent section 0 with full discourse text. " * 20,
+                "text": "[Section 0]\nChild 1 of parent 0 with backpropagation discussion.",
+                "child_text": "Child 1 of parent 0 with backpropagation discussion.",
+                "section": "Section 0",
+                "page_start": 1,
+                "page_end": 2,
+                "char_start": 52,
+                "char_end": 105,
+                "strategy": "hierarchical",
+            },
+            {
+                "document_id": "doc_100",
+                "chunk_id": "p1_c0",
+                "parent_id": "p1",
+                "parent_text": "Parent section 1 with optimization details. " * 15,
+                "text": "[Section 1]\nChild 0 of parent 1 with Adam optimizer details.",
+                "child_text": "Child 0 of parent 1 with Adam optimizer details.",
+                "section": "Section 1",
+                "page_start": 2,
+                "page_end": 3,
+                "char_start": 0,
+                "char_end": 49,
+                "strategy": "hierarchical",
+            },
+        ]
+
+        indexed_count = rag.index_chunks(coll, chunks, recreate=True)
+        self.assertEqual(indexed_count, 3)
+
+        # Companion collection must exist with 2 unique parents
+        parents_coll = f"{coll}_parents"
+        self.assertTrue(rag.client.collection_exists(parents_coll))
+        p_count = rag.client.count(collection_name=parents_coll).count
+        self.assertEqual(p_count, 2, "Must index exactly 2 unique parent sections into companion collection!")
+
+        # Search hierarchical: query matches parent 0 child 0 and child 1
+        res = rag.search_hierarchical(coll, "neural network and backpropagation", candidate_pool=5, token_budget=1600)
+        self.assertTrue(len(res) > 0)
+
+        # Check deduplication: parent p0 must appear only ONCE in the returned results
+        retrieved_parent_ids = [block["parent_id"] for score, block in res]
+        self.assertEqual(len(retrieved_parent_ids), len(set(retrieved_parent_ids)), "Parents must be strictly deduplicated!")
+
+        # Check source/citation metadata is preserved
+        first_block = res[0][1]
+        self.assertIn("parent_text", first_block)
+        self.assertIn("matched_child_text", first_block)
+        self.assertIn("char_start", first_block)
+        self.assertIn("char_end", first_block)
+
+    def test_hierarchical_long_parent_windowing_guardrail(self):
+        """Verifies over-long parents are windowed around matched child without blowing context budget."""
+        from .services.rag_service import window_around_child
+
+        # 600 words parent
+        long_parent = ("Context word " * 300) + "EXACT_TARGET_EVIDENCE_PHRASE " + ("Trailing word " * 300)
+        char_start = long_parent.index("EXACT_TARGET_EVIDENCE_PHRASE")
+        char_end = char_start + len("EXACT_TARGET_EVIDENCE_PHRASE")
+
+        windowed_text, is_win = window_around_child(long_parent, char_start, char_end, pad_words=50)
+        self.assertTrue(is_win, "Parent over padding limit must be flagged as windowed!")
+        self.assertIn("EXACT_TARGET_EVIDENCE_PHRASE", windowed_text, "Windowed context must preserve target evidence!")
+        self.assertTrue(len(windowed_text.split()) < 200, "Windowed context must be bounded!")
+
+    def test_hierarchical_empty_and_short_sections(self):
+        """Verifies short sections create exactly 1 child and empty sections are ignored."""
+        from .services.chunkers import chunk_hierarchical
+
+        sections = [
+            {"title": "Empty Section", "text": "   ", "page_start": 1, "page_end": 1},
+            {"title": "Short Section", "text": "This is a short section with very few words.", "page_start": 2, "page_end": 2},
+        ]
+        chunks = chunk_hierarchical(sections, child_max_tokens=200, child_overlap=40, paper_id="doc_short")
+        self.assertEqual(len(chunks), 1)
+        self.assertEqual(chunks[0]["section"], "Short Section")
+        self.assertEqual(chunks[0]["char_start"], 0)
+        self.assertEqual(chunks[0]["char_end"], len("This is a short section with very few words."))
+
+    def test_reindex_documents_management_command(self):
+        """Verifies reindex_documents command executes without error for specified document."""
+        import os
+        import pymupdf
+        from django.core.files.base import ContentFile
+        from django.core.management import call_command
+
+        pdf_doc = pymupdf.open()
+        page = pdf_doc.new_page()
+        page.insert_text((50, 72), "1. Introduction\nThis is valid academic test content for reindexing.")
+        pdf_bytes = pdf_doc.tobytes()
+        pdf_doc.close()
+
+        user = User.objects.create_user(username="reindex_cmd_user", password="password123")
+        doc = Document.objects.create(
+            owner=user,
+            title="Management Command Test Paper",
+            doi="10.1234/test.cmd",
+            file=ContentFile(pdf_bytes, name="valid_test.pdf"),
+        )
+
+        try:
+            call_command("reindex_documents", f"--doc-id={doc.id}", "--strategy=hierarchical")
+            doc.refresh_from_db()
+            self.assertEqual(doc.rag_status, "INDEXED")
+        finally:
+            if doc.file and os.path.exists(doc.file.path):
+                doc.file.delete(save=False)
+
+
+def create_sample_academic_pdf() -> bytes:
+    import pymupdf
+    pdf_doc = pymupdf.open()
+    page = pdf_doc.new_page()
+    page.insert_text((50, 72), "1. Introduction\nAttention mechanisms and self-attention models have transformed NLP.")
+    page.insert_text((50, 150), "2. Model Architecture\nThe Transformer uses stacked self-attention and point-wise fully connected layers.")
+    page.insert_text((50, 230), "3. Training and Evaluation\nWe trained on standard WMT 2014 English-to-German dataset.")
+    pdf_bytes = pdf_doc.tobytes()
+    pdf_doc.close()
+    return pdf_bytes
+
+
+class DocumentLifecycleThesisTestCase(TransactionTestCase):
+    """
+    Verification test suite for Document Lifecycle matching Thesis Specifications:
+      1. Upload: rag_status=PENDING -> background thread INDEXING -> hierarchical chunking & e5 embedding -> writes Qdrant points -> INDEXED.
+      2. Point Schema: 384-dim vector + payload (document_id, chunk_id, page_number, section_title, text), parents in {collection}_parents.
+      3. Failure: on exception, sets FAILED and logs error.
+      4. Permanent Delete: removes media file, deletes Qdrant points (children and parents), evicts _rag_instances[doc_id], deletes DB row.
+      5. Metadata Edits: PUT/PATCH does NOT touch Qdrant; payload holds no editable metadata (no title/authors).
+    """
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="thesis_user", email="thesis@univ.edu", password="password123")
+        self.client.force_authenticate(user=self.user)
+
+    def tearDown(self):
+        from .services.webhook_service import join_all_ingest_threads
+        from .services.rag_service import delete_document_qdrant_data, evict_rag_instance
+        import os
+        join_all_ingest_threads()
+        for doc in Document.objects.all():
+            try:
+                delete_document_qdrant_data(doc.id)
+                evict_rag_instance(doc.id)
+                if doc.file and os.path.exists(doc.file.path):
+                    os.remove(doc.file.path)
+            except Exception:
+                pass
+        super().tearDown()
+
+    def test_upload_writes_points_and_parents_to_qdrant(self):
+        """Thesis Claims 1 & 2: Upload writes 384-dim points and payloads to persistent Qdrant with status INDEXED."""
+        from .services.webhook_service import get_ingest_thread
+        from .services.rag_service import RagService
+
+        pdf_bytes = create_sample_academic_pdf()
+        dummy_file = SimpleUploadedFile("attention_test.pdf", pdf_bytes, content_type="application/pdf")
+
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Attention Is All You Need",
+            "short_title": "Attention",
+            "file": dummy_file,
+        }, format="multipart")
+
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        doc_id = resp.data["id"]
+        self.assertEqual(resp.data["rag_status"], "PENDING")
+
+        # Wait for background thread
+        thread = get_ingest_thread(doc_id)
+        if thread:
+            thread.join(timeout=25.0)
+
+        doc = Document.objects.get(id=doc_id)
+        self.assertEqual(doc.rag_status, "INDEXED")
+
+        # Verify Qdrant points and companion parents
+        rag = RagService.get_instance()
+        coll_name = f"doc_{doc_id}"
+        parents_coll = f"{coll_name}_parents"
+
+        self.assertTrue(rag.client.collection_exists(coll_name))
+        count = rag.client.count(collection_name=coll_name).count
+        self.assertGreater(count, 0)
+
+        # Inspect point schema: 384-dim vector + payload
+        points, _ = rag.client.scroll(collection_name=coll_name, limit=5, with_vectors=True)
+        self.assertTrue(len(points) > 0)
+        pt = points[0]
+        self.assertIsNotNone(pt.vector)
+        assert isinstance(pt.vector, list)
+        self.assertEqual(len(pt.vector), 384)
+        payload = pt.payload or {}
+        self.assertEqual(payload.get("document_id"), str(doc_id))
+        self.assertIn("chunk_id", payload)
+        self.assertIn("page_number", payload)
+        self.assertIn("section_title", payload)
+        self.assertIn("text", payload)
+        self.assertIn("parent_id", payload)
+        # Ensure payload does NOT contain editable metadata
+        self.assertNotIn("title", payload)
+        self.assertNotIn("authors", payload)
+
+        # Verify companion parent collection
+        self.assertTrue(rag.client.collection_exists(parents_coll))
+        p_count = rag.client.count(collection_name=parents_coll).count
+        self.assertGreater(p_count, 0)
+        p_points, _ = rag.client.scroll(collection_name=parents_coll, limit=5)
+        p_payload = p_points[0].payload or {}
+        self.assertEqual(p_payload.get("document_id"), str(doc_id))
+        self.assertIn("parent_id", p_payload)
+        self.assertIn("section_title", p_payload)
+        self.assertIn("parent_text", p_payload)
+        self.assertNotIn("title", p_payload)
+        self.assertNotIn("authors", p_payload)
+
+    def test_upload_failure_sets_failed_status(self):
+        """Thesis Claim 1: On unreadable/corrupted file or ingestion exception, background thread logs error and sets FAILED."""
+        from .services.webhook_service import trigger_rag_ingestion
+
+        doc = Document.objects.create(
+            owner=self.user,
+            title="Corrupted Paper",
+        )
+        self.assertEqual(doc.rag_status, "PENDING")
+
+        trigger_rag_ingestion(
+            document_id=doc.id,
+            file_path="C:\\inaccessible_non_existent_file.pdf",
+            sync=True,
+        )
+
+        doc.refresh_from_db()
+        self.assertEqual(doc.rag_status, "FAILED")
+
+    def test_permanent_delete_removes_qdrant_file_and_cache(self):
+        """Thesis Claim 3: Permanent delete removes physical file, Qdrant collections, evicts _rag_instances cache, and deletes PostgreSQL row."""
+        import os
+        from .services.webhook_service import get_ingest_thread
+        from .services.rag_service import RagService, _rag_instances
+
+        pdf_bytes = create_sample_academic_pdf()
+        dummy_file = SimpleUploadedFile("delete_test.pdf", pdf_bytes, content_type="application/pdf")
+
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Document To Delete",
+            "file": dummy_file,
+        }, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        doc_id = resp.data["id"]
+
+        thread = get_ingest_thread(doc_id)
+        if thread:
+            thread.join(timeout=25.0)
+
+        doc = Document.objects.get(id=doc_id)
+        file_path = doc.file.path
+        self.assertTrue(os.path.exists(file_path))
+
+        rag = RagService.get_instance()
+        coll_name = f"doc_{doc_id}"
+        parents_coll = f"{coll_name}_parents"
+        self.assertTrue(rag.client.collection_exists(coll_name))
+        self.assertTrue(rag.client.collection_exists(parents_coll))
+        self.assertIn(doc_id, _rag_instances)
+
+        # Permanent delete via DELETE endpoint
+        del_resp = self.client.delete(f"/api/v1/documents/{doc_id}/")
+        self.assertEqual(del_resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # 1. Physical file removed
+        self.assertFalse(os.path.exists(file_path))
+        # 2. Qdrant collections deleted
+        self.assertFalse(rag.client.collection_exists(coll_name))
+        self.assertFalse(rag.client.collection_exists(parents_coll))
+        # 3. Cache evicted
+        self.assertNotIn(doc_id, _rag_instances)
+        # 4. PostgreSQL row deleted
+        self.assertFalse(Document.objects.filter(id=doc_id).exists())
+
+    def test_metadata_edit_leaves_qdrant_unchanged(self):
+        """Thesis Claim 4: Metadata edits (PUT/PATCH) must NOT touch Qdrant; payload holds no editable metadata."""
+        from .services.webhook_service import get_ingest_thread
+        from .services.rag_service import RagService
+
+        pdf_bytes = create_sample_academic_pdf()
+        dummy_file = SimpleUploadedFile("metadata_edit_test.pdf", pdf_bytes, content_type="application/pdf")
+
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Initial Title Before Edit",
+            "file": dummy_file,
+        }, format="multipart")
+        doc_id = resp.data["id"]
+
+        thread = get_ingest_thread(doc_id)
+        if thread:
+            thread.join(timeout=25.0)
+
+        rag = RagService.get_instance()
+        coll_name = f"doc_{doc_id}"
+        points_before, _ = rag.client.scroll(collection_name=coll_name, limit=20)
+        count_before = len(points_before)
+        point_ids_before = {p.id for p in points_before}
+
+        # Perform PATCH to modify title and short_title
+        patch_resp = self.client.patch(f"/api/v1/documents/{doc_id}/", {
+            "title": "Updated Title After PATCH",
+            "short_title": "Updated Short",
+            "author_names": ["New Author"],
+        })
+        self.assertEqual(patch_resp.status_code, status.HTTP_200_OK)
+
+        # Verify DB updated
+        doc = Document.objects.get(id=doc_id)
+        self.assertEqual(doc.title, "Updated Title After PATCH")
+
+        # Verify Qdrant points are unchanged
+        points_after, _ = rag.client.scroll(collection_name=coll_name, limit=20)
+        self.assertEqual(len(points_after), count_before)
+        point_ids_after = {p.id for p in points_after}
+        self.assertEqual(point_ids_before, point_ids_after)
+
+        for pt in points_after:
+            payload = pt.payload or {}
+            self.assertNotIn("title", payload)
+            self.assertNotIn("authors", payload)
+            self.assertNotIn("author_names", payload)
+
+    def test_restart_simulation_rebuilds_from_qdrant_without_reembedding(self):
+        """
+        Thesis Claim 2: After server restart (_rag_instances cleared), get_or_create_rag
+        rebuilds DocumentRAG directly from persistent Qdrant (child vectors, payloads, parent texts)
+        without calling the embedding model's encode on the document chunks, and returns identical top-5 parents.
+        """
+        from unittest.mock import patch
+        from .services.webhook_service import get_ingest_thread
+        from .services.rag_service import (
+            _rag_instances,
+            get_or_create_rag,
+            RagService,
+        )
+
+        pdf_bytes = create_sample_academic_pdf()
+        dummy_file = SimpleUploadedFile("restart_test.pdf", pdf_bytes, content_type="application/pdf")
+
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Restart Simulation Paper",
+            "file": dummy_file,
+        }, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        doc_id = resp.data["id"]
+
+        thread = get_ingest_thread(doc_id)
+        if thread:
+            thread.join(timeout=25.0)
+
+        doc = Document.objects.get(id=doc_id)
+        file_path = doc.file.path
+
+        # 1. Retrieve initial DocumentRAG and perform query
+        rag_before = get_or_create_rag(doc_id, file_path)
+        self.assertIsNotNone(rag_before)
+        assert rag_before is not None
+        query = "neural network attention transformer architecture"
+        top5_before = rag_before.hybrid_search(query, top_k=5)
+        self.assertTrue(len(top5_before) > 0)
+
+        # 2. Simulate server restart: wipe in-memory cache
+        _rag_instances.clear()
+        self.assertEqual(len(_rag_instances), 0)
+
+        # 3. Patch the embedding model's encode method
+        rag_service = RagService.get_instance()
+        original_encode = rag_service.embedder.encode
+        encode_calls = []
+
+        def tracked_encode(*args, **kwargs):
+            texts = args[0] if args else kwargs.get("sentences", [])
+            encode_calls.append(texts)
+            return original_encode(*args, **kwargs)
+
+        with patch.object(rag_service.embedder, "encode", side_effect=tracked_encode):
+            # Rebuilding via get_or_create_rag must NOT call encode on document chunks
+            rag_after = get_or_create_rag(doc_id, file_path)
+            self.assertIsNotNone(rag_after)
+            assert rag_after is not None
+            # Rebuild must NOT have called encode for document chunks
+            self.assertEqual(len(encode_calls), 0, "get_or_create_rag must rebuild from Qdrant without calling encode")
+
+            # Execute query on rebuilt instance (encodes only the 1 query string)
+            top5_after = rag_after.hybrid_search(query, top_k=5)
+            # Exactly 1 encode call occurred, and it was for the query (1 string)
+            self.assertEqual(len(encode_calls), 1, "Only the single query string should be encoded during hybrid_search")
+            self.assertEqual(len(encode_calls[0]), 1)
+            self.assertTrue(any("query:" in str(t) for t in encode_calls[0]))
+
+        # 4. Verify identical top-5 results
+        self.assertEqual(len(top5_after), len(top5_before))
+        for (doc_b, score_b), (doc_a, score_a) in zip(top5_before, top5_after):
+            self.assertEqual(doc_a.metadata.get("parent_id"), doc_b.metadata.get("parent_id"))
+            self.assertEqual(doc_a.metadata.get("matched_child_id"), doc_b.metadata.get("matched_child_id"))
+            self.assertEqual(doc_a.page_content, doc_b.page_content)
+            self.assertAlmostEqual(score_a, score_b, places=5)
+
+    def test_missing_collection_falls_back_to_rebuilding(self):
+        """
+        Thesis Claim 2: If a document's Qdrant collection is missing or incomplete,
+        get_or_create_rag falls back to re-parsing and re-indexing the document from the file.
+        """
+        from .services.webhook_service import get_ingest_thread
+        from .services.rag_service import (
+            _rag_instances,
+            get_or_create_rag,
+            RagService,
+        )
+
+        pdf_bytes = create_sample_academic_pdf()
+        dummy_file = SimpleUploadedFile("fallback_test.pdf", pdf_bytes, content_type="application/pdf")
+
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Fallback Rebuilding Paper",
+            "file": dummy_file,
+        }, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        doc_id = resp.data["id"]
+
+        thread = get_ingest_thread(doc_id)
+        if thread:
+            thread.join(timeout=25.0)
+
+        doc = Document.objects.get(id=doc_id)
+        file_path = doc.file.path
+
+        rag_service = RagService.get_instance()
+        coll_name = f"doc_{doc_id}"
+        parents_coll = f"{coll_name}_parents"
+
+        # Simulate complete missing collection: delete Qdrant collections and clear cache
+        _rag_instances.clear()
+        if rag_service.client.collection_exists(coll_name):
+            rag_service.client.delete_collection(coll_name)
+        if rag_service.client.collection_exists(parents_coll):
+            rag_service.client.delete_collection(parents_coll)
+
+        self.assertFalse(rag_service.client.collection_exists(coll_name))
+        self.assertFalse(rag_service.client.collection_exists(parents_coll))
+
+        # get_or_create_rag must detect missing collection and fall back to re-ingesting
+        rag_rebuilt = get_or_create_rag(doc_id, file_path)
+        self.assertIsNotNone(rag_rebuilt)
+        assert rag_rebuilt is not None
+
+        # Collections must now exist in Qdrant again
+        self.assertTrue(rag_service.client.collection_exists(coll_name))
+        self.assertTrue(rag_service.client.collection_exists(parents_coll))
+        count = rag_service.client.count(coll_name).count
+        self.assertGreater(count, 0)
+
+        # Chat retrieval functions normally
+        results = rag_rebuilt.hybrid_search("transformer neural network", top_k=5)
+        self.assertGreater(len(results), 0)
+
+
+
 
 
 

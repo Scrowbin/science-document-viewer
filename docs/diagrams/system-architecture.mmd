@@ -1,0 +1,71 @@
+graph TB
+    %% =========================================================================
+    %% SYSTEM ARCHITECTURE DIAGRAM
+    %% Project: Scientific Document Management System with Local RAG Assistant
+    %% Verified Implementation: React 19 + Django 5 DRF + Qdrant Embedded + Ollama
+    %% =========================================================================
+
+    subgraph External_Cloud ["External Academic Metadata Cloud"]
+        Crossref["Crossref / OpenAlex REST API<br/>(Global DOI Resolution)"]
+        ArXiv["arXiv Registry API<br/>(Preprint Metadata)"]
+    end
+
+    subgraph Client_Layer ["Client Layer (React 19 + TypeScript + Vite)"]
+        UI_Library["Zotero-Style 3-Column Workspace<br/>(LeftSidebar, DocumentTable, MetadataPanel)"]
+        UI_PdfViewer["PDF.js Canvas Viewer<br/>(TextLayer, Smooth Zoom, Annotations Sidebar)"]
+        UI_AiChat["AI Assistant Panel &lt;AiChatPanel&gt;<br/>(Document Q&amp;A, 1-Click Summary, Page Badges)"]
+        UI_Modals["Interactive Modals<br/>(UploadModal, DoiModal, ChunkInspectorModal)"]
+    end
+
+    subgraph Backend_Layer ["Backend Core API (Django 5 DRF Modular Monolith)"]
+        API_Auth["Authentication &amp; User Service<br/>(SimpleJWT Token Rotation &amp; Blacklist)"]
+        API_Docs["Document &amp; Metadata Controllers<br/>(CRUD, Magic Byte Validation, DOI Autofill)"]
+        API_Collections["Collection Tree Service<br/>(Single-Query In-Memory Tree Builder)"]
+        API_Annotations["Annotation &amp; Note Controllers<br/>(Highlights, Sticky Notes, Canvas Sync)"]
+        
+        subgraph Internal_Services ["Application Business Logic Services"]
+            Svc_CrossRef["CrossrefService<br/>(DOI Cleaning &amp; Fallbacks)"]
+            Svc_PdfExtract["PdfMetadataService<br/>(arXiv/DOI/Font Heuristics)"]
+            Svc_Chunking["ChunkingUtils<br/>(PyMuPDF Section Detection)"]
+            Svc_RAG["RagService &amp; DocumentRAG<br/>(Hybrid RRF, Token Budget, Synthesis)"]
+            Svc_Webhook["WebhookService / Thread<br/>(In-Process Daemon Ingestion)"]
+        end
+    end
+
+    subgraph Storage_Layer ["Persistence &amp; AI Infrastructure"]
+        DB_Postgres[("PostgreSQL 16 Database<br/>15 Relational Tables<br/>(Users, Docs, Collections, Annotations)")]
+        Storage_Media[("Physical File Storage<br/>media/documents/*.pdf")]
+        DB_Qdrant[("Qdrant Embedded Vector Store<br/>SQLite Local Mode: media/qdrant_db/<br/>Exact Cosine Similarity")]
+        Model_Embedding["Dense Embedding Engine<br/>intfloat/e5-small-v2 (384-dim FP32)<br/>SentenceTransformers / FastEmbed"]
+        Daemon_Ollama["Local LLM Server (Ollama)<br/>Model: llama3.2:3b<br/>http://localhost:11434/api/generate"]
+    end
+
+    %% Client to Backend Connections
+    UI_Library -->|"REST / JWT (HTTP)"| API_Docs
+    UI_Library -->|"REST / JWT (HTTP)"| API_Collections
+    UI_PdfViewer -->|"REST / JWT (HTTP)"| API_Annotations
+    UI_AiChat -->|"POST /chat/ &amp; /summarize/"| Svc_RAG
+    UI_Modals -->|"POST /metadata/lookup-doi/"| Svc_CrossRef
+    UI_Modals -->|"POST /metadata/extract-pdf/"| Svc_PdfExtract
+
+    %% Backend Service Interactions
+    API_Docs --> Svc_PdfExtract
+    API_Docs --> Svc_Webhook
+    Svc_Webhook -->|"In-Process Thread"| Svc_RAG
+    Svc_CrossRef -->|"HTTPS"| Crossref
+    Svc_PdfExtract -->|"HTTPS"| ArXiv
+
+    %% Persistence Interactions
+    API_Auth -->|"Django ORM (SQL)"| DB_Postgres
+    API_Docs -->|"Django ORM (SQL)"| DB_Postgres
+    API_Collections -->|"Django ORM (SQL)"| DB_Postgres
+    API_Annotations -->|"Django ORM (SQL)"| DB_Postgres
+    API_Docs -->|"Write File"| Storage_Media
+
+    %% RAG Pipeline Data Flow
+    Svc_RAG -->|"Read PDF"| Storage_Media
+    Svc_RAG -->|"Section Extraction"| Svc_Chunking
+    Svc_RAG -->|"Encode Text (passage: / query:)"| Model_Embedding
+    Svc_RAG -->|"Exact Search &amp; Upsert"| DB_Qdrant
+    Svc_RAG -->|"Prompt + Context (HTTP)"| Daemon_Ollama
+    Svc_RAG -->|"Update rag_status"| DB_Postgres

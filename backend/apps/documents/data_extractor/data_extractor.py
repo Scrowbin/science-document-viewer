@@ -159,13 +159,15 @@ def ai_extractor_metadata(path) -> dict:
 
 
 def data_extractor(path):
-    # Tier 1: GROBID full-text → TEI XML → parsed metadata
-    try:
-        result = ai_extractor_metadata(path)
-        if result and result.get("title"):
-            return result
-    except Exception as e:
-        print(f"GROBID failed: {e}")
+    from django.conf import settings
+    if getattr(settings, "USE_GROBID", False):
+        # Tier 1: GROBID full-text → TEI XML → parsed metadata
+        try:
+            result = ai_extractor_metadata(path)
+            if result and result.get("title"):
+                return result
+        except Exception as e:
+            print(f"GROBID failed: {e}")
 
     # Tier 2: heuristic PDF parser — maps raw keys to standard schema
     try:

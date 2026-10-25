@@ -145,7 +145,9 @@ export * from './auth';
 export interface ChatSource {
   page: number;
   chunk_id?: string;
+  section?: string;
   snippet?: string;
+  text?: string;
   score?: number;
 }
 

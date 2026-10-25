@@ -1,0 +1,68 @@
+sequenceDiagram
+    autonumber
+    %% =========================================================================
+    %% DOCUMENT INGESTION & VECTOR INDEXING SEQUENCE
+    %% Traces verified runtime path from PDF selection to Qdrant storage
+    %% =========================================================================
+
+    actor User as Researcher
+    participant FE as Frontend (React 19 / UploadModal)
+    participant API as Backend API (Django DRF / DocumentViewSet)
+    participant EXT as Metadata Service (PdfMetadataService)
+    database DB as Relational DB (PostgreSQL 16)
+    participant TH as Background Worker (In-Process Daemon Thread)
+    participant RAG as Embedded RAG (chunking_utils & rag_service)
+    database VDB as Vector Store (Qdrant Embedded SQLite)
+
+    %% Step 1: Pre-Upload Extraction & Preview
+    User->>FE: Select / Drop Academic PDF File
+    activate FE
+    FE->>API: POST /api/v1/metadata/extract-pdf/ (MultiPart File)
+    activate API
+    API->>EXT: extract_metadata_from_pdf(temp_file)
+    activate EXT
+    EXT-->>API: Return extracted { title, authors, doi, date }
+    deactivate EXT
+    API-->>FE: HTTP 200 OK (Metadata Preview JSON)
+    deactivate API
+    FE-->>User: Open &lt;UploadModal&gt; with prefilled metadata preview
+
+    %% Step 2: Confirmation & Persistence
+    User->>FE: Confirm and click "Add to Library"
+    FE->>API: POST /api/v1/documents/ (multipart/form-data: file, title, metadata)
+    activate API
+    API->>API: Validate file: size &lt;= 50MB, .pdf, magic bytes '%PDF-'
+    API->>API: Save physical file to media/documents/*.pdf
+    API->>DB: INSERT INTO documents (rag_status = 'PENDING', title, ...)
+    DB-->>API: Return document_id
+    API->>EXT: apply_pdf_metadata_to_document(doc)
+    API->>TH: trigger_rag_ingestion(document_id, file_path, title, owner_id)
+    API-->>FE: HTTP 201 Created (Document details JSON, rag_status = 'PENDING')
+    deactivate API
+    FE-->>User: Display document in library with 'Indexing...' status badge
+    deactivate FE
+
+    %% Step 3: Asynchronous In-Process Vector Indexing
+    activate TH
+    Note over TH, VDB: Execution occurs in an in-process background daemon thread (no external Celery queue)
+    TH->>RAG: get_or_create_rag(document_id, file_path)
+    activate RAG
+    RAG->>RAG: PyMuPDF section extraction (extract_sections_from_pdf)
+    RAG->>RAG: Chunking strategy: section_overlap (max_tokens=400, overlap=80)
+    RAG->>RAG: Compute dense embeddings: intfloat/e5-small-v2 (prefix 'passage: ')
+    RAG->>VDB: upsert(collection='scientific_document_chunks', points with deterministic UUIDs)
+    activate VDB
+    VDB-->>RAG: Exact SQLite vectors &amp; payload indexed
+    deactivate VDB
+    RAG->>DB: UPDATE documents SET rag_status = 'INDEXED' WHERE id = document_id
+    deactivate RAG
+    deactivate TH
+
+    %% Step 4: Status Synchronization
+    FE->>API: GET /api/v1/documents/{id}/ (or document list reload)
+    activate API
+    API->>DB: SELECT * FROM documents WHERE id = {id}
+    DB-->>API: Return document record (rag_status = 'INDEXED')
+    API-->>FE: HTTP 200 OK
+    deactivate API
+    FE-->>User: Update status badge to 'Indexed' (Ready for AI Assistant Q&amp;A)

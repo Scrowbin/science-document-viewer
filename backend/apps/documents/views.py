@@ -5,6 +5,7 @@ from rest_framework import viewsets, permissions, status, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from .models import (
@@ -35,6 +36,8 @@ from .services.rag_service import (
     query_document,
     summarize_document,
     reindex_document,
+    delete_document_qdrant_data,
+    evict_rag_instance,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,12 +123,47 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 logger.warning("PDF metadata extraction failed: %s", e)
 
             # 2. Trigger RAG background ingestion
+            sync_mode = getattr(settings, "RAG_INGESTION_SYNC", False)
             trigger_rag_ingestion(
                 document_id=doc.id,
                 file_path=doc.file.path,
                 title=doc.title,
                 owner_id=doc.owner_id,
+                sync=sync_mode,
             )
+
+    def perform_destroy(self, instance):
+        """
+        Permanent delete implementation matching thesis specification:
+          1. Deletes physical file in media/documents/
+          2. Deletes that document's points in Qdrant (child vectors in doc_{id} and companion doc_{id}_parents)
+          3. Evicts cached in-memory _rag_instances[doc_id]
+          4. Deletes PostgreSQL row (CASCADE to all relational tables)
+        """
+        doc_id = instance.id
+        file_path = instance.file.path if instance.file else None
+
+        # 1. Delete Qdrant vectors and companion parent collection
+        try:
+            delete_document_qdrant_data(doc_id)
+        except Exception as e:
+            logger.warning("Failed to delete Qdrant points for doc %s: %s", doc_id, e)
+
+        # 2. Evict in-memory RAG instance
+        try:
+            evict_rag_instance(doc_id)
+        except Exception as e:
+            logger.warning("Failed to evict RAG instance for doc %s: %s", doc_id, e)
+
+        # 3. Delete physical file in media/documents/
+        if file_path and os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                logger.warning("Failed to remove physical file %s: %s", file_path, e)
+
+        # 4. Delete PostgreSQL row (CASCADE)
+        super().perform_destroy(instance)
 
     @action(detail=True, methods=["post"], url_path="toggle-trash")
     def toggle_trash(self, request, pk=None):
@@ -204,8 +242,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def reindex(self, request, pk=None):
         doc = self.get_object()
         file_path = doc.file.path if doc.file else ""
-        reindex_document(doc.id, file_path)
-        return Response({"status": "INDEXED"})
+        strategy = request.data.get("strategy") or request.query_params.get("strategy")
+        reindex_document(doc.id, file_path, strategy=strategy)
+        active_strategy = strategy or getattr(settings, "CHUNKING_STRATEGY", "hierarchical")
+        return Response({"status": "INDEXED", "strategy": active_strategy})
 
     # Google Drive-style shares
     @action(detail=True, methods=["get", "post"], url_path="shares")

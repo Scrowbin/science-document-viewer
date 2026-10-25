@@ -1,0 +1,24 @@
+{
+  "section_overlap": {
+    "total_chunks": 1591,
+    "total_parents": 0,
+    "ndcg10": 0.4743,
+    "ndcg4": 0.4569,
+    "recall20": 0.5473,
+    "mrr10": 0.5543,
+    "budget_coverage_pct": 73.23,
+    "latency_p50_ms": 32.85,
+    "latency_p95_ms": 43.92
+  },
+  "hierarchical": {
+    "total_chunks": 2618,
+    "total_parents": 907,
+    "ndcg10": 0.5049,
+    "ndcg4": 0.5139,
+    "recall20": 0.584,
+    "mrr10": 0.5641,
+    "budget_coverage_pct": 75.59,
+    "latency_p50_ms": 34.1,
+    "latency_p95_ms": 46.73
+  }
+}

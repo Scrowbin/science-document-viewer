@@ -21,7 +21,7 @@ import json
 import math
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
@@ -34,7 +34,7 @@ from eval.audit.verify_gate_g14_spot_check import compute_hc1_cluster_se, sha256
 
 def load_dev_cluster_residuals(
     results_path: Path,
-) -> Tuple[str, float, List[Dict[str, np.ndarray]], Dict[str, float]]:
+) -> Tuple[str, float, List[Dict[str, Any]], Dict[str, float]]:
     """
     Load development split results, compute paired difference residuals vs MiniLM,
     and select candidate pair with maximum between-paper cluster standard deviation.
@@ -75,7 +75,7 @@ def load_dev_cluster_residuals(
     all_query_diffs = np.concatenate(list(diffs.values()))
     grand_mean = float(np.mean(all_query_diffs))
 
-    clusters_list: List[Dict[str, np.ndarray]] = []
+    clusters_list: List[Dict[str, Any]] = []
     for pid, d_arr in diffs.items():
         residuals = d_arr - grand_mean
         clusters_list.append({
@@ -168,7 +168,7 @@ def run_power_simulation(
 def make_expansion_decision(
     power_results: Dict[int, Dict[str, float]],
     target_power: float = 0.80,
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Apply pre-registered piecewise sizing decision formula (§7.3).
     """

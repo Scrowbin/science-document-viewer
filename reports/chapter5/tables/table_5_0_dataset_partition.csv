@@ -1,0 +1,7 @@
+phase,split_name,papers_count,queries_count,chunks_count,control_conditions,evaluation_objective,source_artifact
+EDA,Toàn bộ Benchmark & Mẫu Pilot,1.585 toàn phần (100 pilot),5.049 toàn phần (250 pilot),21.909 đề mục (1.336 pilot),Toàn văn bài báo & nhãn bằng chứng gốc,Khảo sát phân bố hình thái học và bất đối xứng từ vựng toàn diện,eval/phases/phase_0_baseline/artifacts/qasper_full_corpus_eda.json
+RQ1,Development Split (Physical PDFs),47,127,Per parser blocks,Frozen E5-small-v2 embeddings; 4 CPU threads,5 local PDF parsers benchmark (Coverage; Char-Match; Heading F1; Latency),eval/results/rq1_extraction_20261024_000639.json
+RQ2,Development Split,47,127,893 to 2618 (by strategy),1600 tokens fixed budget; tau=0.5,8 chunking strategies (Truncation; nDCG@10; Recall@20; MRR@10),eval/results/rq2_chunking_20261024_013443.json
+RQ3,Unified In-House Evaluation Corpus (Dev + Held-out),207,615,5207,tau=0.55; NumPy BLAS Cosine; B=2000 cluster bootstrap,11 open-source dense models <= 335M + BM25,eval/results/thesis_embedding_benchmark.json
+RQ4,Held-out Split,160,487,4108,Dense E5-small-v2 + BM25 WordPiece (k=60),Hybrid RRF multi-stage retrieval ceiling (Recall@20 = 0.956),eval/prepared/step6_hybrid_rrf_benchmark.json
+RQ5,Pilot Core Set,4,16,Top-4 chunks (1500 tokens budget),Llama-3.2-3B via Ollama daemon,Local LLM grounded generation & citation attribution,eval/research_execution_ledger.md

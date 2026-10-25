@@ -1,0 +1,62 @@
+sequenceDiagram
+    autonumber
+    %% =========================================================================
+    %% RAG QUESTION-ANSWERING SEQUENCE
+    %% Verified runtime path: AiChatPanel -> Hybrid Search -> Ollama -> Page Citation
+    %% =========================================================================
+
+    actor User as Researcher
+    participant UI_Chat as AI Panel (&lt;AiChatPanel&gt;)
+    participant UI_Viewer as PDF Viewer (&lt;PdfViewer&gt;)
+    participant API as Backend API (Django DRF /chat/)
+    participant RAG as RAG Service (rag_service.py / DocumentRAG)
+    participant LLM as Local LLM Server (Ollama llama3.2:3b)
+
+    %% Step 1: User Query Submission
+    User->>UI_Chat: Type question &amp; submit (e.g. "Explain the core methodology")
+    activate UI_Chat
+    UI_Chat->>API: POST /api/v1/documents/{id}/chat/ { "question": "..." }
+    activate API
+    API->>RAG: query_document(doc_id={id}, file_path, question, doc_title)
+    activate RAG
+
+    %% Step 2: In-Memory Hybrid Retrieval (Dense Cosine + BM25Okapi RRF)
+    RAG->>RAG: Generate query embedding via intfloat/e5-small-v2 (prefix 'query: ')
+    RAG->>RAG: Compute dense cosine similarity (embeddings @ query_emb)
+    RAG->>RAG: Compute lexical BM25Okapi scores on tokenized query
+    RAG->>RAG: Apply Reciprocal Rank Fusion (RRF, k=60) &amp; select Top-5 chunks
+    RAG->>RAG: Extract chunk metadata: page_number, section_title, snippet
+
+    %% Step 3: Grounded Context Assembly & LLM Generation
+    RAG->>RAG: Assemble grounded prompt with context snippets and academic persona
+    RAG->>LLM: POST http://localhost:11434/api/generate { model: "llama3.2:3b", prompt, stream: false }
+    activate LLM
+
+    alt Ollama Server Online
+        LLM-->>RAG: HTTP 200 { "response": "Synthesized academic answer..." }
+        RAG->>RAG: Package response with model="llama3.2:3b (Local RAG)"
+    else Ollama Offline or Timeout (60s)
+        LLM--xRAG: Connection refused or timeout
+        RAG->>RAG: Grounded Synthesis Fallback (compile top-3 snippet excerpts directly)
+        RAG->>RAG: Package response with model="Grounded Hybrid RAG (Local)"
+    end
+    deactivate LLM
+
+    %% Step 4: Return Answer & Citations
+    RAG-->>API: Return { answer, sources: [{ page: 2, chunk_id: "...", snippet: "..." }], model }
+    deactivate RAG
+    API-->>UI_Chat: HTTP 200 OK (JSON with answer &amp; sources)
+    deactivate API
+
+    %% Step 5: Citation Rendering & Canvas Navigation
+    UI_Chat-->>User: Render markdown answer with clickable [Page 2] citation badge
+    deactivate UI_Chat
+
+    User->>UI_Chat: Click [Page 2] citation badge
+    activate UI_Chat
+    UI_Chat->>UI_Viewer: onJumpToPage(2)
+    activate UI_Viewer
+    UI_Viewer->>UI_Viewer: scrollToPage(2) on PDF.js canvas
+    UI_Viewer-->>User: Smoothly display and focus Page 2 in document reading pane
+    deactivate UI_Viewer
+    deactivate UI_Chat

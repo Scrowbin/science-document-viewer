@@ -1,0 +1,1472 @@
+{
+  "audit_name": "QASPER Physical PDF Availability and Usability Audit",
+  "benchmark_total_papers": 1585,
+  "local_inventory": {
+    "total_unique_local_pdfs": 61,
+    "can_open_count": 61,
+    "can_open_pct": 100.0,
+    "text_extraction_success_count": 61,
+    "text_extraction_success_pct": 100.0,
+    "total_questions_in_local_papers": 195,
+    "total_evidenced_questions": 185,
+    "total_aligned_evidenced_questions": 185,
+    "aggregate_evidence_alignment_pct": 100.0,
+    "mean_page_count": 8.7,
+    "mean_extracted_words": 5197.0
+  },
+  "remote_availability_probe": {
+    "probe_sample_size": 25,
+    "status_distribution": {
+      "404": 1,
+      "200": 24
+    },
+    "accessible_pdf_count": 24,
+    "accessible_pdf_pct": 96.0,
+    "probe_details": [
+      {
+        "arxiv_id": "1802.00396",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1802.00396.pdf",
+        "pdf_http_status": 404,
+        "content_type": "text/html; charset=utf-8",
+        "is_accessible_pdf": false,
+        "note": "arXiv returned 404 (PDF missing or withdrawn)"
+      },
+      {
+        "arxiv_id": "1909.00694",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1909.00694.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "2003.07723",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/2003.07723.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1705.09665",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1705.09665.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1908.06606",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1908.06606.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1811.00942",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1811.00942.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1805.02400",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1805.02400.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1907.05664",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1907.05664.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1910.14497",
+        "split": "train",
+        "pdf_url": "https://arxiv.org/pdf/1910.14497.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1801.05147",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1801.05147.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1909.00512",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1909.00512.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1804.05918",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1804.05918.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1901.05287",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1901.05287.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1612.06685",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1612.06685.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1910.10781",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1910.10781.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1809.00540",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/1809.00540.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "2004.03354",
+        "split": "dev",
+        "pdf_url": "https://arxiv.org/pdf/2004.03354.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1911.10742",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1911.10742.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1904.09131",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1904.09131.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1611.06322",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1611.06322.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1604.02038",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1604.02038.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1911.04474",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1911.04474.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1905.00840",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1905.00840.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1810.02229",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1810.02229.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      },
+      {
+        "arxiv_id": "1909.00091",
+        "split": "test",
+        "pdf_url": "https://arxiv.org/pdf/1909.00091.pdf",
+        "pdf_http_status": 200,
+        "content_type": "application/pdf",
+        "is_accessible_pdf": true
+      }
+    ]
+  },
+  "local_pdf_records": [
+    {
+      "arxiv_id": "1603.09631",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1603.09631.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1603.09631.pdf",
+      "size_bytes": 651008,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 3500,
+      "extracted_chars": 21925,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1605.06083",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1605.06083.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1605.06083.pdf",
+      "size_bytes": 242086,
+      "can_open": true,
+      "page_count": 4,
+      "text_extraction_success": true,
+      "extracted_words": 3462,
+      "extracted_chars": 21833,
+      "total_questions": 4,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1609.00425",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1609.00425.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1609.00425.pdf",
+      "size_bytes": 229651,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 6077,
+      "extracted_chars": 39062,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1610.09225",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1610.09225.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1610.09225.pdf",
+      "size_bytes": 227180,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3691,
+      "extracted_chars": 23773,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1611.04798",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1611.04798.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1611.04798.pdf",
+      "size_bytes": 566264,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 5811,
+      "extracted_chars": 38189,
+      "total_questions": 4,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1612.03226",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1612.03226.pdf",
+        "eval\\data\\pdfs\\1612.03226.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1612.03226.pdf",
+      "size_bytes": 580835,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 2474,
+      "extracted_chars": 15505,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1701.04056",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1701.04056.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1701.04056.pdf",
+      "size_bytes": 321109,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 3376,
+      "extracted_chars": 21222,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1701.08229",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1701.08229.pdf",
+        "eval\\data\\pdfs\\1701.08229.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1701.08229.pdf",
+      "size_bytes": 381458,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 3137,
+      "extracted_chars": 21373,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1704.06194",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1704.06194.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1704.06194.pdf",
+      "size_bytes": 497850,
+      "can_open": true,
+      "page_count": 12,
+      "text_extraction_success": true,
+      "extracted_words": 8128,
+      "extracted_chars": 51611,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1706.08198",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1706.08198.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1706.08198.pdf",
+      "size_bytes": 961363,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 3357,
+      "extracted_chars": 21901,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1708.01464",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1708.01464.pdf",
+        "eval\\data\\pdfs\\1708.01464.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1708.01464.pdf",
+      "size_bytes": 209973,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 4514,
+      "extracted_chars": 28591,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1712.00991",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1712.00991.pdf",
+        "eval\\data\\pdfs\\1712.00991.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1712.00991.pdf",
+      "size_bytes": 192299,
+      "can_open": true,
+      "page_count": 14,
+      "text_extraction_success": true,
+      "extracted_words": 5284,
+      "extracted_chars": 34041,
+      "total_questions": 7,
+      "evidenced_questions": 7,
+      "aligned_evidenced_questions": 7,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1802.06024",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1802.06024.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1802.06024.pdf",
+      "size_bytes": 224757,
+      "can_open": true,
+      "page_count": 11,
+      "text_extraction_success": true,
+      "extracted_words": 8820,
+      "extracted_chars": 51283,
+      "total_questions": 6,
+      "evidenced_questions": 5,
+      "aligned_evidenced_questions": 5,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1802.07862",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1802.07862.pdf",
+        "eval\\data\\pdfs\\1802.07862.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1802.07862.pdf",
+      "size_bytes": 1605366,
+      "can_open": true,
+      "page_count": 9,
+      "text_extraction_success": true,
+      "extracted_words": 5671,
+      "extracted_chars": 36115,
+      "total_questions": 5,
+      "evidenced_questions": 5,
+      "aligned_evidenced_questions": 5,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1805.08241",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1805.08241.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1805.08241.pdf",
+      "size_bytes": 255206,
+      "can_open": true,
+      "page_count": 11,
+      "text_extraction_success": true,
+      "extracted_words": 5739,
+      "extracted_chars": 33270,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1806.00738",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1806.00738.pdf",
+        "eval\\data\\pdfs\\1806.00738.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1806.00738.pdf",
+      "size_bytes": 2217020,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 2078,
+      "extracted_chars": 12601,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1808.09111",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1808.09111.pdf",
+        "eval\\data\\pdfs\\1808.09111.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1808.09111.pdf",
+      "size_bytes": 3826877,
+      "can_open": true,
+      "page_count": 11,
+      "text_extraction_success": true,
+      "extracted_words": 7221,
+      "extracted_chars": 45987,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1809.00530",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1809.00530.pdf",
+        "eval\\data\\pdfs\\1809.00530.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1809.00530.pdf",
+      "size_bytes": 544082,
+      "can_open": true,
+      "page_count": 15,
+      "text_extraction_success": true,
+      "extracted_words": 8499,
+      "extracted_chars": 58399,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1809.01541",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1809.01541.pdf",
+        "eval\\data\\pdfs\\1809.01541.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1809.01541.pdf",
+      "size_bytes": 249808,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3496,
+      "extracted_chars": 21579,
+      "total_questions": 7,
+      "evidenced_questions": 5,
+      "aligned_evidenced_questions": 5,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1809.02286",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1809.02286.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1809.02286.pdf",
+      "size_bytes": 449156,
+      "can_open": true,
+      "page_count": 9,
+      "text_extraction_success": true,
+      "extracted_words": 6636,
+      "extracted_chars": 41666,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1809.04267",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1809.04267.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1809.04267.pdf",
+      "size_bytes": 698853,
+      "can_open": true,
+      "page_count": 9,
+      "text_extraction_success": true,
+      "extracted_words": 6583,
+      "extracted_chars": 41046,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1809.09194",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1809.09194.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1809.09194.pdf",
+      "size_bytes": 505507,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3168,
+      "extracted_chars": 19656,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1810.08699",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1810.08699.pdf",
+        "eval\\data\\pdfs\\1810.08699.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1810.08699.pdf",
+      "size_bytes": 134753,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 4203,
+      "extracted_chars": 28809,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1811.00147",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1811.00147.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1811.00147.pdf",
+      "size_bytes": 709085,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 6310,
+      "extracted_chars": 39812,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1811.00383",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1811.00383.pdf",
+        "eval\\data\\pdfs\\1811.00383.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1811.00383.pdf",
+      "size_bytes": 244791,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3737,
+      "extracted_chars": 24547,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1811.05711",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1811.05711.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1811.05711.pdf",
+      "size_bytes": 10239159,
+      "can_open": true,
+      "page_count": 25,
+      "text_extraction_success": true,
+      "extracted_words": 12157,
+      "extracted_chars": 79624,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1904.01548",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1904.01548.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1904.01548.pdf",
+      "size_bytes": 1577555,
+      "can_open": true,
+      "page_count": 15,
+      "text_extraction_success": true,
+      "extracted_words": 8329,
+      "extracted_chars": 50735,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1904.03288",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1904.03288.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1904.03288.pdf",
+      "size_bytes": 681690,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 3740,
+      "extracted_chars": 23674,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1904.07904",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1904.07904.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1904.07904.pdf",
+      "size_bytes": 345956,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3465,
+      "extracted_chars": 22108,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1904.09535",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1904.09535.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1904.09535.pdf",
+      "size_bytes": 489706,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3596,
+      "extracted_chars": 24187,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1906.01081",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1906.01081.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1906.01081.pdf",
+      "size_bytes": 2340290,
+      "can_open": true,
+      "page_count": 12,
+      "text_extraction_success": true,
+      "extracted_words": 8017,
+      "extracted_chars": 49134,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1906.08593",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1906.08593.pdf",
+        "eval\\data\\pdfs\\1906.08593.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1906.08593.pdf",
+      "size_bytes": 262786,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3507,
+      "extracted_chars": 21651,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1907.04433",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1907.04433.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1907.04433.pdf",
+      "size_bytes": 397049,
+      "can_open": true,
+      "page_count": 7,
+      "text_extraction_success": true,
+      "extracted_words": 2649,
+      "extracted_chars": 18785,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1908.06941",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1908.06941.pdf",
+        "eval\\data\\pdfs\\1908.06941.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1908.06941.pdf",
+      "size_bytes": 275701,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3274,
+      "extracted_chars": 20813,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.02027",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1909.02027.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1909.02027.pdf",
+      "size_bytes": 222706,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3773,
+      "extracted_chars": 23962,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.02304",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1909.02304.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1909.02304.pdf",
+      "size_bytes": 526378,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 7272,
+      "extracted_chars": 44409,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.09067",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1909.09067.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1909.09067.pdf",
+      "size_bytes": 90488,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 4426,
+      "extracted_chars": 31521,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.09587",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1909.09587.pdf",
+        "eval\\data\\pdfs\\1909.09587.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1909.09587.pdf",
+      "size_bytes": 207921,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 4081,
+      "extracted_chars": 27189,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.11687",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1909.11687.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1909.11687.pdf",
+      "size_bytes": 383209,
+      "can_open": true,
+      "page_count": 7,
+      "text_extraction_success": true,
+      "extracted_words": 4636,
+      "extracted_chars": 30688,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1909.13714",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1909.13714.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1909.13714.pdf",
+      "size_bytes": 71791,
+      "can_open": true,
+      "page_count": 3,
+      "text_extraction_success": true,
+      "extracted_words": 1816,
+      "extracted_chars": 12901,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1910.01863",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1910.01863.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1910.01863.pdf",
+      "size_bytes": 219349,
+      "can_open": true,
+      "page_count": 11,
+      "text_extraction_success": true,
+      "extracted_words": 7398,
+      "extracted_chars": 47078,
+      "total_questions": 1,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1910.05603",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1910.05603.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1910.05603.pdf",
+      "size_bytes": 172396,
+      "can_open": true,
+      "page_count": 3,
+      "text_extraction_success": true,
+      "extracted_words": 1624,
+      "extracted_chars": 9624,
+      "total_questions": 4,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1911.02855",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1911.02855.pdf",
+        "eval\\data\\pdfs\\1911.02855.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1911.02855.pdf",
+      "size_bytes": 284395,
+      "can_open": true,
+      "page_count": 12,
+      "text_extraction_success": true,
+      "extracted_words": 7441,
+      "extracted_chars": 47973,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1911.03059",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1911.03059.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1911.03059.pdf",
+      "size_bytes": 286370,
+      "can_open": true,
+      "page_count": 4,
+      "text_extraction_success": true,
+      "extracted_words": 3143,
+      "extracted_chars": 20852,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1911.06964",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1911.06964.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1911.06964.pdf",
+      "size_bytes": 579641,
+      "can_open": true,
+      "page_count": 10,
+      "text_extraction_success": true,
+      "extracted_words": 5205,
+      "extracted_chars": 33987,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.01214",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1912.01214.pdf",
+        "eval\\data\\pdfs\\1912.01214.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1912.01214.pdf",
+      "size_bytes": 737407,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 5702,
+      "extracted_chars": 37694,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.03804",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1912.03804.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1912.03804.pdf",
+      "size_bytes": 737951,
+      "can_open": true,
+      "page_count": 15,
+      "text_extraction_success": true,
+      "extracted_words": 5227,
+      "extracted_chars": 33878,
+      "total_questions": 5,
+      "evidenced_questions": 5,
+      "aligned_evidenced_questions": 5,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.04961",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1912.04961.pdf",
+        "eval\\data\\pdfs\\1912.04961.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1912.04961.pdf",
+      "size_bytes": 312843,
+      "can_open": true,
+      "page_count": 13,
+      "text_extraction_success": true,
+      "extracted_words": 5814,
+      "extracted_chars": 37408,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.06262",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1912.06262.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1912.06262.pdf",
+      "size_bytes": 1189470,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 4817,
+      "extracted_chars": 29936,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.08960",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\1912.08960.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\1912.08960.pdf",
+      "size_bytes": 543008,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 5098,
+      "extracted_chars": 33460,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "1912.13337",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\1912.13337.pdf",
+        "eval\\data\\pdfs\\1912.13337.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\1912.13337.pdf",
+      "size_bytes": 3921849,
+      "can_open": true,
+      "page_count": 16,
+      "text_extraction_success": true,
+      "extracted_words": 11075,
+      "extracted_chars": 69950,
+      "total_questions": 5,
+      "evidenced_questions": 5,
+      "aligned_evidenced_questions": 5,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2001.02284",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\2001.02284.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\2001.02284.pdf",
+      "size_bytes": 1400558,
+      "can_open": true,
+      "page_count": 13,
+      "text_extraction_success": true,
+      "extracted_words": 8964,
+      "extracted_chars": 55688,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2001.03131",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2001.03131.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2001.03131.pdf",
+      "size_bytes": 209225,
+      "can_open": true,
+      "page_count": 6,
+      "text_extraction_success": true,
+      "extracted_words": 3929,
+      "extracted_chars": 25052,
+      "total_questions": 3,
+      "evidenced_questions": 1,
+      "aligned_evidenced_questions": 1,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2001.09215",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2001.09215.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2001.09215.pdf",
+      "size_bytes": 205167,
+      "can_open": true,
+      "page_count": 2,
+      "text_extraction_success": true,
+      "extracted_words": 1419,
+      "extracted_chars": 9600,
+      "total_questions": 2,
+      "evidenced_questions": 2,
+      "aligned_evidenced_questions": 2,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2002.01664",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2002.01664.pdf",
+        "eval\\data\\pdfs\\2002.01664.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2002.01664.pdf",
+      "size_bytes": 1073640,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 3282,
+      "extracted_chars": 20666,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2002.03407",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2002.03407.pdf",
+        "eval\\data\\pdfs\\2002.03407.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2002.03407.pdf",
+      "size_bytes": 140491,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 5363,
+      "extracted_chars": 34012,
+      "total_questions": 5,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2002.08795",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\2002.08795.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\2002.08795.pdf",
+      "size_bytes": 659644,
+      "can_open": true,
+      "page_count": 7,
+      "text_extraction_success": true,
+      "extracted_words": 3393,
+      "extracted_chars": 21865,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2002.11910",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2002.11910.pdf",
+        "eval\\data\\pdfs\\2002.11910.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2002.11910.pdf",
+      "size_bytes": 180337,
+      "can_open": true,
+      "page_count": 5,
+      "text_extraction_success": true,
+      "extracted_words": 2947,
+      "extracted_chars": 18794,
+      "total_questions": 3,
+      "evidenced_questions": 3,
+      "aligned_evidenced_questions": 3,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2003.03106",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\2003.03106.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\2003.03106.pdf",
+      "size_bytes": 300931,
+      "can_open": true,
+      "page_count": 9,
+      "text_extraction_success": true,
+      "extracted_words": 7082,
+      "extracted_chars": 44645,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2003.04642",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\pdfs\\dev\\2003.04642.pdf"
+      ],
+      "primary_path": "eval\\pdfs\\dev\\2003.04642.pdf",
+      "size_bytes": 291586,
+      "can_open": true,
+      "page_count": 20,
+      "text_extraction_success": true,
+      "extracted_words": 14054,
+      "extracted_chars": 88171,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    },
+    {
+      "arxiv_id": "2003.11645",
+      "in_qasper": true,
+      "qasper_split": "dev",
+      "local_paths": [
+        "eval\\data\\pdfs\\2003.11645.pdf"
+      ],
+      "primary_path": "eval\\data\\pdfs\\2003.11645.pdf",
+      "size_bytes": 1061070,
+      "can_open": true,
+      "page_count": 8,
+      "text_extraction_success": true,
+      "extracted_words": 4328,
+      "extracted_chars": 28082,
+      "total_questions": 4,
+      "evidenced_questions": 4,
+      "aligned_evidenced_questions": 4,
+      "alignment_rate_pct": 100.0,
+      "issues": []
+    }
+  ]
+}

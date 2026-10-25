@@ -1,0 +1,245 @@
+classDiagram
+    %% =========================================================================
+    %% DATABASE UML CLASS DIAGRAM (Object-Relational Mapping Domain Model)
+    %% Project: Scientific Document Management System with Local RAG
+    %% Framework: Django 5 ORM + PostgreSQL 16
+    %% =========================================================================
+
+    direction TB
+
+    %% Enumerations
+    class PermissionType {
+        <<Enumeration>>
+        VIEW
+        COMMENT
+        EDIT
+    }
+
+    class RagStatus {
+        <<Enumeration>>
+        PENDING
+        INDEXING
+        INDEXED
+        FAILED
+    }
+
+    class AnnotationType {
+        <<Enumeration>>
+        highlight
+        note
+        underline
+    }
+
+    %% Core Entity Classes
+    class User {
+        <<Model / AbstractUser>>
+        +int id
+        +string username
+        +string email
+        +string password
+        +string avatar
+        +string institution
+        +datetime date_joined
+        +bool is_active
+        +bool is_staff
+        +__str__() string
+    }
+
+    class Collection {
+        <<Model>>
+        +int id
+        +int owner_id
+        +int parent_id
+        +string name
+        +string color
+        +datetime created_at
+        +__str__() string
+    }
+
+    class CollectionShare {
+        <<Model / Association>>
+        +int id
+        +int collection_id
+        +int shared_with_user_id
+        +PermissionType permission
+        +datetime created_at
+        +__str__() string
+    }
+
+    class Document {
+        <<Model / Aggregate Root>>
+        +int id
+        +int owner_id
+        +int primary_collection_id
+        +string title
+        +string short_title
+        +string item_type
+        +string repository
+        +string archive_id
+        +string doi
+        +string url
+        +string genre
+        +datetime date
+        +string language
+        +string license
+        +string version
+        +string citation_key
+        +string loc_in_archive
+        +string file
+        +bigint file_size
+        +RagStatus rag_status
+        +string extra
+        +bool in_trash
+        +bool is_publication
+        +bool is_duplicate
+        +datetime last_read
+        +datetime date_added
+        +datetime date_modified
+        +__str__() string
+    }
+
+    class Author {
+        <<Model>>
+        +int id
+        +string first_name
+        +string last_name
+        +__str__() string
+    }
+
+    class DocumentAuthor {
+        <<Model / Junction>>
+        +int id
+        +int document_id
+        +int author_id
+        +int author_order
+    }
+
+    class Tag {
+        <<Model>>
+        +int id
+        +string name
+        +__str__() string
+    }
+
+    class DocumentTag {
+        <<Model / Junction>>
+        +int id
+        +int document_id
+        +int tag_id
+    }
+
+    class Domain {
+        <<Model>>
+        +int id
+        +string name
+        +__str__() string
+    }
+
+    class DocumentDomain {
+        <<Model / Junction>>
+        +int id
+        +int document_id
+        +int domain_id
+    }
+
+    class DocumentCollection {
+        <<Model / Junction>>
+        +int id
+        +int document_id
+        +int collection_id
+    }
+
+    class Annotation {
+        <<Model>>
+        +int id
+        +int document_id
+        +int user_id
+        +int page_number
+        +AnnotationType type
+        +string color
+        +json rects
+        +string selected_text
+        +string comment
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Note {
+        <<Model>>
+        +int id
+        +int user_id
+        +int document_id
+        +string title
+        +string content
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class DocumentShare {
+        <<Model / Association>>
+        +int id
+        +int document_id
+        +int shared_with_user_id
+        +PermissionType permission
+        +datetime created_at
+        +__str__() string
+    }
+
+    class RelatedDocument {
+        <<Model / Association>>
+        +int id
+        +int document_1_id
+        +int document_2_id
+        +string relation_type
+        +datetime created_at
+    }
+
+    %% Vector Payload Entity in Qdrant Vector Store
+    class VectorChunkPayload {
+        <<Embedded Vector / Qdrant>>
+        +UUIDv5 point_id
+        +int document_id
+        +string chunk_id
+        +int page_number
+        +string section_title
+        +string text
+        +float384 dense_vector
+    }
+
+    %% Relationships & Multiplicities
+
+    %% User Relationships
+    User "1" --> "*" Collection : owns
+    User "1" --> "*" Document : owns
+    User "1" --> "*" Annotation : creates
+    User "1" --> "*" Note : writes
+    User "1" --> "*" CollectionShare : receives
+    User "1" --> "*" DocumentShare : receives
+
+    %% Collection Hierarchy & Sharing
+    Collection "0..1" --> "*" Collection : parent of (tree)
+    Collection "1" *-- "*" CollectionShare : shares
+    Collection "0..1" --> "*" Document : primary home of
+
+    %% Document M:N Relationships through Junctions
+    Document "1" *-- "*" DocumentAuthor : ordered authors
+    Author "1" <-- "*" DocumentAuthor : written by
+
+    Document "1" *-- "*" DocumentTag : tags
+    Tag "1" <-- "*" DocumentTag : applied to
+
+    Document "1" *-- "*" DocumentDomain : domains
+    Domain "1" <-- "*" DocumentDomain : classified in
+
+    Document "1" *-- "*" DocumentCollection : cross-filed in
+    Collection "1" <-- "*" DocumentCollection : contains
+
+    %% Document Compositions & Associations
+    Document "1" *-- "*" Annotation : contains
+    Document "1" o-- "*" Note : references (nullable)
+    Document "1" *-- "*" DocumentShare : shared via
+    Document "1" --> "*" RelatedDocument : related from
+    Document "1" --> "*" RelatedDocument : related to
+
+    %% Relational to Vector Linkage (via Deterministic UUIDv5)
+    Document "1" ..> "*" VectorChunkPayload : indexed into

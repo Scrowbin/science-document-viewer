@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './PdfViewer.module.css';
-import type { Document, Annotation, Rect } from '../../types';
+import type { Document, Annotation, Rect, ChatSource } from '../../types';
 import { annotationsApi } from '../../api/annotationsApi';
 import { generateAcademicPdf } from '../../utils/pdfGenerator';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -65,6 +65,134 @@ interface SelectionPopupState {
   y: number;
   selectedText: string;
   rects: Rect[];
+}
+
+export interface AiHighlightState {
+  page: number;
+  chunkId?: string;
+  section?: string;
+  rects: Rect[];
+  textSnippet?: string;
+}
+
+/**
+ * Searches the rendered PDF.js TextLayer DOM for the cited snippet or section heading,
+ * returning bounding box rectangles clamped and mapped to the container coordinates.
+ */
+function findCitationBoundingRects(
+  textLayerEl: HTMLElement,
+  containerEl: HTMLElement,
+  citation: { section?: string; text?: string; snippet?: string }
+): Rect[] {
+  const spans = Array.from(textLayerEl.querySelectorAll('span'));
+  if (spans.length === 0) return [];
+
+  const containerRect = containerEl.getBoundingClientRect();
+
+  const spanToRect = (span: HTMLElement): Rect | null => {
+    const r = span.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) return null;
+    return {
+      x1: Math.round(r.left - containerRect.left),
+      y1: Math.round(r.top - containerRect.top),
+      x2: Math.round(r.right - containerRect.left),
+      y2: Math.round(r.bottom - containerRect.top),
+    };
+  };
+
+  // Build concatenated text with index-to-span mapping
+  let fullText = '';
+  const charMap: { span: HTMLElement; charIdx: number }[] = [];
+
+  spans.forEach((span) => {
+    const rawText = span.textContent || '';
+    for (let i = 0; i < rawText.length; i++) {
+      charMap.push({ span, charIdx: i });
+    }
+    fullText += rawText + ' ';
+    charMap.push({ span, charIdx: rawText.length });
+  });
+
+  const normalizedPageText = fullText.toLowerCase().replace(/\s+/g, ' ');
+
+  // Candidate queries in priority order
+  const candidateQueries: string[] = [];
+
+  const sourceText = (citation.text || citation.snippet || '').trim();
+  if (sourceText) {
+    const cleanSource = sourceText.toLowerCase().replace(/\s+/g, ' ');
+    if (cleanSource.length >= 80) candidateQueries.push(cleanSource.slice(0, 80));
+    if (cleanSource.length >= 50) candidateQueries.push(cleanSource.slice(0, 50));
+    if (cleanSource.length >= 25) candidateQueries.push(cleanSource.slice(0, 25));
+
+    const words = cleanSource.split(' ').filter(Boolean);
+    if (words.length >= 6) {
+      candidateQueries.push(words.slice(0, 6).join(' '));
+    }
+    if (words.length >= 4) {
+      candidateQueries.push(words.slice(0, 4).join(' '));
+    }
+  }
+
+  if (citation.section && !citation.section.toLowerCase().startsWith('page ')) {
+    const cleanSection = citation.section.toLowerCase().replace(/\s+/g, ' ').trim();
+    candidateQueries.push(cleanSection);
+    const unnumbered = cleanSection.replace(/^[0-9ivx.]+\s*/i, '').trim();
+    if (unnumbered && unnumbered !== cleanSection) {
+      candidateQueries.push(unnumbered);
+    }
+  }
+
+  for (const query of candidateQueries) {
+    if (!query || query.length < 3) continue;
+    const matchIdx = normalizedPageText.indexOf(query);
+    if (matchIdx !== -1) {
+      const matchedSpansSet = new Set<HTMLElement>();
+      const endIdx = Math.min(charMap.length - 1, matchIdx + query.length);
+      for (let i = matchIdx; i <= endIdx; i++) {
+        if (charMap[i]?.span) {
+          matchedSpansSet.add(charMap[i].span);
+        }
+      }
+
+      // If matching a section heading, also include the following 2-3 spans so the section is framed
+      if (citation.section && query.includes(citation.section.toLowerCase().trim())) {
+        const lastMatchedSpan = Array.from(matchedSpansSet).pop();
+        if (lastMatchedSpan) {
+          const lastIdx = spans.indexOf(lastMatchedSpan);
+          for (let next = 1; next <= 4 && lastIdx + next < spans.length; next++) {
+            matchedSpansSet.add(spans[lastIdx + next]);
+          }
+        }
+      }
+
+      const rects: Rect[] = [];
+      matchedSpansSet.forEach((span) => {
+        const r = spanToRect(span);
+        if (r && r.x2 > r.x1 && r.y2 > r.y1) {
+          rects.push(r);
+        }
+      });
+
+      if (rects.length > 0) {
+        return rects;
+      }
+    }
+  }
+
+  // Fallback: Check if section title matches any single span directly
+  if (citation.section) {
+    const secLower = citation.section.toLowerCase().trim();
+    for (const span of spans) {
+      const spanText = (span.textContent || '').toLowerCase().trim();
+      if (spanText.includes(secLower) || (secLower.length > 4 && spanText.includes(secLower.slice(0, 15)))) {
+        const r = spanToRect(span);
+        if (r) return [r];
+      }
+    }
+  }
+
+  return [];
 }
 
 export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
@@ -173,10 +301,31 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
   const [prevDocId, setPrevDocId] = useState<string | number>(doc.id);
   const [localFileOverride, setLocalFileOverride] = useState<string | null>(null);
 
+  // AI Citation section/text highlight state
+  const [activeAiHighlight, setActiveAiHighlight] = useState<AiHighlightState | null>(null);
+  const activeAiHighlightRef = useRef<AiHighlightState | null>(null);
+
+  useEffect(() => {
+    activeAiHighlightRef.current = activeAiHighlight;
+  });
+
+  const pendingAiHighlightRef = useRef<{
+    page: number;
+    chunkId?: string;
+    section?: string;
+    text?: string;
+    snippet?: string;
+  } | null>(null);
+
   if (doc.id !== prevDocId) {
     setPrevDocId(doc.id);
     setLocalFileOverride(null);
+    setActiveAiHighlight(null);
   }
+
+  useEffect(() => {
+    pendingAiHighlightRef.current = null;
+  }, [doc.id]);
 
   const effectiveFile = localFileOverride || doc.file;
 
@@ -286,6 +435,52 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
             viewport: displayViewport,
           });
           await textLayer.render();
+
+          // Check for pending or active AI citation highlight on this rendered page
+          if (pendingAiHighlightRef.current && pendingAiHighlightRef.current.page === currentPage) {
+            const pending = pendingAiHighlightRef.current;
+            pendingAiHighlightRef.current = null;
+            setTimeout(() => {
+              if (!textLayerRef.current || !containerRef.current) return;
+              const rects = findCitationBoundingRects(textLayerRef.current, containerRef.current, pending);
+              if (rects.length > 0) {
+                setActiveAiHighlight({
+                  page: currentPage,
+                  chunkId: pending.chunkId,
+                  section: pending.section,
+                  textSnippet: pending.snippet,
+                  rects,
+                });
+                if (scrollAreaRef.current) {
+                  scrollAreaRef.current.scrollTo({
+                    top: Math.max(0, rects[0].y1 - 70),
+                    behavior: 'smooth',
+                  });
+                }
+              } else {
+                setActiveAiHighlight({
+                  page: currentPage,
+                  chunkId: pending.chunkId,
+                  section: pending.section,
+                  textSnippet: pending.snippet,
+                  rects: [{ x1: 20, y1: 20, x2: Math.min(600, containerRef.current.clientWidth - 40), y2: 60 }],
+                });
+              }
+            }, 60);
+          } else if (activeAiHighlightRef.current && activeAiHighlightRef.current.page === currentPage) {
+            // Re-calculate bounding boxes on zoom level change
+            const currentHighlight = activeAiHighlightRef.current;
+            setTimeout(() => {
+              if (!textLayerRef.current || !containerRef.current) return;
+              const recomputedRects = findCitationBoundingRects(textLayerRef.current, containerRef.current, {
+                section: currentHighlight.section,
+                snippet: currentHighlight.textSnippet,
+              });
+              if (recomputedRects.length > 0) {
+                setActiveAiHighlight((prev) => (prev ? { ...prev, rects: recomputedRects } : null));
+              }
+            }, 60);
+          }
         }
       } catch (err: unknown) {
         if ((err as { name?: string })?.name !== 'RenderingCancelledException') {
@@ -857,15 +1052,57 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // ─── Jump to Specific Page (from AI Citations) ───────────────────────────
-  const jumpToPage = useCallback((pageNum: number) => {
-    if (pageNum >= 1 && pageNum <= numPages) {
+  // ─── Jump to Specific Page & Highlight AI Citation Section ───────────────
+  const jumpToPage = useCallback((pageNum: number, source?: ChatSource) => {
+    if (pageNum < 1 || pageNum > numPages) return;
+
+    if (!source) {
       setCurrentPage(pageNum);
-      if (scrollAreaRef.current) {
-        scrollAreaRef.current.scrollTop = 0;
-      }
+      if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = 0;
+      setActiveAiHighlight(null);
+      return;
     }
-  }, [numPages]);
+
+    const citationData = {
+      page: pageNum,
+      chunkId: source.chunk_id,
+      section: source.section,
+      text: source.text,
+      snippet: source.snippet,
+    };
+
+    if (pageNum === currentPage && textLayerRef.current && containerRef.current) {
+      const rects = findCitationBoundingRects(textLayerRef.current, containerRef.current, citationData);
+      if (rects.length > 0) {
+        setActiveAiHighlight({
+          page: pageNum,
+          chunkId: source.chunk_id,
+          section: source.section,
+          textSnippet: source.snippet,
+          rects,
+        });
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTo({
+            top: Math.max(0, rects[0].y1 - 70),
+            behavior: 'smooth',
+          });
+        }
+      } else {
+        // Fallback indicator banner at top of page
+        setActiveAiHighlight({
+          page: pageNum,
+          chunkId: source.chunk_id,
+          section: source.section,
+          textSnippet: source.snippet,
+          rects: [{ x1: 20, y1: 20, x2: Math.min(600, containerRef.current.clientWidth - 40), y2: 60 }],
+        });
+        if (scrollAreaRef.current) scrollAreaRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      pendingAiHighlightRef.current = citationData;
+      setCurrentPage(pageNum);
+    }
+  }, [numPages, currentPage]);
 
   // ─── Jump to Annotation ───────────────────────────────────────────────────
   const jumpToAnnotation = (anno: Annotation) => {
@@ -1165,7 +1402,55 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
               })}
             </div>
 
-            {/* 4. Floating Text Selection Popup (Zotero-style) */}
+            {/* 4. AI Grounded Citation Section Highlight Layer */}
+            {activeAiHighlight && activeAiHighlight.page === currentPage && (
+              <div className={styles.aiHighlightContainer}>
+                {activeAiHighlight.rects.map((r, i) => (
+                  <div
+                    key={`ai-hl-${i}`}
+                    className={styles.aiCitationOverlay}
+                    style={{
+                      left: `${r.x1}px`,
+                      top: `${r.y1}px`,
+                      width: `${Math.max(6, r.x2 - r.x1)}px`,
+                      height: `${Math.max(6, r.y2 - r.y1)}px`,
+                    }}
+                    title={activeAiHighlight.section ? `AI Source: ${activeAiHighlight.section}` : 'AI Citation Source'}
+                  />
+                ))}
+
+                {/* Floating section title banner over the first highlighted rect */}
+                {activeAiHighlight.rects[0] && (
+                  <div
+                    className={styles.aiCitationBanner}
+                    style={{
+                      left: `${activeAiHighlight.rects[0].x1}px`,
+                      top: `${Math.max(6, activeAiHighlight.rects[0].y1 - 32)}px`,
+                    }}
+                  >
+                    <FaRobot className={styles.aiBannerIcon} />
+                    <span className={styles.aiBannerTitle}>
+                      {activeAiHighlight.section && !activeAiHighlight.section.toLowerCase().startsWith('page ')
+                        ? `Section: ${activeAiHighlight.section}`
+                        : 'AI Grounded Source'}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.aiBannerCloseBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveAiHighlight(null);
+                      }}
+                      title="Dismiss citation highlight"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. Floating Text Selection Popup (Zotero-style) */}
             {selectionPopup.visible && (
               <div
                 className={styles.selectionPopup}
@@ -1321,6 +1606,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
                     key={doc.id}
                     document={doc}
                     onJumpToPage={jumpToPage}
+                    activeCitationChunkId={activeAiHighlight?.chunkId}
                     onClose={() => setSidebarCollapsed(true)}
                   />
                 </div>

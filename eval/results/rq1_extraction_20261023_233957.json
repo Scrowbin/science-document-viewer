@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "experiment": "RQ1 PDF Extractor Evaluation",
+    "timestamp": "20261023_233957",
+    "seed": 42,
+    "torch_threads": 4,
+    "papers_evaluated": 2,
+    "baseline_engine": "pymupdf_plain",
+    "champion_selected": "pypdf",
+    "champion_rationale": "Selected pypdf based on top composite ranking: nDCG@10 = 0.5955, Evidence Coverage = 100.0%, Latency = 48.35 ms/page."
+  },
+  "summary": [
+    {
+      "engine": "pymupdf_plain",
+      "available": true,
+      "evidence_coverage_pct": 100.0,
+      "char_accuracy_pct": 50.78,
+      "reading_order_concordance": 1.0,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 8.77,
+      "peak_ram_mb": 679.0,
+      "downstream_ndcg10": {
+        "mean": 0.5294,
+        "ci_95": [
+          0.5219,
+          0.537
+        ]
+      },
+      "downstream_recall20": 1.0,
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ],
+        "p_value": 1.0,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pymupdf_layout",
+      "available": true,
+      "evidence_coverage_pct": 75.0,
+      "char_accuracy_pct": 46.15,
+      "reading_order_concordance": 1.0,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 12.41,
+      "peak_ram_mb": 861.9,
+      "downstream_ndcg10": {
+        "mean": 0.6399,
+        "ci_95": [
+          0.4643,
+          0.8155
+        ]
+      },
+      "downstream_recall20": 1.0,
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.1104,
+        "ci_95": [
+          -0.0727,
+          0.2936
+        ],
+        "p_value": 0.4988,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pypdf",
+      "available": true,
+      "evidence_coverage_pct": 100.0,
+      "char_accuracy_pct": 50.79,
+      "reading_order_concordance": 1.0,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 48.35,
+      "peak_ram_mb": 742.1,
+      "downstream_ndcg10": {
+        "mean": 0.5955,
+        "ci_95": [
+          0.518,
+          0.673
+        ]
+      },
+      "downstream_recall20": 1.0,
+      "stats_vs_baseline": {
+        "diff_ndcg10": 0.066,
+        "ci_95": [
+          -0.0039,
+          0.136
+        ],
+        "p_value": 0.5047,
+        "significant_05": false
+      }
+    },
+    {
+      "engine": "pdfminer.six",
+      "available": true,
+      "evidence_coverage_pct": 75.0,
+      "char_accuracy_pct": 49.68,
+      "reading_order_concordance": 0.9667,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 68.29,
+      "peak_ram_mb": 870.2,
+      "downstream_ndcg10": {
+        "mean": 0.3273,
+        "ci_95": [
+          0.2599,
+          0.3946
+        ]
+      },
+      "downstream_recall20": 1.0,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.2022,
+        "ci_95": [
+          -0.262,
+          -0.1424
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "engine": "pdfplumber",
+      "available": true,
+      "evidence_coverage_pct": 25.0,
+      "char_accuracy_pct": 1.38,
+      "reading_order_concordance": 0.5,
+      "heading_f1": 0.0,
+      "page_preservation_rate": 100.0,
+      "latency_per_page_ms": 167.5,
+      "peak_ram_mb": 900.2,
+      "downstream_ndcg10": {
+        "mean": 0.3244,
+        "ci_95": [
+          0.1667,
+          0.4821
+        ]
+      },
+      "downstream_recall20": 0.75,
+      "stats_vs_baseline": {
+        "diff_ndcg10": -0.205,
+        "ci_95": [
+          -0.3552,
+          -0.0549
+        ],
+        "p_value": 0.001,
+        "significant_05": true
+      }
+    },
+    {
+      "engine": "grobid",
+      "available": false,
+      "error": "GROBID server offline or unreachable (HTTPConnectionPool(host='localhost', port=8070): Max retries exceeded with url: /api/isalive (Caused by ConnectTimeoutError(<HTTPConnection(host='localhost', port=8070) at 0x218ce44c690>, 'Connection to localhost timed out. (connect timeout=1.5)')))"
+    }
+  ]
+}

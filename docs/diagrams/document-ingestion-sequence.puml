@@ -1,0 +1,129 @@
+@startuml
+!theme plain
+skinparam dpi 300
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam roundcorner 6
+skinparam participantPadding 12
+skinparam boxPadding 10
+skinparam responseMessageBelowArrow true
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceGroupBorderThickness 1.2
+skinparam sequenceLifeLineBorderColor #2B5797
+skinparam sequenceLifeLineBackgroundColor #E8EFF9
+
+autonumber "<b>[00]</b>"
+
+title <b>HÌNH 4.4. SƠ ĐỒ TUẦN TỰ QUY TRÌNH NẠP TÀI LIỆU VÀ LẬP CHỈ MỤC VECTOR</b>\n<size:10>(Kiểm chứng trực tiếp từ mã nguồn: backend/apps/documents/ & frontend/src/)</size>
+
+actor User as "Nhà nghiên cứu\n(Researcher)" #FAFAFA
+
+box "Tầng Trình diễn (Frontend - React 19)" #F0F4F8
+    participant FE as "Giao diện React 19\n<UploadModal / useDocuments>" #E3F2FD
+end box
+
+box "Tầng Điều khiển & Dịch vụ (Backend - Django DRF)" #F0FDF4
+    participant API as "Bộ điều khiển API\nDocumentViewSet / PdfMetadataExtractView" #E8F5E9
+    participant EXT as "Dịch vụ Siêu dữ liệu\nextract_metadata_from_pdf" #E8F5E9
+    participant TH as "Điều phối Luồng ngầm\nthreading.Thread (daemon=True)" #FFF8E1
+end box
+
+box "Động cơ Xử lý & Lưu trữ (Storage & Embedded RAG)" #FAF5FF
+    database DB as "Cơ sở dữ liệu Quan hệ\nPostgreSQL 16" #EDE7F6
+    participant RAG as "Động cơ RAG nhúng\nchunking_utils & rag_service" #FFF3E0
+    database VDB as "Kho Vector nhúng\nQdrant Embedded (SQLite)" #F3E5F5
+end box
+
+== 1. Trích xuất và Xem trước Siêu dữ liệu (Pre-upload Extraction & Preview) ==
+
+User -> FE: Kéo thả hoặc chọn tệp PDF bài báo nghiên cứu
+activate FE
+FE -> API: POST /api/v1/metadata/extract-pdf/\n(multipart/form-data: tệp 'file')
+activate API
+
+API -> API: Kiểm tra sơ bộ binary magic bytes (b'%PDF-')\nGhi tệp tạm thời tempfile.NamedTemporaryFile
+API -> EXT: extract_metadata_from_pdf(tmp_path)
+activate EXT
+
+EXT -> EXT: Phân tích kích thước font chữ bằng PyMuPDF tìm Tiêu đề\nQuét chuỗi biểu thức chính quy nhận dạng arXiv ID / DOI
+EXT --> API: Trả về dict siêu dữ liệu bóc tách\n{title, authors, doi, date, repository, item_type}
+deactivate EXT
+
+API -> API: Xóa tệp tạm thời trong khối finally (os.remove)
+API --> FE: HTTP 200 OK (JSON Siêu dữ liệu xem trước)
+deactivate API
+
+FE --> User: Mở hộp thoại <UploadModal> hiển thị biểu mẫu điền sẵn dữ liệu
+deactivate FE
+
+== 2. Xác nhận và Lưu trữ Tài liệu (Confirmation & Persistent Storage) ==
+
+User -> FE: Rà soát/chỉnh sửa thông tin, nhấn "Add to Library"
+activate FE
+FE -> API: POST /api/v1/documents/\n(multipart/form-data: file, title, author_names, tags, ...)
+activate API
+
+group Kiểm tra An toàn & Lưu trữ [DocumentSerializer & perform_create]
+    API -> API: validate_file(): Kiểm tra đuôi .pdf, dung lượng <= 50MB\nĐọc 4 bytes đầu tệp: file.read(4) == b'%PDF'
+    API -> API: Lưu tệp nhị phân vật lý vào media/documents/*.pdf
+    API -> DB: INSERT INTO documents (title, file_path, rag_status='PENDING', ...)\nINSERT INTO authors, tags, domains (Quan hệ M2M)
+    activate DB
+    DB --> API: Trả về document_id mới và bản ghi đã tạo
+    deactivate DB
+    API -> EXT: apply_pdf_metadata_to_document(doc)
+end
+
+API -> TH: trigger_rag_ingestion(document_id, file_path, title, owner_id)
+activate TH
+note over TH: Khởi chạy luồng nền không nghẽn:\nthreading.Thread(target=_ingest, daemon=True).start()
+
+API --> FE: HTTP 201 Created (JSON tài liệu, rag_status='PENDING')
+deactivate API
+
+FE --> User: Hiển thị tài liệu trong thư viện với huy hiệu 'Indexing...' (màu vàng/cam)
+deactivate FE
+
+== 3. Lập chỉ mục Vector ngầm trong tiến trình (Asynchronous In-Process Vector Indexing) ==
+
+note over TH, VDB
+  Toàn bộ quá trình bóc tách và nhúng vector diễn ra trong luồng ngầm cục bộ (in-process daemon thread).
+  Kiến trúc tối ưu hóa máy trạm đơn node: Không phụ thuộc hàng đợi Celery/Redis, tiết kiệm >400MB RAM.
+end note
+
+TH -> RAG: get_or_create_rag(document_id, file_path)
+activate RAG
+
+RAG -> RAG: Bóc tách cấu trúc đề mục học thuật\nextract_sections_from_pdf() bằng PyMuPDF
+RAG -> RAG: Phân mảnh văn bản theo chiến lược 'section_overlap'\n(ngưỡng trần max_tokens=400, overlap=80 token gối đầu)
+RAG -> RAG: Tính toán vector dày đặc với intfloat/e5-small-v2 (384 chiều)\nÁp dụng tiền tố bắt buộc: prefix = "passage: "
+RAG -> RAG: Sinh định danh vector tất định UUIDv5 chống trùng lặp:\nuuid5(NAMESPACE_DNS, f"{collection}::{doc_id}::{chunk_id}")
+
+RAG -> VDB: client.upsert(collection_name='scientific_document_chunks',\npoints=[PointStruct(id=uuid, vector, payload)])
+activate VDB
+VDB --> RAG: Lưu trữ vector và payload thành công vào SQLite cục bộ
+deactivate VDB
+
+RAG -> DB: UPDATE documents SET rag_status='INDEXED' WHERE id=document_id
+activate DB
+DB --> RAG: Cập nhật trạng thái thành công
+deactivate DB
+
+deactivate RAG
+deactivate TH
+
+== 4. Đồng bộ hóa Trạng thái Giao diện (Status Synchronization & Ready State) ==
+
+FE -> API: GET /api/v1/documents/{id}/ (hoặc làm mới danh sách thư viện)
+activate FE
+activate API
+API -> DB: SELECT * FROM documents WHERE id=document_id
+activate DB
+DB --> API: Trả về bản ghi tài liệu mới nhất (rag_status='INDEXED')
+deactivate DB
+API --> FE: HTTP 200 OK (Chi tiết tài liệu cập nhật)
+deactivate API
+
+FE --> User: Cập nhật nhãn trạng thái sang 'Indexed' (màu xanh lá cây)\nKích hoạt sẵn sàng cho Trợ lý AI tra cứu và hỏi đáp chuyên sâu
+deactivate FE
+
+@enduml

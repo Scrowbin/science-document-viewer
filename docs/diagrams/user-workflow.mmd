@@ -1,0 +1,78 @@
+flowchart TD
+    %% =========================================================================
+    %% MAIN USER WORKFLOW / ACTIVITY DIAGRAM
+    %% Dual-Journey: Document Ingestion/Management & AI Reading Workspace
+    %% =========================================================================
+
+    subgraph Journey1 ["Journey 1: Managing & Ingesting Research Documents"]
+        Start1([Start: User accesses Library]) --> SelectMode{Select Ingestion Mode}
+        
+        %% Mode A: Direct PDF Upload
+        SelectMode -->|Upload Local PDF| SelectFile[User selects PDF file &le; 50MB]
+        SelectFile --> CheckMagic{Valid PDF Magic Byte '%PDF-'?}
+        CheckMagic -->|No| RejectUpload[Display error: Invalid PDF file format]
+        RejectUpload --> SelectFile
+        CheckMagic -->|Yes| ExtractPreview[Call /metadata/extract-pdf/ for preview]
+        ExtractPreview --> ShowUploadModal[Open UploadModal with title & authors preview]
+        ShowUploadModal --> ConfirmUpload[User confirms or edits bibliographic fields]
+        ConfirmUpload --> PostDoc[POST /api/v1/documents/ multipart upload]
+        PostDoc --> SaveDocDB[Save Document & File: Status 'PENDING']
+        SaveDocDB --> ForkIngest[Fork Ingestion]
+
+        %% Forked Ingestion
+        ForkIngest --> ShowTableBadge[UI shows document with 'Indexing...' badge]
+        ForkIngest --> ThreadIndex[Background Thread starts chunking & embedding]
+        ThreadIndex --> SectionChunk[PyMuPDF section extraction & section_overlap]
+        SectionChunk --> EmbedPassage[Generate e5-small-v2 vectors with 'passage:' prefix]
+        EmbedPassage --> UpsertQdrant[Upsert vectors to Qdrant SQLite collection]
+        UpsertQdrant --> MarkIndexed[Update document rag_status = 'INDEXED']
+        MarkIndexed --> SyncBadge[UI status badge changes to 'Indexed']
+
+        %% Mode B: DOI Metadata Lookup
+        SelectMode -->|Import via DOI| EnterDOI[User enters DOI string in DoiModal]
+        EnterDOI --> CleanDOI[Normalize DOI prefix dx.doi.org / 10.xxxx]
+        CleanDOI --> QueryCrossref[Query Crossref / OpenAlex API]
+        QueryCrossref --> FoundDOI{Metadata Found?}
+        FoundDOI -->|No| ShowDoiError[Display error: DOI not found]
+        FoundDOI -->|Yes| PreviewDoi[Preview Title, Authors, Journal in DoiModal]
+        PreviewDoi --> AddDoiDoc[Click 'Add to Library': Create Document record]
+        AddDoiDoc --> OrganizeFolder[Organize into Collections Tree & Assign Tags]
+
+        ShowTableBadge --> OrganizeFolder
+        SyncBadge --> ReadyDoc[Document ready for active reading]
+        OrganizeFolder --> ReadyDoc
+    end
+
+    subgraph Journey2 ["Journey 2: Reading & AI-Assisted Consultation"]
+        ReadyDoc --> OpenDoc[User double-clicks paper to open in PDF Viewer]
+        OpenDoc --> RenderCanvas[PDF.js renders canvas pages & text selection layer]
+        
+        %% Branch A: Annotation
+        RenderCanvas --> UserAction{User Action}
+        UserAction -->|Read & Annotate| SelectText[Select text passage on PDF page]
+        SelectText --> CreateHighlight[Choose Highlight or Pin Sticky Note]
+        CreateHighlight --> PostAnno[POST /api/v1/documents/{id}/annotations/]
+        PostAnno --> SyncSidebar[Display annotation pin & sidebar card]
+
+        %% Branch B: AI Assistant Q&A
+        UserAction -->|Consult AI Assistant| OpenAiPanel[Open &lt;AiChatPanel&gt; drawer]
+        OpenAiPanel --> SubmitQuery[Submit technical question or click 'Summarize Document']
+        SubmitQuery --> PostChat[POST /api/v1/documents/{id}/chat/]
+        PostChat --> HybridSearch[In-memory Hybrid Search: Dense Cosine + BM25 RRF]
+        HybridSearch --> ContextPrompt[Assemble prompt with top-5 snippets & section headers]
+        ContextPrompt --> CallOllama[Call local Ollama llama3.2:3b API]
+        
+        CallOllama --> OllamaStatus{Ollama Running?}
+        OllamaStatus -->|Yes| GenAnswer[Generate synthesized academic answer]
+        OllamaStatus -->|No / Timeout| FallbackSynthesis[Extract grounded snippets directly]
+        
+        GenAnswer --> ReturnSources[Attach sources with physical page numbers]
+        FallbackSynthesis --> ReturnSources
+        ReturnSources --> RenderBadges[Render markdown response with [Page X] badges]
+        
+        RenderBadges --> ClickCitation{User clicks [Page X] badge?}
+        ClickCitation -->|Yes| JumpPage[Trigger scrollToPage(X) in PDF.js viewer]
+        ClickCitation -->|No| DoneReading([Continue research])
+        JumpPage --> DoneReading
+        SyncSidebar --> DoneReading
+    end

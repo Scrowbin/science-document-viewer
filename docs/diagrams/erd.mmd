@@ -1,0 +1,166 @@
+erDiagram
+    %% =========================================================================
+    %% RELATIONAL DATABASE SCHEMA (PostgreSQL 16 via Django ORM)
+    %% Verified Implementation: 15 tables (12 active midterm + 3 extension tables)
+    %% =========================================================================
+
+    USERS ||--o{ COLLECTIONS : "owns"
+    USERS ||--o{ DOCUMENTS : "owns"
+    USERS ||--o{ ANNOTATIONS : "creates"
+    USERS ||--o{ NOTES : "writes"
+    USERS ||--o{ DOCUMENT_SHARES : "granted"
+    USERS ||--o{ COLLECTION_SHARES : "granted"
+
+    COLLECTIONS ||--o{ COLLECTIONS : "parent of (tree)"
+    COLLECTIONS ||--o{ DOCUMENTS : "primary home"
+    COLLECTIONS ||--o{ DOCUMENT_COLLECTIONS : "categorizes"
+    COLLECTIONS ||--o{ COLLECTION_SHARES : "shared via"
+
+    DOCUMENTS ||--o{ DOCUMENT_COLLECTIONS : "cross-filed in"
+    DOCUMENTS ||--o{ DOCUMENT_AUTHORS : "written by"
+    DOCUMENTS ||--o{ DOCUMENT_TAGS : "tagged with"
+    DOCUMENTS ||--o{ DOCUMENT_DOMAINS : "classified in"
+    DOCUMENTS ||--o{ ANNOTATIONS : "contains"
+    DOCUMENTS ||--o{ NOTES : "has attached"
+    DOCUMENTS ||--o{ DOCUMENT_SHARES : "shared via"
+    DOCUMENTS ||--o{ RELATED_DOCUMENTS : "origin document"
+    DOCUMENTS ||--o{ RELATED_DOCUMENTS : "target document"
+
+    AUTHORS ||--o{ DOCUMENT_AUTHORS : "authored"
+    TAGS ||--o{ DOCUMENT_TAGS : "applied"
+    DOMAINS ||--o{ DOCUMENT_DOMAINS : "categorized"
+
+    USERS {
+        int id PK
+        string username UK
+        string email UK
+        string password
+        datetime date_joined
+    }
+
+    COLLECTIONS {
+        int id PK
+        int owner_id FK
+        int parent_id FK "nullable"
+        string name
+        string color
+        datetime created_at
+    }
+
+    DOCUMENTS {
+        int id PK
+        int owner_id FK
+        int primary_collection_id FK "nullable"
+        string title
+        string short_title
+        string item_type
+        string repository
+        string archive_id
+        string doi "indexed"
+        string url
+        datetime date
+        string language
+        string license
+        string version
+        string citation_key
+        string loc_in_archive
+        string file "media path"
+        bigint file_size
+        string rag_status "PENDING | INDEXING | INDEXED | FAILED"
+        text extra
+        boolean in_trash
+        boolean is_publication
+        boolean is_duplicate
+        datetime last_read
+        datetime date_added
+        datetime date_modified
+    }
+
+    DOCUMENT_COLLECTIONS {
+        int id PK
+        int document_id FK
+        int collection_id FK
+    }
+
+    AUTHORS {
+        int id PK
+        string first_name
+        string last_name
+    }
+
+    DOCUMENT_AUTHORS {
+        int id PK
+        int document_id FK
+        int author_id FK
+        int author_order
+    }
+
+    TAGS {
+        int id PK
+        string name UK
+    }
+
+    DOCUMENT_TAGS {
+        int id PK
+        int document_id FK
+        int tag_id FK
+    }
+
+    DOMAINS {
+        int id PK
+        string name UK
+    }
+
+    DOCUMENT_DOMAINS {
+        int id PK
+        int document_id FK
+        int domain_id FK
+    }
+
+    ANNOTATIONS {
+        int id PK
+        int document_id FK
+        int user_id FK
+        int page_number
+        string type "highlight | note | underline"
+        string color
+        json rects
+        text selected_text
+        text comment
+        datetime created_at
+        datetime updated_at
+    }
+
+    NOTES {
+        int id PK
+        int user_id FK
+        int document_id FK "nullable"
+        string title
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+
+    DOCUMENT_SHARES {
+        int id PK
+        int document_id FK
+        int shared_with_user_id FK
+        string permission "VIEW | COMMENT | EDIT"
+        datetime created_at
+    }
+
+    COLLECTION_SHARES {
+        int id PK
+        int collection_id FK
+        int shared_with_user_id FK
+        string permission "VIEW | COMMENT | EDIT"
+        datetime created_at
+    }
+
+    RELATED_DOCUMENTS {
+        int id PK
+        int document_1_id FK
+        int document_2_id FK
+        string relation_type
+        datetime created_at
+    }

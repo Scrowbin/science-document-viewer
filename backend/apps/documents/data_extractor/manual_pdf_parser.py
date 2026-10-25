@@ -1,5 +1,5 @@
 import re
-from pypdf import PdfReader
+import pymupdf
 from pathlib import Path
 
 
@@ -311,25 +311,27 @@ def extract_references(text):
 
 
 def auto_extract_metadata(path):
-    reader = PdfReader(Path(path))
+    try:
+        doc = pymupdf.open(str(path))
+    except Exception:
+        return None
 
     pages = []
-
-    for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
-
-        pages.append(
-            {
-                "page_number": page_number,
-                "text": clean_text(text),
-            }
-        )
-
-    raw_text = "\n\n".join(page["text"] for page in pages if page["text"])
-
-    first_page_text = pages[0]["text"] if pages else ""
-
-    metadata = dict(reader.metadata or {})
+    try:
+        for page_number in range(1, len(doc) + 1):
+            page = doc[page_number - 1]
+            text = page.get_text() or ""
+            pages.append(
+                {
+                    "page_number": page_number,
+                    "text": clean_text(text),
+                }
+            )
+        raw_text = "\n\n".join(page["text"] for page in pages if page["text"])
+        first_page_text = pages[0]["text"] if pages else ""
+        metadata = dict(doc.metadata or {})
+    finally:
+        doc.close()
 
     return {
         # Bibliographic metadata

@@ -3,6 +3,10 @@
   "venv": "venv",
   "exclude": [
     "scratch",
+    "**/scratch",
+    "**/tmp",
+    "rag_exp",
+    "test.py",
     "**/node_modules",
     "**/.venv",
     "**/venv"

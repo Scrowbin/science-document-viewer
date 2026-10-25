@@ -63,7 +63,7 @@ def apply_pdf_metadata_to_document(doc: Document) -> bool:
     if not meta or not meta.get("title"):
         try:
             pdf_doc = pymupdf.open(doc.file.path)
-            info = pdf_doc.metadata
+            info = pdf_doc.metadata or {}
             pdf_doc.close()
             fallback_title = info.get("title") or ""
             meta = {"title": fallback_title.strip()}
@@ -166,7 +166,9 @@ def extract_metadata_from_pdf(file_path: str) -> Dict[str, Any]:
     Extracts structured academic metadata from a PDF file using data_extractor pipeline.
     """
     meta = data_extractor(file_path)
-    return meta or {}
+    if isinstance(meta, dict):
+        return meta
+    return {}
 
 
 def fetch_arxiv_metadata(arxiv_id: str, timeout: int = 8) -> Optional[Dict[str, Any]]:

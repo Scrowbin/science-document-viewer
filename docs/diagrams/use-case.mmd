@@ -1,0 +1,62 @@
+graph LR
+    %% =========================================================================
+    %% SYSTEM USE-CASE DIAGRAM
+    %% Actors and verified functional domains for undergraduate thesis
+    %% =========================================================================
+
+    User(("Researcher<br/>(Authenticated User)"))
+
+    subgraph System ["Scientific Document Management System with Local RAG"]
+        
+        subgraph UC_Auth ["Account &amp; Session Management"]
+            UC_Register["Register Account"]
+            UC_Login["Log In / JWT Session"]
+            UC_Logout["Log Out &amp; Blacklist Token"]
+        end
+
+        subgraph UC_Library ["Document Library &amp; Organization"]
+            UC_Upload["Upload Academic PDF<br/>(Magic Byte Check &amp; Preview)"]
+            UC_Doi["Import Metadata via DOI<br/>(Crossref &amp; OpenAlex)"]
+            UC_Collections["Manage Nested Collections<br/>(Folder Tree Hierarchy)"]
+            UC_Filter["Search &amp; Filter Library<br/>(Title, Author, DOI, Tags, Trash)"]
+            UC_Metadata["Edit 22 Bibliographic Fields"]
+        end
+
+        subgraph UC_Reading ["Reading &amp; Annotation Workspace"]
+            UC_ReadPdf["Read PDF via PDF.js<br/>(Canvas &amp; TextLayer)"]
+            UC_Highlight["Highlight Text Passages"]
+            UC_StickyNote["Create Viewport Sticky Notes"]
+            UC_SyncAnnotations["Manage Annotation Sidebar"]
+        end
+
+        subgraph UC_AI ["AI Research Assistant (Local RAG)"]
+            UC_Chat["Ask Document-Scoped Questions"]
+            UC_Citations["Jump to Evidence via [Page X]"]
+            UC_Summary["Generate 1-Click Structured Summary"]
+            UC_InspectChunks["Inspect Chunks &amp; Strategies"]
+            UC_Reindex["Trigger Vector Re-Indexing"]
+        end
+
+    end
+
+    %% Researcher to Use Cases
+    User --> UC_Register
+    User --> UC_Login
+    User --> UC_Logout
+
+    User --> UC_Upload
+    User --> UC_Doi
+    User --> UC_Collections
+    User --> UC_Filter
+    User --> UC_Metadata
+
+    User --> UC_ReadPdf
+    User --> UC_Highlight
+    User --> UC_StickyNote
+    User --> UC_SyncAnnotations
+
+    User --> UC_Chat
+    User --> UC_Citations
+    User --> UC_Summary
+    User --> UC_InspectChunks
+    User --> UC_Reindex

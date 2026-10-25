@@ -127,7 +127,7 @@ REST_FRAMEWORK = {
 
 # SimpleJWT Configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -149,9 +149,11 @@ OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:3b')
 OLLAMA_TIMEOUT = int(os.getenv('OLLAMA_TIMEOUT', '60'))
 EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'intfloat/e5-small-v2')
+CHUNKING_STRATEGY = os.getenv('CHUNKING_STRATEGY', 'hierarchical')  # 'hierarchical' (production default) | 'section_overlap'
 QDRANT_MODE = os.getenv('QDRANT_MODE', 'local')  # 'local' (embedded SQLite) or 'server' (standalone Docker)
 QDRANT_URL = os.getenv('QDRANT_URL', 'http://localhost:6333')
 QDRANT_PREFER_GRPC = os.getenv('QDRANT_PREFER_GRPC', 'false').lower() == 'true'
 QDRANT_GRPC_PORT = int(os.getenv('QDRANT_GRPC_PORT', '6334'))
 QDRANT_STORAGE_PATH = os.path.join(BASE_DIR, os.getenv('QDRANT_STORAGE_PATH', 'media/qdrant_db'))
+RAG_MIN_SIMILARITY_SCORE = float(os.getenv('RAG_MIN_SIMILARITY_SCORE', '0.80'))
 

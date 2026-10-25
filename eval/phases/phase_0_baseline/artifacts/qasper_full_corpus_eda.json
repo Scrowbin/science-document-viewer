@@ -1,0 +1,182 @@
+{
+  "dataset_name": "QASPER (Full Canonical v0.3)",
+  "source": "AllenAI Official S3 Distribution (train + dev + test)",
+  "scope": "Comprehensive Benchmark EDA",
+  "split_counts": {
+    "train": {
+      "papers": 888,
+      "questions": 2593
+    },
+    "dev": {
+      "papers": 281,
+      "questions": 1005
+    },
+    "test": {
+      "papers": 416,
+      "questions": 1451
+    },
+    "total_papers": 1585,
+    "total_questions": 5049
+  },
+  "data_integrity": {
+    "duplicate_paper_ids": 0,
+    "duplicate_question_ids": 0,
+    "papers_missing_abstract": 0,
+    "papers_with_zero_sections": 1,
+    "papers_with_empty_text": 1,
+    "excluded_empty_text_paper_ids": [
+      "1801.07804"
+    ],
+    "papers_with_usable_text": 1584,
+    "papers_with_usable_text_pct": 99.94,
+    "papers_with_at_least_one_text_evidence_q": 1508,
+    "papers_with_zero_usable_q": 77
+  },
+  "document_statistics": {
+    "total_papers_analyzed": 1584,
+    "mean_words_per_doc": 3575.1,
+    "std_words_per_doc": 2083.8,
+    "p50_words_per_doc": 3401.0,
+    "p95_words_per_doc": 6707.3,
+    "min_words_per_doc": 37,
+    "max_words_per_doc": 25891,
+    "mean_sections_per_doc": 13.83,
+    "p50_sections_per_doc": 13.0,
+    "p95_sections_per_doc": 26.0,
+    "min_sections_per_doc": 4,
+    "max_sections_per_doc": 49,
+    "total_sections_analyzed": 21909,
+    "mean_words_per_section": 258.5,
+    "p50_words_per_section": 188.0,
+    "p95_words_per_section": 706.0
+  },
+  "question_statistics": {
+    "total_questions_analyzed": 5049,
+    "annotators_distribution": {
+      "2": 1648,
+      "1": 2796,
+      "3": 531,
+      "6": 3,
+      "5": 6,
+      "4": 65
+    },
+    "type_distribution": {
+      "extractive": 2878,
+      "abstractive": 1011,
+      "yes_no": 710,
+      "unanswerable": 450
+    },
+    "type_percentages": {
+      "extractive": 57.0,
+      "abstractive": 20.02,
+      "yes_no": 14.06,
+      "unanswerable": 8.91
+    },
+    "answerability": {
+      "unanimous_answerable": 4393,
+      "unanimous_answerable_pct": 87.01,
+      "unanimous_unanswerable": 410,
+      "unanimous_unanswerable_pct": 8.12,
+      "split_vote": 246,
+      "split_vote_pct": 4.87,
+      "majority_answerable": 4452,
+      "majority_answerable_pct": 88.18,
+      "majority_unanswerable": 431,
+      "majority_unanswerable_pct": 8.54,
+      "tie_vote": 166,
+      "tie_vote_pct": 3.29
+    },
+    "individual_answer_annotations": {
+      "free_form": 1931,
+      "extractive": 4142,
+      "yes_no": 1110,
+      "unanswerable": 810
+    },
+    "individual_answer_percentages": {
+      "free_form": 24.16,
+      "extractive": 51.82,
+      "yes_no": 13.89,
+      "unanswerable": 10.13
+    },
+    "mean_words_per_question": 8.14,
+    "std_words_per_question": 3.18,
+    "p50_words_per_question": 7.0,
+    "p95_words_per_question": 14.0,
+    "min_words_per_question": 1,
+    "max_words_per_question": 25
+  },
+  "evidence_statistics": {
+    "questions_with_text_evidence": 4303,
+    "questions_with_text_evidence_pct": 85.22,
+    "questions_with_only_float_evidence": 216,
+    "questions_with_only_float_evidence_pct": 4.28,
+    "questions_with_zero_evidence": 746,
+    "questions_with_zero_evidence_pct": 14.78,
+    "passage_distribution_all_questions": {
+      "zero_passages": 746,
+      "zero_passages_pct": 14.78,
+      "single_passage": 2412,
+      "single_passage_pct": 47.77,
+      "multi_passage": 1891,
+      "multi_passage_pct": 37.45
+    },
+    "passage_distribution_evidenced_denominator": {
+      "evidenced_questions_denominator": 4303,
+      "single_passage_count": 2412,
+      "single_passage_pct": 56.05,
+      "multi_passage_count": 1891,
+      "multi_passage_pct": 43.95
+    },
+    "mean_evidence_passages_per_q_all": 1.79,
+    "mean_evidence_words_evidenced_q": 175.5,
+    "std_evidence_words_evidenced_q": 151.6,
+    "p50_evidence_words_evidenced_q": 138.0,
+    "p95_evidence_words_evidenced_q": 418.9,
+    "min_evidence_words_evidenced_q": 1,
+    "max_evidence_words_evidenced_q": 3042,
+    "mean_lexical_jaccard_overlap_all": 0.0161,
+    "p50_lexical_jaccard_overlap_all": 0.0114,
+    "mean_lexical_jaccard_overlap_evidenced": 0.0259
+  },
+  "top_15_raw_section_headings": {
+    "introduction": 1511,
+    "conclusion": 823,
+    "related work": 727,
+    "acknowledgments": 376,
+    "experiments": 335,
+    "results": 309,
+    "conclusions": 258,
+    "acknowledgements": 215,
+    "conclusion and future work": 167,
+    "discussion": 167,
+    "experimental setup": 113,
+    "methodology": 111,
+    "datasets": 104,
+    "evaluation": 101,
+    "dataset": 87
+  },
+  "top_10_canonical_section_headings": {
+    "introduction": 1544,
+    "conclusion": 1438,
+    "experiments": 1126,
+    "methodology / model": 1067,
+    "related work": 900,
+    "results": 662,
+    "acknowledgments": 650,
+    "discussion": 519,
+    "datasets": 104,
+    "dataset": 87
+  },
+  "top_10_canonical_heading_section_frequencies": {
+    "experiments": 3569,
+    "methodology / model": 3011,
+    "introduction": 1742,
+    "conclusion": 1462,
+    "related work": 1145,
+    "results": 1064,
+    "discussion": 912,
+    "acknowledgments": 650,
+    "datasets": 104,
+    "dataset": 87
+  }
+}
