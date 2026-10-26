@@ -1,0 +1,155 @@
+{
+  "audit_metadata": {
+    "name": "DEC-03 Experimental Exposure and Dataset Overlap Audit (Corrected)",
+    "date": "2026-10-25",
+    "workspace": "C:\\DACNTT",
+    "auditor": "Antigravity AI Research Engineer",
+    "audit_basis": "Direct identifier computation from raw source artifacts"
+  },
+  "official_splits_verified": {
+    "qasper_train": {
+      "papers_total": 888,
+      "queries_total": 2593,
+      "retrieval_eligible_queries": 2101,
+      "answer_generation_eligible_queries": 2322,
+      "atomic_end_to_end_eligible_queries": 2101,
+      "float_only_answerable_queries": 221,
+      "strictly_unanswerable_queries": 271,
+      "decoupled_evidence_answer_queries": 0,
+      "source_path": "eval/data/qasper_official/qasper-train-v0.3.json"
+    },
+    "qasper_dev": {
+      "papers_total": 281,
+      "queries_total": 1005,
+      "papers_with_text_evidence": 276,
+      "papers_without_text_evidence": 5,
+      "queries_with_text_evidence": 892,
+      "retrieval_eligible_queries": 892,
+      "answer_generation_eligible_queries": 945,
+      "atomic_end_to_end_eligible_queries": 892,
+      "float_only_answerable_queries": 53,
+      "strictly_unanswerable_queries": 60,
+      "decoupled_evidence_answer_queries": 0,
+      "source_path": "eval/data/qasper_official/qasper-dev-v0.3.json"
+    },
+    "qasper_test": {
+      "papers_total": 416,
+      "queries_total": 1451,
+      "papers_with_text_evidence": 408,
+      "papers_without_text_evidence": 8,
+      "queries_with_text_evidence": 1310,
+      "retrieval_eligible_queries": 1310,
+      "answer_generation_eligible_queries": 1372,
+      "atomic_end_to_end_eligible_queries": 1310,
+      "float_only_answerable_queries": 62,
+      "strictly_unanswerable_queries": 79,
+      "decoupled_evidence_answer_queries": 0,
+      "source_path": "eval/data/qasper_official/qasper-test-v0.3.json"
+    }
+  },
+  "experimental_cohorts_verified": {
+    "rq1_extraction": {
+      "papers_scored": 47,
+      "queries_evaluated": 127,
+      "records_evaluated": 635,
+      "official_split_membership": "QASPER Dev",
+      "overlap_with_qasper_train": 0,
+      "overlap_with_qasper_dev": 47,
+      "overlap_with_qasper_test": 0,
+      "source_path": "eval/results/rq1_extraction_queries_20261024_000639.jsonl"
+    },
+    "rq2_chunking": {
+      "papers_scored": 47,
+      "queries_evaluated": 127,
+      "records_evaluated": 1016,
+      "official_split_membership": "QASPER Dev",
+      "overlap_with_qasper_train": 0,
+      "overlap_with_qasper_dev": 47,
+      "overlap_with_qasper_test": 0,
+      "source_path": "eval/results/rq2_chunking_queries_20261024_013443.jsonl"
+    },
+    "rq3_embeddings_reconciliation": {
+      "prepared_corpus_papers": 211,
+      "dev_split_listed_papers": 48,
+      "held_out_listed_papers": 160,
+      "inactive_listed_paper_without_queries": "1612.02482",
+      "active_scored_held_out_papers": 159,
+      "active_scored_dev_papers": 48,
+      "total_active_scored_papers_in_thesis_benchmark": 207,
+      "total_scored_queries_in_thesis_benchmark": 615,
+      "overlap_with_qasper_train": 111,
+      "overlap_with_qasper_dev": 96,
+      "overlap_with_qasper_test": 0,
+      "source_manifest_held_out": "eval/prepared/expanded_held_out_split.json",
+      "source_benchmark_artifact": "eval/results/thesis_embedding_benchmark.json"
+    },
+    "rq4_retrieval_dev": {
+      "papers_evaluated": 276,
+      "queries_evaluated": 892,
+      "chunks_indexed_split_wide": 9698,
+      "official_split_membership": "QASPER Dev",
+      "overlap_with_qasper_test": 0,
+      "source_path": "eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_qasper_dev_hierarchical_benchmark.json"
+    },
+    "rq4_retrieval_test": {
+      "papers_evaluated": 408,
+      "queries_evaluated": 1310,
+      "chunks_indexed_split_wide": 14035,
+      "official_split_membership": "QASPER Test",
+      "overlap_with_qasper_test": 408,
+      "prior_exposure_disclosure": "QASPER Test was evaluated during Stage 4 retrieval benchmarking; it is not an untouched or unexposed confirmatory set, and any full-pipeline evaluation on it represents post-retrieval-selection evaluation.",
+      "source_path": "eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_qasper_test_hierarchical_benchmark.json"
+    },
+    "rq5_diagnostic_seed": {
+      "papers_total": 4,
+      "queries_total": 16,
+      "paper_arxiv_ids": [
+        "1512.03385",
+        "1706.03762",
+        "2005.11401",
+        "2106.09685"
+      ],
+      "overlap_with_qasper_train": 0,
+      "overlap_with_qasper_dev": 0,
+      "overlap_with_qasper_test": 0,
+      "source_path": "backend/data/eval_benchmark_seed.json"
+    }
+  },
+  "historical_exposure_summary": {
+    "partition_level_historical_exposed_papers": 804,
+    "active_benchmark_run_exposed_papers": 802,
+    "train_papers_exposed": 111,
+    "dev_papers_partition_exposed": 281,
+    "dev_papers_active_runs": 279,
+    "dev_papers_unrun_zero_text_evidence": 2,
+    "test_papers_evaluated_in_rq4": 408,
+    "test_papers_unrun_zero_chunks": 8,
+    "non_qasper_seed_papers_exposed": 4,
+    "arithmetic_reconciliation": "Partition-level: 111 Train + 281 Dev + 408 Test + 4 Seed = 804 unique papers. Active runs: 111 Train + 279 Dev + 408 Test + 4 Seed = 802 unique papers. Arithmetic clarification: 111 + 281 + 408 + 4 = 804, not 802. Exactly 2 Dev papers (1804.00720, 1903.07406) had 0 text evidence and were not run in RQ1-RQ4."
+  },
+  "unexposed_train_reservoir_audit": {
+    "total_official_train_papers": 888,
+    "train_papers_used_in_rq3": 111,
+    "unexposed_train_papers_count": 777,
+    "unexposed_total_questions_count": 2154,
+    "unexposed_questions_with_text_evidence_count": 1729,
+    "retrieval_eligible_questions_count": 1729,
+    "answer_generation_eligible_questions_count": 1916,
+    "end_to_end_eligible_questions_count": 1729,
+    "float_only_answerable_questions_count": 187,
+    "strictly_unanswerable_questions_count": 238,
+    "decoupled_evidence_answer_annotations_count": 0,
+    "annotator_evidence_with_unanswerable_flag_count": 0,
+    "unexposed_papers_with_ge_2_e2e_eligible_questions": 487,
+    "unexposed_papers_with_eq_1_e2e_eligible_question": 226,
+    "unexposed_papers_with_eq_0_e2e_eligible_questions": 64,
+    "status": "Cohort of 777 papers unexposed to the identified experiments (RQ1-RQ5) within project history; drawn from official QASPER Train split, not an independent or pristine holdout",
+    "eligibility_definitions": {
+      "retrieval_eligible": "At least one annotator provides >= 1 non-empty, non-float text evidence paragraph (strings in evidence not starting with FLOAT SELECTED).",
+      "answer_generation_eligible": "At least one annotator provides a non-unanswerable, non-empty reference answer: unanswerable == False and (any(s.strip() for s in extractive_spans) or bool(free_form_answer and free_form_answer.strip()) or (yes_no is not None, including yes_no=False)).",
+      "end_to_end_eligible": "At least one annotator simultaneously provides BOTH a valid non-float text evidence paragraph AND a usable reference answer in the SAME annotation object (atomic joint grounding).",
+      "float_only_answerable": "Usable reference answer exists, but all evidence spans are figures/tables (FLOAT SELECTED), lacking body text paragraph ground truth.",
+      "strictly_unanswerable": "All annotator annotations mark unanswerable: true or lack both answers and evidence."
+    }
+  }
+}

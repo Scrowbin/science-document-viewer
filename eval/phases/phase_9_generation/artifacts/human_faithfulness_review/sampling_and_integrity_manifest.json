@@ -1,0 +1,101 @@
+{
+  "protocol_name": "RQ5 Blinded Human Faithfulness Audit (Option A: 20 Questions / 60 Answers)",
+  "status": "PREPARED_FOR_HUMAN_ANNOTATION",
+  "generation_timestamp_utc": "2026-10-26T15:01:29.023533+00:00",
+  "generation_script": "eval/phases/phase_9_generation/scripts/generate_human_review_package.py",
+  "generation_script_sha256": "faff7dccba4b109b6137fb3b1ecc06106ccfee5f4bd3384dfcb1cd30a98fd812",
+  "sampling_parameters": {
+    "sampling_rule": "Option A: Stride-25 from frozen 500-question manifest",
+    "sample_count_questions": 20,
+    "total_answers_evaluated": 60,
+    "zero_based_manifest_indices": [
+      0,
+      25,
+      50,
+      75,
+      100,
+      125,
+      150,
+      175,
+      200,
+      225,
+      250,
+      275,
+      300,
+      325,
+      350,
+      375,
+      400,
+      425,
+      450,
+      475
+    ],
+    "one_based_manifest_item_indices": [
+      1,
+      26,
+      51,
+      76,
+      101,
+      126,
+      151,
+      176,
+      201,
+      226,
+      251,
+      276,
+      301,
+      326,
+      351,
+      376,
+      401,
+      426,
+      451,
+      476
+    ],
+    "models_evaluated": [
+      "llama3.2:3b",
+      "llama3.2:1b",
+      "qwen2.5:0.5b"
+    ],
+    "blinding_seed": 42,
+    "blinding_procedure": "Latin-square balanced counterbalancing across 3-model permutations (3 blocks of 6 + complementary pair, deterministically shuffled with seed 42)",
+    "blind_labels": [
+      "Model_Alpha",
+      "Model_Beta",
+      "Model_Gamma"
+    ],
+    "position_distribution": {
+      "llama3.2:3b": {
+        "Model_Alpha": 7,
+        "Model_Beta": 7,
+        "Model_Gamma": 6
+      },
+      "llama3.2:1b": {
+        "Model_Alpha": 7,
+        "Model_Beta": 6,
+        "Model_Gamma": 7
+      },
+      "qwen2.5:0.5b": {
+        "Model_Alpha": 6,
+        "Model_Beta": 7,
+        "Model_Gamma": 7
+      }
+    }
+  },
+  "frozen_source_checksums": {
+    "manifest_path": "eval/phases/phase_9_generation/artifacts/eval_sample_manifest_500q.json",
+    "manifest_sha256": "f411670c7b360f72d5ecb457758011fd3af5058df43c294e95ff27c0b4d498b5",
+    "checkpoint_path": "eval/phases/phase_9_generation/artifacts/rq5_inference_checkpoint.jsonl",
+    "checkpoint_sha256": "b53166efe4e8f27e34fd9f3c6efc6816214f8f2ff374682ada0f67cb030eb4b4"
+  },
+  "output_artifacts": {
+    "reviewer_guide_md": "eval/phases/phase_9_generation/artifacts/human_faithfulness_review/HUMAN_FAITHFULNESS_REVIEW_GUIDE_AND_SHEET.md",
+    "annotation_template_csv": "eval/phases/phase_9_generation/artifacts/human_faithfulness_review/faithfulness_annotation_template_60a.csv",
+    "annotation_template_jsonl": "eval/phases/phase_9_generation/artifacts/human_faithfulness_review/faithfulness_annotation_template_60a.jsonl",
+    "restricted_mapping_json": "eval/phases/phase_9_generation/artifacts/human_faithfulness_review/restricted_model_label_mapping.json"
+  },
+  "validation_status": "PASSED_ALL_13_CHECKS",
+  "validation_timestamp_utc": "2026-10-26T15:04:46.038223+00:00",
+  "validation_script": "eval/phases/phase_9_generation/scripts/validate_human_review_package.py",
+  "validation_script_sha256": "f65a36809c555c4e532dbd3438615e29eb039c1b542f1a5c502c2267101f5f6c"
+}
