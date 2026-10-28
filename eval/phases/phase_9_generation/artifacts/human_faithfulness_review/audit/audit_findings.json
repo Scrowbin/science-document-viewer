@@ -1,0 +1,474 @@
+{
+  "structural": [],
+  "inconsistencies": [
+    {
+      "review_id": "REV-02",
+      "blind_label": "Model_Alpha",
+      "primary_label": "CONTRADICTED",
+      "answer_excerpt": "The authors do not equate drunk tweeting with drunk texting.",
+      "is_refusal": false,
+      "type": "RATIONALE_LABEL_MISMATCH",
+      "severity": "HIGH",
+      "description": "Rationale text begins with support language but label is CONTRADICTED. Notes: 'Supported. The authors treat drunk tweeting as synonymous with drunk texting by using tweets as the primary medium to formulate and evaluate their \"drunk-texting prediction\" task.'"
+    },
+    {
+      "review_id": "REV-02",
+      "blind_label": "Model_Beta",
+      "primary_label": "UNSUPPORTED",
+      "answer_excerpt": "The authors do not equate drunk tweeting with drunk texting. The context does not provide information on whether the authors consider drunk tweeting t",
+      "is_refusal": false,
+      "type": "RATIONALE_LABEL_MISMATCH",
+      "severity": "HIGH",
+      "description": "Rationale text begins with support language but label is UNSUPPORTED. Notes: 'Supported. The authors treat drunk tweeting as synonymous with drunk texting by using tweets as the primary medium to formulate and evaluate their \"drunk-texting prediction\" task.'"
+    },
+    {
+      "review_id": "REV-03",
+      "blind_label": "Model_Gamma",
+      "primary_label": "UNSUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_UNSUPPORTED",
+      "severity": "MEDIUM",
+      "description": "Answer is the standard refusal boilerplate but labeled UNSUPPORTED. Refusals should be REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL, not UNSUPPORTED (which is for fabricated/extrapolated claims)."
+    },
+    {
+      "review_id": "REV-09",
+      "blind_label": "Model_Alpha",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    },
+    {
+      "review_id": "REV-09",
+      "blind_label": "Model_Gamma",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    },
+    {
+      "review_id": "REV-10",
+      "blind_label": "Model_Beta",
+      "primary_label": "UNSUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_UNSUPPORTED",
+      "severity": "MEDIUM",
+      "description": "Answer is the standard refusal boilerplate but labeled UNSUPPORTED. Refusals should be REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL, not UNSUPPORTED (which is for fabricated/extrapolated claims)."
+    },
+    {
+      "review_id": "REV-12",
+      "blind_label": "Model_Beta",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    },
+    {
+      "review_id": "REV-12",
+      "blind_label": "Model_Gamma",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    },
+    {
+      "review_id": "REV-20",
+      "blind_label": "Model_Beta",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    },
+    {
+      "review_id": "REV-20",
+      "blind_label": "Model_Gamma",
+      "primary_label": "SUPPORTED",
+      "answer_excerpt": "The document does not contain sufficient relevant information to answer this question.",
+      "is_refusal": true,
+      "type": "REFUSAL_LABELED_SUPPORTED",
+      "severity": "HIGH",
+      "description": "Answer is the standard refusal boilerplate but labeled SUPPORTED. Should be either REFUSAL_VALID or MISSING_INFO - UNJUSTIFIED_REFUSAL."
+    }
+  ],
+  "completeness": [
+    {
+      "review_id": "REV-01",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-01",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-02",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-03",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-03",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-04",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-04",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-04",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-05",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-05",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-06",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-06",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-06",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-07",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-07",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-08",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-08",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-09",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-09",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-10",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-10",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-11",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-11",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-11",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-12",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-12",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-12",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-13",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-14",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-14",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-15",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-15",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-15",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-16",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-16",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-16",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-17",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-17",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-17",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-18",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-18",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-18",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-19",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-19",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-20",
+      "blind_label": "Model_Alpha",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-20",
+      "blind_label": "Model_Beta",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    },
+    {
+      "review_id": "REV-20",
+      "blind_label": "Model_Gamma",
+      "missing_fields": [
+        "claims_breakdown"
+      ]
+    }
+  ],
+  "summary": {
+    "total_records": 60,
+    "unique_rev_ids": 20,
+    "overall_label_distribution": {
+      "REFUSAL_VALID": 3,
+      "CONTRADICTED": 3,
+      "UNSUPPORTED": 9,
+      "SUPPORTED": 33,
+      "MISSING_INFO - PARTIAL": 5,
+      "MISSING_INFO - UNJUSTIFIED_REFUSAL": 7
+    },
+    "label_by_model": {
+      "Model_Alpha": {
+        "REFUSAL_VALID": 2,
+        "CONTRADICTED": 2,
+        "SUPPORTED": 8,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 5,
+        "UNSUPPORTED": 3
+      },
+      "Model_Beta": {
+        "REFUSAL_VALID": 1,
+        "UNSUPPORTED": 5,
+        "MISSING_INFO - PARTIAL": 2,
+        "SUPPORTED": 11,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 1
+      },
+      "Model_Gamma": {
+        "CONTRADICTED": 1,
+        "SUPPORTED": 14,
+        "UNSUPPORTED": 1,
+        "MISSING_INFO - PARTIAL": 3,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 1
+      }
+    },
+    "total_inconsistencies": 10,
+    "total_structural_issues": 0,
+    "records_with_missing_fields": 47
+  }
+}

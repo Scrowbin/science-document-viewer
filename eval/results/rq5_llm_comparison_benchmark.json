@@ -7,7 +7,7 @@
       "token_f1_mean": 0.3667,
       "token_precision_mean": 0.3661,
       "token_recall_mean": 0.4316,
-      "faithfulness_mean": 0.3554,
+      "automated_containment_proxy_mean": 0.3554,
       "latency_mean_s": 3.83,
       "latency_p50_s": 3.39,
       "latency_p95_s": 7.65,
@@ -20,7 +20,7 @@
         "expected": "d_model = 512. All sub-layers in the model, as well as the embedding layers, produce outputs of dimension d_model = 512.",
         "generated": "The dimensionality of the input and output vectors across all layers in the base Transformer model is 512.",
         "f1": 0.4324,
-        "faithfulness": 0.3636,
+        "automated_containment_proxy": 0.3636,
         "latency_s": 3.16,
         "tokens_per_second": 44.5
       },
@@ -30,7 +30,7 @@
         "expected": "For large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, the dot products are scaled by 1/sqrt(d_k).",
         "generated": "Scaled Dot-Product Attention divides the dot products of queries and keys by the square root of d_k because it aims to mitigate the issue of large dot products, which can lead to the softmax function becoming less effective. This scaling factor helps to reduce the magnitude of the dot products, making the attention mechanism more stable and effective.",
         "f1": 0.3871,
-        "faithfulness": 0.2778,
+        "automated_containment_proxy": 0.2778,
         "latency_s": 3.86,
         "tokens_per_second": 45.4
       },
@@ -40,7 +40,7 @@
         "expected": "We used the Adam optimizer with beta1 = 0.9, beta2 = 0.98 and epsilon = 10^-9. We varied the learning rate over the course of training, with warmup_steps = 4000.",
         "generated": "The optimizer utilized was Adam with a beta1 of 0.9 and a beta2 of 0.98. The warmup schedule was not specified in the given context.",
         "f1": 0.4706,
-        "faithfulness": 0.4167,
+        "automated_containment_proxy": 0.4167,
         "latency_s": 3.15,
         "tokens_per_second": 47.7
       },
@@ -50,7 +50,7 @@
         "expected": "Sine and cosine functions of different frequencies, using PE(pos, 2i) = sin(pos/10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos/10000^(2i/d_model)).",
         "generated": "The authors selected the positional encoding formulation \\( PE(pos, 2i) = \\sin(pos/10000^{2i/dmodel}) \\) to allow the model to extrapolate to sequence lengths unseen during training.",
         "f1": 0.1622,
-        "faithfulness": 0.0667,
+        "automated_containment_proxy": 0.0667,
         "latency_s": 3.39,
         "tokens_per_second": 47.2
       },
@@ -60,7 +60,7 @@
         "expected": "y = F(x, {Wi}) + x, where x and y are the input and output vectors of the layers considered, and F is the residual mapping to be learned.",
         "generated": "The residual mapping function with identity shortcut connections can be expressed as: y = F(x, {Wi}) + x.",
         "f1": 0.3721,
-        "faithfulness": 0.0,
+        "automated_containment_proxy": 0.0,
         "latency_s": 3.04,
         "tokens_per_second": 50.0
       },
@@ -70,7 +70,7 @@
         "expected": "By using a stack of 3 layers: 1x1, 3x3, and 1x1 convolutions, where the 1x1 layers reduce and subsequently restore dimensions, leaving the 3x3 layer as a bottleneck with smaller input/output dimensions.",
         "generated": "The bottleneck building block design in 50, 101, and 152-layer ResNets reduces parameter complexity by reducing the number of parameters in the bottleneck layer. Specifically, the 50-layer ResNet has 100 parameters, the 101-layer ResNet has 201 parameters, and the 152-layer ResNet has 301 parameters. This reduction in parameters is achieved by reducing the number of parameters in the bottleneck layer, which is responsible for the bottleneck effect.",
         "f1": 0.1616,
-        "faithfulness": 0.2308,
+        "automated_containment_proxy": 0.2308,
         "latency_s": 4.99,
         "tokens_per_second": 45.3
       },
@@ -80,7 +80,7 @@
         "expected": "An ensemble of ResNets achieved a 3.57% top-5 error rate on the ImageNet test set, winning 1st place in the ILSVRC 2015 competition.",
         "generated": "The ensemble of ResNets achieved a top-5 error rate of 3.57% on the ImageNet test set.",
         "f1": 0.7692,
-        "faithfulness": 0.5,
+        "automated_containment_proxy": 0.5,
         "latency_s": 3.1,
         "tokens_per_second": 43.1
       },
@@ -90,7 +90,7 @@
         "expected": "When deeper networks start converging, a degradation problem is exposed: with network depth increasing, accuracy gets saturated and then degrades rapidly, which is not caused by overfitting as training error also increases.",
         "generated": "The degradation problem observed when plain deep networks increase in depth is that with the network depth increasing, accuracy gets saturated (which might be unsurprising) and then degrades rapidly.",
         "f1": 0.5574,
-        "faithfulness": 0.8,
+        "automated_containment_proxy": 0.8,
         "latency_s": 3.15,
         "tokens_per_second": 45.5
       },
@@ -100,7 +100,7 @@
         "expected": "By decomposing Delta W into the product of two low-rank matrices B * A, where B in R^(d x r), A in R^(r x k), with rank r << min(d, k), keeping W0 frozen.",
         "generated": "LoRA (Low-Rank Adaptation of Large Language Models) decomposes the weight update matrix Delta W during adaptation by representing it as:\n\n\\[ \\Delta W = W_0 + \\Delta B \\]\n\nwhere:\n- \\( W_0 \\) is the initial weight matrix,\n- \\( \\Delta B \\) is the low-rank matrix that represents the update with a rank \\( r \\) matrix \\( B \\) in \\( \\mathbb{R}^{d \\times r} \\), \\( A \\in \\mathbb{R}^{r \\times k} \\), and the rank \\( r \\) is \\( r \\leq \\min(d, k) \\).\n\nIn this decomposition, \\( \\Delta B \\) is the low-rank matrix that captures the adaptation process, and it is added to the initial weight matrix \\( W_0 \\) to update the model. The rank \\( r \\) of \\( \\Delta B \\) is constrained to be less than the minimum dimension \\( d \\) and the dimension \\( k \\) of the model.",
         "f1": 0.2819,
-        "faithfulness": 0.3393,
+        "automated_containment_proxy": 0.3393,
         "latency_s": 7.65,
         "tokens_per_second": 43.8
       },
@@ -110,7 +110,7 @@
         "expected": "We use a random Gaussian initialization for A and zero for B, so Delta W = BA is zero at the beginning of training.",
         "generated": "Before training begins, matrices A and B are initialized using a random Gaussian distribution. This means that each element of matrix A is initialized with a random value drawn from a standard normal distribution (mean 0, variance 1), and each element of matrix B is initialized with a random value drawn from a standard normal distribution (mean 0, variance 1). This initialization ensures that the matrices A and B are randomly initialized, which can help in reducing the variance of the model's parameters and improving the model's performance during training.",
         "f1": 0.1947,
-        "faithfulness": 0.1429,
+        "automated_containment_proxy": 0.1429,
         "latency_s": 4.59,
         "tokens_per_second": 46.3
       },
@@ -120,7 +120,7 @@
         "expected": "Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times.",
         "generated": "LoRA reduces the number of trainable parameters by 10,000 times compared to full fine-tuning of GPT-3 175B.",
         "f1": 0.6047,
-        "faithfulness": 0.75,
+        "automated_containment_proxy": 0.75,
         "latency_s": 3.29,
         "tokens_per_second": 44.0
       },
@@ -130,7 +130,7 @@
         "expected": "No. LoRA introduces no additional inference latency compared to a fully fine-tuned model because the adapter matrices A and B can be directly merged into W0 in production.",
         "generated": "LoRA (Low-Rank Adaptation of Large Language Models) does not introduce any inference latency overhead compared to the fully fine-tuned model. LoRA is a technique that aims to reduce the computational cost of large language models by approximating their parameters with a low-rank matrix. This approach can lead to faster training times and reduced inference latency, but it does not introduce any additional latency during the inference phase. The inference latency is primarily determined by the model's architecture, the size of the model, and the specific hardware used for inference.",
         "f1": 0.2393,
-        "faithfulness": 0.1833,
+        "automated_containment_proxy": 0.1833,
         "latency_s": 4.56,
         "tokens_per_second": 47.8
       },
@@ -140,7 +140,7 @@
         "expected": "RAG-Sequence (which uses the same retrieved document to generate the complete sequence) and RAG-Token (which can attend to different passages across different generated tokens).",
         "generated": "The two distinct formulations of RAG models introduced in the paper are the RAG-Sequence model and the RAG-Sequence-2 model.",
         "f1": 0.186,
-        "faithfulness": 0.2727,
+        "automated_containment_proxy": 0.2727,
         "latency_s": 3.21,
         "tokens_per_second": 46.9
       },
@@ -150,7 +150,7 @@
         "expected": "Dense Passage Retriever (DPR) with a bi-encoder architecture based on BERT, combined with BART as the sequence-to-sequence generator.",
         "generated": "The neural retrieval mechanism and generator architecture in the RAG system are combined using the Dense Passage Retriever (DPR) and BART-large.",
         "f1": 0.4103,
-        "faithfulness": 0.5,
+        "automated_containment_proxy": 0.5,
         "latency_s": 2.95,
         "tokens_per_second": 48.3
       },
@@ -160,7 +160,7 @@
         "expected": "Following Lee et al. and Karpukhin et al., the December 2018 Wikipedia dump split into disjoint 100-word chunks, making a total of 21M documents.",
         "generated": "The passage retrieval corpus used for the open-domain QA experiments was the December 2018 Wikipedia dump. Each Wikipedia article is split into disjoint 100-word chunks, resulting in a total of 21 million documents.",
         "f1": 0.4912,
-        "faithfulness": 0.6364,
+        "automated_containment_proxy": 0.6364,
         "latency_s": 3.41,
         "tokens_per_second": 44.5
       },
@@ -170,7 +170,7 @@
         "expected": "Because knowledge is stored explicitly in external non-parametric memory and retrieved dynamically, allowing verifiable citations and easier updating without retraining.",
         "generated": "RAG (Retrieval-Augmented Generation) achieves higher factual accuracy than purely parametric models like T5 or GPT-3 because it utilizes a differentiable access mechanism to explicit non-parametric memory. This allows the model to better understand and utilize the context provided by the user, leading to more accurate predictions and summaries.",
         "f1": 0.1471,
-        "faithfulness": 0.2059,
+        "automated_containment_proxy": 0.2059,
         "latency_s": 3.76,
         "tokens_per_second": 47.7
       }
@@ -184,7 +184,7 @@
       "token_f1_mean": 0.3859,
       "token_precision_mean": 0.3592,
       "token_recall_mean": 0.453,
-      "faithfulness_mean": 0.3441,
+      "automated_containment_proxy_mean": 0.3441,
       "latency_mean_s": 5.93,
       "latency_p50_s": 5.76,
       "latency_p95_s": 9.99,
@@ -197,7 +197,7 @@
         "expected": "d_model = 512. All sub-layers in the model, as well as the embedding layers, produce outputs of dimension d_model = 512.",
         "generated": "Based on the provided context, the dimensionality of the input and output vectors across all layers in the base Transformer model is 512.",
         "f1": 0.381,
-        "faithfulness": 0.2857,
+        "automated_containment_proxy": 0.2857,
         "latency_s": 4.88,
         "tokens_per_second": 16.6
       },
@@ -207,7 +207,7 @@
         "expected": "For large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, the dot products are scaled by 1/sqrt(d_k).",
         "generated": "Based on the provided context, the answer is that Scaled Dot-Product Attention divides the dot products of queries and keys by the square root of d_k because it scales the dot products by 1/sqrt(dk) to counteract the effect of the softmax function, which can lead to extremely small gradients in the dot products.",
         "f1": 0.5,
-        "faithfulness": 0.4828,
+        "automated_containment_proxy": 0.4828,
         "latency_s": 6.76,
         "tokens_per_second": 17.1
       },
@@ -217,7 +217,7 @@
         "expected": "We used the Adam optimizer with beta1 = 0.9, beta2 = 0.98 and epsilon = 10^-9. We varied the learning rate over the course of training, with warmup_steps = 4000.",
         "generated": "Based on the provided context, the optimizer and learning rate warmup schedule utilized during training are:\n\n1. Optimizer: Adam\n2. Learning rate warmup schedule: None (or a constant learning rate, as mentioned in the context, with beta1 = 0.9 and beta2 = 0.98)",
         "f1": 0.4179,
-        "faithfulness": 0.5,
+        "automated_containment_proxy": 0.5,
         "latency_s": 6.91,
         "tokens_per_second": 15.8
       },
@@ -227,7 +227,7 @@
         "expected": "Sine and cosine functions of different frequencies, using PE(pos, 2i) = sin(pos/10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos/10000^(2i/d_model)).",
         "generated": "Based on the provided context, the authors selected the positional encoding formulation PE(pos, 2i) = sin(pos/10000^(2i/dmodel)) to allow the model to extrapolate to sequence lengths unseen during training.",
         "f1": 0.1429,
-        "faithfulness": 0.0556,
+        "automated_containment_proxy": 0.0556,
         "latency_s": 6.05,
         "tokens_per_second": 14.1
       },
@@ -237,7 +237,7 @@
         "expected": "y = F(x, {Wi}) + x, where x and y are the input and output vectors of the layers considered, and F is the residual mapping to be learned.",
         "generated": "Based on the provided context, the formulation that expresses the residual mapping function with identity shortcut connections is:\n\ny = F(x, {Wi}) + x\n\nThis formulation implies that the residual mapping function is defined as the sum of the original input vector `x` and the output vector `F(x, {Wi})`, where `{Wi}` represents the weights of the shortcut connections.",
         "f1": 0.3855,
-        "faithfulness": 0.1071,
+        "automated_containment_proxy": 0.1071,
         "latency_s": 7.92,
         "tokens_per_second": 16.1
       },
@@ -247,7 +247,7 @@
         "expected": "By using a stack of 3 layers: 1x1, 3x3, and 1x1 convolutions, where the 1x1 layers reduce and subsequently restore dimensions, leaving the 3x3 layer as a bottleneck with smaller input/output dimensions.",
         "generated": "Based on the provided context, the bottleneck building block design in ResNets reduces parameter complexity by:\n\n1. Using 1x1 convolutions, which reduce the number of parameters compared to 3x3 convolutions.\n2. Increasing the number of parameters in the 3x3 layer, which is a bottleneck in the network, by using it as a building block.\n\nThis design allows the network to reuse the 3x3 layer, reducing the number of parameters required to achieve the same level of accuracy.",
         "f1": 0.2752,
-        "faithfulness": 0.2727,
+        "automated_containment_proxy": 0.2727,
         "latency_s": 9.99,
         "tokens_per_second": 14.7
       },
@@ -257,7 +257,7 @@
         "expected": "An ensemble of ResNets achieved a 3.57% top-5 error rate on the ImageNet test set, winning 1st place in the ILSVRC 2015 competition.",
         "generated": "Based on the provided context, the ensemble of ResNets achieved a top-5 error rate of 3.57% on the ImageNet test set.",
         "f1": 0.6818,
-        "faithfulness": 0.3846,
+        "automated_containment_proxy": 0.3846,
         "latency_s": 4.51,
         "tokens_per_second": 17.9
       },
@@ -267,7 +267,7 @@
         "expected": "When deeper networks start converging, a degradation problem is exposed: with network depth increasing, accuracy gets saturated and then degrades rapidly, which is not caused by overfitting as training error also increases.",
         "generated": "Based on the provided context, the degradation problem observed when plain deep networks increase in depth is that accuracy gets saturated and then degrades rapidly.",
         "f1": 0.4561,
-        "faithfulness": 0.6111,
+        "automated_containment_proxy": 0.6111,
         "latency_s": 4.36,
         "tokens_per_second": 16.2
       },
@@ -277,7 +277,7 @@
         "expected": "By decomposing Delta W into the product of two low-rank matrices B * A, where B in R^(d x r), A in R^(r x k), with rank r << min(d, k), keeping W0 frozen.",
         "generated": "Based on the provided context, LoRA (Low-Rank Adaptation of Large Language Models) decomposes the weight update matrix Delta W during adaptation as follows:\n\nDelta W = W0 + BA\n\nwhere B is a low-rank matrix (rank r << min(d, k)), A is a matrix of size r x k, and W0 is the original low-rank matrix.",
         "f1": 0.4,
-        "faithfulness": 0.3214,
+        "automated_containment_proxy": 0.3214,
         "latency_s": 7.87,
         "tokens_per_second": 16.5
       },
@@ -287,7 +287,7 @@
         "expected": "We use a random Gaussian initialization for A and zero for B, so Delta W = BA is zero at the beginning of training.",
         "generated": "Based on the provided context, the matrices A and B are initialized with random Gaussian values.",
         "f1": 0.3077,
-        "faithfulness": 0.25,
+        "automated_containment_proxy": 0.25,
         "latency_s": 3.59,
         "tokens_per_second": 16.7
       },
@@ -297,7 +297,7 @@
         "expected": "Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times.",
         "generated": "According to the context, LoRA can reduce the number of trainable parameters by 10,000 times compared to full fine-tuning of GPT-3 175B.",
         "f1": 0.6667,
-        "faithfulness": 0.7143,
+        "automated_containment_proxy": 0.7143,
         "latency_s": 4.85,
         "tokens_per_second": 17.0
       },
@@ -307,7 +307,7 @@
         "expected": "No. LoRA introduces no additional inference latency compared to a fully fine-tuned model because the adapter matrices A and B can be directly merged into W0 in production.",
         "generated": "Based on the provided context, the answer is no. LoRA (Low-Rank Adaptation) does not introduce any inference latency overhead compared to the fully fine-tuned model.",
         "f1": 0.3774,
-        "faithfulness": 0.1111,
+        "automated_containment_proxy": 0.1111,
         "latency_s": 4.42,
         "tokens_per_second": 18.4
       },
@@ -317,7 +317,7 @@
         "expected": "RAG-Sequence (which uses the same retrieved document to generate the complete sequence) and RAG-Token (which can attend to different passages across different generated tokens).",
         "generated": "Based on the provided context, the two distinct formulations of RAG (Retrieval-Augmented Generation) models introduced in the paper are:\n\n1. The first formulation treats the retrieved document as a latent variable, which is then used to generate the complete sequence.\n2. The second formulation does not explicitly treat the retrieved document as a latent variable, instead using the retrieved document as a direct input to the generator model.",
         "f1": 0.2174,
-        "faithfulness": 0.3571,
+        "automated_containment_proxy": 0.3571,
         "latency_s": 7.67,
         "tokens_per_second": 17.6
       },
@@ -327,7 +327,7 @@
         "expected": "Dense Passage Retriever (DPR) with a bi-encoder architecture based on BERT, combined with BART as the sequence-to-sequence generator.",
         "generated": "Based on the provided context, the RAG system combines a neural retrieval mechanism and a BART-large generator architecture.",
         "f1": 0.3333,
-        "faithfulness": 0.25,
+        "automated_containment_proxy": 0.25,
         "latency_s": 3.94,
         "tokens_per_second": 17.7
       },
@@ -337,7 +337,7 @@
         "expected": "Following Lee et al. and Karpukhin et al., the December 2018 Wikipedia dump split into disjoint 100-word chunks, making a total of 21M documents.",
         "generated": "Based on the provided context, the passage retrieval corpus indexed for the open-domain QA experiments was the December 2018 dump of Wikipedia articles, which were split into disjoint 100-word chunks to create a total of 21M documents.",
         "f1": 0.4918,
-        "faithfulness": 0.5217,
+        "automated_containment_proxy": 0.5217,
         "latency_s": 5.34,
         "tokens_per_second": 17.0
       },
@@ -347,7 +347,7 @@
         "expected": "Because knowledge is stored explicitly in external non-parametric memory and retrieved dynamically, allowing verifiable citations and easier updating without retraining.",
         "generated": "Based on the provided context, the answer to the question is that RAG (Retrieval-Augmented Generation) achieves higher factual accuracy than purely parametric models like T5 or GPT-3 because of its differentiable access mechanism to explicit non-parametric memory.",
         "f1": 0.1404,
-        "faithfulness": 0.28,
+        "automated_containment_proxy": 0.28,
         "latency_s": 5.76,
         "tokens_per_second": 17.1
       }
@@ -361,7 +361,7 @@
       "token_f1_mean": 0.4126,
       "token_precision_mean": 0.3753,
       "token_recall_mean": 0.5111,
-      "faithfulness_mean": 0.365,
+      "automated_containment_proxy_mean": 0.365,
       "latency_mean_s": 8.4,
       "latency_p50_s": 6.98,
       "latency_p95_s": 20.68,
@@ -374,7 +374,7 @@
         "expected": "d_model = 512. All sub-layers in the model, as well as the embedding layers, produce outputs of dimension d_model = 512.",
         "generated": "According to the provided context, the dimensionality of the input and output vectors across all layers in the base Transformer model is 512.",
         "f1": 0.381,
-        "faithfulness": 0.2857,
+        "automated_containment_proxy": 0.2857,
         "latency_s": 5.58,
         "tokens_per_second": 11.3
       },
@@ -384,7 +384,7 @@
         "expected": "For large values of d_k, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, the dot products are scaled by 1/sqrt(d_k).",
         "generated": "According to the context, the Scaled Dot-Product Attention divides the dot products of queries and keys by the square root of d_k to counteract the effect of large magnitude dot products, which push the softmax function into regions where it has extremely small gradients.",
         "f1": 0.6582,
-        "faithfulness": 0.5926,
+        "automated_containment_proxy": 0.5926,
         "latency_s": 8.56,
         "tokens_per_second": 9.6
       },
@@ -394,7 +394,7 @@
         "expected": "We used the Adam optimizer with beta1 = 0.9, beta2 = 0.98 and epsilon = 10^-9. We varied the learning rate over the course of training, with warmup_steps = 4000.",
         "generated": "Unfortunately, the provided context does not explicitly mention the optimizer and learning rate warmup schedule used during training. However, it does mention that the Adam optimizer was used with beta1 = 0.9, beta2 = 0.98, and epsilon = 10^-9.",
         "f1": 0.5484,
-        "faithfulness": 0.5,
+        "automated_containment_proxy": 0.5,
         "latency_s": 8.86,
         "tokens_per_second": 9.8
       },
@@ -404,7 +404,7 @@
         "expected": "Sine and cosine functions of different frequencies, using PE(pos, 2i) = sin(pos/10000^(2i/d_model)) and PE(pos, 2i+1) = cos(pos/10000^(2i/d_model)).",
         "generated": "The authors selected a positional encoding formulation that uses sine and cosine functions of different frequencies, specifically PE(pos, 2i) = sin(pos/10000^(2i/dmodel)).",
         "f1": 0.5714,
-        "faithfulness": 0.4286,
+        "automated_containment_proxy": 0.4286,
         "latency_s": 6.97,
         "tokens_per_second": 9.6
       },
@@ -414,7 +414,7 @@
         "expected": "y = F(x, {Wi}) + x, where x and y are the input and output vectors of the layers considered, and F is the residual mapping to be learned.",
         "generated": "According to the context, the residual mapping function with identity shortcut connections is expressed as:\n\ny = F(x, {Wi}) + x\n\nThis formulation is mentioned in equation (1) as the building block of the residual network.",
         "f1": 0.3934,
-        "faithfulness": 0.125,
+        "automated_containment_proxy": 0.125,
         "latency_s": 8.47,
         "tokens_per_second": 9.5
       },
@@ -424,7 +424,7 @@
         "expected": "By using a stack of 3 layers: 1x1, 3x3, and 1x1 convolutions, where the 1x1 layers reduce and subsequently restore dimensions, leaving the 3x3 layer as a bottleneck with smaller input/output dimensions.",
         "generated": "According to the context, the bottleneck building block design in ResNets reduces parameter complexity by using 1x1 convolutions to reduce dimensions before a 3x3 convolution (the bottleneck layer), and then another 1x1 convolution to restore dimensions. This design effectively reduces the number of parameters in the network.\n\nIn more detail, the 1x1 convolutions reduce the number of channels in the input, resulting in a smaller number of parameters. The 3x3 bottleneck layer has a smaller input and output dimension, which also reduces the number of parameters. Finally, the 1x1 convolution after the bottleneck layer restores the original number of channels, but with a smaller number of parameters due to the reduced dimensionality.\n\nThis design reduces parameter complexity by effectively reducing the number of parameters in the network, while still maintaining the ability to learn complex features.",
         "f1": 0.2738,
-        "faithfulness": 0.25,
+        "automated_containment_proxy": 0.25,
         "latency_s": 20.68,
         "tokens_per_second": 10.1
       },
@@ -434,7 +434,7 @@
         "expected": "An ensemble of ResNets achieved a 3.57% top-5 error rate on the ImageNet test set, winning 1st place in the ILSVRC 2015 competition.",
         "generated": "Unfortunately, the provided context does not mention the top-5 error rate achieved by the ensemble of ResNets on the ImageNet test set. It only mentions the top-5 error rate of a single entry, which won 1st place in ILSVRC 2015, and does not provide information about the ensemble of ResNets.",
         "f1": 0.5205,
-        "faithfulness": 0.3529,
+        "automated_containment_proxy": 0.3529,
         "latency_s": 8.87,
         "tokens_per_second": 11.6
       },
@@ -444,7 +444,7 @@
         "expected": "When deeper networks start converging, a degradation problem is exposed: with network depth increasing, accuracy gets saturated and then degrades rapidly, which is not caused by overfitting as training error also increases.",
         "generated": "According to the context, the degradation problem observed when plain deep networks increase in depth is that accuracy gets saturated and then degrades rapidly.",
         "f1": 0.4643,
-        "faithfulness": 0.6471,
+        "automated_containment_proxy": 0.6471,
         "latency_s": 5.23,
         "tokens_per_second": 11.0
       },
@@ -454,7 +454,7 @@
         "expected": "By decomposing Delta W into the product of two low-rank matrices B * A, where B in R^(d x r), A in R^(r x k), with rank r << min(d, k), keeping W0 frozen.",
         "generated": "According to the context, LoRA decomposes the weight update matrix Delta W during adaptation by representing it with a low-rank decomposition: W0 + Delta W = W0 + BA, where B is a matrix in R^{d x r}, A is a matrix in R^{r x k}, and the rank r is much smaller than the minimum of d and k.",
         "f1": 0.5169,
-        "faithfulness": 0.3636,
+        "automated_containment_proxy": 0.3636,
         "latency_s": 10.46,
         "tokens_per_second": 10.9
       },
@@ -464,7 +464,7 @@
         "expected": "We use a random Gaussian initialization for A and zero for B, so Delta W = BA is zero at the beginning of training.",
         "generated": "According to the context, matrices A and B are initialized as follows:\n\n- Matrix A is initialized with a random Gaussian initialization.\n- Matrix B is initialized with a value of zero.",
         "f1": 0.4151,
-        "faithfulness": 0.2857,
+        "automated_containment_proxy": 0.2857,
         "latency_s": 6.98,
         "tokens_per_second": 8.7
       },
@@ -474,7 +474,7 @@
         "expected": "Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times.",
         "generated": "According to the context, LoRA can reduce the number of trainable parameters by 10,000 times compared to fine-tuning GPT-3 175B with Adam.",
         "f1": 0.75,
-        "faithfulness": 0.7857,
+        "automated_containment_proxy": 0.7857,
         "latency_s": 6.29,
         "tokens_per_second": 10.5
       },
@@ -484,7 +484,7 @@
         "expected": "No. LoRA introduces no additional inference latency compared to a fully fine-tuned model because the adapter matrices A and B can be directly merged into W0 in production.",
         "generated": "According to the context, LoRA (Low-Rank Adaptation of Large Language Models) does not introduce any inference latency overhead compared to the fully fine-tuned model.",
         "f1": 0.3462,
-        "faithfulness": 0.1053,
+        "automated_containment_proxy": 0.1053,
         "latency_s": 5.63,
         "tokens_per_second": 11.2
       },
@@ -494,7 +494,7 @@
         "expected": "RAG-Sequence (which uses the same retrieved document to generate the complete sequence) and RAG-Token (which can attend to different passages across different generated tokens).",
         "generated": "According to the context, the paper introduces two distinct formulations of RAG models: \n\n1. The original RAG-Sequence model\n2. The RAG-Sequence model with a learned embedding layer",
         "f1": 0.1569,
-        "faithfulness": 0.2353,
+        "automated_containment_proxy": 0.2353,
         "latency_s": 6.83,
         "tokens_per_second": 11.3
       },
@@ -504,7 +504,7 @@
         "expected": "Dense Passage Retriever (DPR) with a bi-encoder architecture based on BERT, combined with BART as the sequence-to-sequence generator.",
         "generated": "According to the provided context, the neural retrieval mechanism and generator architecture combined in the RAG system are:\n\n1. Neural retrieval mechanism: Dense Passage Retriever (DPR)\n2. Generator architecture: BART-large",
         "f1": 0.3333,
-        "faithfulness": 0.4286,
+        "automated_containment_proxy": 0.4286,
         "latency_s": 6.66,
         "tokens_per_second": 11.2
       },
@@ -514,7 +514,7 @@
         "expected": "Following Lee et al. and Karpukhin et al., the December 2018 Wikipedia dump split into disjoint 100-word chunks, making a total of 21M documents.",
         "generated": "The passage retrieval corpus indexed for the open-domain QA experiments was the Wikipedia article chunks.",
         "f1": 0.1538,
-        "faithfulness": 0.3333,
+        "automated_containment_proxy": 0.3333,
         "latency_s": 4.17,
         "tokens_per_second": 11.4
       },
@@ -524,7 +524,7 @@
         "expected": "Because knowledge is stored explicitly in external non-parametric memory and retrieved dynamically, allowing verifiable citations and easier updating without retraining.",
         "generated": "Unfortunately, the provided context does not explicitly state why RAG achieves higher factual accuracy than purely parametric models like T5 or GPT-3. However, based on the context, it can be inferred that RAG's retrieval mechanism allows it to access explicit non-parametric memory, which is a different approach than the purely parametric models mentioned.\n\nIt can be synthesized that RAG's ability to leverage external memory may provide it with a more robust and accurate way of retrieving relevant information, leading to higher factual accuracy. However, the exact reasons for this advantage are not explicitly stated in the provided context.",
         "f1": 0.1186,
-        "faithfulness": 0.1212,
+        "automated_containment_proxy": 0.1212,
         "latency_s": 14.23,
         "tokens_per_second": 10.5
       }

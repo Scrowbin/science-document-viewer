@@ -27,7 +27,7 @@ This document represents the **consolidated, definitive, and unified research re
 | **5** | Query Preprocessing          | Task Prefixes & Text Clean  | Task prefixes verified for e5/bge    | 🟢 Complete      |
 | **6** | Hybrid Retrieval (Test)      | Context nDCG@10 (Test)      | Convex (0.5806*) / RRF (0.5662)      | 🟢 Complete      |
 | **7** | Context Assembly             | Token Budget Packing        | Context formatted with source tags   | 🟢 Complete      |
-| **8** | Local LLM Generation (Ollama)| Grounded QA & Faithfulness  | llama3.2:3b grounded prompt template | 🟢 Complete      |
+| **8** | Local LLM Generation (RQ5)   | Answer F1, Faithfulness, Latency | 16-seed pilot done; Stage A formalized | 🟡 In Progress  |
 | **9** | Page Attribution & Citation  | Citation Precision & Recall| Page locator mapped to PDF canvas    | 🟢 Complete      |
 +───────┴──────────────────────────────┴────────────────────────────┴──────────────────────────────────────┴──────────────────+
 ```
@@ -191,6 +191,38 @@ While QASPER serves as our primary developmental corpus and within-paper passage
 * **Retrieval Implications:** Because QASPER queries have only 1.6% lexical overlap with evidence, purely lexical BM25 retrieval captures only 65.1% Hit@5. As shown in the empirical retrieval progression below, dense embeddings (`e5-small-v2`) boost Hit@5 to **71.9%** (nDCG@4 = 0.4459), while Hybrid RRF ($k=60$) achieves **92.8% Recall@20** candidate coverage.
 
 ![Cross-Dataset Scale & Retrieval Performance Progression](figures/cross_dataset_and_retrieval_progression.png)
+
+---
+
+#### 0C. Mandatory Methodological Disclaimers & Dataset Usage Governance (DEC-03 Audit)
+
+To maintain uncompromising scientific transparency and prevent misrepresentation of prior test-set usage or evaluation independence, the following five methodological boundaries are formally codified:
+
+##### 1. Prior Experimental Exposure Boundary of QASPER Test
+* **Exposure Disclosure:** The official QASPER Test split (408 papers, 1,310 answerable queries, 14,035 child chunks) was previously examined during the RQ4 hybrid retrieval and fusion benchmark ([`evaluate_full_qasper_rq4_hybrid.py`](file:///c:/DACNTT/eval/phases/phase_6_hybrid_retrieval/scripts/evaluate_full_qasper_rq4_hybrid.py)).
+* **Methodological Implication:** QASPER Test is **not an unexposed, blind test set** for the overall RAG system. While it has never been exposed to LLM generation, prompt tuning, or summarization, it cannot be used to tune models or select pipeline components. Any subsequent end-to-end evaluation on this set must be reported as *post-retrieval-selection confirmatory testing*.
+
+##### 2. Provenance & Nature of the 777-Paper Unexposed Train Reservoir
+* **Reservoir Definition:** Out of 888 papers in official QASPER Train, only 111 were indexed in RQ3. The remaining **777 papers (2,154 queries; 1,729 text-evidenced eligible queries across 713 papers)** have zero prior exposure to any experiment in this project (RQ1–RQ5).
+* **Important Scientific Boundary:** This reservoir represents an *experiment-unexposed paper-level holdout within the project's development history*, **not a universally pristine external distribution**. Because it originates from QASPER Train, it shares the same domain distribution (arXiv computer science preprints), LaTeX extraction structure, and crowdworker question collection methodology as QASPER Dev and Test.
+
+##### 3. Reconciliation of RQ3 Paper Cohorts (211 vs. 160 vs. 207 Papers)
+* **Prepared Corpus (`expanded_corpus.json`):** 211 papers (100 Dev + 111 Train). Includes 3 Dev papers (`1806.04330`, `1812.10479`, `1909.04002`) with zero text-evidenced queries.
+* **Listed Cohorts:** 48 Dev papers (`dev_held_out_split.json`) + 160 papers (`expanded_held_out_split.json`: 49 Dev + 111 Train) $= 208$ listed papers.
+* **Active Scored Benchmark (`thesis_embedding_benchmark.json`):** Paper `1612.02482` has 0 queries. Exactly **207 active papers (615 queries, 5,207 chunks)** were scored.
+
+##### 4. Retrieval Mechanism Context (RRF vs. Convex Fusion)
+* **Production vs. Benchmark Scope:** In the offline RQ4 benchmark, BM25 inverse document frequencies (IDFs) were computed globally across all 14,035 chunks in the split, allowing min-max normalization to behave smoothly. In production (`DocumentRAG`), BM25 is computed locally within a single document (~35–60 chunks), where term repetition compresses IDFs.
+* **Production Implementation:** Production retrieval in `DocumentRAG.query` and `RagService.search_hybrid_rrf` exclusively executes Reciprocal Rank Fusion (RRF, $k=60$). RRF is maintained in production because rank-based fusion is mathematically invariant to score magnitude, local IDF compression, and zero-division scaling hazards.
+* **Analytical Hypothesis Labeling:** The hypothesis that local document BM25 degrades Convex fusion more severely than RRF due to small-sample IDF skew is an **analytical and mathematical deduction**, not an empirical ablation.
+* **Decoupling of Recall@20 Metrics:** In the RQ4 Test hierarchical run (`rq4_qasper_test_hierarchical_benchmark.json`), Recall@20 was **0.6413 for RRF** and **0.6525 for Convex** over unique parent sections under a 1,600-token budget. The previously reported `Recall@20 = 0.9558` came from earlier flat chunking on 160 papers (`expanded_160_hybrid_rrf_benchmark.json`) and must not be conflated across differing chunking architectures.
+
+##### 5. Metric Separation and Hardware Reporting Discipline
+* **Lexical Overlap vs. Semantic Faithfulness:** Automated token F1 measures string overlap with gold references and must not be reported as validated semantic faithfulness. Semantic faithfulness requires a 4-tier human claim-level rubric (`SUPPORTED`, `UNSUPPORTED`, `CONTRADICTED`, `MISSING_INFO`).
+* **Statistical Power Boundaries:** An evaluation sample of $N=100$ queries ($K=50$ papers, $m=2$ queries/paper) does not guarantee adequate statistical power for micro-differences ($\Delta < 0.030$). Uncertainty must be reported with 95% paper-cluster bootstrap confidence intervals ($B=2,000$, `seed=42`).
+* **Hardware Measurements:** Latency (P50/P95), throughput (tokens/s), and memory consumption (combined process-tree RSS covering Django + Ollama) are **measured empirical results on the testbed hardware** (AMD Ryzen 5 5600, 16 GB RAM), not universal guaranteed performance ceilings.
+
+---
 
 ### Phase 1 (Step 1): PDF Document Extraction & Layout Analysis
 * **Core Challenge (The "Heading Taxonomy Trap"):** Standard PDF text extraction reads across column gutters in two-column scientific papers and erases section headers. In early tests, `LoRa.pdf` scored an abysmal **14.3% heading recall** because conversational headings like *"2 Aren't Existing Solutions Good Enough?"* evaded hardcoded keyword regexes, and LaTeX small-caps ligatures created spaced character spans (`P ROBLEM S TATEMENT`).
@@ -648,7 +680,7 @@ To ensure reproducibility, scientific rigor, and prevent ad-hoc benchmarking acr
 7. **Step 6 (Hybrid Multi-Stage Retrieval):** Baseline is Dense Only (`e5-small-v2`). Benchmarked against Lexical BM25 (WordPiece), Hybrid RRF ($k=20$), Hybrid RRF ($k=60$), and Convex combination ($\alpha=0.7$). Invariant: Maximize Recall@20 candidate ceiling ($\ge 0.90$) to provide an enriched pool for second-stage reranking; statistical significance via paired bootstrap ($p \le 0.05$).
 8. **Step 7 (Cross-Encoder Reranking):** Baseline is first-stage Top-20 retrieved pool from Step 6 Hybrid RRF ($k=60$). Benchmarked against `BAAI/bge-reranker-small` and `cross-encoder/ms-marco-MiniLM-L-6-v2` across candidate pool depths $K \in \{10, 20\}$. Invariant: Candidate preservation ($\text{Recall@20}_{\text{reranked}} \equiv \text{Recall@20}_{\text{first}}$); CPU inference budget $\le 50\text{ ms}$ per query; paired bootstrap validation on $\Delta \text{nDCG@4}$.
 9. **Step 8 (Context Assembly & Positional Permutation):** Baseline is standard relevance-ranked context order (Slot 1 = Rank 1, Slot 4 = Rank 4). Benchmarked against systematic permutation of gold evidence chunk across context slots $\{1, 2, 3, 4\}$ within a fixed 1,500-token prompt budget. Invariant: Quantification of "Lost in the Middle" extractive accuracy degradation ($\Delta \text{F1}_{\text{extractive}}$) to guide optimal prompt packing order before LLM generation.
-10. **Step 9 (Local LLM Grounded Generation):** Baseline is zero-shot LLM direct generation without document context (measuring parametric memorization & hallucination). Benchmarked against RAG-grounded prompt with local `llama3.2:3b` via Ollama (`http://localhost:11434/v1`) at zero temperature. Invariants: NLI contradiction audit (entailment vs neutral vs contradiction); verbatim source attribution checking; graceful abstention on unanswerable queries.
+10. **Step 9 (Local LLM Grounded Generation — RQ5):** Controlled comparative evaluation of candidate SLMs (`qwen2.5:0.5b`, `llama3.2:1b`, `llama3.2:3b`) on AMD Ryzen 5 5600 CPU under deterministic greedy decoding (`temperature=0.0`, `num_predict=256`). Ground truth gold-evidence context isolates generator reasoning from retrieval failures. Evaluator, specifications, and risks codified in [`eval/phases/phase_9_generation/README.md`](file:///c:/DACNTT/eval/phases/phase_9_generation/README.md).
 11. **Step 10 (Citation Attribution & Page Locators):** Baseline is random page assignment / coarse document-level citation ($N=22$). Benchmarked against 4-tier PyMuPDF evidence locator cascade cross-validated against pypdf consensus ground truth. Invariants: Dual-engine consensus agreement $\ge 95\%$; chunk-level payloaded `page_start`/`page_end` coordinates for 100% verifiable click-to-page UI navigation badges; minimization of phantom citations (pilot hallucination rate $\le 10\%$).
 
 ---
@@ -663,7 +695,7 @@ To evaluate the cumulative real-world impact of the optimized pipeline, we bench
 +───────────────────────────┬──────────────┬──────────────┬──────────────┬──────────────┬───────────────────────────+
 | System Configuration      | nDCG@4 (Dev) | nDCG@4 (Exp) | Hit Rate@5   | Recall@20    | Pipeline Processing State |
 +───────────────────────────┼──────────────┼──────────────┼──────────────┼──────────────┼───────────────────────────+
-| **Config A: LLM-Only**    | N/A          | N/A          | N/A          | N/A          | 🔴 Blocked (Ollama empty)  |
+| **Config A: LLM-Only**    | N/A          | N/A          | N/A          | N/A          | 🟡 Active (Weights Pulled) |
 | **Config B: Baseline RAG**| 0.3700       | 0.3788       | 65.5%        | 0.8577       | 🟢 Complete (22M MiniLM)  |
 | **Config C: Dense RAG**   | 0.4952       | 0.4459       | 71.9%        | 0.9586       | 🟢 Complete (33M E5-v2)   |
 | **Config D: Tuned RAG**   | **0.5079**   | **0.4628**   | **72.9%**    | **0.9279**   | 🟢 Complete (Hybrid RRF)  |
@@ -673,7 +705,7 @@ To evaluate the cumulative real-world impact of the optimized pipeline, we bench
 ### Detailed Configuration Descriptions:
 1. **Config A: LLM-Only Zero-Shot Direct Generation (Parametric Memorization):**
    - **Architecture:** Direct natural language question prompt sent to local `llama3.2:3b` without PDF document context.
-   - **Status:** **Attempted but Blocked** (Local Ollama daemon is active at `http://localhost:11434`, but `curl http://localhost:11434/api/tags` returns `{"models":[]}`). No model weights are pre-pulled in local storage, and automated multi-gigabyte downloads are prohibited without explicit user confirmation.
+   - **Status:** **Active / Preliminary Pilot Complete** (Local Ollama daemon is verified active with candidate models `qwen2.5:0.5b`, `llama3.2:1b`, and `llama3.2:3b`; 16-seed diagnostic evaluation completed). End-to-end combination evaluation awaits RQ5 model selection and RQ4 retriever reconciliation.
    - **Scientific Role:** Serves as the negative baseline measuring the rate of pure hallucination and parametric memorization on peer-reviewed literature.
 2. **Config B: Baseline RAG (Naive Midpoint Chunking + Dense MiniLM):**
    - **Architecture:** PyMuPDF raw text extraction $\rightarrow$ Naive midpoint chunking (`len(words)//2`) $\rightarrow$ `sentence-transformers/all-MiniLM-L6-v2` (384-dim, 22M params) $\rightarrow$ Local Qdrant embedded SQLite exact search.
@@ -705,8 +737,8 @@ Following the Midterm Scope Reduction ([`MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md`](
    - Target invariant: $\text{Recall@20}_{\text{reranked}} \equiv \text{Recall@20}_{\text{first}}$ (0.9279), while optimizing top-4 ranking order within a $\le 50\text{ ms}$ CPU budget.
 4. **Step 8: Context Assembly & Positional Permutation (Backlog Task RAG-8):**
    - Measure "Lost in the Middle" positional bias by permuting gold evidence across context slots $1, 2, 3, 4$ within a 1,500-token budget.
-5. **Step 9: Grounded Generation & Hallucination Mitigation (Backlog Task RAG-3):**
-   - Connect local `llama3.2:3b` via Ollama (`http://localhost:11434/v1`) with zero-temperature generation and NLI contradiction scoring.
+5. **Step 9: Grounded Generation & Model Evaluation (RQ5):**
+   - Formalized Phase 9 master specification [`eval/phases/phase_9_generation/README.md`](file:///c:/DACNTT/eval/phases/phase_9_generation/README.md). Candidate models verified in Ollama. Stage A complete; pending user approval for Stage B (dataset overlap audit and RQ4 retriever reconciliation).
 6. **Step 10: Citation Attribution & Full-Corpus Grounding (Backlog Task RAG-10):**
    - Complete end-to-end evaluation of generated LLM answers against physical PDF coordinates.
 

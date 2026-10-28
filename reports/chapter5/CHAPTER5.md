@@ -14,7 +14,7 @@
 
 
 
-Chương này trình bày, đối sánh và biện giải toàn diện các kết quả thực nghiệm thu được từ quá trình đánh giá có kiểm soát đối với ba câu hỏi nghiên cứu cốt lõi (RQ1, RQ2 và RQ3) đã được thiết lập phương pháp luận trong Chương 3:
+Chương này trình bày, đối sánh và biện giải toàn diện các kết quả thực nghiệm thu được từ quá trình đánh giá có kiểm soát đối với năm câu hỏi nghiên cứu cốt lõi (RQ1 đến RQ5) đã được thiết lập phương pháp luận trong Chương 3:
 
 - **RQ1 (Bóc tách văn bản PDF):** Khảo sát năng lực của 5 công cụ bóc tách PDF cục bộ (`pymupdf_plain`, `pymupdf_layout`, `pypdf`, `pdfminer.six`, `pdfplumber`) về độ bao phủ bằng chứng, độ chính xác ký tự, tỷ lệ phát hiện cấu trúc đề mục, trật tự đọc, độ trễ và tác động đến chất lượng truy xuất hạ nguồn trên 47 bài báo khoa học.
 
@@ -22,9 +22,11 @@ Chương này trình bày, đối sánh và biện giải toàn diện các kế
 
 - **RQ3 (Mô hình biểu diễn vector):** Đo lường và đối sánh toàn diện 11 mô hình biểu diễn vector mã nguồn mở (quy mô $\le 335\text{M}$ tham số) cùng mốc đối chứng BM25 trên tập dữ liệu hợp nhất gồm 207 bài báo, 615 câu hỏi và 5.207 phân đoạn văn bản; phân tích đường biên hiệu quả Pareto giữa chất lượng truy xuất ($\text{nDCG@10}$) và chi phí tài nguyên máy trạm (độ trễ P50, thông lượng và bộ nhớ RAM).
 
+- **RQ4 (Truy xuất lai đa giai đoạn):** Khảo sát cơ chế kết hợp lai đa giai đoạn giữa vector dày (`e5-small-v2`) và tần suất từ khóa (`BM25`) kết hợp phân mảnh phân cấp Small-to-Big trên tập kiểm thử độc lập (Held-Out Test: 408 bài báo, 1.310 câu hỏi, 14.035 đoạn con) nhằm xác định cấu hình hợp nhất tối ưu dưới ngân sách ngữ cảnh 1.600 tokens.
 
+- **RQ5 (Mô hình ngôn ngữ lớn cục bộ):** Đánh giá thực nghiệm có kiểm soát năng lực sinh câu trả lời, độ trung thực học thuật (Faithfulness) và hiệu năng suy luận trên CPU máy trạm của 3 mô hình ngôn ngữ lớn mã nguồn mở (`qwen2.5:0.5b`, `llama3.2:1b`, `llama3.2:3b`) thông qua thiết lập hai tầng: đánh giá tự động trên 500 câu hỏi ($K=250$ cụm bài báo) và kiểm toán người mù đôi trên 60 câu trả lời.
 
-Mọi số liệu được báo cáo trong chương này đều được truy xuất trực tiếp từ các tệp kết quả thực nghiệm gốc có cấu trúc (`eval/results/*.json`) và các tệp nhật ký truy vấn chi tiết (`*.jsonl`). Để bảo đảm tính trung thực học thuật, chương phân định rạch ròi giữa các phát hiện đã được chứng minh qua kiểm định thống kê và các kết luận mang tính chất quan sát ban đầu; đồng thời chỉ rõ ranh giới giữa các thực nghiệm thành phần đã hoàn tất (RQ1–RQ3) với các nội dung đánh giá mở rộng hoặc tích hợp toàn trình đang nằm trong kế hoạch phát triển tiếp theo.
+Mọi số liệu được báo cáo trong chương này đều được truy xuất trực tiếp từ các tệp kết quả thực nghiệm gốc có cấu trúc (`eval/results/*.json`, `eval/phases/*/artifacts/`) và các tệp nhật ký truy vấn chi tiết (`*.jsonl`). Để bảo đảm tính trung thực học thuật, chương phân định rạch ròi giữa các phát hiện đã được chứng minh qua kiểm định thống kê và các kết luận mang tính chất quan sát ban đầu; đồng thời chỉ rõ ranh giới giữa các thực nghiệm thành phần đã hoàn tất (RQ1–RQ5) với nội dung đánh giá tổ hợp toàn trình (RQ6) nằm trong kế hoạch phát triển tiếp theo.
 
 
 
@@ -511,7 +513,12 @@ Bảng 5.3 trình bày đầy đủ các chỉ số chất lượng truy xuất 
    - **Ứng viên Trung gian:** `snowflake-arctic-embed-m-v1.5` đạt điểm số 0,5472 nhưng độ trễ tăng hơn gấp đôi lên 74,44 ms và thông lượng giảm xuống 2,4 chunks/s.
    - **Ứng viên Đỉnh cao Chất lượng (Quality Champion):** `modernbert-embed-base` đạt chất lượng cao nhất (0,5872) nhưng phải đánh đổi bằng chi phí tính toán đáng kể: độ trễ truy vấn tăng lên **103,39 ms** (gấp 3,4 lần E5-Small), thông lượng giảm xuống **1,8 chunks/s** (chậm gấp 3,6 lần), và bộ nhớ RAM tăng lên **1.161,7 MB**.
 
-   *Quyết định triển khai hệ thống:* Mặc dù `modernbert-embed-base` là ứng viên chất lượng cao nhất, hệ thống ứng dụng web quản lý tài liệu trong đồ án được thiết kế cho người dùng cá nhân vận hành trên máy trạm thông thường không có GPU. Thời gian người dùng chờ lập chỉ mục một bài báo 40 chunks với ModernBERT mất hơn 22 giây, trong khi với `e5-small-v2` chỉ mất khoảng 6 giây. Do đó, việc lựa chọn **`intfloat/e5-small-v2`** làm mô hình nhúng mặc định trong `rag_service.py` là một quyết định kỹ thuật hoàn toàn cân bằng giữa trải nghiệm tương tác thực tế và độ chính xác học thuật.
+   *Quyết định triển khai hệ thống và Xác lập 3 mô hình đại diện cho thực nghiệm kết hợp toàn trình (RQ6):* Mặc dù `modernbert-embed-base` là ứng viên chất lượng cao nhất, hệ thống ứng dụng web quản lý tài liệu trong đồ án được thiết kế cho người dùng cá nhân vận hành trên máy trạm thông thường không có GPU. Thời gian người dùng chờ lập chỉ mục một bài báo 40 chunks với ModernBERT mất hơn 22 giây, trong khi với `e5-small-v2` chỉ mất khoảng 6 giây. Do đó, việc lựa chọn **`intfloat/e5-small-v2`** làm mô hình nhúng mặc định trong `rag_service.py` là một quyết định kỹ thuật hoàn toàn cân bằng giữa trải nghiệm tương tác thực tế và độ chính xác học thuật.
+
+   Đồng thời, để ngăn ngừa sự bùng nổ tổ hợp ($11 \times 4 \times 3 = 132$ cấu hình) trong các thực nghiệm kết hợp RAG toàn trình ở giai đoạn tiếp theo (RQ6), ba mô hình biểu diễn vector đại diện cho 3 phân khúc đặc trưng trên đường biên Pareto được lựa chọn chính thức:
+   - **`all-MiniLM-L6-v2` — Đại diện Hiệu năng cao (Efficiency Baseline):** Mốc đối chứng cận dưới về tài nguyên tính toán (độ trễ P50 19,3 ms, thông lượng 19,0 chunks/s, RAM 593,1 MB), nhằm kiểm định xem liệu sự nâng cấp mô hình biểu diễn vector có thực sự tạo ra đột phá về độ trung thực của câu trả lời sinh ra ở đầu ra LLM hay không.
+   - **`intfloat/e5-small-v2` — Đại diện Cân bằng Tối ưu (Balanced Champion / System Choice):** Cấu hình mặc định đang vận hành trong sản phẩm, dung hòa xuất sắc giữa nDCG@10 (0,5522) và tốc độ đáp ứng (P50 30,26 ms, RAM 659,8 MB).
+   - **`modernbert-embed-base` — Đại diện Đỉnh cao Chất lượng (Quality Ceiling Champion):** Xác lập trần độ chính xác truy xuất (nDCG@10 = 0,5872, cửa sổ ngữ cảnh 8.192 tokens), nhằm xác định liệu việc chấp nhận độ trễ gấp 3,4 lần và thông lượng chậm gấp 3,6 lần có mang lại giá trị gia tăng tương xứng cho tầng sinh của mô hình ngôn ngữ hay không.
 
 4. **Hiện tượng suy giảm khi phóng to mô hình thiếu kiểm soát:**
    Kết quả của `mxbai-embed-large-v1` mang lại hàm ý cảnh báo sâu sắc về việc chạy theo kích thước mô hình. Mặc dù có tới 335,1 triệu tham số và vector 1.024 chiều, mô hình này chỉ đạt $\text{nDCG@10} = 0,5064$ (hoàn toàn tương đương baseline MiniLM 22,7M với $\Delta = +0,0039, p = 0,7236$), nhưng lại gây tắc nghẽn nghiêm trọng hệ thống với độ trễ lên tới **275,34 ms/truy vấn** và thông lượng rơi xuống mức không thể chấp nhận được là **0,6 chunks/s**.
@@ -728,151 +735,243 @@ Toàn bộ quy trình thực nghiệm RQ4 được tự động hóa và lưu tr
 
 ---
 
-### 5.5.9. Hạn chế và Diễn giải Kết quả (Limitations & Interpretation)
+### 5.5.9. Hạn chế và Diễn giải Kết quả (Limitations & Interpretation - DEC-03 Audit)
 
-Để bảo đảm tính liêm chính học thuật cao nhất, các kết luận rút ra từ thực nghiệm RQ4 cần được tiếp nhận kèm theo năm điểm giới hạn phương pháp luận sau:
+Để bảo đảm tính liêm chính học thuật cao nhất, các kết luận rút ra từ thực nghiệm RQ4 cần được tiếp nhận kèm theo sáu điểm giới hạn phương pháp luận và nguyên tắc quản trị sau:
 
 1. **Giới hạn tập mẫu do loại trừ 8 bài báo không có bằng chứng văn bản:** Kết quả đánh giá áp dụng cho tập 408 bài báo và 1.310 câu hỏi có bằng chứng văn bản trích dẫn cụ thể. Đối với các bài báo mà câu trả lời phụ thuộc vào việc suy luận từ biểu đồ hoặc bảng số liệu phức tạp không có văn bản giải thích, chất lượng truy xuất có thể đòi hỏi các cơ chế phân tích đa phương thức (Multimodal RAG) bổ trợ.
-2. **Khác biệt phạm vi tính toán IDF của BM25:** Như đã nêu tại Mục 5.5.4, việc tính IDF trên nền toàn phân hoạch Test là một giải pháp xấp xỉ cần thiết cho benchmark tự động; hiệu năng BM25 cục bộ trong từng tài liệu đơn lẻ trên ứng dụng thực tế có thể có sự dao động nhỏ tùy thuộc vào độ dài và mật độ từ vựng của bài báo đó.
-3. **Chỉ số đo lường khối ngữ cảnh lắp ráp sau phân cấp:** Các chỉ số phản ánh chất lượng của khối ngữ cảnh đưa vào prompt sau khi mở rộng phân cấp và chặn trần ngân sách 1.600 tokens (tối đa 5 đề mục cha), không phải là hiệu năng xếp hạng ứng viên phân đoạn phẳng không hạn chế.
+2. **Khác biệt phạm vi tính toán IDF của BM25 và Cơ sở giữ RRF trong sản phẩm:** Việc tính IDF trên nền toàn phân hoạch Test (14.035 đoạn con) là một giải pháp xấp xỉ cần thiết cho benchmark tự động để tạo phân phối điểm mượt mà cho phép chuẩn hóa min-max của Convex Fusion. Trong kịch bản vận hành thực tế tại Chương 4 (`DocumentRAG`), BM25 được tính toán cục bộ trong một bài báo (~35–60 đoạn con), nơi sự lặp lại từ khóa chuyên ngành nén mạnh giá trị IDF. Do đó, việc duy trì **Hybrid RRF ($k=60$)** làm động cơ mặc định trong mã nguồn sản phẩm là một quyết định kỹ thuật dựa trên tính bất biến thứ hạng không tham số của RRF, triệt tiêu rủi ro trôi dạt điểm số trong môi trường tài liệu đơn lẻ.
+3. **Chỉ số đo lường khối ngữ cảnh lắp ráp sau phân cấp và Phân định Recall@20:** Các chỉ số phản ánh chất lượng của khối ngữ cảnh đưa vào prompt sau khi mở rộng phân cấp và chặn trần ngân sách 1.600 tokens (tối đa 5 đề mục cha), đạt Recall@20 là **0,6413 (RRF)** và **0,6525 (Convex)**. Cần phân định rạch ròi kết quả này với con số $\text{Recall@20} = 0,9558$ thu được ở thực nghiệm phân mảnh phẳng trên 160 bài báo (`expanded_160_hybrid_rrf_benchmark.json`), tránh đánh đồng giữa hai kiến trúc phân mảnh khác nhau.
 4. **Hiệu năng truy xuất không đồng nghĩa với câu trả lời chính xác:** Một khối ngữ cảnh có điểm nDCG@10 cao chỉ bảo đảm rằng các đề mục chứa bằng chứng đã được đưa vào prompt của LLM; việc mô hình ngôn ngữ lớn có tổng hợp chính xác, tránh ảo giác và lập luận logic hay không là một câu hỏi độc lập cần được đánh giá riêng biệt ở tầng sinh văn bản.
 5. **Ranh giới suy rộng của cấu hình tối ưu:** Kết luận về sự vượt trội của Convex Fusion ($\alpha = 0,7$) và tính tương đương của RRF ($k=60$) được rút ra trên tập dữ liệu QASPER dưới cấu hình phân mảnh Small-to-Big; tác giả không khẳng định các cấu hình tham số này mặc nhiên tối ưu trên mọi bài toán tìm kiếm văn bản trong các lĩnh vực ngoài khoa học máy tính.
-
----
-
+6. **Ranh giới phơi nhiễm tập Test và Quản trị đánh giá toàn trình (DEC-03):** Việc tập Test đã được khảo sát ở RQ4 đồng nghĩa với việc tập này không còn tính độc lập tuyệt đối đối với toàn bộ đường ống RAG. Các đánh giá toàn trình (End-to-End RAG) được quy định chặt chẽ phải thực thi trên tập kiểm thử độc lập rút từ kho 777 bài báo Train chưa từng phơi nhiễm (DEC-03 Audit), đồng thời công khai minh bạch mọi kết quả trên Test như một benchmark kiểm chứng đối chiếu hậu lựa chọn (post-selection confirmatory benchmark).
 
 
 ---
 
 
 
-## 5.6. Tổng hợp và đối chiếu kết quả các câu hỏi nghiên cứu (RQ1–RQ4)
+---
 
 
 
-### 5.6.1. Bảng đối chiếu tổng hợp các câu hỏi nghiên cứu
+## 5.6. Kết quả RQ5 – Đánh giá thực nghiệm mô hình ngôn ngữ lớn cục bộ (Local LLM Generation & Faithfulness)
 
+### 5.6.1. Thiết lập thực nghiệm có kiểm soát và Phương pháp luận Hai Tầng
 
+Câu hỏi nghiên cứu RQ5 được thiết lập nhằm khảo sát giai đoạn sinh lời đáp (Generation Phase) trong đường ống RAG học thuật:
 
-Bảng 5.6 tổng hợp các phát hiện cốt lõi từ bốn câu hỏi nghiên cứu đã thực nghiệm có kiểm soát hoàn tất.
+> **RQ5:** *Các mô hình ngôn ngữ lớn mã nguồn mở chạy cục bộ (`qwen2.5:0.5b`, `llama3.2:1b`, `llama3.2:3b`) so sánh như thế nào về độ chính xác câu trả lời (Answer Correctness), độ trung thực bám sát bằng chứng (Faithfulness) và hiệu năng suy luận (độ trễ P50/P95, thông lượng tokens/giây) khi được cung cấp cùng một ngữ cảnh trích dẫn học thuật và cùng một mẫu lời nhắc có cấu trúc trên môi trường máy trạm cá nhân không có GPU rời?*
 
+Để bảo đảm tính chặt chẽ khoa học, kiểm soát nghiêm ngặt hiện tượng thiên lệch và phân định rõ ranh giới phương pháp luận, đánh giá RQ5 được vận hành theo cơ chế **Hai Tầng Độc lập (Dual-Tier Methodology)**:
 
+1. **Tầng 1 – Đánh giá Định lượng Quy mô Lớn (Primary Quantitative Benchmark):**
+   - **Tập mẫu:** $N = 500$ câu hỏi khoa học thuộc $K = 250$ cụm bài báo trích từ tập QASPER Train chưa từng phơi nhiễm (Unexposed Cohort, mã thực nghiệm `EXP-RQ5-MAIN-SAMPLED` đăng ký trong [`eval/experiment_provenance_registry.json`](file:///c:/DACNTT/eval/experiment_provenance_registry.json)). Toàn bộ câu hỏi đều thuộc nhóm có thể trả lời được (`answerable-only`). Với 3 mô hình, hệ thống thực thi tổng cộng $1.500$ lượt suy luận độc lập.
+   - **Điều kiện kiểm soát:** Giải mã tất định (`temperature = 0.0`), giới hạn sinh tối đa `num_predict = 256` tokens, chung một mẫu lời nhắc học thuật (Academic Assistant Prompt) và chung một khối ngữ cảnh trích dẫn dưới ngân sách 1.600 tokens.
+   - **Thước đo tự động:** Token F1 (toàn phần và phân rã theo 3 loại câu hỏi: Extractive, Abstractive, Boolean); tỷ lệ kích hoạt câu từ chối chuẩn theo yêu cầu phi chức năng NFR-03 (Refusal Rate); tỷ lệ chứa từ vựng ngữ cảnh tự động (Automated Containment Proxy); độ trễ P50/P95 và thông lượng suy luận (tokens/s).
+   - **Kiểm định suy diễn thống kê:** Thực hiện kiểm định $t$ ghép cặp theo cụm bài báo ($K=250, df=249$), ước lượng khoảng tin cậy 95% bằng Bootstrap phân cụm ($B=2.000$) và kiểm soát tỷ lệ sai số họ (FWER) bằng hiệu chỉnh tuần tự Holm-Bonferroni với ngưỡng hiệu ứng tối thiểu quan tâm $\text{SESOI} = 0,030$.
 
-*Bảng 5.6: Tổng hợp kết quả thực nghiệm và hàm ý kỹ thuật của RQ1, RQ2, RQ3 và RQ4.*
+2. **Tầng 2 – Đánh giá Thăm dò Định tính qua Kiểm toán Người (Exploratory Qualitative Human Audit):**
+   - **Tập mẫu:** Một mẫu kiểm toán nhỏ gồm 60 câu trả lời (tương ứng với 20 câu hỏi $\times$ 3 mô hình).
+   - **Quy trình:** Kiểm toán người mù đôi (Double-Blind Review) với mã ngẫu nhiên `Model_Alpha`, `Model_Beta`, `Model_Gamma`, sau đó trải qua quy trình kiểm tra tính nhất quán và giải quyết bất đồng (Adjudication) trên 21 trường hợp nghi vấn trước khi mở mù chính thức.
+   - **Mục tiêu:** Cung cấp bằng chứng định tính bổ trợ nhằm giải mã bản chất các hành vi sinh văn bản thực tế, phân biệt giữa từ chối hợp lệ và từ chối vô căn cứ, phát hiện ảo giác học thuật (bịa đặt thông tin hoặc mâu thuẫn trực tiếp với bài báo), và phân tích tương quan mô tả giữa nhãn đánh giá của con người với các proxy tự động.
 
+*Ranh giới phân định mẫu:* Nghiên cứu tuyệt đối không gộp chung hai tập mẫu này hoặc xem tập mẫu 60 câu trả lời như một ước lượng tham số cho toàn thể mô hình. Mẫu 60 câu là nghiên cứu thăm dò định tính (qualitative exploratory sample) phục vụ việc giải thích cơ chế, trong khi tập 500 câu hỏi là cơ sở định lượng so sánh cốt lõi.
 
+### 5.6.2. Kết quả đo lường định lượng trên tập 500 câu hỏi (Primary Quantitative Results)
+
+Bảng 5.6 trình bày kết quả đo lường khách quan tự động trên toàn bộ 500 câu hỏi ($K=250$ bài báo, $1.500$ lượt suy luận) cho 3 mô hình ngôn ngữ lớn ứng viên.
+
+*Bảng 5.6: Kết quả đánh giá định lượng mô hình ngôn ngữ lớn cục bộ (RQ5) trên 500 câu hỏi ($K=250$ cụm bài báo).*
+
+| Mô hình LLM | Tham số | Kích thước đĩa / RAM | Token F1 (Toàn bộ) | F1 Extractive ($n=319$) | F1 Abstractive ($n=110$) | F1 Boolean ($n=71$) | Số ca từ chối (Refusal Rate) | Automated Containment Proxy | Độ trễ P50 (s) | Độ trễ P95 (s) | Thông lượng (tokens/s) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`llama3.2:3b`** | 3,21B | 2,0 GB / ~2,5 GB | **0,2033** | 0,2605 | 0,1438 | **0,0385** | 243 (48,6%) | 37,9% | 6,55s | 15,16s | 12,7 |
+| **`llama3.2:1b`** | 1,23B | 1,3 GB / ~1,6 GB | **0,1346** | 0,1730 | 0,1108 | 0,0006 | 294 (58,8%) | 29,3% | 5,08s | 9,83s | 20,4 |
+| **`qwen2.5:0.5b`** | 0,49B | 397 MB / ~0,6 GB | **0,2324** | **0,2912** | **0,1921** | 0,0349 | 50 (10,0%) | **60,3%** | **3,85s** | **7,50s** | **57,3** |
+
+*Phân tích các chỉ số tự động và hiện tượng quan sát được:*
+
+1. **Bản chất của chỉ số Token F1:**
+   Chỉ số Token F1 đo lường mức độ trùng lặp từ tố mặt chữ (lexical token overlap) giữa văn bản sinh ra và đáp án chuẩn sau khi chuẩn hóa văn bản (chuyển chữ thường, loại bỏ mạo từ và dấu câu). Token F1 thể hiện rõ nét tính chất bề mặt này khi đạt điểm cao nhất ở nhóm câu hỏi trích xuất (`Extractive`, chiếm 63,8% tập mẫu: Llama 3B đạt 0,2605; Qwen 0.5B đạt 0,2912) nhờ việc sao chép chính xác cụm từ nguyên văn. Ở nhóm câu hỏi suy luận (`Abstractive`) và câu hỏi Đúng/Sai (`Boolean`), điểm Token F1 sụt giảm mạnh do mô hình thường sinh câu văn giải thích ngữ nghĩa thay vì chỉ đưa ra từ khóa đơn lẻ.
+
+2. **Nghịch lý Token F1 của Qwen-2.5-0.5B và Hiện tượng Từ chối An toàn:**
+   Dữ liệu ghi nhận một hiện tượng tưởng chừng nghịch lý: mô hình siêu nhỏ `qwen2.5:0.5b` (0,49B tham số) đạt điểm Token F1 ($0,2324$) cao hơn cả `llama3.2:3b` ($0,2033$). Khi phân tích sâu vào hành vi của mô hình, nguyên nhân căn bản xuất phát từ **tỷ lệ kích hoạt câu từ chối an toàn (Refusal Rate)**:
+   - Theo yêu cầu phi chức năng NFR-03, khi không tìm thấy đủ căn cứ chắc chắn trong ngữ cảnh, mô hình được huấn luyện phải phát câu từ chối chuẩn (*"I could not find this information in the provided context"*). Mỗi lần kích hoạt câu từ chối trên tập dữ liệu này (vốn gồm toàn bộ các câu hỏi có thể trả lời được), điểm Token F1 sẽ bị gán tự động bằng $0,0$.
+   - `llama3.2:3b` kích hoạt từ chối ở **48,6%** (243/500 câu) và `llama3.2:1b` từ chối tới **58,8%** (294/500 câu). Số lượng lớn các điểm $0,0$ này đã kéo tụt đáng kể điểm F1 trung bình của họ mô hình Llama.
+   - Ngược lại, `qwen2.5:0.5b` có tỷ lệ từ chối cực thấp, chỉ **10,0%** (50/500 câu). Mô hình này có xu hướng đoán mò quyết liệt (aggressive guessing) và luôn cố gắng trả lời. Do toàn bộ 500 câu hỏi về bản chất là có đáp án, việc luôn trả lời giúp Qwen thu thập được nhiều từ tố trùng khớp hơn, từ đó nâng điểm F1 bề mặt. Tuy nhiên, cái giá phải trả cho sự liều lĩnh này là tỷ lệ ảo giác tăng vọt, như sẽ được kiểm chứng ở tầng kiểm toán người.
+
+3. **Bản chất của Automated Containment Proxy:**
+   Chỉ số Automated Containment Proxy đo tỷ lệ phần trăm các từ tố mang nghĩa (loại bỏ stopword tiếng Anh và từ ngắn $\le 2$ ký tự) trong câu trả lời có xuất hiện trực tiếp trong khối ngữ cảnh tài liệu được cung cấp. Nghiên cứu nhấn mạnh rằng **đây là một proxy đo lường độ trùng lặp từ vựng bề mặt với ngữ cảnh (lexical overlap with context), hoàn toàn KHÔNG đo lường tính bám sát suy luận ngữ nghĩa (semantic entailment) hay tính đúng đắn sự thật (factual correctness)**. Một mô hình có thể sao chép nguyên văn một câu ngẫu nhiên không liên quan trong ngữ cảnh để đạt Containment Proxy gần 100%, nhưng câu trả lời đó vẫn là một phát biểu phi lý hoặc sai lệch đối với câu hỏi.
+
+4. **Hiệu năng và Tài nguyên Phần cứng trên CPU Máy trạm:**
+   - Cả ba mô hình đều vận hành ổn định trên CPU AMD Ryzen 5 5600 với 16 GB RAM DDR4 mà không gây tràn trang đĩa hay tiêu tốn quá 2,5 GB RAM cho tiến trình suy luận Ollama.
+   - `qwen2.5:0.5b` đạt thông lượng vượt trội 57,3 tokens/s (độ trễ P50 = 3,85s), phù hợp cho các thiết bị nhúng cực nhẹ.
+   - `llama3.2:3b` đạt thông lượng 12,7 tokens/s (độ trễ P50 = 6,55s, P95 = 15,16s), hoàn toàn vượt ngưỡng đọc tự nhiên của người dùng học thuật ($\ge 8 - 10$ tokens/s) và nằm trong ngưỡng dung thứ tương tác thực tế của giao diện người dùng.
+
+### 5.6.3. Kiểm định So sánh Thống kê theo Cụm Bài báo ($K=250, df=249$)
+
+Để kiểm chứng tính vững chắc của các phát hiện định lượng, các phép kiểm định cặp ghép theo cụm bài báo ($K=250, df=249$) đã được thực thi và kiểm soát FWER qua hiệu chỉnh tuần tự Holm-Bonferroni (Bảng 5.7a).
+
+*Bảng 5.7a: Kết quả kiểm định thống kê cặp ghép theo cụm bài báo ($K=250, df=249$).*
+
+| Cặp so sánh đối đầu | Sai khác trung bình ($\Delta_{\text{obs}}$) | Khoảng tin cậy 95% Clustered CI | Trị số $t$ ($df=249$) | Trị số $p_{\text{adj}}$ (Holm-Bonferroni) | Ngưỡng SESOI ($\ge 0,030$) | Quyết định thống kê |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **`llama3.2:3b` vs `llama3.2:1b`** | **$+0,0687$** | $[+0,0480; +0,0902]$ | $+6,2597$ | **$3,35 \times 10^{-9}$** | **ĐẠT** | **Bác bỏ $H_0$ (Vượt trội có ý nghĩa thống kê cao)** |
+| **`llama3.2:3b` vs `qwen2.5:0.5b`** | $-0,0291$ | $[-0,0509; -0,0053]$ | $-2,5028$ | $0,0130$ | Không đạt | Bác bỏ $H_0$ (Sai khác do tỷ lệ từ chối trên tập answerable) |
+| **`llama3.2:1b` vs `qwen2.5:0.5b`** | $-0,0978$ | $[-0,1189; -0,0763]$ | $-8,9651$ | $2,27 \times 10^{-16}$ | Đạt | Bác bỏ $H_0$ (Sai khác thống kê có ý nghĩa) |
+
+- So sánh giữa `llama3.2:3b` và `llama3.2:1b`: Mô hình 3B thể hiện sự vượt trội có ý nghĩa thống kê áp đảo so với 1B ($\Delta = +0,0687$, khoảng tin cậy 95% hoàn toàn tách rời 0, $p_{\text{adj}} = 3,35 \times 10^{-9}$, thỏa mãn trọn vẹn tiêu chuẩn $\text{SESOI} \ge 0,030$). Điều này khẳng định việc nâng cấp quy mô tham số từ 1,2B lên 3,2B mang lại bước tiến chất lượng thực chất cho năng lực sinh lời đáp.
+- So sánh giữa `llama3.2:3b` và `qwen2.5:0.5b`: Trị số sai khác $\Delta = -0,0291$ (chưa đạt ngưỡng $\text{SESOI} = 0,030$). Như đã biện giải, chênh lệch này không phản ánh năng lực hiểu ngữ nghĩa tốt hơn của Qwen mà là hệ quả của việc Qwen ít từ chối trên tập câu hỏi trả lời được.
+
+### 5.6.4. Đánh giá Thăm dò Định tính qua Kiểm toán Người (Exploratory Qualitative Audit)
+
+Nhằm thấu hiểu bản chất ngữ nghĩa và kiểm tra tính trung thực thực tế, mẫu kiểm toán 60 câu trả lời (20 câu hỏi $\times$ 3 mô hình) đã được đánh giá người mù đôi theo hệ thống 6 nhãn chuẩn hóa của đề cương:
+- `SUPPORTED`: Câu trả lời đúng trọng tâm và hoàn toàn được hỗ trợ từ ngữ cảnh.
+- `REFUSAL_VALID`: Mô hình từ chối hợp lệ vì ngữ cảnh thực sự thiếu thông tin.
+- `UNSUPPORTED`: Ảo giác bịa đặt thông tin không có trong ngữ cảnh.
+- `CONTRADICTED`: Câu trả lời mâu thuẫn trực tiếp với thông tin trong bài báo.
+- `MISSING_INFO - UNJUSTIFIED_REFUSAL`: Từ chối vô căn cứ dù ngữ cảnh có đủ thông tin.
+- `MISSING_INFO - PARTIAL`: Trả lời đúng một phần nhưng bỏ sót chi tiết quan trọng.
+
+Bảng 5.7 trình bày phân bố 6 nhãn sau khi đã kiểm toán và mở mù chính thức.
+
+*Bảng 5.7: Phân bố nhãn kiểm toán người mù đôi về độ trung thực (Faithfulness) trên 60 câu trả lời.*
+
+| Phân loại nhãn chuẩn | `llama3.2:3b` ($n=20$) | `llama3.2:1b` ($n=20$) | `qwen2.5:0.5b` ($n=20$) | Tổng số câu ($N=60$) | Tỷ lệ toàn phần (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **`SUPPORTED`** | **10** (50,0%) | 9 (45,0%) | 8 (40,0%) | 27 | 45,0% |
+| **`REFUSAL_VALID`** | **4** (20,0%) | 2 (10,0%) | 3 (15,0%) | 9 | 15,0% |
+| **`UNSUPPORTED`** | 2 (10,0%) | 2 (10,0%) | 4 (20,0%) | 8 | 13,3% |
+| **`MISSING_INFO - UNJUSTIFIED_REFUSAL`** | **1** (5,0%) | 5 (25,0%) | 3 (15,0%) | 9 | 15,0% |
+| **`MISSING_INFO - PARTIAL`** | 2 (10,0%) | 1 (5,0%) | 1 (5,0%) | 4 | 6,7% |
+| **`CONTRADICTED`** | 1 (5,0%) | 1 (5,0%) | 1 (5,0%) | 3 | 5,0% |
+| **Tổng cộng** | **20** (100,0%) | **20** (100,0%) | **20** (100,0%) | **60** | **100,0%** |
+
+*Các chỉ số định tính phái sinh từ kiểm toán người:*
+
+1. **Độ trung thực nghiêm ngặt (Strict Faithfulness - `SUPPORTED`):**
+   `llama3.2:3b` dẫn đầu với **50,0%** (10/20 câu), theo sau là `llama3.2:1b` (45,0%) và `qwen2.5:0.5b` (40,0%).
+2. **Mức độ tuân thủ căn cứ ngữ cảnh (Grounded Compliance - `SUPPORTED` + `REFUSAL_VALID`):**
+   Đo lường hành vi an toàn học thuật (hoặc trả lời đúng có căn cứ, hoặc từ chối đúng khi thiếu căn cứ): **`llama3.2:3b` vượt trội đạt 70,0%** (14/20 câu), trong khi cả Llama 1B và Qwen 0.5B chỉ đạt 55,0% (11/20 câu).
+3. **Tổng tỷ lệ ảo giác học thuật (Total Hallucinations - `UNSUPPORTED` + `CONTRADICTED`):**
+   **`qwen2.5:0.5b` ghi nhận tỷ lệ ảo giác cao nhất: 25,0%** (5/20 câu, gồm 20,0% bịa đặt và 5,0% mâu thuẫn). Tỷ lệ này cao gấp 1,67 lần so với `llama3.2:3b` (15,0%) và `llama3.2:1b` (15,0%). Kết quả định tính này giải mã rõ ràng nghịch lý F1: điểm F1 cao hơn của Qwen trên tập 500 câu hỏi bị trả giá bằng tỷ lệ phát sinh thông tin sai lệch cao đáng kể trong thực tế.
+4. **Tỷ lệ từ chối vô căn cứ (Unjustified Refusals):**
+   `llama3.2:1b` bị mắc lỗi từ chối quá mức (over-refusal) nặng nhất với **25,0%** (5/20 câu), trong khi `llama3.2:3b` chỉ mắc lỗi này ở **5,0%** (1/20 câu), chứng minh khả năng đọc hiểu ngữ cảnh vượt trội của mô hình 3B.
+
+### 5.6.5. Phân tích Tương quan Mô tả giữa Nhãn Người và Proxy Tự động ($N=60$)
+
+*Lưu ý thiết kế đo lường lặp (Repeated Measures):* Tập mẫu 60 câu trả lời bắt nguồn từ 20 câu hỏi độc lập được phân bổ lặp lại trên 3 mô hình. Do đó, các hệ số tương quan tuyến tính Pearson dưới đây được xem xét như **các mối liên hệ tương quan mô tả trong mẫu (descriptive sample associations)**, không giả định các quan sát độc lập và không dùng để khẳng định tính giá trị phổ quát tuyệt đối của các proxy.
+
+- **Tương quan giữa Nhãn `SUPPORTED` của người và Token F1:** $r = +0,4168$. Mối tương quan dương ở mức vừa phải, cho thấy Token F1 có phản ánh phần nào mức độ chính xác từ vựng, nhưng độ phân tán còn lớn.
+- **Tương quan giữa Nhãn `SUPPORTED` của người và Containment Proxy:** $r = +0,3125$.
+- **Tương quan giữa Tuân thủ căn cứ (`SUPPORTED` + `REFUSAL_VALID`) và Containment Proxy:** $r = +0,0868$. Mối tương quan gần như triệt tiêu. Điều này hoàn toàn hợp lý về mặt cơ chế: khi mô hình từ chối an toàn hợp lệ, câu từ chối không chứa các từ vựng chuyên ngành trong bài báo, dẫn đến điểm Containment Proxy tự động bị phạt về mức rất thấp (14,0%).
+- **Tương quan giữa Ảo giác (`UNSUPPORTED` + `CONTRADICTED`) và Containment Proxy:** $r = -0,0897$. Tương quan âm rất yếu, chứng minh rằng Containment Proxy hoàn toàn mất khả năng phân biệt giữa câu trả lời đúng và câu trả lời bịa đặt.
+
+Bảng 5.7b đối chiếu giá trị trung bình của các proxy tự động theo từng nhãn phân loại người:
+
+*Bảng 5.7b: Giá trị trung bình của các proxy tự động phân theo nhãn kiểm toán người ($N=60$).*
+
+| Nhãn phân loại người | Số lượng mẫu ($n$) | Điểm Token F1 trung bình | Điểm Containment Proxy trung bình (%) |
+| :--- | :---: | :---: | :---: |
+| **`SUPPORTED`** | 27 | **0,3558** | **56,7%** |
+| **`REFUSAL_VALID`** | 9 | 0,1275 | 14,0% |
+| **`UNSUPPORTED`** | 8 | 0,1845 | **32,9%** |
+| **`MISSING_INFO - UNJUSTIFIED_REFUSAL`** | 9 | 0,1650 | 30,5% |
+| **`MISSING_INFO - PARTIAL`** | 4 | 0,1435 | **67,4%** |
+| **`CONTRADICTED`** | 3 | 0,1481 | **44,0%** |
+
+*Ý nghĩa phương pháp luận:* Các câu trả lời bịa đặt (`UNSUPPORTED`) vẫn đạt Containment Proxy trung bình **32,9%**, và các câu mâu thuẫn trực tiếp (`CONTRADICTED`) đạt tới **44,0%** do mô hình nhặt nhạnh các thuật ngữ có sẵn trong ngữ cảnh để ghép thành phát biểu sai sự thật. Ngược lại, các câu từ chối chuẩn xác chỉ đạt **14,0%**. Bằng chứng thực nghiệm này xác nhận: **Automated Containment Proxy không thể thay thế cho đánh giá tính trung thực ngữ nghĩa trong RAG học thuật.**
+
+### 5.6.6. Kết luận Lựa chọn Mô hình cho Hệ thống Phần mềm
+
+Từ sự kết hợp hài hòa giữa các bằng chứng định lượng trên 500 câu hỏi và phân tích định tính chuyên sâu trên 60 câu kiểm toán người:
+1. **`llama3.2:3b`** được xác định là mô hình tối ưu toàn diện nhất cho hệ thống:
+   - Thể hiện sự vượt trội có ý nghĩa thống kê cao so với mô hình cùng họ `llama3.2:1b` ($\Delta = +0,0687, p_{\text{adj}} < 10^{-8}$);
+   - Đạt tỷ lệ tuân thủ căn cứ cao nhất trong kiểm toán người (**70,0%**);
+   - Kiểm soát tỷ lệ từ chối sai thấp nhất (**5,0%**) và tỷ lệ ảo giác thấp (**15,0%**);
+   - Duy trì thông lượng 12,7 tokens/s và độ trễ P50 6,55s trên CPU máy trạm AMD Ryzen 5 5600 với 16 GB RAM, hoàn toàn đáp ứng ngưỡng tương tác thực tế của người dùng học thuật.
+2. Hệ thống phần mềm chính thức chuẩn hóa và cấu hình mặc định **`llama3.2:3b`** làm engine suy luận sinh lời đáp trong kiến trúc RAG sản phẩm.
+
+---
+
+## 5.7. Tổng hợp và đối chiếu kết quả các câu hỏi nghiên cứu (RQ1–RQ5)
+
+### 5.7.1. Bảng đối chiếu tổng hợp các câu hỏi nghiên cứu
+
+Bảng 5.8 tổng hợp các phát hiện cốt lõi từ năm câu hỏi nghiên cứu đã thực nghiệm có kiểm soát hoàn tất.
+
+*Bảng 5.8: Tổng hợp kết quả thực nghiệm và hàm ý kỹ thuật của RQ1, RQ2, RQ3, RQ4 và RQ5.*
 
 | Câu hỏi | Thành phần đánh giá | Quy mô khảo sát | Mốc đối chứng | Chỉ số cốt lõi | Kết quả tốt nhất trong thử nghiệm | Cấu hình chọn cho Hệ thống | Ý nghĩa thực tiễn hệ thống | Giới hạn kỹ thuật quan trọng |
-
 | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-
 | **RQ1** | Bóc tách văn bản PDF | 47 bài báo QASPER Dev | `pymupdf_plain` | nDCG@10 & Heading F1 | `pymupdf_plain` (nDCG = 0,5274, 10,19 ms/p); `pymupdf_layout` (Heading F1 = 48,01%, 26,16 ms/p) | `pymupdf_layout` | Tốc độ C-engine vượt trội, bảo toàn đề mục phục vụ phân đoạn nâng cao. | Heading F1 chỉ được cài đặt cho `pymupdf_layout`; nDCG@10 giữa top 4 công cụ không có sai khác mang ý nghĩa thống kê ($p > 0,50$). |
-
 | **RQ2** | Phân mảnh văn bản | 47 bài, 127 câu hỏi, 1.600 tokens budget | `fixed_size` (400 tokens) | nDCG@10 ($\tau=0,50$) | `hierarchical` (nDCG = 0,6880, $\Delta = +0,1225^*$, $p = 0,0010$) | `section_overlap` (phẳng) & `hierarchical` (nâng cao) | `section_overlap` tối ưu cho cấu trúc phẳng thuần túy. `hierarchical` triển khai thành công qua bộ sưu tập phụ trợ phi vector (`{coll}_parents`), đạt nDCG@4 = 0,5139 trên sản phẩm thực tế. | Rào cản kỹ thuật quan hệ cha-con được giải quyết bằng Qdrant vectorless collection, triệt tiêu dư thừa văn bản và giữ nguyên độ trễ P50 31,8 ms. |
-
 | **RQ3** | Mô hình Biểu diễn Vector | 207 bài, 615 câu hỏi, 5.207 chunks | `all-MiniLM-L6-v2` & BM25 | nDCG@10 (Exact Cosine) | `modernbert-embed-base` (nDCG = 0,5872, $\Delta = +0,0846^*$); `e5-small-v2` (nDCG = 0,5522, $\Delta = +0,0497^*$) | `intfloat/e5-small-v2` | `e5-small-v2` tối ưu trên đường biên Pareto: nDCG cao, trễ P50 thấp (30,3 ms), thông lượng ổn định (6,5 chunks/s), RAM nhẹ (659,8 MB). | BGE-Small không có ý nghĩa thống kê vượt trội ($p = 0,0830$). MXBAI-Large bị tắc nghẽn CPU nghiêm trọng (0,6 chunks/s). |
-
 | **RQ4** | Truy xuất Lai Đa Giai Đoạn | 408 bài Test, 1.310 câu hỏi, 14.035 chunks | `Dense Only (e5-small-v2)` & BM25 | nDCG@10 (Hierarchical Small-to-Big) | `Hybrid Convex (alpha=0.7)` (nDCG = 0,5806, $\Delta = +0,0152^*$, $p_{\text{adj}} = 0,0140$); `Hybrid RRF (k=60)` (nDCG = 0,5662) | `Hybrid RRF (k=60)` & `Hybrid Convex (alpha=0.7)` | RRF $k=60$ duy trì hiệu năng tương đương Dense Only mà không cần chuẩn hóa điểm số; Convex $\alpha=0.7$ tối ưu hóa điểm số xếp hạng. | Đo lường toàn trình sau Small-to-Big expansion và trần 1.600 tokens; BM25 sử dụng IDF nền phân hoạch để tránh âm hóa trên bài báo nhỏ. |
+| **RQ5** | Mô hình Ngôn ngữ Lớn Cục bộ | 500 câu hỏi ($K=250$ bài), 60 câu kiểm toán người | `llama3.2:1b` | Token F1, Faithfulness & Throughput | `llama3.2:3b` (F1 = 0,2033; Grounded = 70,0%; Throughput = 12,7 tok/s) | `llama3.2:3b` | `llama3.2:3b` vượt trội về tuân thủ căn cứ (70,0%), tỷ lệ từ chối sai thấp (5,0%), kiểm soát ảo giác (15,0%) và tốc độ 12,7 tok/s trên CPU 16 GB RAM. | Qwen-0.5B có F1 bề mặt cao hơn do ít từ chối nhưng tỷ lệ ảo giác tăng lên 25,0%. Mẫu kiểm toán người 60 câu mang tính thăm dò định tính. |
 
+### 5.7.2. Mối quan hệ tương hỗ giữa các mắt xích trong đường ống RAG
 
-
-### 5.6.2. Mối quan hệ tương hỗ giữa các mắt xích trong đường ống RAG
-
-
-
-Các kết quả thực nghiệm độc lập từ RQ1 đến RQ4 cung cấp một bức tranh toàn cảnh về cách thức mà các quyết định thiết kế ở từng mắt xích tương tác và ràng buộc lẫn nhau:
-
-
+Các kết quả thực nghiệm độc lập từ RQ1 đến RQ5 cung cấp một bức tranh toàn cảnh về cách thức mà các quyết định thiết kế ở từng mắt xích tương tác và ràng buộc lẫn nhau:
 
 1. **Ràng buộc từ Bóc tách (RQ1) đến Phân mảnh (RQ2):**
-
    Nếu hệ thống chỉ sử dụng các bộ bóc tách văn bản phẳng thông thường như `pymupdf_plain`, toàn bộ ranh giới cấu trúc ngữ nghĩa học thuật sẽ bị biến mất. Khi đó, hệ thống bắt buộc phải áp dụng các chiến lược phân đoạn cắt mù theo độ dài cố định (`fixed_size`), vốn có nguy cơ cắt đôi một định lý hoặc một bảng dữ liệu quan trọng. Việc ứng dụng thành công `pymupdf_layout` đã mở khóa khả năng nhận diện tiêu đề đề mục, tạo tiền đề quyết định để áp dụng chiến lược `section_overlap` và `hierarchical`.
 
-
-
 2. **Ràng buộc từ Phân mảnh (RQ2) đến Biểu diễn Vector (RQ3):**
-
    Độ dài phân đoạn trực tiếp quyết định rủi ro cắt cụt subword khi mã hóa. Nghiên cứu chỉ ra rằng các chiến lược phân mảnh thô (`section`) dẫn đến 23,7% phân đoạn vượt trần subword của các mô hình nhúng 512-tokens như `e5-small-v2`. Ngược lại, việc kiểm soát độ dài phân đoạn con dưới 200 tokens trong `hierarchical` bảo đảm tỷ lệ cắt cụt duy trì ở mức an toàn ($0,63\%$), bảo toàn trọn vẹn ngữ nghĩa cho các mô hình vector.
 
-
-
 3. **Ràng buộc từ Biểu diễn Vector (RQ3) đến Hợp nhất Lai (RQ4):**
-
    Thực nghiệm RQ4 trên tập kiểm thử độc lập chỉ ra rằng việc hòa trộn không trọng số (RRF 50/50) chỉ phát huy hiệu quả khi hai mô hình thành phần có sức mạnh tương đương. Khi mô hình vector ngữ nghĩa (`e5-small-v2`) áp đảo hoàn toàn mô hình từ khóa (`BM25`), việc sử dụng cơ chế trọng số bất đối xứng (Convex $\alpha=0.7$) là yếu tố then chốt để khai thác bổ trợ của từ khóa mà không làm loãng chất lượng biểu diễn ngữ nghĩa.
 
+4. **Ràng buộc từ Truy xuất Lai (RQ4) đến Sinh Lời đáp (RQ5):**
+   Ngân sách ngữ cảnh 1.600 tokens và cơ chế mở rộng phân cấp Small-to-Big ở RQ4 cung cấp một khối ngữ cảnh có độ bao phủ bằng chứng cao (Recall@20 = 0,6413 với RRF). Khi nạp vào prompt cho LLM ở RQ5, chất lượng của khối ngữ cảnh này quyết định trực tiếp khả năng bám sát bằng chứng của mô hình. Nếu ngữ cảnh bị nhiễu hoặc thiếu thông tin cốt lõi, các mô hình nhỏ như Llama 1B dễ bị kích hoạt từ chối quá mức (25,0% unjustified refusal), trong khi các mô hình như Qwen 0.5B có nguy cơ bị ảo giác (25,0% hallucination). Cấu hình tối ưu `llama3.2:3b` kết hợp cùng cơ chế từ chối an toàn NFR-03 tạo nên chốt chặn phòng thủ vững chắc chống lại hiện tượng bịa đặt học thuật.
 
+### 5.7.3. Phân định ranh giới với các câu hỏi nghiên cứu mở rộng
 
-### 5.6.3. Phân định ranh giới với các câu hỏi nghiên cứu mở rộng
+Để bảo đảm tính trung thực học thuật và phân định rạch ròi phạm vi đồ án, Chương 5 đã hoàn tất và báo cáo đầy đủ năm câu hỏi nghiên cứu thành phần cốt lõi (RQ1, RQ2, RQ3, RQ4 và RQ5). Tình trạng thực tế của hướng nghiên cứu tiếp theo được ghi nhận minh bạch như sau:
 
-
-
-Để bảo đảm tính trung thực học thuật và phân định rạch ròi phạm vi đồ án, Chương 5 đã hoàn tất và báo cáo đầy đủ bốn câu hỏi nghiên cứu cốt lõi (RQ1, RQ2, RQ3 và RQ4). Tình trạng thực tế của các hướng nghiên cứu tiếp theo được ghi nhận minh bạch như sau:
-
-- **RQ5 – Đánh giá thực nghiệm mô hình ngôn ngữ lớn cục bộ:** Mặc dù mô hình `llama3.2:3b` thông qua Ollama đã được tích hợp thành công vào kiến trúc ứng dụng thực tế để cung cấp giao diện trợ lý hỏi đáp tại Chương 4, một đợt đánh giá thực nghiệm có kiểm soát với đầy đủ các thước đo độ trung thực học thuật (Faithfulness, Answer Relevance) trên toàn bộ câu hỏi kiểm thử chưa được tiến hành. Do đó, RQ5 không được báo cáo như một kết quả thực nghiệm hoàn tất trong Chương 5 mà được xếp vào lộ trình nghiên cứu tương lai (Chương 6).
-
-- **RQ6 – Đánh giá Tích hợp Toàn trình (End-to-End Generation Combinations):** Thực nghiệm đo lường chất lượng sinh câu trả lời tự động toàn trình từ truy xuất lai đến văn bản sinh ra của LLM được định vị là mục tiêu nghiên cứu tiếp nối ở Chương 6.
-
-
+- **RQ6 – Đánh giá Thực nghiệm Tổ hợp Toàn trình (End-to-End Generation Combinations):** Thực nghiệm đo lường toàn trình các tổ hợp chéo giữa các chiến lược truy xuất (RQ4) và các mô hình sinh lời đáp (RQ5) để đánh giá chất lượng câu trả lời cuối cùng được định vị là mục tiêu nghiên cứu tiếp nối ở Chương 6.
 
 ---
 
-
-
-## 5.7. Hạn chế và đe dọa đến tính hợp lệ (Threats to Validity)
-
-
+## 5.8. Hạn chế và đe dọa đến tính hợp lệ (Threats to Validity)
 
 Quá trình diễn giải các kết quả thực nghiệm cần được xem xét trong bối cảnh các giới hạn phương pháp luận sau:
 
-
-
 1. **Tính đại diện của tập ngữ liệu và ranh giới suy rộng (External & Construct Validity):**
-
    - *Tính đại diện chuyên ngành:* Ngữ liệu QASPER tập trung chủ yếu vào các bài báo thuộc lĩnh vực Khoa học Máy tính và Xử lý Ngôn ngữ Tự nhiên (NLP). Cấu trúc trình bày của các bài báo này (thường gồm hai cột, có đề mục chuẩn) có thể khác biệt so với các bài báo thuộc khối ngành Y sinh, Hóa học hoặc Khoa học Xã hội (nơi có nhiều bảng biểu phức tạp hoặc cấu trúc đoạn văn dài liên tục). Khả năng tổng quát hóa các kết luận sang các miền học thuật khác cần được kiểm chứng thêm.
-
    - *Phân định bản chất tập dữ liệu RQ3 và kiểm soát rò rỉ:* Tập dữ liệu 207 bài báo của RQ3 là một **Tập ngữ liệu đánh giá nội bộ hợp nhất (Unified In-House Evaluation Corpus)** nhằm tối đa hóa quy mô đo đạc trên hệ thống RAG của đề tài, không phải là một tập kiểm thử hoàn toàn độc lập (Independent Test Set). Về mặt kiểm soát rò rỉ dữ liệu (data leakage), nghiên cứu phân định rõ:
-
      + *Rò rỉ trọng số mô hình (Model Weight Leakage = 0):* Tuyệt đối không xảy ra vì tất cả 11 mô hình biểu diễn vector đều là các mô hình nền tảng mã nguồn mở có sẵn được đánh giá theo cơ chế suy luận zero-shot với trọng số đóng băng hoàn toàn (`frozen weights`), không qua huấn luyện lại (fine-tuning) hay tối ưu hóa siêu tham số.
-
      + *Rò rỉ cấp đường ống (Pipeline-level Selection Leakage):* Do 48 bài báo thuộc phần Development đã tham gia vào việc khảo sát công cụ trích xuất PDF (RQ1) và đánh giá các chiến lược phân mảnh (RQ2), nên khi đánh giá mô hình vector trên cùng quy trình tiền xử lý này ở RQ3, các bài báo này có thể mang lại một sự lạc quan nhẹ (optimistic selection bias). Do đó, các kết luận thực nghiệm phản ánh chính xác hiệu năng nội bộ của đường ống RAG học thuật trong đề tài, nhưng để khẳng định tính suy rộng ngoại suy tuyệt đối, cần có các đợt đánh giá tiếp nối trên các tập kiểm thử hoàn toàn độc lập.
 
-
-
 2. **Sai số đo lường trong nhãn liên quan tự động và Cơ sở hiệu chuẩn ngưỡng ($\tau$):**
-
    - Nhãn liên quan của các phân đoạn được xác định dựa trên ngưỡng bao phủ từ vựng ($\tau = 0,50$ cho RQ2 đa quy mô và $\tau^* = 0,55$ cho RQ1/RQ3 đoạn đơn lẻ). Để giảm thiểu sai số đo lường (Construct Validity), ngưỡng $\tau^* = 0,55$ không phải là một giả định tùy tiện mà được **hiệu chuẩn thực nghiệm out-of-sample trên 114 cặp câu hỏi – bằng chứng đối chứng do chuyên gia gán nhãn thủ công** (`containment_validation_metrics.json`). Tại $\tau^* = 0,55$, bộ phân loại nhãn đạt đỉnh Accuracy (82,46%), Precision (81,08%) và F1 (75,00%), triệt tiêu 85,1% số ca dương tính giả so với $\tau=0,20$. Ở RQ2, việc áp dụng $\tau = 0,50$ cùng phân tích độ nhạy tại $\tau = 0,30$ chứng minh thứ hạng giữa các phương pháp là ổn định vững chắc. Tuy nhiên, cơ chế đối sánh từ vựng mặt chữ này vẫn có thể gặp hạn chế trong các trường hợp phân đoạn diễn đạt lại bằng chứng bằng từ đồng nghĩa (paraphrasing).
 
-
-
 3. **Giới hạn đo đạc bộ nhớ và độ trễ trên môi trường máy trạm (Internal Validity):**
-
    - Các phép đo độ trễ và thông lượng được thực hiện trên CPU máy trạm AMD Ryzen 5 5600 cố định 4 luồng xử lý; các giá trị này phản ánh chính xác hiệu năng môi trường máy tính cá nhân nhưng có thể thay đổi khi chuyển sang môi trường máy chủ đám mây hoặc khi có sự can thiệp của card đồ họa chuyên dụng (GPU). Chỉ số Process Peak RSS đo lường bộ nhớ đỉnh độc lập của tiến trình tính toán Python thông qua thư viện `psutil`, chưa bao quát toàn bộ tài nguyên nền của hệ điều hành và daemon Ollama.
 
-
-
 4. **Kiểm soát so sánh đa biến và tính vững của trị số $p$:**
-
-   - Các trị số $p$ báo cáo trong các cột chính của Bảng 5.1, 5.2 và 5.3 đều được định danh minh bạch là **trị số $p$ danh định ($p_{\text{raw}}$)** thu được trực tiếp từ phép kiểm định Paired Cluster Bootstrap ($B=2.000$) để bảo đảm tính trung thực với phân phối mẫu gốc. Đồng thời, toàn bộ các khẳng định về ý nghĩa thống kê (được đánh dấu sao $^*$) đều đã được kiểm chứng khắt khe qua quy trình kiểm soát tỷ lệ sai số họ (FWER) bằng phương pháp hiệu chỉnh tuần tự Holm-Bonferroni ở mức $\alpha = 0,05$ (được đối soát từng bước tại Bảng 5.4). Các phát hiện cốt lõi của đề tài (sự suy giảm của `pdfplumber` ở RQ1 với $p_{\text{adj}} = 0,0040$; sự vượt trội của `hierarchical` và sự suy giảm của `semantic` ở RQ2 với $p_{\text{adj}} \le 0,0250$; sự vượt trội của `e5-small-v2` và `modernbert` ở RQ3 với $p_{\text{adj}} \le 0,0100$) đều bảo toàn ý nghĩa thống kê nghiêm ngặt sau hiệu chỉnh. Ngược lại, đối với các trường hợp tiệm cận biên như `bge-small-en-v1.5` ($p_{\text{raw}} = 0,0830, p_{\text{adj}} = 0,4150$), nghiên cứu kiên quyết bác bỏ các suy diễn thiếu căn cứ và khẳng định mô hình không có sai khác mang ý nghĩa thống kê so với baseline.
-
-
+   - Các trị số $p$ báo cáo trong các cột chính của Bảng 5.1, 5.2, 5.3 và 5.6 đều được định danh minh bạch là **trị số $p$ danh định ($p_{\text{raw}}$)** thu được trực tiếp từ phép kiểm định Paired Cluster Bootstrap ($B=2.000$) để bảo đảm tính trung thực với phân phối mẫu gốc. Đồng thời, toàn bộ các khẳng định về ý nghĩa thống kê (được đánh dấu sao $^*$) đều đã được kiểm chứng khắt khe qua quy trình kiểm soát tỷ lệ sai số họ (FWER) bằng phương pháp hiệu chỉnh tuần tự Holm-Bonferroni ở mức $\alpha = 0,05$. Các phát hiện cốt lõi của đề tài đều bảo toàn ý nghĩa thống kê nghiêm ngặt sau hiệu chỉnh. Ngược lại, đối với các trường hợp tiệm cận biên như `bge-small-en-v1.5` ($p_{\text{raw}} = 0,0830, p_{\text{adj}} = 0,4150$), nghiên cứu kiên quyết bác bỏ các suy diễn thiếu căn cứ và khẳng định mô hình không có sai khác mang ý nghĩa thống kê so với baseline.
 
 5. **Độ mạnh thống kê thực tế và giới hạn kích thước hiệu ứng (Statistical Power Limits):**
-
-   - Nghiên cứu hoàn toàn loại bỏ thuật ngữ "High-Power" và không đưa ra tuyên bố tiên nghiệm rằng quy mô mẫu 207 bài báo mặc nhiên bảo đảm độ mạnh thống kê $\text{Power} \ge 80\%$ cho mọi phép so sánh. Dựa trên kết quả kiểm toán phương pháp luận mô phỏng Monte Carlo ($B=2.000$, $\sigma_{\text{paper}} \approx 0,2307$, $\alpha = 0,05$) được ghi nhận tại [`statistical_audit_results.json`](file:///c:/DACNTT/eval/phases/phase_3_embedding/artifacts/statistical_audit_results.json), với ngưỡng hiệu ứng tối thiểu quan tâm $\text{SESOI} = 0,030$ đo trên chỉ số $\text{nDCG@4}$ (phản ánh cửa sổ ngữ cảnh nạp prompt), độ mạnh thống kê ước lượng chỉ đạt **38,6%** (95% CI: $[36,5\%; 40,7\%]$) ở $K=159$ bài báo và xấp xỉ **44,5%** ở $K=200$ bài báo (để bảo đảm $\text{Power} \ge 80\%$ phát hiện hiệu ứng nhỏ $\Delta = 0,030$, cỡ mẫu lý thuyết cần tới $K \approx 500$ bài báo). Độ mạnh thống kê chỉ thực sự đạt mức tin cậy cao ($78,3\% - 85,5\%$) đối với các hiệu ứng chênh lệch lớn quan sát được thực tế ($\Delta \ge 0,05$, như giữa E5-Small-v2 và MiniLM với $\Delta = +0,0497^*$). Do đó, đối với các sai khác nhỏ ($\Delta \le 0,03$), nghiên cứu công khai thừa nhận giới hạn về power và duy trì quan điểm học thuật thận trọng, không ngộ nhận việc chưa bác bỏ $H_0$ thành bằng chứng khẳng định hai mô hình có hiệu năng tương đương nhau.
+   - Nghiên cứu hoàn toàn loại bỏ thuật ngữ "High-Power" và không đưa ra tuyên bố tiên nghiệm rằng quy mô mẫu 207 bài báo mặc nhiên bảo đảm độ mạnh thống kê $\text{Power} \ge 80\%$ cho mọi phép so sánh. Dựa trên kết quả kiểm toán phương pháp luận mô phỏng Monte Carlo ($B=2.000$, $\sigma_{\text{paper}} \approx 0,2307$, $\alpha = 0,05$) được ghi nhận tại [`statistical_audit_results.json`](file:///c:/DACNTT/eval/phases/phase_3_embedding/artifacts/statistical_audit_results.json), với ngưỡng hiệu ứng tối thiểu quan tâm $\text{SESOI} = 0,030$ đo trên chỉ số $\text{nDCG@4}$ (phản ánh cửa sổ ngữ cảnh nạp prompt), độ mạnh thống kê ước lượng chỉ đạt **38,6%** (95% CI: $[36,5\%; 40,7\%]$) ở $K=159$ bài báo và xấp xỉ **44,5%** ở $K=200$ bài báo. Độ mạnh thống kê chỉ thực sự đạt mức tin cậy cao ($78,3\% - 85,5\%$) đối với các hiệu ứng chênh lệch lớn quan sát được thực tế ($\Delta \ge 0,05$, như giữa E5-Small-v2 và MiniLM với $\Delta = +0,0497^*$). Do đó, đối với các sai khác nhỏ ($\Delta \le 0,03$), nghiên cứu công khai thừa nhận giới hạn về power và duy trì quan điểm học thuật thận trọng.
 
 6. **Giới hạn phương pháp luận trong đánh giá thực nghiệm RQ4 (Hybrid Retrieval Limitations):**
+   - *Phạm vi đo lường của các chỉ số:* Toàn bộ các chỉ số truy xuất ở RQ4 (nDCG@10, nDCG@4, Recall@20, MRR@10, Hit@5) được đo lường **sau khi đã thực hiện mở rộng phân cấp Small-to-Big, áp dụng trần giới hạn tối đa 5 đoạn cha (MAX_PARENTS = 5) và cắt lọc theo ngân sách ngữ cảnh 1.600 tokens**. Do đó, danh sách kết quả thực tế chỉ chứa tối đa 5 đoạn văn bản cha; các vị trí từ 6 đến 20 trong Recall@20 và nDCG@10 được zero-padded theo đúng ngữ cảnh thực tế được đưa vào prompt cho mô hình ngôn ngữ lớn.
+   - *Phạm vi tính toán chỉ số nghịch đảo tần suất văn bản (BM25 IDF Scope):* Trong kịch bản vận hành thực tế tại Chương 4, BM25 được tính toán cục bộ trong phạm vi một bài báo (document-local BM25). Trong khi đó, benchmark tự động RQ4 tính toán tần suất nghịch đảo văn bản trên toàn bộ các đoạn con thuộc tập phân tách QASPER Test (corpus-wide BM25 IDF).
+   - *Tính suy rộng trên tập Test và phạm vi khẳng định:* Kết quả kiểm định trên tập Test (408 bài báo, 1.310 câu hỏi) xác nhận phương pháp kết hợp tuyến tính lồi (convex, $\alpha = 0,7$) mang lại cải thiện vượt trội có ý nghĩa thống kê so với Dense Only ($\Delta = +0,0152, p_{\text{adj}} = 0,0140 < 0,05$), trong khi cơ chế kết hợp hạng đảo RRF ($k=60$) duy trì hiệu năng tương đương Dense Only ($\Delta = +0,0008, p_{\text{adj}} = 0,8696$) mà không cần chuẩn hóa điểm số.
 
-   - *Phạm vi đo lường của các chỉ số:* Toàn bộ các chỉ số truy xuất ở RQ4 (nDCG@10, nDCG@4, Recall@20, MRR@10, Hit@5) được đo lường **sau khi đã thực hiện mở rộng phân cấp Small-to-Big, áp dụng trần giới hạn tối đa 5 đoạn cha (MAX_PARENTS = 5) và cắt lọc theo ngân sách ngữ cảnh 1.600 tokens**. Do đó, danh sách kết quả thực tế chỉ chứa tối đa 5 đoạn văn bản cha; các vị trí từ 6 đến 20 trong Recall@20 và nDCG@10 được zero-padded theo đúng ngữ cảnh thực tế được đưa vào prompt cho mô hình ngôn ngữ lớn. Chỉ số nDCG@10 và Recall@20 tại đây phản ánh mức độ bao phủ bằng chứng của khối ngữ cảnh đưa vào prompt, không đại diện cho chất lượng truy xuất thô không giới hạn (unconstrained candidate retrieval).
-
-   - *Phạm vi tính toán chỉ số nghịch đảo tần suất văn bản (BM25 IDF Scope):* Trong kịch bản vận hành thực tế tại Chương 4, BM25 được tính toán cục bộ trong phạm vi một bài báo (document-local BM25), phản ánh tác vụ người dùng mở một tài liệu duy nhất và hỏi đáp trên tài liệu đó. Trong khi đó, benchmark tự động RQ4 tính toán tần suất nghịch đảo văn bản trên toàn bộ các đoạn con thuộc tập phân tách QASPER Test (corpus-wide BM25 IDF). Sự khác biệt này là một xấp xỉ kỹ thuật cần thiết để chuẩn hóa trọng số từ vựng trên tập mẫu kiểm thử lớn, nhưng điểm số BM25 tuyệt đối có thể có độ lệch nhỏ so với khi tính toán cục bộ từng bài.
-
-   - *Tính suy rộng trên tập Test và phạm vi khẳng định:* Kết quả kiểm định trên tập Test (408 bài báo, 1.310 câu hỏi) xác nhận phương pháp kết hợp tuyến tính lồi (convex, $\alpha = 0,7$) mang lại cải thiện vượt trội có ý nghĩa thống kê so với Dense Only ($\Delta = +0,0152, p_{\text{adj}} = 0,0140 < 0,05$), trong khi cơ chế kết hợp hạng đảo RRF ($k=60$) duy trì hiệu năng tương đương Dense Only ($\Delta = +0,0008, p_{\text{adj}} = 0,8696$) mà không cần chuẩn hóa điểm số. Tuy nhiên, các kết luận này được giới hạn nghiêm ngặt trong phạm vi tập dữ liệu QASPER, cấu hình phân mảnh Small-to-Big và ngân sách ngữ cảnh đã xác định; không thể coi đây là bằng chứng khẳng định tính ưu việt tuyệt đối của cơ chế này trên mọi miền văn bản hay mọi kiến trúc RAG khác.
+7. **Giới hạn phương pháp luận trong đánh giá thực nghiệm RQ5 (Local LLM Generation Limitations):**
+   - *Cơ chế nhận diện từ chối dựa trên chuỗi quy chuẩn (NFR-03 String Matching):* Tỷ lệ từ chối tự động trên tập 500 câu hỏi được phát hiện dựa trên việc đối sánh chuỗi mẫu từ chối chuẩn (*"I could not find this information in the provided context"* và các biến thể tương đương). Mặc dù các mô hình tuân thủ tốt mẫu này trong điều kiện giải mã tất định `temperature = 0.0`, một số câu diễn đạt từ chối bằng ngôn từ tự do khác biệt có thể chưa được gom trọn vẹn vào chỉ số từ chối tự động.
+   - *Đặc tính tập mẫu 500 câu hỏi là Answerable-Only và Thiên lệch điểm số F1:* Tập dữ liệu 500 câu hỏi được chỉ định từ QASPER Train là tập câu hỏi có bằng chứng trả lời trong bài báo. Khi mô hình từ chối trả lời (do ngữ cảnh trích xuất từ RQ4 không đủ rõ ràng để mô hình tự tin kết luận), hệ thống chấm tự động gán F1 = 0,0. Điều này tạo ra một sự bất lợi điểm số bề mặt đối với các mô hình có cơ chế tự vệ an toàn cao như Llama 3.2 3B và vô tình ưu ái cho mô hình đoán liều như Qwen 0.5B. Do đó, điểm Token F1 tự động không thể đứng độc lập mà bắt buộc phải đi kèm với phân tích tỷ lệ từ chối và kiểm toán định tính.
+   - *Tính chất thăm dò định tính của kiểm toán người 60 câu và Thiết kế đo lường lặp:* Mẫu kiểm toán người gồm 60 câu trả lời là một đợt đánh giá thăm dò định tính (exploratory qualitative audit) với 20 câu hỏi nghiên cứu phân bổ lặp lại trên 3 mô hình. Quy mô mẫu này không đủ lớn để suy rộng tham số cho toàn thể phân bố hay khẳng định tính ưu việt tuyệt đối về mặt thống kê của mô hình ở cấp độ người. Các hệ số tương quan giữa nhãn người và proxy tự động phản ánh mối liên hệ mô tả trong mẫu, không thay thế cho các nghiên cứu thẩm định thước đo trên quy mô lớn.
 
 ---
 
-## 5.8. Tổng kết chương
+## 5.9. Tổng kết chương
 
-Chương 5 đã báo cáo chi tiết, minh bạch và có hệ thống toàn bộ các kết quả thực nghiệm thu được từ quá trình đánh giá có kiểm soát đối với bốn câu hỏi nghiên cứu RQ1, RQ2, RQ3 và RQ4:
+Chương 5 đã báo cáo chi tiết, minh bạch và có hệ thống toàn bộ các kết quả thực nghiệm thu được từ quá trình đánh giá có kiểm soát đối với năm câu hỏi nghiên cứu RQ1, RQ2, RQ3, RQ4 và RQ5:
 
 1. **Về phương pháp bóc tách PDF (RQ1):** Thực nghiệm khẳng định pymupdf_layout là giải pháp tối ưu cho hệ thống RAG học thuật nhờ sự kết hợp hài hòa giữa tốc độ xử lý hàng đầu (26,16 ms/trang), chất lượng truy xuất hạ nguồn ổn định (nDCG@10 = 0,5100), và khả năng trích xuất chính xác cấu trúc tiêu đề mục (Heading F1 = 48,01%), trong khi các công cụ như pdfplumber gây suy giảm nghiêm trọng trật tự đọc của tài liệu.
 
@@ -884,4 +983,8 @@ Chương 5 đã báo cáo chi tiết, minh bạch và có hệ thống toàn b�
    - Cơ chế kết hợp tuyến tính lồi (Convex Fusion, $\alpha = 0,7$) xác lập kỷ lục chất lượng ngữ cảnh mới với $\text{nDCG@10} = 0,5806$ ($\Delta = +0,0152^*$, khoảng tin cậy 95% Bootstrap $[+0,0045; +0,0262]$ hoàn toàn tách rời 0, $p_{\text{adj}} = 0,0140 < 0,05$), chứng minh sự bổ trợ hiệu quả giữa tín hiệu từ vựng chính xác và vector ngữ nghĩa dày.
    - Cơ chế kết hợp hạng nghịch đảo (RRF, $k=60$) đang triển khai trong mã nguồn sản phẩm đạt $\text{nDCG@10} = 0,5662$ ($\Delta = +0,0008, p_{\text{adj}} = 0,8696$), đạt hiệu năng truy xuất tương đương với Dense Only trên benchmark đánh giá mà không làm suy giảm chất lượng biểu diễn dày của e5-small-v2, đồng thời sở hữu ưu thế kỹ thuật là không đòi hỏi chuẩn hóa điểm số phức tạp.
 
-Toàn bộ các bằng chứng thực nghiệm này cung cấp cơ sở khoa học vững chắc giải thích cho các quyết định cấu hình kiến trúc trong hệ thống phần mềm đã xây dựng, đồng thời vạch ra lộ trình rõ ràng cho việc mở rộng đánh giá tích hợp toàn trình ở các nghiên cứu tiếp theo.
+5. **Về mô hình ngôn ngữ lớn cục bộ (RQ5):** Đánh giá thực nghiệm hai tầng trên 500 câu hỏi tự động và 60 câu kiểm toán người khẳng định:
+   - Mô hình `llama3.2:3b` là lựa chọn cân bằng tối ưu nhất cho hệ thống máy trạm CPU 16 GB RAM: dẫn đầu về độ tuân thủ căn cứ ngữ cảnh (70,0%), tỷ lệ từ chối sai thấp nhất (5,0%), kiểm soát ảo giác hiệu quả (15,0%), thông lượng ổn định (12,7 tokens/s) và có sự vượt trội thống kê vững chắc so với `llama3.2:1b` ($\Delta = +0,0687, p_{\text{adj}} = 3,35 \times 10^{-9}$).
+   - Nghiên cứu giải mã hiện tượng nghịch lý F1 của `qwen2.5:0.5b`, chứng minh rằng điểm F1 bề mặt cao của Qwen xuất phát từ việc mô hình ít từ chối (10,0%) trên tập câu hỏi trả lời được nhưng phải trả giá bằng tỷ lệ ảo giác cao (25,0%). Đồng thời, thực nghiệm chứng minh Automated Containment Proxy chỉ đo lường sự trùng lặp từ vựng bề mặt, không thể phản ánh tính trung thực ngữ nghĩa.
+
+Toàn bộ các bằng chứng thực nghiệm từ RQ1 đến RQ5 cung cấp cơ sở khoa học vững chắc giải thích cho các quyết định cấu hình kiến trúc trong hệ thống phần mềm đã xây dựng, đồng thời vạch ra lộ trình rõ ràng cho việc mở rộng đánh giá tổ hợp toàn trình (RQ6) ở các nghiên cứu tiếp theo.
