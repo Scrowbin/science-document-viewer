@@ -14,6 +14,10 @@
   "extraPaths": [
     "backend",
     "backend/scripts",
+    "backend/scripts/downloads",
+    "backend/scripts/data_prep",
+    "backend/scripts/evaluation",
+    "backend/scripts/tools",
     "eval",
     "eval/phases/phase_0_baseline/scripts",
     "eval/phases/phase_3_embedding/scripts",

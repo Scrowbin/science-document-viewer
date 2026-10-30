@@ -50,8 +50,8 @@ The vector storage layer operates in dual mode (`QDRANT_MODE = "local" | "server
 
 ### Phase 0: Baseline & Infrastructure Verification
 * **Objective:** Verify standalone CLI reproducibility, environment boundaries, and eliminate circular evaluation artifacts.
-* **Implementation:** Unit test suite in `apps/documents/tests.py` and `apps/users/tests.py`, plus data stratification in [`backend/scripts/prepare_qasper.py`](file:///c:/DACNTT/backend/scripts/prepare_qasper.py).
-* **Anti-Circularity Cross-Validation:** To ensure PyMuPDF extraction did not introduce self-referential bias when generating citation ground truth, [`backend/scripts/cross_validate_page_locators.py`](file:///c:/DACNTT/backend/scripts/cross_validate_page_locators.py) compared PyMuPDF (C engine) against `pypdf` (pure-Python reader) across 132 questions:
+* **Implementation:** Unit test suite in `apps/documents/tests.py` and `apps/users/tests.py`, plus data stratification in [`backend/scripts/data_prep/prepare_qasper.py`](file:///c:/DACNTT/backend/scripts/data_prep/prepare_qasper.py).
+* **Anti-Circularity Cross-Validation:** To ensure PyMuPDF extraction did not introduce self-referential bias when generating citation ground truth, [`backend/scripts/data_prep/cross_validate_page_locators.py`](file:///c:/DACNTT/backend/scripts/data_prep/cross_validate_page_locators.py) compared PyMuPDF (C engine) against `pypdf` (pure-Python reader) across 132 questions:
   - **Exact Page Agreement:** **97.0% (128 / 132 questions)**.
   - Multi-Page Span Overlap: 3.0% (4 / 132 questions).
   - Discrepancies: 0.0%.
@@ -238,8 +238,8 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
     - `Retrieval-Augmented.pdf`: jumped from **75.0% to 100.0%**.
   - **Mean Processing Latency:** **214.77 ms/doc (~11.93 ms/page across 72 pages)** (Attention: 319.97 ms, LoRA: 239.23 ms, RAG: 161.46 ms, ResNet: 138.42 ms).
 * **Full-Dev Corpus Benchmark (47 Dev arXiv PDFs, 545 Pages):**
-  - Downloaded via [`backend/scripts/download_dev_pdfs.py`](file:///c:/DACNTT/backend/scripts/download_dev_pdfs.py) with polite rate-limiting.
-  - Benchmarked via [`backend/scripts/evaluate_step1_full_dev.py`](file:///c:/DACNTT/backend/scripts/evaluate_step1_full_dev.py) across 47 real papers:
+  - Downloaded via [`backend/scripts/downloads/download_dev_pdfs.py`](file:///c:/DACNTT/backend/scripts/downloads/download_dev_pdfs.py) with polite rate-limiting.
+  - Benchmarked via [`backend/scripts/evaluation/evaluate_step1_full_dev.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_step1_full_dev.py) across 47 real papers:
     - **Mean Section Heading Recall:** **56.5%** macro-averaged across diverse uncurated typography.
     - **Paragraph Accuracy (1 - CER):** **37.3%** macro-averaged Levenshtein alignment against ground-truth QASPER TeX/XML source text.
     - **Mean Latency:** **207.6 ms/doc (~11.5 ms/page)** on standard local CPU.
@@ -254,7 +254,7 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
   - Developed **`sentence_aware` subword packing**: splits text strictly at sentence boundaries (regex sentence tokenizer), accumulates whole sentences up to the exact transformer subword token limit (256 tokens for MiniLM, 512 for E5/BGE), and applies proportional sentence overlap.
   - Guarantees: **0 mid-sentence cuts** and **0.0% silent truncation**.
 * **Controlled 3-Arm Ablation Study on Dev Set ($K=48, N=128$):**
-  Executed via [`backend/scripts/evaluate_part1b_chunking.py`](file:///c:/DACNTT/backend/scripts/evaluate_part1b_chunking.py):
+  Executed via [`backend/scripts/evaluation/evaluate_part1b_chunking.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_part1b_chunking.py):
 
 | Chunking Arm | Chunk Count | Truncation Rate (512 Cap) | Truncation Rate (256 Cap) | nDCG@4 | MRR@5 | Hit Rate@5 | $\Delta \text{nDCG@4}$ vs As-Is [95% CI] | $p$-value |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -267,16 +267,16 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
 ---
 
 ### Phase 3 (Step 3): Dense Embedding Selection & High-Power Benchmark Scaling
-* **Evidence Containment Calibration:** Replaced noisy keyword matching with strict containment threshold $\tau^* = 0.55$, calibrated against 114 human-labeled query-chunk pairs ([`backend/scripts/evaluate_containment_labels.py`](file:///c:/DACNTT/backend/scripts/evaluate_containment_labels.py)), achieving **81.1% precision and 75.0% F1**.
+* **Evidence Containment Calibration:** Replaced noisy keyword matching with strict containment threshold $\tau^* = 0.55$, calibrated against 114 human-labeled query-chunk pairs ([`backend/scripts/evaluation/evaluate_containment_labels.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_containment_labels.py)), achieving **81.1% precision and 75.0% F1**.
 * **Definitive Unblinded Held-Out Benchmark Run ($K=48, N=114$):**
-  Evaluated across 48 held-out papers using paired paper-level cluster bootstrap ($B=2,000$) and Holm-Bonferroni FWER control ([`backend/scripts/evaluate_part2_held_out.py`](file:///c:/DACNTT/backend/scripts/evaluate_part2_held_out.py)):
+  Evaluated across 48 held-out papers using paired paper-level cluster bootstrap ($B=2,000$) and Holm-Bonferroni FWER control ([`backend/scripts/evaluation/evaluate_part2_held_out.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_part2_held_out.py)):
   - **Champion Selected:** **`intfloat/e5-small-v2`** achieved **0.4952 nDCG@4**, MRR@5 = **0.5446**, Hit@5 = **81.6%**, Recall@20 = **0.980**, with $\Delta = \mathbf{+0.1252}$ over `all-MiniLM-L6-v2` baseline (95% CI $[+0.0622, +0.1934]$, $p = \mathbf{0.0020}^*$, Holm-significant and >4x SESOI $\ge 0.030$).
   - **Cross-Paper Retrieval:** `e5-small-v2` achieved **0.1811 nDCG@4** (Hit@5 = 33.3%), the only dense model to outperform lexical BM25 (0.1496).
   - **Runner-Up:** `BAAI/bge-small-en-v1.5` scored 0.4397 nDCG@4 ($\Delta = +0.0697, p = 0.0190^*$).
   - **Direct Pairwise Head-to-Head Testing (E5 vs. BGE):**
     - On As-Is Chunks: $\Delta \text{nDCG@4} = \mathbf{+0.0555}$ in favor of E5 ($p = 0.0750$ on $N=114$).
     - On Minimal-Intervention Chunks: $\Delta \text{nDCG@4} = \mathbf{+0.0575}$ in favor of E5 (**$p = 0.0240^*$**, 95% Clustered CI $[+0.0092, +0.1134]$, **statistically significant at $\alpha = 0.05$**).
-* **High-Power Cohort Expansion ([`backend/scripts/expand_qasper_benchmark.py`](file:///c:/DACNTT/backend/scripts/expand_qasper_benchmark.py)):**
+* **High-Power Cohort Expansion ([`backend/scripts/data_prep/expand_qasper_benchmark.py`](file:///c:/DACNTT/backend/scripts/data_prep/expand_qasper_benchmark.py)):**
   - **Motivation:** To increase statistical power beyond the pilot 48-paper split, Frozen Cohort 1 ($K=48, N=114$) was preserved intact and 112 additional answerable papers from the official QASPER dataset were added (strictly excluding all Dev papers).
   - **Dataset Topology & Verified Cluster Properties:**
     - Listed split papers: 160 papers.
@@ -454,7 +454,7 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
 ### Phase 6 (Step 6): Multi-Stage & Hybrid Retrieval Benchmark (Dense + BM25 RRF)
 * **Hypothesis:** Hybrid RRF ($k_{\text{rrf}} = 60$) achieves higher Recall@20 candidate ceiling and top-rank precision than either dense (`e5-small-v2`) or lexical (WordPiece BM25) retrieval alone by combining semantic paraphrasing with exact symbolic matching.
 * **Initial Held-Out Benchmark Run ($K=48, N=114$):**
-  Evaluated across all 114 held-out queries under strict containment ($\tau^* = 0.55$) and paired paper-level cluster bootstrap ($B=2,000$) in [`backend/scripts/evaluate_step6_hybrid_rrf.py`](file:///c:/DACNTT/backend/scripts/evaluate_step6_hybrid_rrf.py):
+  Evaluated across all 114 held-out queries under strict containment ($\tau^* = 0.55$) and paired paper-level cluster bootstrap ($B=2,000$) in [`backend/scripts/evaluation/evaluate_step6_hybrid_rrf.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_step6_hybrid_rrf.py):
   - Dense Only: 0.1994 nDCG@4, Recall@20 = 0.8577.
   - Hybrid RRF ($k=60$): 0.3095 nDCG@4, Recall@20 = **0.9279** (+0.0702 over dense alone, $p=0.0010^*$).
 
@@ -494,7 +494,7 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
 ---
 
 ### Phase 10 (Step 10): Page Attribution & Citation Verification
-* **4-Tier Evidence Locator ([`backend/scripts/auto_locate_pages.py`](file:///c:/DACNTT/backend/scripts/auto_locate_pages.py)):**
+* **4-Tier Evidence Locator ([`backend/scripts/data_prep/auto_locate_pages.py`](file:///c:/DACNTT/backend/scripts/data_prep/auto_locate_pages.py)):**
   Maps extracted verbatim text to physical PDF page coordinates using a 4-tier cascade: (1) Exact normalized substring match, (2) Subphrase windowing via `page.search_for()`, (3) Token Jaccard similarity, (4) Keyword density.
 * **Consensus Ground Truth:** Evaluated across 35 peer-reviewed PDFs (132 questions), achieving **97.0% consensus agreement** between PyMuPDF and pypdf.
 * **Citation Hallucination Disclosure:** Evaluated in [`backend/data/citation_evaluation_results.json`](file:///c:/DACNTT/backend/data/citation_evaluation_results.json):
@@ -526,21 +526,21 @@ To maintain uncompromising scientific transparency and prevent misrepresentation
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Step 0: Verification** | `backend/manage.py test` | `apps.documents.tests`, `apps.users.tests` | Django settings (`TEST_RUNNER`) | SQLite in-memory test database | Test pass/fail assertions | Terminal log (29/29 tests OK) | None; fully reproducible |
 | **Step 0B: Comprehensive EDA** | `eval/phases/phase_0_baseline/scripts/run_comprehensive_eda.py` | `analyze_qasper_corpus`, `analyze_scifact_corpus`, `plot_eda_figures` | `qasper_corpus.json`, `expanded_corpus.json`, `scifact/corpus.jsonl` | Raw QASPER JSON + SciFact JSONL | Word counts, section tallies, Jaccard overlap, label ratios | `qasper_comprehensive_eda.json`, `scifact_comprehensive_eda.json`, 3 PNG figures | None; fully reproducible |
-| **Step 1: Pilot Extraction**| `backend/scripts/evaluate_extraction.py` | `chunking_utils.py:extract_sections_from_pdf` | Font-size threshold $1.15\times$, ligature regex | Raw PDFs in `backend/sample__papers/` | Set intersection of section titles | `backend/data/extraction_evaluation_results.json` | None; verified on 4 papers |
-| **Step 1: Full-Dev Extr** | `backend/scripts/evaluate_step1_full_dev.py` | `extract_sections_from_pdf`, `levenshtein_distance` | Remote Grobid API / Nougat connectors | 47 arXiv PDFs in `eval/pdfs/dev/` | Heading Recall %, Paragraph 1-CER | `eval/prepared/step1_full_dev_extraction_benchmark.json` | None; verified on 47 papers |
-| **Anti-Circularity** | `backend/scripts/cross_validate_page_locators.py`| `auto_locate_pages.py:locate_evidence_page` | Confidence threshold $\ge 0.85$ | `eval/prepared/qasper_sampled.json`, arXiv PDFs | Exact match agreement between PyMuPDF & pypdf | `eval/prepared/circularity_audit_results.json` | None; dual-engine verified |
-| **Step 2: Truncation** | `backend/scripts/measure_truncation.py` | `measure_truncation.py:main` | WordPiece tokenizer (unconstrained) | `eval/prepared/qasper_corpus.json` | Subword count percentiles, truncation rate | Logged terminal output | Character proxy vs subwords resolved |
-| **Step 2: 3-Arm Chunking**| `backend/scripts/evaluate_part1b_chunking.py`| `chunking_utils.py:chunk_sections` | `as-is` vs `midpoint` vs `sentence_aware` | `eval/prepared/qasper_corpus.json`, Dev split | `eval_common.py:compute_ndcg`, cluster bootstrap | `eval/prepared/part1b_rigorous_chunking_study.json` | None; 3-arm ablation verified |
-| **Containment Calib** | `backend/scripts/evaluate_containment_labels.py`| `eval_common.py:is_chunk_hit` | Calibrated threshold $\tau^*=0.55$ | `containment_label_queue_labeled.json` | Accuracy, Precision, Recall, F1 vs human labels | `eval/prepared/containment_validation_metrics.json` | None; verified on 114 pairs |
-| **FastEmbed Parity** | `backend/scripts/evaluate_parity_fastembed.py`| `FastEmbedding` vs PyTorch `SentenceTransformer` | FP32 and INT8 ONNX models | 200 academic chunks from Dev set | Cosine similarity across vector pairs | `eval/prepared/fastembed_parity_results.json` | None; 1.00000 cos sim verified |
-| **Step 3: Embedding** | `backend/scripts/evaluate_part2_held_out.py` | `eval_common.py:compute_ndcg`, `paired_cluster_bootstrap` | Holm-Bonferroni $\alpha_k$, SESOI $\ge 0.03$ | `qasper_corpus.json`, Held-Out split | Global IDCG, paired paper cluster bootstrap | `eval/prepared/held_out_final_benchmark_as_is.json` | None; unblinded run verified |
-| **Step 3: Power Scaling**| `backend/scripts/expand_qasper_benchmark.py` | `fetch_extra_qasper_rows`, `process_qasper_rows` | $K=160$ target, seed 42 | Full QASPER train split via Hugging Face API | Theoretical cluster SE power computation | `eval/prepared/expanded_held_out_split.json` | None; 160 papers generated |
-| **Step 4: Vector DB** | `backend/scripts/evaluate_step4_indexing.py` | `rag_service.py:RagService`, `index_chunks`, `search_dense` | `model.max_seq_length=512`, 10 warm-up, 5 passes | Cached `.npy` embeddings, Held-Out chunks | Set equality vs BLAS oracle, delta $\le 10^{-5}$ | `eval/prepared/step4_indexing_pareto_results.json` | None; exact search characterized |
-| **Step 4: HNSW Scale** | `backend/scripts/evaluate_step4_hnsw_scale.py` | Standalone Docker Qdrant gRPC client | $M \in \{16, 32\}$, $ef \in \{32..128\}$ | Cached `.npy` embeddings + distractor vectors | ANN Recall@4, Recall@20 vs BLAS oracle | `eval/prepared/step4_hnsw_scale_pareto.json` | None; Pareto sweep characterized |
+| **Step 1: Pilot Extraction**| `backend/scripts/evaluation/evaluate_extraction.py` | `chunking_utils.py:extract_sections_from_pdf` | Font-size threshold $1.15\times$, ligature regex | Raw PDFs in `backend/sample__papers/` | Set intersection of section titles | `backend/data/extraction_evaluation_results.json` | None; verified on 4 papers |
+| **Step 1: Full-Dev Extr** | `backend/scripts/evaluation/evaluate_step1_full_dev.py` | `extract_sections_from_pdf`, `levenshtein_distance` | Remote Grobid API / Nougat connectors | 47 arXiv PDFs in `eval/pdfs/dev/` | Heading Recall %, Paragraph 1-CER | `eval/prepared/step1_full_dev_extraction_benchmark.json` | None; verified on 47 papers |
+| **Anti-Circularity** | `backend/scripts/data_prep/cross_validate_page_locators.py`| `auto_locate_pages.py:locate_evidence_page` | Confidence threshold $\ge 0.85$ | `eval/prepared/qasper_sampled.json`, arXiv PDFs | Exact match agreement between PyMuPDF & pypdf | `eval/prepared/circularity_audit_results.json` | None; dual-engine verified |
+| **Step 2: Truncation** | `backend/scripts/evaluation/measure_truncation.py` | `measure_truncation.py:main` | WordPiece tokenizer (unconstrained) | `eval/prepared/qasper_corpus.json` | Subword count percentiles, truncation rate | Logged terminal output | Character proxy vs subwords resolved |
+| **Step 2: 3-Arm Chunking**| `backend/scripts/evaluation/evaluate_part1b_chunking.py`| `chunking_utils.py:chunk_sections` | `as-is` vs `midpoint` vs `sentence_aware` | `eval/prepared/qasper_corpus.json`, Dev split | `eval_common.py:compute_ndcg`, cluster bootstrap | `eval/prepared/part1b_rigorous_chunking_study.json` | None; 3-arm ablation verified |
+| **Containment Calib** | `backend/scripts/evaluation/evaluate_containment_labels.py`| `eval_common.py:is_chunk_hit` | Calibrated threshold $\tau^*=0.55$ | `containment_label_queue_labeled.json` | Accuracy, Precision, Recall, F1 vs human labels | `eval/prepared/containment_validation_metrics.json` | None; verified on 114 pairs |
+| **FastEmbed Parity** | `backend/scripts/evaluation/evaluate_parity_fastembed.py`| `FastEmbedding` vs PyTorch `SentenceTransformer` | FP32 and INT8 ONNX models | 200 academic chunks from Dev set | Cosine similarity across vector pairs | `eval/prepared/fastembed_parity_results.json` | None; 1.00000 cos sim verified |
+| **Step 3: Embedding** | `backend/scripts/evaluation/evaluate_part2_held_out.py` | `eval_common.py:compute_ndcg`, `paired_cluster_bootstrap` | Holm-Bonferroni $\alpha_k$, SESOI $\ge 0.03$ | `qasper_corpus.json`, Held-Out split | Global IDCG, paired paper cluster bootstrap | `eval/prepared/held_out_final_benchmark_as_is.json` | None; unblinded run verified |
+| **Step 3: Power Scaling**| `backend/scripts/data_prep/expand_qasper_benchmark.py` | `fetch_extra_qasper_rows`, `process_qasper_rows` | $K=160$ target, seed 42 | Full QASPER train split via Hugging Face API | Theoretical cluster SE power computation | `eval/prepared/expanded_held_out_split.json` | None; 160 papers generated |
+| **Step 4: Vector DB** | `backend/scripts/evaluation/evaluate_step4_indexing.py` | `rag_service.py:RagService`, `index_chunks`, `search_dense` | `model.max_seq_length=512`, 10 warm-up, 5 passes | Cached `.npy` embeddings, Held-Out chunks | Set equality vs BLAS oracle, delta $\le 10^{-5}$ | `eval/prepared/step4_indexing_pareto_results.json` | None; exact search characterized |
+| **Step 4: HNSW Scale** | `backend/scripts/evaluation/evaluate_step4_hnsw_scale.py` | Standalone Docker Qdrant gRPC client | $M \in \{16, 32\}$, $ef \in \{32..128\}$ | Cached `.npy` embeddings + distractor vectors | ANN Recall@4, Recall@20 vs BLAS oracle | `eval/prepared/step4_hnsw_scale_pareto.json` | None; Pareto sweep characterized |
 | **Step 4b: Scale Stress** | `eval/phases/phase_4_indexing/scripts/evaluate_step4b_scale_ir.py` | `generate_hypersphere_distractors`, `evaluate_distractor_tier` | Top-2 models, 10k/50k/100k tiers | `expanded_160_e5_doc_embs.npy`, `expanded_160_e5_query_embs.npy` | Hit@5, nDCG@4 under distractor flooding | Script built; local execution deferred to Colab GPU | Deferred to Colab T4 GPU (18.7 GFLOPs CPU load) |
 | **Step 5: Query Preproc** | `eval/phases/phase_5_query_processing/scripts/evaluate_step5_query_processing.py` | `query_processing.py:QueryPreprocessor`, `expand_query_terms` | 5 ablation arms (raw, strip, inline, append, combined) | `expanded_corpus.json`, `expanded_qasper_sampled.json`, cached E5 embeddings | Within-paper nDCG@4, MRR@5, Hit@5, Recall@20 across 487 Qs | `step5_query_processing_benchmark.json` | None; verified on 487 queries |
-| **Step 6: Hybrid RRF** | `backend/scripts/evaluate_step6_hybrid_rrf.py` | `rag_service.py:search_hybrid_rrf` (lines 301–355) | $k_{\text{rrf}} \in \{20, 60\}$, $\alpha=0.7$ | Cached E5 embeddings + WordPiece BM25 | RRF rank fusion formula, paired bootstrap | `eval/prepared/step6_hybrid_rrf_benchmark.json` | None; verified across 5 arms |
-| **Step 10: Citation** | `backend/scripts/evaluate_citation.py` | `auto_locate_pages.py:4-tier locator` | Confidence $\ge 0.85$ | `eval/prepared/page_gold.json` | Citation Recall@k, Citation F1 | `backend/data/citation_evaluation_results.json` | End-to-end LLM integration queued |
+| **Step 6: Hybrid RRF** | `backend/scripts/evaluation/evaluate_step6_hybrid_rrf.py` | `rag_service.py:search_hybrid_rrf` (lines 301–355) | $k_{\text{rrf}} \in \{20, 60\}$, $\alpha=0.7$ | Cached E5 embeddings + WordPiece BM25 | RRF rank fusion formula, paired bootstrap | `eval/prepared/step6_hybrid_rrf_benchmark.json` | None; verified across 5 arms |
+| **Step 10: Citation** | `backend/scripts/evaluation/evaluate_citation.py` | `auto_locate_pages.py:4-tier locator` | Confidence $\ge 0.85$ | `eval/prepared/page_gold.json` | Citation Recall@k, Citation F1 | `backend/data/citation_evaluation_results.json` | End-to-end LLM integration queued |
 
 ---
 

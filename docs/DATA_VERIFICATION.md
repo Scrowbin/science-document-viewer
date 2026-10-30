@@ -10,7 +10,7 @@
 
 | Research question | Claim/metric | Reported value | Source file and key | Generating script/configuration | Status | Required action |
 | :--- | :--- | :--- | :--- | :--- | :---: | :--- |
-| **RQ1: Extraction** | Heading Recall (Pilot, 4 papers) | `100.0%` | `eval/README.md:126` & `backend/scripts/evaluate_extraction.py` | `evaluate_extraction.py` (Pilot 4 classic papers: Attention, ResNet, LoRA, RAG) | **VERIFIED** | Clarify in report that this is a 4-paper pilot, not representative of general corpus diversity. |
+| **RQ1: Extraction** | Heading Recall (Pilot, 4 papers) | `100.0%` | `eval/README.md:126` & `backend/scripts/evaluation/evaluate_extraction.py` | `evaluate_extraction.py` (Pilot 4 classic papers: Attention, ResNet, LoRA, RAG) | **VERIFIED** | Clarify in report that this is a 4-paper pilot, not representative of general corpus diversity. |
 | **RQ1: Extraction** | Heading Recall (Dev, 47 papers) | `56.5%` | `eval/prepared/step1_full_dev_extraction_benchmark.json` → `macro_summary.PyMuPDF.mean_heading_recall_pct` (`56.47%`) | `evaluate_step1_full_dev.py` (47 Dev academic PDFs vs QASPER section titles) | **REPRODUCED** | Correct report text stating this was measured on 47 Dev papers (not 207). Confirmed by `evaluate_rq1_extractors.py` (`rq1_extraction_20261024_000639.json`: Heading F1 = 48.0%). |
 | **RQ1: Extraction** | 1 - Character Error Rate (1-CER) | `37.3%` | `eval/prepared/step1_full_dev_extraction_benchmark.json` → `macro_summary.PyMuPDF.mean_char_accuracy_pct` (`37.32%`) | `evaluate_step1_full_dev.py` (first 5,000 chars vs raw QASPER TeX string) | **REPRODUCED** | Document methodological limitation: compares unstripped 2-column PDF text to LaTeX without filtering headers, footers, page numbers, or references. Low score reflects structural noise, not 63% text loss. |
 | **RQ1: Extraction** | GROBID Extraction Benchmark | Claimed GROBID heading recall `100%` or gold reference | `docs/CHAPTER3_CONTEXT.md:582` | GROBID external HTTP server | **CONTRADICTED / UNSUPPORTED** | GROBID was used circularly as both candidate and evaluator in early pilot; GROBID server is currently offline in local environment. Replaced with independent QASPER TeX ground truth. |
@@ -73,7 +73,7 @@ Our audit cross-referenced every single cell of Table 3.6.3 in `docs/CHAPTER3_CO
    - BGE-Small is **statistically indistinguishable from the baseline MiniLM-L6-v2** on this dataset. Falsely claiming statistical significance was a critical reporting error that has now been rectified.
 4. **Isolated Memory Profiling:**
    - Earlier scripts measured peak RSS cumulatively within a single long-running Python process, causing downstream models to inherit memory from prior models.
-   - Script `backend/scripts/run_rq3_embedding_benchmark.py` introduces dedicated subprocess worker profiling (`--measure-rss-worker`), isolating model footprint (MiniLM: 448.8 MB, E5-Small: 491.5 MB, BGE-Small: 490.4 MB, Arctic-S: 488.2 MB, ModernBERT: 884.9 MB).
+   - Script `backend/scripts/evaluation/run_rq3_embedding_benchmark.py` introduces dedicated subprocess worker profiling (`--measure-rss-worker`), isolating model footprint (MiniLM: 448.8 MB, E5-Small: 491.5 MB, BGE-Small: 490.4 MB, Arctic-S: 488.2 MB, ModernBERT: 884.9 MB).
 
 ### 2.2. Methodological Clarifications on PDF Extraction (RQ1)
 
@@ -85,7 +85,7 @@ Our audit cross-referenced every single cell of Table 3.6.3 in `docs/CHAPTER3_CO
    - Running text extracted from multi-column PDF layouts incorporates running headers, page numbers, footnotes, and citation brackets, which do not appear in identical positions in the raw LaTeX source.
    - The 37.3% figure reflects layout divergence rather than text omission. Independent evidence coverage benchmarks confirm over 33–38% verbatim evidence quote matching.
 3. **Multi-Engine Evaluation Ground Truth:**
-   - Benchmark script `backend/scripts/evaluate_rq1_extractors.py` evaluates 5 local parsers (`pymupdf_plain`, `pymupdf_layout`, `pypdf`, `pdfminer.six`, `pdfplumber`).
+   - Benchmark script `backend/scripts/evaluation/evaluate_rq1_extractors.py` evaluates 5 local parsers (`pymupdf_plain`, `pymupdf_layout`, `pypdf`, `pdfminer.six`, `pdfplumber`).
    - PyMuPDF Layout achieves the highest balance of heading F1 (48.0%), low latency (26.2 ms/page), and downstream retrieval performance (nDCG@10 = 0.5100), justifying its selection as the fixed extractor for chunking and embedding pipelines.
 
 ### 2.3. Chunking Methodology & Receptive Field Alignment (RQ2)

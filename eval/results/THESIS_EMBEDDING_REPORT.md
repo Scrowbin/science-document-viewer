@@ -99,7 +99,7 @@ Based on the empirical findings, the system employs a dual-tier search approach 
 | Artifact Description | File Path |
 | :--- | :--- |
 | **Raw Benchmark Metrics JSON** | [`eval/results/thesis_embedding_benchmark.json`](file:///c:/DACNTT/eval/results/thesis_embedding_benchmark.json) |
-| **Benchmark Runner Script** | [`backend/scripts/run_thesis_embedding_benchmark.py`](file:///c:/DACNTT/backend/scripts/run_thesis_embedding_benchmark.py) |
+| **Benchmark Runner Script** | [`backend/scripts/evaluation/run_thesis_embedding_benchmark.py`](file:///c:/DACNTT/backend/scripts/evaluation/run_thesis_embedding_benchmark.py) |
 | **Shared Canonical Evaluation Utils** | [`backend/scripts/eval_common.py`](file:///c:/DACNTT/backend/scripts/eval_common.py) |
 | **RAG Service Implementation** | [`backend/apps/documents/services/rag_service.py`](file:///c:/DACNTT/backend/apps/documents/services/rag_service.py) |
 

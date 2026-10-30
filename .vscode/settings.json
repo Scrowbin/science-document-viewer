@@ -3,6 +3,10 @@
   "python.analysis.extraPaths": [
     "${workspaceFolder}/backend",
     "${workspaceFolder}/backend/scripts",
+    "${workspaceFolder}/backend/scripts/downloads",
+    "${workspaceFolder}/backend/scripts/data_prep",
+    "${workspaceFolder}/backend/scripts/evaluation",
+    "${workspaceFolder}/backend/scripts/tools",
     "${workspaceFolder}/eval",
     "${workspaceFolder}/eval/phases/phase_0_baseline/scripts",
     "${workspaceFolder}/eval/phases/phase_3_embedding/scripts",
@@ -13,6 +17,10 @@
   "python.autoComplete.extraPaths": [
     "${workspaceFolder}/backend",
     "${workspaceFolder}/backend/scripts",
+    "${workspaceFolder}/backend/scripts/downloads",
+    "${workspaceFolder}/backend/scripts/data_prep",
+    "${workspaceFolder}/backend/scripts/evaluation",
+    "${workspaceFolder}/backend/scripts/tools",
     "${workspaceFolder}/eval",
     "${workspaceFolder}/eval/phases/phase_0_baseline/scripts",
     "${workspaceFolder}/eval/phases/phase_3_embedding/scripts",

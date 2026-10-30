@@ -187,7 +187,7 @@ The binary relevance label $y(C, q) \in \{0, 1\}$ is assigned via the indicator 
 $$y(C, q) = \mathbb{I}(\text{Containment}(C, E) \ge \tau)$$
 
 ### 3. Out-of-Sample Empirical Calibration ($N=114$ Human-Annotated Pairs)
-To establish an empirical, mathematically grounded calibration rather than relying on arbitrary heuristics, an experiment was executed across the threshold spectrum $\tau \in [0.20, 0.80]$ using [`backend/scripts/evaluate_containment_labels.py`](file:///c:/DACNTT/backend/scripts/evaluate_containment_labels.py). 
+To establish an empirical, mathematically grounded calibration rather than relying on arbitrary heuristics, an experiment was executed across the threshold spectrum $\tau \in [0.20, 0.80]$ using [`backend/scripts/evaluation/evaluate_containment_labels.py`](file:///c:/DACNTT/backend/scripts/evaluation/evaluate_containment_labels.py). 
 
 The evaluation tested **114 human-annotated ground-truth query-evidence pairs** (`eval/prepared/containment_validation_metrics.json`), combining 80 development calibration pairs with 34 fresh out-of-sample validation pairs (with 1 contaminated float table pair filtered out):
 
