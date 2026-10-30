@@ -1,11 +1,14 @@
 import logging
 import os
 import tempfile
+from typing import Any, Dict, List
 from rest_framework import viewsets, permissions, status, views
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.utils import timezone
 from .models import (
@@ -27,11 +30,16 @@ from .serializers import (
     NoteSerializer,
     DocumentShareSerializer,
 )
-from .permissions import IsOwnerOrCollaborator
+from .permissions import IsOwnerOrCollaborator, has_document_permission
 from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
-from .services.pdf_metadata_service import apply_pdf_metadata_to_document, extract_metadata_from_pdf
-from .services.chunking_utils import chunk_document_pdf, chunk_sections
+from .services.pdf_metadata_service import (
+    apply_pdf_metadata_to_document,
+    extract_metadata_from_pdf,
+    is_raw_title,
+)
+from .services.chunking_utils import chunk_document_pdf, chunk_sections, extract_sections_from_pdf
+from .services.chunkers import chunk_hierarchical
 from .services.rag_service import (
     query_document,
     summarize_document,
@@ -41,6 +49,35 @@ from .services.rag_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+MAX_QUESTION_LENGTH = 2000
+REINDEX_STRATEGIES = ("hierarchical", "section_overlap")
+CHUNK_INSPECT_STRATEGIES = ("section", "section_token", "section_overlap", "hierarchical")
+HIERARCHICAL_CHILD_TOKENS = 200
+HIERARCHICAL_CHILD_OVERLAP = 40
+
+
+def _schedule_ingestion(doc):
+    """Marks a document PENDING and hands it to the background ingestion queue."""
+    if not doc.file:
+        return None
+    if doc.rag_status != "PENDING":
+        doc.rag_status = "PENDING"
+        doc.save(update_fields=["rag_status"])
+    return trigger_rag_ingestion(
+        document_id=doc.id,
+        file_path=doc.file.path,
+        title=doc.title,
+        owner_id=doc.owner_id,
+        sync=getattr(settings, "RAG_INGESTION_SYNC", False),
+    )
+
+
+def _indexing_conflict_response():
+    return Response(
+        {"code": "indexing", "detail": "Document is still being indexed."},
+        status=status.HTTP_409_CONFLICT,
+    )
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -116,21 +153,34 @@ class DocumentViewSet(viewsets.ModelViewSet):
         doc = serializer.save(owner=self.request.user)
         # If file was uploaded:
         if doc.file:
-            # 1. Automatically extract academic metadata (arXiv ID, DOI, or layout heuristic)
-            try:
-                apply_pdf_metadata_to_document(doc)
-            except Exception as e:
-                logger.warning("PDF metadata extraction failed: %s", e)
+            # 1. Extract academic metadata (arXiv ID, DOI, or layout heuristic) only when the
+            #    client did not already send previewed/confirmed metadata. The upload modal runs
+            #    /metadata/extract-pdf/ first, so a second synchronous extraction is wasted work
+            #    and could overwrite what the user confirmed.
+            sent_authors = bool(serializer.validated_data.get("author_names"))
+            if not sent_authors and is_raw_title(doc.title, doc.file.name):
+                try:
+                    apply_pdf_metadata_to_document(doc)
+                except Exception as e:
+                    logger.warning("PDF metadata extraction failed: %s", e)
 
             # 2. Trigger RAG background ingestion
-            sync_mode = getattr(settings, "RAG_INGESTION_SYNC", False)
-            trigger_rag_ingestion(
-                document_id=doc.id,
-                file_path=doc.file.path,
-                title=doc.title,
-                owner_id=doc.owner_id,
-                sync=sync_mode,
-            )
+            _schedule_ingestion(doc)
+
+    def perform_update(self, serializer):
+        old_file_name = serializer.instance.file.name if serializer.instance.file else ""
+        doc = serializer.save()
+        new_file_name = doc.file.name if doc.file else ""
+        if "file" in serializer.validated_data and doc.file and new_file_name != old_file_name:
+            # A new PDF replaces the old one: drop the stale in-memory index and re-ingest
+            try:
+                evict_rag_instance(doc.id)
+            except Exception as e:
+                logger.warning("Failed to evict RAG instance for doc %s: %s", doc.id, e)
+            doc.file_size = doc.file.size
+            doc.rag_status = "PENDING"
+            doc.save(update_fields=["file_size", "rag_status"])
+            _schedule_ingestion(doc)
 
     def perform_destroy(self, instance):
         """
@@ -155,8 +205,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.warning("Failed to evict RAG instance for doc %s: %s", doc_id, e)
 
-        # 3. Delete physical file in media/documents/
-        if file_path and os.path.exists(file_path):
+        # 3. Delete physical file in media/documents/, unless another document still
+        #    references it (duplicates created before files were copied share one file)
+        still_referenced = bool(instance.file) and Document.objects.filter(
+            file=instance.file.name
+        ).exclude(id=doc_id).exists()
+        if file_path and not still_referenced and os.path.exists(file_path):
             try:
                 os.remove(file_path)
             except Exception as e:
@@ -199,17 +253,24 @@ class DocumentViewSet(viewsets.ModelViewSet):
             version=original.version,
             citation_key=f"{original.citation_key}_copy",
             loc_in_archive=original.loc_in_archive,
-            file=original.file,
             file_size=original.file_size,
             is_duplicate=True,
             last_read=timezone.now(),
         )
+        # Give the copy its own physical file so deleting either document keeps the other's PDF
+        if original.file:
+            with original.file.open("rb") as src:
+                clone.file.save(os.path.basename(original.file.name), ContentFile(src.read()), save=True)
         for author in original.authors.all():
             clone.authors.add(author)
         for tag in original.tags.all():
             clone.tags.add(tag)
         for domain in original.domains.all():
             clone.domains.add(domain)
+
+        # The copy has its own file and its own (empty) index: ingest it like a fresh upload
+        if clone.file:
+            _schedule_ingestion(clone)
 
         return Response(
             DocumentDetailSerializer(clone, context={"request": request}).data,
@@ -220,32 +281,89 @@ class DocumentViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="chat")
     def chat(self, request, pk=None):
         doc = self.get_object()
-        question = request.data.get("question", "").strip()
+        if doc.rag_status == "INDEXING":
+            return _indexing_conflict_response()
+
+        raw_question = request.data.get("question")
+        question = raw_question.strip() if isinstance(raw_question, str) else ""
         if not question:
             return Response(
-                {"detail": "Question field is required."},
+                {"code": "question_required", "detail": "Question field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if len(question) > MAX_QUESTION_LENGTH:
+            return Response(
+                {
+                    "code": "question_too_long",
+                    "detail": f"Question must be at most {MAX_QUESTION_LENGTH} characters.",
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         file_path = doc.file.path if doc.file else ""
-        res = query_document(doc.id, file_path, question, doc.title)
+        try:
+            res = query_document(doc.id, file_path, question, doc.title)
+        except Exception:
+            logger.exception("RAG query failed for document %s", doc.id)
+            return Response(
+                {"code": "rag_error", "detail": "The assistant could not answer this question."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         return Response(res)
 
     @action(detail=True, methods=["post"], url_path="summarize")
     def summarize(self, request, pk=None):
         doc = self.get_object()
+        if doc.rag_status == "INDEXING":
+            return _indexing_conflict_response()
+
         file_path = doc.file.path if doc.file else ""
-        res = summarize_document(doc.id, file_path, doc.title)
+        try:
+            res = summarize_document(doc.id, file_path, doc.title)
+        except Exception:
+            logger.exception("RAG summarization failed for document %s", doc.id)
+            return Response(
+                {"code": "rag_error", "detail": "The assistant could not summarize this document."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
         return Response(res)
 
     @action(detail=True, methods=["post"], url_path="reindex")
     def reindex(self, request, pk=None):
         doc = self.get_object()
-        file_path = doc.file.path if doc.file else ""
         strategy = request.data.get("strategy") or request.query_params.get("strategy")
-        reindex_document(doc.id, file_path, strategy=strategy)
+        # Validate BEFORE touching any cache or index (reindex_document evicts the cache first)
+        if strategy is not None and strategy not in REINDEX_STRATEGIES:
+            return Response(
+                {
+                    "code": "invalid_strategy",
+                    "detail": f"strategy must be one of: {', '.join(REINDEX_STRATEGIES)}.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not doc.file or not os.path.exists(doc.file.path):
+            return Response(
+                {"code": "no_file", "detail": "This document has no PDF file to index."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         active_strategy = strategy or getattr(settings, "CHUNKING_STRATEGY", "hierarchical")
-        return Response({"status": "INDEXED", "strategy": active_strategy})
+        Document.objects.filter(id=doc.id).update(rag_status="INDEXING")
+        try:
+            rag = reindex_document(doc.id, doc.file.path, strategy=strategy)
+            chunk_count = len(getattr(rag, "documents", None) or []) if rag is not None else 0
+            if chunk_count <= 0:
+                raise RuntimeError(f"Re-indexing produced no chunks for document {doc.id}")
+        except Exception:
+            logger.exception("Re-indexing failed for document %s (strategy=%s)", doc.id, active_strategy)
+            Document.objects.filter(id=doc.id).update(rag_status="FAILED")
+            return Response(
+                {"status": "FAILED", "code": "reindex_failed"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        Document.objects.filter(id=doc.id).update(rag_status="INDEXED")
+        return Response({"status": "INDEXED", "chunks": chunk_count, "strategy": active_strategy})
 
     # Google Drive-style shares
     @action(detail=True, methods=["get", "post"], url_path="shares")
@@ -327,6 +445,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
             )
         try:
             target_doc = Document.objects.get(id=target_id)
+            # Do not reveal or link documents the requester cannot see
+            if not has_document_permission(request.user, target_doc, "VIEW"):
+                raise Document.DoesNotExist
         except Document.DoesNotExist:
             return Response(
                 {"detail": "Target document does not exist."},
@@ -347,12 +468,25 @@ class DocumentViewSet(viewsets.ModelViewSet):
         """
         Inspect document chunks under a specified chunking strategy.
         Supports query params:
-          - strategy: 'section' | 'section_token' | 'section_overlap' (default: 'section_overlap')
-          - max_tokens: int (default: 400)
-          - overlap: int (default: 80)
+          - strategy: 'section' | 'section_token' | 'section_overlap' | 'hierarchical'
+            (default: 'section_overlap')
+          - max_tokens: int (default: 400; ignored for 'hierarchical', which uses 200-token children)
+          - overlap: int (default: 80; ignored for 'hierarchical', which uses a 40-token child overlap)
+        For 'hierarchical', the response also carries `parents`: each parent section with its
+        children grouped under it (`parent_text` is sent once per parent, not per child).
         """
         doc = self.get_object()
         strategy = request.query_params.get('strategy', 'section_overlap')
+        if strategy not in CHUNK_INSPECT_STRATEGIES:
+            return Response(
+                {
+                    "code": "invalid_strategy",
+                    "detail": f"strategy must be one of: {', '.join(CHUNK_INSPECT_STRATEGIES)}.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if strategy == 'hierarchical':
+            return self._hierarchical_chunks_response(doc)
         try:
             max_tokens = int(request.query_params.get('max_tokens', 400))
         except (ValueError, TypeError):
@@ -396,6 +530,64 @@ class DocumentViewSet(viewsets.ModelViewSet):
             "total_chunks": len(chunks_data),
             "avg_tokens_per_chunk": avg_tokens,
             "chunks": chunks_data
+        })
+
+    def _hierarchical_chunks_response(self, doc):
+        """Small-to-Big inspection: child chunks (as indexed) plus their grouping under parent sections."""
+        if not doc.file or not os.path.exists(doc.file.path):
+            content = doc.extra or doc.title or "No document file content available."
+            sections = [{"title": "Abstract", "page_start": 1, "page_end": 1, "text": content}]
+        else:
+            try:
+                sections = extract_sections_from_pdf(doc.file.path)
+            except Exception as e:
+                logger.exception("Error extracting sections from document %s: %s", doc.id, e)
+                return Response(
+                    {"code": "chunking_failed", "detail": "Failed to extract document chunks."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+        children = chunk_hierarchical(
+            sections,
+            child_max_tokens=HIERARCHICAL_CHILD_TOKENS,
+            child_overlap=HIERARCHICAL_CHILD_OVERLAP,
+            paper_id=f"doc_{doc.id}",
+        )
+
+        parents: List[Dict[str, Any]] = []
+        by_parent: Dict[Any, Dict[str, Any]] = {}
+        for child in children:
+            p_id = child.get("parent_id")
+            group = by_parent.get(p_id)
+            if group is None:
+                group = {
+                    "parent_id": p_id,
+                    "section": child.get("section", ""),
+                    "page": child.get("page", 1),
+                    "parent_tokens": child.get("parent_tokens", 0),
+                    "parent_text": child.get("parent_text", ""),
+                    "child_ids": [],
+                }
+                by_parent[p_id] = group
+                parents.append(group)
+            group["child_ids"].append(child.get("chunk_id"))
+        for group in parents:
+            group["child_count"] = len(group["child_ids"])
+
+        avg_tokens = (
+            round(sum(c.get("token_count", 0) for c in children) / len(children), 1) if children else 0
+        )
+        return Response({
+            "document_id": str(doc.id),
+            "document_title": doc.title,
+            "strategy": "hierarchical",
+            "max_tokens": HIERARCHICAL_CHILD_TOKENS,
+            "overlap": HIERARCHICAL_CHILD_OVERLAP,
+            "total_chunks": len(children),
+            "total_parents": len(parents),
+            "avg_tokens_per_chunk": avg_tokens,
+            "chunks": children,
+            "parents": parents,
         })
 
 
@@ -529,8 +721,18 @@ class NoteViewSet(viewsets.ModelViewSet):
             qs = qs.filter(document_id=doc_id)
         return qs
 
+    def _check_document_access(self, serializer):
+        doc = serializer.validated_data.get("document")
+        if doc is not None and not has_document_permission(self.request.user, doc, "VIEW"):
+            raise PermissionDenied("You do not have access to this document.")
+
     def perform_create(self, serializer):
+        self._check_document_access(serializer)
         serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        self._check_document_access(serializer)
+        serializer.save()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

@@ -4,20 +4,13 @@ Supports both 'section_overlap' (flat) and 'hierarchical' (small-to-big) chunkin
 """
 import logging
 import os
-from pathlib import Path
 from typing import Any
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from apps.documents.models import Document
-from apps.documents.services.chunkers import chunk_hierarchical
-from apps.documents.services.chunking_utils import (
-    chunk_document,
-    chunk_sections,
-    extract_sections_from_pdf,
-)
-from apps.documents.services.rag_service import RagService, reindex_document
+from ...models import Document
+from ...services.rag_service import RagService, reindex_document
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +41,10 @@ class Command(BaseCommand):
             "--qdrant-collection",
             type=str,
             default=None,
-            help="Optional Qdrant collection name to index into (defaults to 'doc_{doc_id}').",
+            help=(
+                "Deprecated and ignored: production ingestion always writes to 'doc_{doc_id}' "
+                "(+ 'doc_{doc_id}_parents'), the collections chat/summarize read from."
+            ),
         )
 
     def handle(self, *args: Any, **options: Any) -> None:
@@ -74,6 +70,13 @@ class Command(BaseCommand):
             )
         )
 
+        if custom_coll:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"--qdrant-collection={custom_coll} is ignored: documents are indexed into 'doc_{{id}}'."
+                )
+            )
+
         rag_service = RagService.get_instance()
         success_count = 0
         total_chunks = 0
@@ -85,36 +88,18 @@ class Command(BaseCommand):
                 continue
 
             file_path = doc.file.path
-            coll_name = custom_coll or f"doc_{doc.id}"
+            coll_name = f"doc_{doc.id}"
 
             try:
-                # 1. Update in-memory DocumentRAG instance
-                reindex_document(doc.id, file_path, strategy=strategy)
-
-                # 2. Index into persistent Qdrant collection with strategy metadata
-                sections = extract_sections_from_pdf(file_path)
-                paper_id = doc.archive_id or doc.doi or f"doc_{doc.id}"
-
-                if strategy == "hierarchical":
-                    chunks_data = chunk_hierarchical(
-                        sections, child_max_tokens=200, child_overlap=40, paper_id=paper_id
-                    )
-                else:
-                    chunks_data = chunk_sections(
-                        sections, strategy=strategy, max_tokens=400, overlap=80
-                    )
-
-                # Inject relational and ownership identifiers
-                for c in chunks_data:
-                    c["document_id"] = str(doc.id)
-                    c["paper_arxiv_id"] = str(doc.archive_id or doc.doi or "")
-                    c["paper_title"] = doc.title
-
-                indexed_count = rag_service.index_chunks(
-                    collection_name=coll_name,
-                    chunks=chunks_data,
-                    recreate=True,
-                )
+                # Single pass: reindex_document() runs the production ingestion (chunk_seq-ordered
+                # chunks, paper id "doc_{id}", chunking_strategy payload) into 'doc_{id}' and its
+                # companion '_parents' collection, and refreshes the in-memory DocumentRAG cache.
+                # (A second index_chunks(recreate=True) pass used to overwrite that collection
+                # without chunk_seq and with a different paper id; it has been removed.)
+                rag = reindex_document(doc.id, file_path, strategy=strategy)
+                indexed_count = len(rag.documents) if rag is not None else 0
+                if indexed_count <= 0:
+                    raise RuntimeError("re-indexing produced no chunks")
 
                 parents_coll = f"{coll_name}_parents"
                 p_count = (

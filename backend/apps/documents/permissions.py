@@ -1,42 +1,65 @@
 from rest_framework import permissions
 
+# Share levels in increasing order of privilege.
+PERMISSION_RANK = {'VIEW': 1, 'COMMENT': 2, 'EDIT': 3, 'OWNER': 4}
+
+# Minimum share level per DocumentViewSet action for non-safe requests.
+# Actions not listed here (destroy, toggle_trash, duplicate, reindex, shares) stay owner-only.
+ACTION_MIN_PERMISSION = {
+    'chat': 'VIEW',
+    'summarize': 'VIEW',
+    'annotations': 'COMMENT',
+    'update': 'EDIT',
+    'partial_update': 'EDIT',
+    'toggle_read': 'EDIT',
+    'related': 'EDIT',
+}
+
+
+def get_document_permission(user, doc):
+    """Return 'OWNER', 'EDIT', 'COMMENT', 'VIEW' or None for this user on this document."""
+    if not user or not user.is_authenticated:
+        return None
+    if doc.owner_id == user.id:
+        return 'OWNER'
+
+    # Direct document shares take precedence over inherited collection shares
+    share = doc.shares.filter(shared_with_user=user).first()
+    if share:
+        return share.permission
+    if doc.primary_collection_id:
+        col_share = doc.primary_collection.shares.filter(shared_with_user=user).first()
+        if col_share:
+            return col_share.permission
+    return None
+
+
+def has_document_permission(user, doc, required):
+    level = get_document_permission(user, doc)
+    return level is not None and PERMISSION_RANK[level] >= PERMISSION_RANK[required]
+
+
 class IsOwnerOrCollaborator(permissions.BasePermission):
     """
     Object-level permission granting:
     - Safe methods (GET) if user is Owner OR has VIEW/COMMENT/EDIT share.
-    - Write methods (PUT, PATCH) if user is Owner OR has EDIT share.
-    - Delete method (DELETE) ONLY if user is Owner.
+    - Grounded chat / summarize (POST) with VIEW or higher.
+    - Annotation creation with COMMENT or higher.
+    - Write methods (PUT, PATCH), toggle-read and related-document links with EDIT.
+    - Delete, trash, duplicate, reindex and share management ONLY for the Owner.
     """
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        if not user or not user.is_authenticated:
+        level = get_document_permission(request.user, obj)
+        if level is None:
             return False
-
-        # Owner has full permissions
-        if obj.owner == user:
+        if level == 'OWNER':
             return True
 
-        # Check direct document shares
-        doc_shares = obj.shares.filter(shared_with_user=user)
-        user_permission = doc_shares.first().permission if doc_shares.exists() else None
-
-        # Check inherited collection shares
-        if not user_permission and obj.primary_collection:
-            col_shares = obj.primary_collection.shares.filter(shared_with_user=user)
-            if col_shares.exists():
-                user_permission = col_shares.first().permission
-
-        if not user_permission:
-            return False
-
-        # Read requests: VIEW, COMMENT, or EDIT
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Write requests (PUT, PATCH): requires EDIT
-        if request.method in ('PUT', 'PATCH'):
-            return user_permission == 'EDIT'
-
-        # Delete requests: strictly Owner only
-        return False
+        required = ACTION_MIN_PERMISSION.get(getattr(view, 'action', None) or '')
+        if required is None:
+            return False
+        return PERMISSION_RANK[level] >= PERMISSION_RANK[required]

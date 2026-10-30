@@ -49,6 +49,38 @@ def parse_date_to_datetime(val: Optional[str]) -> Optional[datetime]:
     return None
 
 
+GENERIC_TITLES = ("sample_paper", "document", "uploaded document", "untitled document", "untitled")
+ARXIV_ID_TITLE_REGEX = re.compile(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$")
+# Django's storage appends "_<7 random chars>" to a stem when the file name is already taken.
+_STORAGE_SUFFIX_REGEX = re.compile(r"_[A-Za-z0-9]{7}$")
+
+
+def _normalize_stem(value: str) -> str:
+    value = value or ""
+    if value.lower().endswith(".pdf"):
+        value = value[:-4]
+    return re.sub(r"[\s_\-]+", " ", value).strip().lower()
+
+
+def is_raw_title(title: Optional[str], file_name: Optional[str] = None) -> bool:
+    """
+    True if `title` is a placeholder rather than a real, user-confirmed title:
+    empty, equal to the uploaded file's stem (with or without Django's storage suffix),
+    a bare arXiv id, or a generic placeholder.
+    """
+    title = (title or "").strip()
+    if not title:
+        return True
+    if ARXIV_ID_TITLE_REGEX.match(title) or title.lower() in GENERIC_TITLES:
+        return True
+    if file_name:
+        stem = os.path.splitext(os.path.basename(file_name))[0]
+        candidates = {_normalize_stem(stem), _normalize_stem(_STORAGE_SUFFIX_REGEX.sub("", stem))}
+        if _normalize_stem(title) in candidates:
+            return True
+    return False
+
+
 def apply_pdf_metadata_to_document(doc: Document) -> bool:
     """
     Extracts metadata from doc.file and updates the Document record in PostgreSQL.
@@ -73,21 +105,11 @@ def apply_pdf_metadata_to_document(doc: Document) -> bool:
     if not meta.get("title"):
         return False
 
-    file_name = doc.file.name or "document"
-    basename = os.path.splitext(os.path.basename(file_name))[0]
     extracted_title = meta.get("title", "").strip()
 
-    # Apply extracted title if available and doc.title is empty, raw filename, or generic
-    is_raw_title = (
-        not doc.title
-        or doc.title == basename
-        or basename.startswith(doc.title)
-        or doc.title.startswith(basename)
-        or bool(re.match(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$", doc.title))
-        or doc.title.lower()
-        in ("sample_paper", "document", "uploaded document", "untitled document")
-    )
-    if extracted_title and (is_raw_title or doc.title != extracted_title):
+    # Only replace a title that is empty, the raw filename, an arXiv id or a generic placeholder.
+    # A title the user confirmed at upload is never overwritten.
+    if extracted_title and is_raw_title(doc.title, doc.file.name) and doc.title != extracted_title:
         doc.title = extracted_title
         doc.short_title = meta.get("short_title", extracted_title[:100])
 
