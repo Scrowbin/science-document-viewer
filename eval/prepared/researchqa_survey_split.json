@@ -1,0 +1,10 @@
+{
+  "dev": [
+    "SURVEY_CS_TRANSFORMERS",
+    "SURVEY_BIO_STRUCTURAL"
+  ],
+  "held_out": [
+    "SURVEY_SYS_CONSENSUS",
+    "SURVEY_AI_AGENTS"
+  ]
+}

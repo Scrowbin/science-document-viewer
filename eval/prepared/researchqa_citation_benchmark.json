@@ -1,0 +1,149 @@
+[
+  {
+    "id": "RQA_CS_001",
+    "field": "Engineering & Computer Science",
+    "subfield": "Artificial Intelligence & NLP",
+    "topic": "Efficient Transformer Attention",
+    "survey_paper_id": "SURVEY_CS_TRANSFORMERS",
+    "question": "How do modern efficient transformer architectures alleviate the quadratic O(N^2) computational and memory bottleneck of self-attention without mathematical approximation, and what hardware mechanisms enable this speedup?",
+    "rubrics": [
+      {
+        "rubric_id": "R1",
+        "criterion": "Does the response explain how standard self-attention incurs quadratic O(N^2) memory reads/writes to GPU High Bandwidth Memory (HBM)?",
+        "target_citation": "Attention Is All You Need (Vaswani et al., 2017)",
+        "required_paper_id": "P_ATTN_VASWANI"
+      },
+      {
+        "rubric_id": "R2",
+        "criterion": "Does the response describe FlashAttention's IO-aware tiling technique that computes softmax incrementally via online normalizers on on-chip SRAM?",
+        "target_citation": "FlashAttention (Dao et al., 2022)",
+        "required_paper_id": "P_FLASH_DAO"
+      }
+    ],
+    "target_cited_papers": [
+      "P_ATTN_VASWANI",
+      "P_FLASH_DAO"
+    ],
+    "target_sections": {
+      "P_ATTN_VASWANI": [
+        "3.2 Scaled Dot-Product Attention"
+      ],
+      "P_FLASH_DAO": [
+        "2. Hardware Characteristics & IO Complexity",
+        "3. Tiling and Online Softmax Normalization"
+      ]
+    }
+  },
+  {
+    "id": "RQA_CS_002",
+    "field": "Engineering & Computer Science",
+    "subfield": "Artificial Intelligence & NLP",
+    "topic": "Positional Embeddings & Long-Context Extrapolation",
+    "survey_paper_id": "SURVEY_CS_TRANSFORMERS",
+    "question": "Why do traditional absolute positional embeddings fail to extrapolate to longer sequence lengths, and how does Rotary Position Embedding (RoPE) mathematically incorporate relative distance into attention inner products?",
+    "rubrics": [
+      {
+        "rubric_id": "R1",
+        "criterion": "Does the response explain the limitation of absolute positional representations in generalizing across varied sequence lengths?",
+        "target_citation": "Attention Is All You Need (Vaswani et al., 2017)",
+        "required_paper_id": "P_ATTN_VASWANI"
+      },
+      {
+        "rubric_id": "R2",
+        "criterion": "Does the response detail how RoPE applies 2D orthogonal rotation matrices to query and key vectors to enforce relative distance decay?",
+        "target_citation": "RoFormer: Enhanced Transformer with Rotary Position Embedding (Su et al., 2021)",
+        "required_paper_id": "P_ROPE_SU"
+      }
+    ],
+    "target_cited_papers": [
+      "P_ATTN_VASWANI",
+      "P_ROPE_SU"
+    ],
+    "target_sections": {
+      "P_ATTN_VASWANI": [
+        "3.2 Scaled Dot-Product Attention"
+      ],
+      "P_ROPE_SU": [
+        "3. Formulation of Rotary Position Embedding",
+        "4. Long-Context Decay Property"
+      ]
+    }
+  },
+  {
+    "id": "RQA_BIO_001",
+    "field": "Biomedical & Life Sciences",
+    "subfield": "Computational Biology",
+    "topic": "Deep Learning Protein Structure Prediction",
+    "survey_paper_id": "SURVEY_BIO_STRUCTURAL",
+    "question": "How do modern neural architectures predict 3D atomic coordinates from amino acid sequences, and how do they enforce 3D Euclidean rotation/translation invariance while processing evolutionary covariance?",
+    "rubrics": [
+      {
+        "rubric_id": "R1",
+        "criterion": "Does the response explain how AlphaFold2 uses Evoformer pair representations to capture co-evolutionary residue contacts from MSAs?",
+        "target_citation": "AlphaFold (Jumper et al., 2021)",
+        "required_paper_id": "P_ALPHAFOLD_JUMPER"
+      },
+      {
+        "rubric_id": "R2",
+        "criterion": "Does the response explain Invariant Point Attention (IPA) operating on rigid body frames in SE(3) space?",
+        "target_citation": "AlphaFold (Jumper et al., 2021)",
+        "required_paper_id": "P_ALPHAFOLD_JUMPER"
+      },
+      {
+        "rubric_id": "R3",
+        "criterion": "Does the response describe unsupervised protein language modeling (ESM) that learns structural contacts without MSA alignments?",
+        "target_citation": "ESM (Rives et al., 2021)",
+        "required_paper_id": "P_ESM_RIVES"
+      }
+    ],
+    "target_cited_papers": [
+      "P_ALPHAFOLD_JUMPER",
+      "P_ESM_RIVES"
+    ],
+    "target_sections": {
+      "P_ALPHAFOLD_JUMPER": [
+        "Evoformer Architecture and Pair Representations",
+        "Invariant Point Attention (IPA) and Structure Module"
+      ],
+      "P_ESM_RIVES": [
+        "Unsupervised Protein Language Models"
+      ]
+    }
+  },
+  {
+    "id": "RQA_SYS_001",
+    "field": "Engineering & Computer Science",
+    "subfield": "Distributed Systems",
+    "topic": "Fault-Tolerant Consensus",
+    "survey_paper_id": "SURVEY_SYS_CONSENSUS",
+    "question": "How does the Raft consensus algorithm address the understandability and implementation challenges of Paxos, and what mechanisms guarantee safety during leader election?",
+    "rubrics": [
+      {
+        "rubric_id": "R1",
+        "criterion": "Does the response contrast Paxos prepare/promise and accept phases against Raft's decomposed structure?",
+        "target_citation": "Paxos Made Simple (Lamport, 2001)",
+        "required_paper_id": "P_PAXOS_LAMPORT"
+      },
+      {
+        "rubric_id": "R2",
+        "criterion": "Does the response describe Raft's randomized election timers and log completeness voting restrictions for safety?",
+        "target_citation": "In Search of an Understandable Consensus Algorithm (Raft) (Ongaro & Ousterhout, 2014)",
+        "required_paper_id": "P_RAFT_ONGARO"
+      }
+    ],
+    "target_cited_papers": [
+      "P_PAXOS_LAMPORT",
+      "P_RAFT_ONGARO"
+    ],
+    "target_sections": {
+      "P_PAXOS_LAMPORT": [
+        "Phase 1: Prepare and Promise",
+        "Phase 2: Accept and Accepted"
+      ],
+      "P_RAFT_ONGARO": [
+        "5.1 Raft Basics: Roles and Terms",
+        "5.4 Safety and Log Matching Property"
+      ]
+    }
+  }
+]

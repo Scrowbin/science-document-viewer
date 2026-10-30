@@ -1,0 +1,1229 @@
+{
+  "strategies": [
+    {
+      "strategy": "bm25",
+      "dense_backend": "n/a",
+      "tau": 0.55,
+      "timestamp": "20261030T040959",
+      "global_metrics": {
+        "mean_ndcg@4": 1.0,
+        "mean_ndcg@10": 1.0,
+        "mean_mrr@5": 1.0,
+        "mean_mrr@10": 1.0,
+        "mean_hit@1": 1.0,
+        "mean_hit@3": 1.0,
+        "mean_hit@5": 1.0,
+        "mean_recall@4": 1.0,
+        "mean_recall@20": 1.0,
+        "mean_section_hit@1": 1.0,
+        "n_queries": 7,
+        "ndcg@10_ci_lo": 1.0,
+        "ndcg@10_ci_hi": 1.0
+      },
+      "split_metrics": {
+        "dev": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 4
+        },
+        "held_out": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 3
+        }
+      },
+      "per_query": [
+        {
+          "id": "Q_RQA_SURV_001",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does IO-aware exact attention reduce GPU memory traffic without mathematical approximation?",
+          "target_section": "2. IO-Aware Exact Attention & Tiling",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. IO-Aware Exact Attention & Tiling",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": true,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": false,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_002",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does Rotary Position Embedding (RoPE) mathematically incorporate relative distance into attention inner products?",
+          "target_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": true,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s5._Retrieval-Augment_c000",
+              "section": "5. Retrieval-Augmented Generation (RAG) Integration",
+              "relevant": false,
+              "text_preview": "To bypass context length constraints entirely, RAG architectures decompose knowledge management into parametric language"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_003",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "What memory optimization do Multi-Query Attention and Grouped-Query Attention provide during inference?",
+          "target_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": true,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_004",
+          "paper_arxiv_id": "SURVEY_BIO_STRUCTURAL",
+          "question": "How does Invariant Point Attention enforce SE(3) Euclidean rotation and translation invariance in AlphaFold2?",
+          "target_section": "2. Evoformer Representations and Invariant Point Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Evoformer Representations and Invariant Point Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s2._Evoformer_Represe_c000",
+              "section": "2. Evoformer Representations and Invariant Point Attention",
+              "relevant": true,
+              "text_preview": "Modern structure prediction networks like AlphaFold2 operate on dual representations: an MSA representation and a spatia"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s3._Unsupervised_Prot_c000",
+              "section": "3. Unsupervised Protein Language Models (pLMs)",
+              "relevant": false,
+              "text_preview": "While MSA-based models require extensive homology search against sequence databases, protein language models (such as ES"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Predicting the three-dimensional atomic structure of macromolecules from linear sequences has been a foundational challe"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s4._Diffusion_Models__c000",
+              "section": "4. Diffusion Models for De Novo Macromolecular Design",
+              "relevant": false,
+              "text_preview": "Beyond predicting natural proteins, generative SE(3) diffusion models construct novel protein backbones from scratch. Co"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s1._Evolutionary_Cova_c000",
+              "section": "1. Evolutionary Covariance and Multiple Sequence Alignments",
+              "relevant": false,
+              "text_preview": "Homologous protein sequences across evolutionary history mutate under spatial constraints. When two residues are in dire"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_005",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How does the Raft protocol decompose consensus to improve understandability over Paxos?",
+          "target_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": true,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": false,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_006",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How do distributed leaders serve linearizable reads without writing to disk logs?",
+          "target_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": true,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": false,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_007",
+          "paper_arxiv_id": "SURVEY_AI_AGENTS",
+          "question": "How do ReAct, Tree-of-Thoughts, and Reflexion differ in their reasoning and planning mechanisms?",
+          "target_section": "3. Reasoning and Planning Frameworks",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Reasoning and Planning Frameworks",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s3._Reasoning_and_Pla_c000",
+              "section": "3. Reasoning and Planning Frameworks",
+              "relevant": true,
+              "text_preview": "Pioneering planning frameworks like ReAct interleave reasoning traces with domain actions in a Thought-Action-Observatio"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Autonomous agents powered by Large Language Models integrate reasoning, tool calling, and long-term memory to execute mu"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s1._Cognitive_Agent_A_c000",
+              "section": "1. Cognitive Agent Architectures",
+              "relevant": false,
+              "text_preview": "Autonomous agent systems augment foundation models with three core modules: planning (decomposing goals into tasks), mem"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s2._Memory_Architectu_c000",
+              "section": "2. Memory Architectures: Short-Term vs. Vector Long-Term",
+              "relevant": false,
+              "text_preview": "Short-term memory manages in-context prompt scratchpads and conversation history bounded by the context window. Long-ter"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s4._Tool_Use_and_Exte_c000",
+              "section": "4. Tool Use and External Environment Execution",
+              "relevant": false,
+              "text_preview": "Agents interact with computational environments by generating structured function calls (JSON schemas) executed via sand"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        }
+      ]
+    },
+    {
+      "strategy": "dense",
+      "dense_backend": "tfidf_cosine_fallback",
+      "tau": 0.55,
+      "timestamp": "20261030T040959",
+      "global_metrics": {
+        "mean_ndcg@4": 1.0,
+        "mean_ndcg@10": 1.0,
+        "mean_mrr@5": 1.0,
+        "mean_mrr@10": 1.0,
+        "mean_hit@1": 1.0,
+        "mean_hit@3": 1.0,
+        "mean_hit@5": 1.0,
+        "mean_recall@4": 1.0,
+        "mean_recall@20": 1.0,
+        "mean_section_hit@1": 1.0,
+        "n_queries": 7,
+        "ndcg@10_ci_lo": 1.0,
+        "ndcg@10_ci_hi": 1.0
+      },
+      "split_metrics": {
+        "dev": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 4
+        },
+        "held_out": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 3
+        }
+      },
+      "per_query": [
+        {
+          "id": "Q_RQA_SURV_001",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does IO-aware exact attention reduce GPU memory traffic without mathematical approximation?",
+          "target_section": "2. IO-Aware Exact Attention & Tiling",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. IO-Aware Exact Attention & Tiling",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": true,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": false,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_002",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does Rotary Position Embedding (RoPE) mathematically incorporate relative distance into attention inner products?",
+          "target_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": true,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s5._Retrieval-Augment_c000",
+              "section": "5. Retrieval-Augmented Generation (RAG) Integration",
+              "relevant": false,
+              "text_preview": "To bypass context length constraints entirely, RAG architectures decompose knowledge management into parametric language"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_003",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "What memory optimization do Multi-Query Attention and Grouped-Query Attention provide during inference?",
+          "target_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": true,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_004",
+          "paper_arxiv_id": "SURVEY_BIO_STRUCTURAL",
+          "question": "How does Invariant Point Attention enforce SE(3) Euclidean rotation and translation invariance in AlphaFold2?",
+          "target_section": "2. Evoformer Representations and Invariant Point Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Evoformer Representations and Invariant Point Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s2._Evoformer_Represe_c000",
+              "section": "2. Evoformer Representations and Invariant Point Attention",
+              "relevant": true,
+              "text_preview": "Modern structure prediction networks like AlphaFold2 operate on dual representations: an MSA representation and a spatia"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s3._Unsupervised_Prot_c000",
+              "section": "3. Unsupervised Protein Language Models (pLMs)",
+              "relevant": false,
+              "text_preview": "While MSA-based models require extensive homology search against sequence databases, protein language models (such as ES"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Predicting the three-dimensional atomic structure of macromolecules from linear sequences has been a foundational challe"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s4._Diffusion_Models__c000",
+              "section": "4. Diffusion Models for De Novo Macromolecular Design",
+              "relevant": false,
+              "text_preview": "Beyond predicting natural proteins, generative SE(3) diffusion models construct novel protein backbones from scratch. Co"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s1._Evolutionary_Cova_c000",
+              "section": "1. Evolutionary Covariance and Multiple Sequence Alignments",
+              "relevant": false,
+              "text_preview": "Homologous protein sequences across evolutionary history mutate under spatial constraints. When two residues are in dire"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_005",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How does the Raft protocol decompose consensus to improve understandability over Paxos?",
+          "target_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": true,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": false,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_006",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How do distributed leaders serve linearizable reads without writing to disk logs?",
+          "target_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": true,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": false,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_007",
+          "paper_arxiv_id": "SURVEY_AI_AGENTS",
+          "question": "How do ReAct, Tree-of-Thoughts, and Reflexion differ in their reasoning and planning mechanisms?",
+          "target_section": "3. Reasoning and Planning Frameworks",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Reasoning and Planning Frameworks",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s3._Reasoning_and_Pla_c000",
+              "section": "3. Reasoning and Planning Frameworks",
+              "relevant": true,
+              "text_preview": "Pioneering planning frameworks like ReAct interleave reasoning traces with domain actions in a Thought-Action-Observatio"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Autonomous agents powered by Large Language Models integrate reasoning, tool calling, and long-term memory to execute mu"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s1._Cognitive_Agent_A_c000",
+              "section": "1. Cognitive Agent Architectures",
+              "relevant": false,
+              "text_preview": "Autonomous agent systems augment foundation models with three core modules: planning (decomposing goals into tasks), mem"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s2._Memory_Architectu_c000",
+              "section": "2. Memory Architectures: Short-Term vs. Vector Long-Term",
+              "relevant": false,
+              "text_preview": "Short-term memory manages in-context prompt scratchpads and conversation history bounded by the context window. Long-ter"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s4._Tool_Use_and_Exte_c000",
+              "section": "4. Tool Use and External Environment Execution",
+              "relevant": false,
+              "text_preview": "Agents interact with computational environments by generating structured function calls (JSON schemas) executed via sand"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        }
+      ]
+    },
+    {
+      "strategy": "hybrid_rrf",
+      "dense_backend": "tfidf_cosine_fallback",
+      "tau": 0.55,
+      "timestamp": "20261030T040959",
+      "global_metrics": {
+        "mean_ndcg@4": 1.0,
+        "mean_ndcg@10": 1.0,
+        "mean_mrr@5": 1.0,
+        "mean_mrr@10": 1.0,
+        "mean_hit@1": 1.0,
+        "mean_hit@3": 1.0,
+        "mean_hit@5": 1.0,
+        "mean_recall@4": 1.0,
+        "mean_recall@20": 1.0,
+        "mean_section_hit@1": 1.0,
+        "n_queries": 7,
+        "ndcg@10_ci_lo": 1.0,
+        "ndcg@10_ci_hi": 1.0
+      },
+      "split_metrics": {
+        "dev": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 4
+        },
+        "held_out": {
+          "mean_ndcg@4": 1.0,
+          "mean_ndcg@10": 1.0,
+          "mean_mrr@5": 1.0,
+          "mean_mrr@10": 1.0,
+          "mean_hit@1": 1.0,
+          "mean_hit@3": 1.0,
+          "mean_hit@5": 1.0,
+          "mean_recall@4": 1.0,
+          "mean_recall@20": 1.0,
+          "mean_section_hit@1": 1.0,
+          "n_queries": 3
+        }
+      },
+      "per_query": [
+        {
+          "id": "Q_RQA_SURV_001",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does IO-aware exact attention reduce GPU memory traffic without mathematical approximation?",
+          "target_section": "2. IO-Aware Exact Attention & Tiling",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. IO-Aware Exact Attention & Tiling",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": true,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": false,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_002",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "How does Rotary Position Embedding (RoPE) mathematically incorporate relative distance into attention inner products?",
+          "target_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": true,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s5._Retrieval-Augment_c000",
+              "section": "5. Retrieval-Augmented Generation (RAG) Integration",
+              "relevant": false,
+              "text_preview": "To bypass context length constraints entirely, RAG architectures decompose knowledge management into parametric language"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_003",
+          "paper_arxiv_id": "SURVEY_CS_TRANSFORMERS",
+          "question": "What memory optimization do Multi-Query Attention and Grouped-Query Attention provide during inference?",
+          "target_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "4. KV-Cache Compression and Multi-Query Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s4._KV-Cache_Compress_c000",
+              "section": "4. KV-Cache Compression and Multi-Query Attention",
+              "relevant": true,
+              "text_preview": "During autoregressive token generation, caching Key and Value states consumes massive GPU VRAM proportional to batch siz"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s1._Quadratic_Attenti_c000",
+              "section": "1. Quadratic Attention Complexity & Hardware Memory Hierarchy",
+              "relevant": false,
+              "text_preview": "The standard dot-product attention computes Attention(Q, K, V) = softmax(QK^T / sqrt(d))V. Materializing the full N-by-N"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s2._IO-Aware_Exact_At_c000",
+              "section": "2. IO-Aware Exact Attention & Tiling",
+              "relevant": false,
+              "text_preview": "Rather than approximating attention via low-rank projections, IO-aware exact attention reorganizes execution into tiled "
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Standard self-attention scales quadratically with sequence length O(N^2), imposing fundamental memory and compute bottle"
+            },
+            {
+              "chunk_id": "SURVEY_CS_TRANSFORMERS_s3._Rotary_Position_E_c000",
+              "section": "3. Rotary Position Embeddings (RoPE) and Relative Distances",
+              "relevant": false,
+              "text_preview": "Absolute positional encodings fail to extrapolate to token sequences longer than pre-training windows. Rotary Position E"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_004",
+          "paper_arxiv_id": "SURVEY_BIO_STRUCTURAL",
+          "question": "How does Invariant Point Attention enforce SE(3) Euclidean rotation and translation invariance in AlphaFold2?",
+          "target_section": "2. Evoformer Representations and Invariant Point Attention",
+          "split": "dev",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Evoformer Representations and Invariant Point Attention",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s2._Evoformer_Represe_c000",
+              "section": "2. Evoformer Representations and Invariant Point Attention",
+              "relevant": true,
+              "text_preview": "Modern structure prediction networks like AlphaFold2 operate on dual representations: an MSA representation and a spatia"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s3._Unsupervised_Prot_c000",
+              "section": "3. Unsupervised Protein Language Models (pLMs)",
+              "relevant": false,
+              "text_preview": "While MSA-based models require extensive homology search against sequence databases, protein language models (such as ES"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Predicting the three-dimensional atomic structure of macromolecules from linear sequences has been a foundational challe"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s4._Diffusion_Models__c000",
+              "section": "4. Diffusion Models for De Novo Macromolecular Design",
+              "relevant": false,
+              "text_preview": "Beyond predicting natural proteins, generative SE(3) diffusion models construct novel protein backbones from scratch. Co"
+            },
+            {
+              "chunk_id": "SURVEY_BIO_STRUCTURAL_s1._Evolutionary_Cova_c000",
+              "section": "1. Evolutionary Covariance and Multiple Sequence Alignments",
+              "relevant": false,
+              "text_preview": "Homologous protein sequences across evolutionary history mutate under spatial constraints. When two residues are in dire"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_005",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How does the Raft protocol decompose consensus to improve understandability over Paxos?",
+          "target_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "2. Paxos Deconstruction vs. Raft Understandability",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": true,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": false,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_006",
+          "paper_arxiv_id": "SURVEY_SYS_CONSENSUS",
+          "question": "How do distributed leaders serve linearizable reads without writing to disk logs?",
+          "target_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Linearizable Read Optimizations & Leader Leases",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s3._Linearizable_Read_c000",
+              "section": "3. Linearizable Read Optimizations & Leader Leases",
+              "relevant": true,
+              "text_preview": "Routing read queries through the consensus write log incurs heavy disk IO and round-trip latency. To serve linearizable "
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Maintaining replicated state consistency across asynchronous networks subject to node crashes and packet drops is centra"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s4._Log_Compaction_an_c000",
+              "section": "4. Log Compaction and Snapshotting",
+              "relevant": false,
+              "text_preview": "As distributed transactions accumulate indefinitely, servers cannot retain complete transaction histories in memory. Log"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s2._Paxos_Deconstruct_c000",
+              "section": "2. Paxos Deconstruction vs. Raft Understandability",
+              "relevant": false,
+              "text_preview": "Multi-Paxos decomposes consensus into asymmetric roles of Proposers, Acceptors, and Learners. Raft was developed to reso"
+            },
+            {
+              "chunk_id": "SURVEY_SYS_CONSENSUS_s1._Replicated_State__c000",
+              "section": "1. Replicated State Machine Architecture",
+              "relevant": false,
+              "text_preview": "Replicated state machines enforce consistency by ensuring that all healthy replicas execute an identical log of state ma"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        },
+        {
+          "id": "Q_RQA_SURV_007",
+          "paper_arxiv_id": "SURVEY_AI_AGENTS",
+          "question": "How do ReAct, Tree-of-Thoughts, and Reflexion differ in their reasoning and planning mechanisms?",
+          "target_section": "3. Reasoning and Planning Frameworks",
+          "split": "held_out",
+          "total_relevant_chunks": 1,
+          "top1_section": "3. Reasoning and Planning Frameworks",
+          "top5_chunks": [
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s3._Reasoning_and_Pla_c000",
+              "section": "3. Reasoning and Planning Frameworks",
+              "relevant": true,
+              "text_preview": "Pioneering planning frameworks like ReAct interleave reasoning traces with domain actions in a Thought-Action-Observatio"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_sAbstract_c000",
+              "section": "Abstract",
+              "relevant": false,
+              "text_preview": "Autonomous agents powered by Large Language Models integrate reasoning, tool calling, and long-term memory to execute mu"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s1._Cognitive_Agent_A_c000",
+              "section": "1. Cognitive Agent Architectures",
+              "relevant": false,
+              "text_preview": "Autonomous agent systems augment foundation models with three core modules: planning (decomposing goals into tasks), mem"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s2._Memory_Architectu_c000",
+              "section": "2. Memory Architectures: Short-Term vs. Vector Long-Term",
+              "relevant": false,
+              "text_preview": "Short-term memory manages in-context prompt scratchpads and conversation history bounded by the context window. Long-ter"
+            },
+            {
+              "chunk_id": "SURVEY_AI_AGENTS_s4._Tool_Use_and_Exte_c000",
+              "section": "4. Tool Use and External Environment Execution",
+              "relevant": false,
+              "text_preview": "Agents interact with computational environments by generating structured function calls (JSON schemas) executed via sand"
+            }
+          ],
+          "ndcg@4": 1.0,
+          "ndcg@10": 1.0,
+          "mrr@5": 1.0,
+          "mrr@10": 1.0,
+          "hit@1": 1,
+          "hit@3": 1,
+          "hit@5": 1,
+          "recall@4": 1.0,
+          "recall@20": 1.0,
+          "section_hit@1": 1.0
+        }
+      ]
+    }
+  ],
+  "timestamp": "20261030T040959"
+}

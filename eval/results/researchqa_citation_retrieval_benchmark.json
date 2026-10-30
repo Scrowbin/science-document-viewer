@@ -1,0 +1,94 @@
+{
+  "strategy": "hybrid_rrf",
+  "dense_model": "intfloat/e5-small-v2",
+  "num_queries": 4,
+  "num_chunks": 33,
+  "indexing_time_sec": 26.262,
+  "metrics": {
+    "paper_recall@5": 0.625,
+    "paper_recall@10": 0.875,
+    "paper_recall@20": 1.0,
+    "full_coverage@5": 0.25,
+    "full_coverage@10": 0.75,
+    "full_coverage@20": 1.0,
+    "citation_hit@5": 1.0,
+    "citation_hit@10": 1.0,
+    "citation_hit@20": 1.0,
+    "mean_ndcg@10": 0.5109,
+    "mean_mrr@10": 0.4583
+  },
+  "query_details": [
+    {
+      "id": "RQA_CS_001",
+      "target_papers": [
+        "P_ATTN_VASWANI",
+        "P_FLASH_DAO"
+      ],
+      "recall@5": 0.5,
+      "full_coverage@5": 0.0,
+      "citation_hit@5": 1.0,
+      "recall@10": 1.0,
+      "full_coverage@10": 1.0,
+      "citation_hit@10": 1.0,
+      "recall@20": 1.0,
+      "full_coverage@20": 1.0,
+      "citation_hit@20": 1.0,
+      "ndcg@10": 0.4963,
+      "mrr@10": 0.5
+    },
+    {
+      "id": "RQA_CS_002",
+      "target_papers": [
+        "P_ROPE_SU",
+        "P_ATTN_VASWANI"
+      ],
+      "recall@5": 0.5,
+      "full_coverage@5": 0.0,
+      "citation_hit@5": 1.0,
+      "recall@10": 0.5,
+      "full_coverage@10": 0.0,
+      "citation_hit@10": 1.0,
+      "recall@20": 1.0,
+      "full_coverage@20": 1.0,
+      "citation_hit@20": 1.0,
+      "ndcg@10": 0.4725,
+      "mrr@10": 0.5
+    },
+    {
+      "id": "RQA_BIO_001",
+      "target_papers": [
+        "P_ALPHAFOLD_JUMPER",
+        "P_ESM_RIVES"
+      ],
+      "recall@5": 1.0,
+      "full_coverage@5": 1.0,
+      "citation_hit@5": 1.0,
+      "recall@10": 1.0,
+      "full_coverage@10": 1.0,
+      "citation_hit@10": 1.0,
+      "recall@20": 1.0,
+      "full_coverage@20": 1.0,
+      "citation_hit@20": 1.0,
+      "ndcg@10": 0.5286,
+      "mrr@10": 0.3333
+    },
+    {
+      "id": "RQA_SYS_001",
+      "target_papers": [
+        "P_PAXOS_LAMPORT",
+        "P_RAFT_ONGARO"
+      ],
+      "recall@5": 0.5,
+      "full_coverage@5": 0.0,
+      "citation_hit@5": 1.0,
+      "recall@10": 1.0,
+      "full_coverage@10": 1.0,
+      "citation_hit@10": 1.0,
+      "recall@20": 1.0,
+      "full_coverage@20": 1.0,
+      "citation_hit@20": 1.0,
+      "ndcg@10": 0.5461,
+      "mrr@10": 0.5
+    }
+  ]
+}

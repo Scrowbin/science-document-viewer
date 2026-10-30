@@ -1,0 +1,22 @@
+{
+  "RQA_CS_001": {
+    "P_ATTN_VASWANI": 1,
+    "P_FLASH_DAO": 1,
+    "SURVEY_CS_TRANSFORMERS": 1
+  },
+  "RQA_CS_002": {
+    "P_ATTN_VASWANI": 1,
+    "P_ROPE_SU": 1,
+    "SURVEY_CS_TRANSFORMERS": 1
+  },
+  "RQA_BIO_001": {
+    "P_ALPHAFOLD_JUMPER": 1,
+    "P_ESM_RIVES": 1,
+    "SURVEY_BIO_STRUCTURAL": 1
+  },
+  "RQA_SYS_001": {
+    "P_PAXOS_LAMPORT": 1,
+    "P_RAFT_ONGARO": 1,
+    "SURVEY_SYS_CONSENSUS": 1
+  }
+}
