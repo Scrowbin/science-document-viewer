@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Annotation, ChatSource, Document, Rect } from '../../types';
-import { generateAcademicPdf } from '../../utils/pdfGenerator';
 import {
   citationRectToViewport,
   cssRectToPageRect,
@@ -130,10 +129,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const [retryToken, setRetryToken] = useState(0);
   const effectiveFile = localFileOverride || doc.file || null;
   const fileUrl = effectiveFile ? resolveFileUrl(effectiveFile) : null;
-  const source: PdfSource = fileUrl
-    ? { kind: 'url', url: fileUrl }
-    : { kind: 'data', getData: () => generateAcademicPdf(doc) };
-  const load = usePdfDocument(`${doc.id}|${fileUrl ?? 'placeholder'}`, source, retryToken);
+  const source: PdfSource | null = fileUrl ? { kind: 'url', url: fileUrl } : null;
+  const load = usePdfDocument(`${doc.id}|${fileUrl ?? 'none'}`, source, retryToken);
   const ready = load.status === 'ready' ? load : null;
   const numPages = ready?.pages.length ?? 0;
 
@@ -1077,16 +1074,17 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
             aria-label="PDF document"
             style={{ cursor: viewerCursor }}
           >
-            {!effectiveFile && (
-              <div className={styles.metadataPreviewNotice}>
-                <span className={styles.noticeBadge}>Placeholder</span>
-                <span className={styles.noticeText}>
-                  This is a generated placeholder built from the bibliographic metadata, not the original paper. Attach the
-                  research PDF to read the full text and enable vector indexing.
-                </span>
-                <button type="button" className={styles.attachPdfBtn} onClick={() => fileInputRef.current?.click()} title="Upload original PDF for this paper">
-                  <FaFolderOpen /> Attach PDF
-                </button>
+            {load.status === 'empty' && (
+              <div className={styles.viewerStatus} role="status">
+                <div className={styles.viewerStatusTitle}>No PDF attached</div>
+                <div className={styles.viewerStatusText}>
+                  This entry only has bibliographic metadata. Attach the paper's PDF to read it and use the AI assistant.
+                </div>
+                <div className={styles.viewerStatusActions}>
+                  <button type="button" className={styles.btnPrimary} onClick={() => fileInputRef.current?.click()} title="Upload the original PDF for this paper">
+                    <FaFolderOpen /> Attach PDF
+                  </button>
+                </div>
               </div>
             )}
 

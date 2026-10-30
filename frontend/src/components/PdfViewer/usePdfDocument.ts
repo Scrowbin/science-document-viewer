@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react';
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 import { pdfjsLib, PDF_DOCUMENT_OPTIONS } from './pdfAssets';
 
-/** What to load: a URL, or in-memory bytes produced lazily (e.g. the metadata placeholder). */
-export type PdfSource =
-  | { kind: 'url'; url: string }
-  | { kind: 'data'; getData: () => Uint8Array };
+/** What to load: the document's file URL (or a blob URL for a locally opened file). */
+export type PdfSource = { kind: 'url'; url: string };
 
 export interface PageSize {
   /** Width/height in points of the scale-1 viewport (rotation and UserUnit applied). */
@@ -14,6 +12,7 @@ export interface PageSize {
 }
 
 export type PdfLoadState =
+  | { status: 'empty'; key: string }
   | { status: 'loading'; key: string }
   | { status: 'error'; key: string; message: string }
   | { status: 'ready'; key: string; doc: PDFDocumentProxy; pages: PDFPageProxy[]; sizes: PageSize[] };
@@ -39,7 +38,7 @@ function describeError(err: unknown): string {
  * The loading task (and with it the document and its worker) is destroyed on key change and
  * on unmount.
  */
-export function usePdfDocument(sourceKey: string, source: PdfSource, retryToken: number): PdfLoadState {
+export function usePdfDocument(sourceKey: string, source: PdfSource | null, retryToken: number): PdfLoadState {
   const loadKey = `${sourceKey}#${retryToken}`;
   const [state, setState] = useState<PdfLoadState>({ status: 'loading', key: loadKey });
   // `source` is captured when the key changes; keeping it out of the deps is deliberate.
@@ -50,12 +49,9 @@ export function usePdfDocument(sourceKey: string, source: PdfSource, retryToken:
   const activeSource = sourceAtKey.key === loadKey ? sourceAtKey.source : source;
 
   useEffect(() => {
+    if (!activeSource) return;
     let cancelled = false;
-    const task = pdfjsLib.getDocument(
-      activeSource.kind === 'url'
-        ? { url: activeSource.url, ...PDF_DOCUMENT_OPTIONS }
-        : { data: activeSource.getData(), ...PDF_DOCUMENT_OPTIONS },
-    );
+    const task = pdfjsLib.getDocument({ url: activeSource.url, ...PDF_DOCUMENT_OPTIONS });
 
     (async () => {
       try {
@@ -83,6 +79,8 @@ export function usePdfDocument(sourceKey: string, source: PdfSource, retryToken:
     };
   }, [loadKey, activeSource]);
 
+  // No file attached: nothing to load (no generated placeholder).
+  if (!activeSource) return { status: 'empty', key: loadKey };
   // A state from a previous key is reported as loading until the new load settles.
   if (state.key !== loadKey) return { status: 'loading', key: loadKey };
   return state;
