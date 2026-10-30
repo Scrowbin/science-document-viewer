@@ -37,6 +37,28 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
+/** Fired on an unrecoverable 401; AuthProvider listens and returns the app to the login page. */
+export const AUTH_EXPIRED_EVENT = 'scidocs:auth-expired';
+
+const AUTH_KEYS = ['scidocs_auth_token', 'scidocs_refresh_token', 'scidocs_auth_user'];
+
+export function clearStoredAuth(): void {
+  for (const key of AUTH_KEYS) {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  }
+  delete apiClient.defaults.headers.common.Authorization;
+}
+
+function isAuthEndpoint(url?: string): boolean {
+  return !!url && /\/auth\/(token|token\/refresh|register|logout)\/?$/.test(url);
+}
+
+function sessionExpired(): void {
+  clearStoredAuth();
+  window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+}
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;
@@ -63,10 +85,13 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
 
+      // Wrong credentials on login/register are reported by the caller, not treated as an expired session
+      if (isAuthEndpoint(originalRequest.url) && !originalRequest.url?.endsWith('/auth/token/refresh/')) {
+        return Promise.reject(error);
+      }
       if (!refreshToken || refreshToken.startsWith('jwt-') || originalRequest.url?.endsWith('/auth/token/refresh/')) {
-        // Clear dead or mock token so subsequent requests aren't permanently poisoned with 401
-        localStorage.removeItem('scidocs_auth_token');
-        sessionStorage.removeItem('scidocs_auth_token');
+        // No way to renew the session: clear it and send the user back to the login page
+        sessionExpired();
         return Promise.reject(error);
       }
 
@@ -92,7 +117,7 @@ apiClient.interceptors.response.use(
         });
 
         const newAccessToken = response.data.access;
-        if (localStorage.getItem('scidocs_auth_token')) {
+        if (localStorage.getItem('scidocs_refresh_token')) {
           localStorage.setItem('scidocs_auth_token', newAccessToken);
           if (response.data.refresh) {
             localStorage.setItem('scidocs_refresh_token', response.data.refresh);
@@ -113,12 +138,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
-        localStorage.removeItem('scidocs_auth_token');
-        localStorage.removeItem('scidocs_refresh_token');
-        localStorage.removeItem('scidocs_auth_user');
-        sessionStorage.removeItem('scidocs_auth_token');
-        sessionStorage.removeItem('scidocs_refresh_token');
-        sessionStorage.removeItem('scidocs_auth_user');
+        sessionExpired();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

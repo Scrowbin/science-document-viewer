@@ -249,46 +249,6 @@
   cursor: not-allowed;
 }
 
-/* Quick Demo Login Pill */
-.demoSection {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px dashed var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.demoLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.demoButton {
-  height: 34px;
-  background-color: var(--chip-bg);
-  border: 1px solid var(--chip-border);
-  border-radius: 6px;
-  color: var(--chip-text);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.demoButton:hover {
-  background-color: var(--bg-hover);
-  border-color: var(--border-focus);
-  color: var(--text-primary);
-}
-
 /* Footer Switch */
 .footerText {
   margin-top: 24px;

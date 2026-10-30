@@ -10,7 +10,6 @@ import {
   FaEyeSlash,
   FaArrowRight,
   FaCircleExclamation,
-  FaFlask,
   FaArrowLeft,
   FaGoogle,
 } from 'react-icons/fa6';
@@ -59,19 +58,6 @@ export function LoginPage() {
       rememberMe,
     });
 
-    if (success) {
-      navigate('/');
-    }
-  };
-
-  const handleQuickDemo = async () => {
-    setEmail('sarah.jenkins@stanford.edu');
-    setPassword('Password123!');
-    const success = await login({
-      email: 'sarah.jenkins@stanford.edu',
-      password: 'Password123!',
-      rememberMe: true,
-    });
     if (success) {
       navigate('/');
     }
@@ -216,19 +202,6 @@ export function LoginPage() {
             title="OAuth2 (Google/Institutional SSO) will be implemented in a later milestone"
           >
             <FaGoogle /> Continue with Google (OAuth2 &mdash; implement later)
-          </button>
-        </div>
-
-        {/* Demo Fast-Track Account for instant evaluator testing */}
-        <div className={styles.demoSection}>
-          <span className={styles.demoLabel}>Or try with demo account</span>
-          <button
-            type="button"
-            className={styles.demoButton}
-            onClick={handleQuickDemo}
-            disabled={isLoading}
-          >
-            <FaFlask /> 1-Click Demo Login (Dr. Sarah Jenkins)
           </button>
         </div>
 
