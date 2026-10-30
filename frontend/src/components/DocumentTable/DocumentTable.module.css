@@ -352,3 +352,31 @@
 .statusDotRed {
   background-color: var(--status-danger);
 }
+
+/* Multi-select checkbox column */
+.checkboxCell {
+  width: 32px;
+  min-width: 32px;
+  max-width: 32px;
+  padding-left: 12px;
+  padding-right: 4px;
+  text-align: center;
+}
+
+.rowCheckbox {
+  margin: 0;
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: var(--accent-blue);
+  vertical-align: middle;
+}
+
+.contextMenuHeader {
+  padding: 6px 14px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

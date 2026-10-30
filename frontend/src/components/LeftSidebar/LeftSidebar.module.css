@@ -394,3 +394,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* "Show items from subcollections" toggle in the Collections header */
+.subcollectionToggle {
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+.toggleBtnActive {
+  background-color: var(--accent-blue-subtle);
+  color: var(--accent-blue);
+}

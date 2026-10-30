@@ -1,14 +1,16 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
-import type { Document, AppTab, Collection, SortKey, SortState } from '../../types';
+import type { Document, AppTab, SortKey, SortState } from '../../types';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useAuth } from '../../hooks/useAuth';
 import { useDocuments } from '../../hooks/useDocuments';
 import { useDoiModal } from '../../hooks/useDoiModal';
 import { useCollections } from '../../hooks/useCollections';
 import { useRagStatusPolling } from '../../hooks/useRagStatusPolling';
+import { useDocumentSelection } from '../../hooks/useDocumentSelection';
 import { sortDocuments, filterDocuments } from '../../utils/documentFilters';
+import { collectionScope, withDocumentCounts } from '../../utils/collections';
 import { yearFromIsoDate } from '../../utils/format';
 import { ChatSessionProvider } from '../../context/ChatSessionContext';
 
@@ -22,6 +24,7 @@ import { DoiModal } from '../../components/DoiModal/DoiModal';
 import { UploadModal } from '../../components/UploadModal/UploadModal';
 import { ChunkInspectorModal } from '../../components/ChunkInspectorModal/ChunkInspectorModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
+import { BulkActions, type BulkActionHandlers } from '../../components/BulkActions/BulkActions';
 import { FaCheck, FaCircleExclamation } from 'react-icons/fa6';
 
 const LIBRARY_TAB: AppTab = { id: 'tab-library', title: 'Library', type: 'library', closable: false };
@@ -40,12 +43,14 @@ function buildCitation(doc: Document): string {
   return parts.join(' ');
 }
 
-function withLiveCounts(cols: Collection[], countById: Map<string, number>): Collection[] {
-  return cols.map((col) => ({
-    ...col,
-    count: countById.get(col.id) ?? 0,
-    children: col.children ? withLiveCounts(col.children, countById) : col.children,
-  }));
+const INCLUDE_SUBCOLLECTIONS_KEY = 'library.includeSubcollections';
+
+function readIncludeSubcollections(): boolean {
+  try {
+    return window.localStorage.getItem(INCLUDE_SUBCOLLECTIONS_KEY) === '1';
+  } catch {
+    return false;
+  }
 }
 
 export function HomePage() {
@@ -83,6 +88,7 @@ export function HomePage() {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleBulkAction,
     handleFileUpload,
     uploadModalFile,
     isExtractingUpload,
@@ -110,7 +116,6 @@ export function HomePage() {
   const { collections, createCollection, refetch: refetchCollections } = useCollections();
 
   // ─── UI State ─────────────────────────────────────────────────────────────
-  const [selectedDocId, setSelectedDocId] = useState<string>('');
   const [inspectingDoc, setInspectingDoc] = useState<Document | null>(null);
   /** Id of the document whose metadata is being edited (null = not editing). */
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
@@ -120,6 +125,16 @@ export function HomePage() {
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  /** Zotero's "Show Items from Subcollections" (off by default: only direct members). */
+  const [includeSubcollections, setIncludeSubcollections] = useState<boolean>(readIncludeSubcollections);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(INCLUDE_SUBCOLLECTIONS_KEY, includeSubcollections ? '1' : '0');
+    } catch {
+      // storage unavailable (private mode): the setting just does not persist
+    }
+  }, [includeSubcollections]);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -182,14 +197,17 @@ export function HomePage() {
     };
   }, [documents]);
 
-  // Collections with live document counts, matched by collection id.
-  const collectionsWithCounts = useMemo(() => {
-    const countById = new Map<string, number>();
-    documents.forEach((d) => {
-      if (!d.inTrash && d.collectionId) countById.set(d.collectionId, (countById.get(d.collectionId) ?? 0) + 1);
-    });
-    return withLiveCounts(collections, countById);
-  }, [documents, collections]);
+  // Collections with live document counts, matched by collection id, using the same
+  // membership rule as the document list (direct only, or including subcollections).
+  const collectionsWithCounts = useMemo(
+    () => withDocumentCounts(collections, documents, includeSubcollections),
+    [documents, collections, includeSubcollections]
+  );
+
+  const selectedCollectionScope = useMemo(
+    () => collectionScope(collections, selectedCollectionId, includeSubcollections),
+    [collections, selectedCollectionId, includeSubcollections]
+  );
 
   const availableTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -200,18 +218,37 @@ export function HomePage() {
   }, [documents]);
 
   const processedDocuments = useMemo(() => {
-    const filtered = filterDocuments(documents, searchQuery, activeNavId, selectedCollectionId, selectedTag);
+    const filtered = filterDocuments(documents, searchQuery, activeNavId, selectedCollectionScope, selectedTag);
     return sortDocuments(filtered, sortState.key, sortState.direction);
-  }, [documents, searchQuery, activeNavId, selectedCollectionId, selectedTag, sortState]);
+  }, [documents, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sortState]);
 
+  // ─── Selection (single + multi) ───────────────────────────────────────────
   // Only an explicit user selection counts; there is no "first row" fallback.
+  const visibleIds = useMemo(() => processedDocuments.map((d) => d.id), [processedDocuments]);
+  const {
+    selectedIds,
+    visibleSelectedIds,
+    visibleSelectedSet,
+    selectRow,
+    selectOnly,
+    toggleRow,
+    selectAllVisible,
+    clearSelection,
+  } = useDocumentSelection(visibleIds);
+
+  /** The single selected document (any visibility), used by the generic PDF tab. */
   const selectedDoc = useMemo(
-    () => (selectedDocId ? documents.find((d) => d.id === selectedDocId) ?? null : null),
-    [documents, selectedDocId]
+    () => (selectedIds.length === 1 ? documents.find((d) => d.id === selectedIds[0]) ?? null : null),
+    [documents, selectedIds]
   );
-  const isSelectedDocVisible = useMemo(
-    () => Boolean(selectedDoc && processedDocuments.some((d) => d.id === selectedDoc.id)),
-    [processedDocuments, selectedDoc]
+  /** The single selected document among the visible rows (drives the metadata panel). */
+  const visibleSoleDoc = useMemo(
+    () => (visibleSelectedIds.length === 1 ? documents.find((d) => d.id === visibleSelectedIds[0]) ?? null : null),
+    [documents, visibleSelectedIds]
+  );
+  const visibleSelectedDocs = useMemo(
+    () => processedDocuments.filter((d) => visibleSelectedSet.has(d.id)),
+    [processedDocuments, visibleSelectedSet]
   );
 
   const activeTab = useMemo(() => tabs.find((t) => t.id === activeTabId) ?? tabs[0], [tabs, activeTabId]);
@@ -225,7 +262,9 @@ export function HomePage() {
   }, [activeTab, selectedDoc, documents]);
 
   /** Document shown in the metadata panel. */
-  const panelDoc = isLibraryView ? (isSelectedDocVisible ? selectedDoc : null) : activePdfDoc;
+  const panelDoc = isLibraryView ? visibleSoleDoc : activePdfDoc;
+  const isMultiSelection = isLibraryView && visibleSelectedIds.length > 1;
+  const isTrashView = activeNavId === 'trash';
 
   // ─── Live rag_status polling for visible documents ────────────────────────
   const visibleDocuments = useMemo(() => {
@@ -249,9 +288,9 @@ export function HomePage() {
   const activateTab = useCallback((tab: AppTab) => {
     setActiveTabId(tab.id);
     if (tab.type === 'pdf' && tab.documentId) {
-      setSelectedDocId(tab.documentId);
+      selectOnly(tab.documentId);
     }
-  }, []);
+  }, [selectOnly]);
 
   const handleSelectTab = useCallback((id: string) => {
     const targetTab = tabs.find((t) => t.id === id);
@@ -286,14 +325,14 @@ export function HomePage() {
 
   // ─── Document Handlers ────────────────────────────────────────────────────
   const handleOpenPdf = useCallback((doc: Document) => {
-    setSelectedDocId(doc.id);
+    selectOnly(doc.id);
     const tabId = `pdf-${doc.id}`;
     setTabs((prev) => {
       if (prev.some((t) => t.id === tabId)) return prev;
       return [...prev, { id: tabId, title: doc.metadata.shortTitle || doc.title, type: 'pdf', documentId: doc.id, closable: true }];
     });
     setActiveTabId(tabId);
-  }, []);
+  }, [selectOnly]);
 
   const handleCopyCitation = useCallback((doc: Document) => {
     const citation = buildCitation(doc);
@@ -313,19 +352,77 @@ export function HomePage() {
       const ok = window.confirm(`Permanently delete "${doc.title}"? This removes the PDF and its AI index and cannot be undone.`);
       if (!ok) return;
     }
-    if (selectedDocId === doc.id) setSelectedDocId('');
+    if (selectedIds.includes(doc.id)) clearSelection();
     if (doc.inTrash) {
       // Close any open viewer tab for a document that is about to disappear.
       const tabId = `pdf-${doc.id}`;
       if (tabs.some((t) => t.id === tabId)) handleCloseTab(tabId);
     }
     await handleDeleteDocument(doc);
-  }, [selectedDocId, tabs, handleCloseTab, handleDeleteDocument]);
+  }, [selectedIds, clearSelection, tabs, handleCloseTab, handleDeleteDocument]);
 
+  /** Close viewer tabs of documents that are about to be deleted permanently. */
+  const closeTabsForDocuments = useCallback((ids: string[]) => {
+    const gone = new Set(ids);
+    const remaining = tabs.filter((t) => !(t.documentId && gone.has(t.documentId)));
+    if (remaining.length === tabs.length) return;
+    const nextTabs = remaining.length === 0 ? [LIBRARY_TAB] : remaining;
+    setTabs(nextTabs);
+    if (!nextTabs.some((t) => t.id === activeTabId)) setActiveTabId(LIBRARY_TAB.id);
+  }, [tabs, activeTabId]);
+
+  // ─── Bulk actions on the visible multi-selection ──────────────────────────
+  const bulkActionHandlers = useMemo<BulkActionHandlers>(() => {
+    const ids = visibleSelectedIds;
+    const count = ids.length;
+    return {
+      onMove: (collectionId, collectionName) => {
+        void handleBulkAction('move', ids, { collectionId, collectionName });
+      },
+      onRemoveFromCollection: () => {
+        const filed = visibleSelectedDocs.filter((d) => d.collectionId).map((d) => d.id);
+        if (filed.length === 0) {
+          showToast('None of the selected documents is in a collection');
+          return;
+        }
+        void handleBulkAction('remove_from_collection', filed);
+      },
+      onAddTag: () => {
+        const tag = window.prompt(`Enter a tag to add to ${count} documents:`);
+        if (tag && tag.trim()) void handleBulkAction('add_tag', ids, { tag: tag.trim() });
+      },
+      onTrash: () => {
+        void handleBulkAction('trash', ids);
+      },
+      onRestore: () => {
+        void handleBulkAction('restore', ids);
+      },
+      onDeletePermanently: () => {
+        const ok = window.confirm(
+          `Permanently delete ${count} document${count === 1 ? '' : 's'}? This removes their PDFs and AI indexes and cannot be undone.`
+        );
+        if (!ok) return;
+        closeTabsForDocuments(ids);
+        void handleBulkAction('delete', ids);
+      },
+      onClearSelection: clearSelection,
+    };
+  }, [visibleSelectedIds, visibleSelectedDocs, handleBulkAction, showToast, closeTabsForDocuments, clearSelection]);
+
+  /** Delete/Backspace: one document keeps the single-item rules; several ask first. */
   const handleDeleteSelectedDocument = useCallback(() => {
-    if (!selectedDoc || !isSelectedDocVisible) return;
-    void requestDeleteDocument(selectedDoc);
-  }, [selectedDoc, isSelectedDocVisible, requestDeleteDocument]);
+    if (visibleSelectedIds.length === 0) return;
+    if (visibleSelectedIds.length === 1) {
+      if (visibleSoleDoc) void requestDeleteDocument(visibleSoleDoc);
+      return;
+    }
+    if (isTrashView) {
+      bulkActionHandlers.onDeletePermanently();
+      return;
+    }
+    const count = visibleSelectedIds.length;
+    if (window.confirm(`Move ${count} documents to Trash?`)) bulkActionHandlers.onTrash();
+  }, [visibleSelectedIds, visibleSoleDoc, isTrashView, requestDeleteDocument, bulkActionHandlers]);
 
   const handleAddFromOption = useCallback((type: 'DOI' | 'Upload PDF') => {
     if (type === 'Upload PDF') { fileInputRef.current?.click(); return; }
@@ -357,7 +454,7 @@ export function HomePage() {
     onCreateNewDocument: () => fileInputRef.current?.click(),
     onDeleteSelectedDocument: handleDeleteSelectedDocument,
     isLibraryViewActive: isLibraryView,
-    hasExplicitSelection: Boolean(selectedDoc && isSelectedDocVisible),
+    hasExplicitSelection: visibleSelectedIds.length > 0,
   });
 
   // ─── Collection Handlers ──────────────────────────────────────────────────
@@ -382,15 +479,23 @@ export function HomePage() {
     [handleSetDocumentCollection]
   );
 
+  const handleDropDocsOnCollection = useCallback(
+    (docIds: string[], colId: string, colName: string) => {
+      if (docIds.length === 1) void handleSetDocumentCollection(docIds[0], colId, colName);
+      else void handleBulkAction('move', docIds, { collectionId: colId, collectionName: colName });
+    },
+    [handleSetDocumentCollection, handleBulkAction]
+  );
+
   const handleAddTagPrompt = useCallback(
     (doc: Document) => {
-      setSelectedDocId(doc.id);
+      selectOnly(doc.id);
       const tagName = window.prompt(`Enter a new tag for "${doc.title}":`);
       if (tagName && tagName.trim()) {
         void handleAddTagToDocument(doc.id, tagName.trim());
       }
     },
-    [handleAddTagToDocument]
+    [handleAddTagToDocument, selectOnly]
   );
 
   const handlePickFile = useCallback((file: File | undefined) => {
@@ -459,6 +564,7 @@ export function HomePage() {
             onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
             activeNavId={activeNavId}
             onSelectNav={(id) => {
+              if (id !== activeNavId) clearSelection();
               setActiveNavId(id);
               setSelectedCollectionId(null);
               setSelectedTag(null);
@@ -467,16 +573,20 @@ export function HomePage() {
             collections={collectionsWithCounts}
             selectedCollectionId={selectedCollectionId}
             onSelectCollection={(colId) => {
+              if (colId !== selectedCollectionId) clearSelection();
               setSelectedCollectionId(colId);
               setSelectedTag(null);
               setActiveNavId(colId ? null : 'all');
               setActiveTabId(LIBRARY_TAB.id);
             }}
             onCreateCollection={handleCreateCollection}
-            onDropDocOnCollection={handleAddToCollection}
+            onDropDocsOnCollection={handleDropDocsOnCollection}
+            includeSubcollections={includeSubcollections}
+            onToggleIncludeSubcollections={() => setIncludeSubcollections((v) => !v)}
             tags={availableTags}
             selectedTag={selectedTag}
             onSelectTag={(tag) => {
+              if (tag !== selectedTag) clearSelection();
               setSelectedTag(tag);
               setSelectedCollectionId(null);
               setActiveNavId(tag ? null : 'all');
@@ -484,9 +594,9 @@ export function HomePage() {
             }}
             navItemCounts={navItemCounts}
             documents={documents}
-            selectedDocId={selectedDoc?.id ?? null}
+            selectedDocId={visibleSoleDoc?.id ?? null}
             onSelectDoc={(id) => {
-              setSelectedDocId(id);
+              selectOnly(id);
               setActiveTabId(LIBRARY_TAB.id);
             }}
           />
@@ -500,19 +610,33 @@ export function HomePage() {
                   onSearchChange={setSearchQuery}
                   onAddFromOption={handleAddFromOption}
                 />
+                {isMultiSelection && (
+                  <BulkActions
+                    variant="bar"
+                    count={visibleSelectedIds.length}
+                    isTrashView={isTrashView}
+                    anyInCollection={visibleSelectedDocs.some((d) => Boolean(d.collectionId))}
+                    collections={collections}
+                    handlers={bulkActionHandlers}
+                  />
+                )}
                 <DocumentTable
                   documents={processedDocuments}
-                  selectedDocId={isSelectedDocVisible ? selectedDocId : null}
-                  onSelectDoc={setSelectedDocId}
+                  selectedIds={visibleSelectedSet}
+                  onRowSelect={selectRow}
+                  onToggleRow={toggleRow}
+                  onSelectAllVisible={selectAllVisible}
+                  onClearSelection={clearSelection}
+                  bulkActions={bulkActionHandlers}
                   onOpenPdf={handleOpenPdf}
                   onRestoreDoc={(id) => void handleRestoreDocument(id)}
                   onEditDoc={(doc) => {
-                    setSelectedDocId(doc.id);
+                    selectOnly(doc.id);
                     setEditingDocId(doc.id);
                   }}
                   onDuplicateDoc={(doc) => {
                     void handleDuplicateDocument(doc).then((cloned) => {
-                      if (cloned) setSelectedDocId(cloned.id);
+                      if (cloned) selectOnly(cloned.id);
                     });
                   }}
                   onToggleReadStatus={(doc) => void handleToggleReadStatus(doc)}
@@ -522,7 +646,7 @@ export function HomePage() {
                   onAddToCollection={handleAddToCollection}
                   onAddTag={handleAddTagPrompt}
                   onInspectChunks={setInspectingDoc}
-                  isTrashView={activeNavId === 'trash'}
+                  isTrashView={isTrashView}
                   isLoading={isLoadingDocs && documents.length === 0}
                   sortState={sortState}
                   onToggleSort={handleToggleSort}
@@ -547,6 +671,19 @@ export function HomePage() {
             onInspectChunks={setInspectingDoc}
             collapsed={rightSidebarCollapsed}
             onToggleCollapse={() => setRightSidebarCollapsed((prev) => !prev)}
+            selectionSummary={
+              isMultiSelection ? (
+                <BulkActions
+                  variant="panel"
+                  count={visibleSelectedIds.length}
+                  isTrashView={isTrashView}
+                  anyInCollection={visibleSelectedDocs.some((d) => Boolean(d.collectionId))}
+                  collections={collections}
+                  handlers={bulkActionHandlers}
+                  titles={visibleSelectedDocs.map((d) => d.title)}
+                />
+              ) : undefined
+            }
           />
         </div>
 
@@ -575,7 +712,7 @@ export function HomePage() {
           onSave={() =>
             void handleSaveDoiDocument((doc) => {
               setDocuments((prev) => [doc, ...prev]);
-              setSelectedDocId(doc.id);
+              selectOnly(doc.id);
             })
           }
           onClose={closeDoiModal}

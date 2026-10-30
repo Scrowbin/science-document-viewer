@@ -40,6 +40,8 @@ export interface MetadataPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   onInspectChunks?: (doc: Document) => void;
+  /** Shown instead of "No document selected" when several documents are selected. */
+  selectionSummary?: React.ReactNode;
 }
 
 /**
@@ -56,6 +58,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   collapsed = false,
   onToggleCollapse,
   onInspectChunks,
+  selectionSummary,
 }) => {
   const [syncedFrom, setSyncedFrom] = useState<{ doc: Document | null; editing: boolean }>({
     doc: document,
@@ -184,7 +187,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
             </button>
           )}
         </div>
-        <div className={styles.emptyState}>No document selected.</div>
+        {selectionSummary ?? <div className={styles.emptyState}>No document selected.</div>}
       </aside>
     );
   }

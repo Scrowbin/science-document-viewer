@@ -16,6 +16,8 @@ function isEditableOrInteractive(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
   const tag = target.tagName;
+  // Row-selection checkboxes in the document table do not consume Delete/Backspace.
+  if (tag === 'INPUT' && (target as HTMLInputElement).type === 'checkbox') return false;
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON';
 }
 

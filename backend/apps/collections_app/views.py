@@ -5,6 +5,15 @@ from django.db.models import Q, Count
 from .models import Collection, CollectionShare
 from .serializers import CollectionSerializer, CollectionTreeSerializer, CollectionShareSerializer
 
+# Documents filed directly in a collection, excluding Trash. `distinct=True` matters: the
+# owner-or-shared filter joins collection_shares, which would otherwise multiply the count
+# by the number of shares on the collection.
+LIVE_DOCUMENT_COUNT = Count(
+    'primary_documents',
+    filter=Q(primary_documents__in_trash=False),
+    distinct=True,
+)
+
 class CollectionViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CollectionSerializer
@@ -14,7 +23,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         # Return collections owned by user or shared with user, annotated with document count
         return Collection.objects.filter(
             Q(owner=user) | Q(shares__shared_with_user=user)
-        ).distinct().annotate(doc_count=Count('primary_documents'))
+        ).distinct().annotate(doc_count=LIVE_DOCUMENT_COUNT)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -29,7 +38,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         user = request.user
         collections = Collection.objects.filter(
             Q(owner=user) | Q(shares__shared_with_user=user)
-        ).distinct().annotate(doc_count=Count('primary_documents'))
+        ).distinct().annotate(doc_count=LIVE_DOCUMENT_COUNT)
 
         nodes = {}
         for c in collections:

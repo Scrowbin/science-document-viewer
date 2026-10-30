@@ -20,6 +20,7 @@ from .models import (
     DocumentShare,
     RelatedDocument,
 )
+from ..collections_app.models import Collection
 from .serializers import (
     DocumentListSerializer,
     DocumentDetailSerializer,
@@ -30,7 +31,7 @@ from .serializers import (
     NoteSerializer,
     DocumentShareSerializer,
 )
-from .permissions import IsOwnerOrCollaborator, has_document_permission
+from .permissions import IsOwnerOrCollaborator, can_file_into_collection, has_document_permission
 from .services.crossref_service import fetch_metadata_from_doi
 from .services.webhook_service import trigger_rag_ingestion
 from .services.pdf_metadata_service import (
@@ -56,6 +57,17 @@ CHUNK_INSPECT_STRATEGIES = ("section", "section_token", "section_overlap", "hier
 HIERARCHICAL_CHILD_TOKENS = 200
 HIERARCHICAL_CHILD_OVERLAP = 40
 
+# Bulk action -> minimum permission, mirroring the single-document actions in permissions.py.
+BULK_ACTIONS = {
+    "move": "EDIT",
+    "remove_from_collection": "EDIT",
+    "add_tag": "EDIT",
+    "trash": "OWNER",
+    "restore": "OWNER",
+    "delete": "OWNER",
+}
+BULK_MAX_IDS = 500
+
 
 def _schedule_ingestion(doc):
     """Marks a document PENDING and hands it to the background ingestion queue."""
@@ -78,6 +90,45 @@ def _indexing_conflict_response():
         {"code": "indexing", "detail": "Document is still being indexed."},
         status=status.HTTP_409_CONFLICT,
     )
+
+
+def _delete_document_permanently(instance):
+    """
+    Permanent delete implementation matching thesis specification:
+      1. Deletes that document's points in Qdrant (child vectors in doc_{id} and companion doc_{id}_parents)
+      2. Evicts cached in-memory _rag_instances[doc_id]
+      3. Deletes physical file in media/documents/ (unless another document still references it)
+      4. Deletes PostgreSQL row (CASCADE to all relational tables)
+    Shared by DELETE /documents/{id}/ and the bulk "delete" action.
+    """
+    doc_id = instance.id
+    file_path = instance.file.path if instance.file else None
+
+    # 1. Delete Qdrant vectors and companion parent collection
+    try:
+        delete_document_qdrant_data(doc_id)
+    except Exception as e:
+        logger.warning("Failed to delete Qdrant points for doc %s: %s", doc_id, e)
+
+    # 2. Evict in-memory RAG instance
+    try:
+        evict_rag_instance(doc_id)
+    except Exception as e:
+        logger.warning("Failed to evict RAG instance for doc %s: %s", doc_id, e)
+
+    # 3. Delete physical file in media/documents/, unless another document still
+    #    references it (duplicates created before files were copied share one file)
+    still_referenced = bool(instance.file) and Document.objects.filter(
+        file=instance.file.name
+    ).exclude(id=doc_id).exists()
+    if file_path and not still_referenced and os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logger.warning("Failed to remove physical file %s: %s", file_path, e)
+
+    # 4. Delete PostgreSQL row (CASCADE)
+    instance.delete()
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -183,41 +234,109 @@ class DocumentViewSet(viewsets.ModelViewSet):
             _schedule_ingestion(doc)
 
     def perform_destroy(self, instance):
+        _delete_document_permanently(instance)
+
+    @action(detail=False, methods=["post"], url_path="bulk")
+    def bulk(self, request):
         """
-        Permanent delete implementation matching thesis specification:
-          1. Deletes physical file in media/documents/
-          2. Deletes that document's points in Qdrant (child vectors in doc_{id} and companion doc_{id}_parents)
-          3. Evicts cached in-memory _rag_instances[doc_id]
-          4. Deletes PostgreSQL row (CASCADE to all relational tables)
+        Apply one action to many documents in a single request.
+
+        Body: {"action": "move" | "remove_from_collection" | "trash" | "restore" | "delete" | "add_tag",
+               "ids": [int, ...], "collection_id": int (move), "tag": str (add_tag)}
+        Response 200: {"action", "succeeded": [id, ...], "failed": [{"id", "reason", "detail"}, ...]}
+        Permissions follow the single-document actions: move / remove / add_tag need EDIT
+        (like PATCH), trash / restore / delete are owner-only (like toggle-trash and DELETE).
         """
-        doc_id = instance.id
-        file_path = instance.file.path if instance.file else None
+        data = request.data if isinstance(request.data, dict) else {}
+        action_name = data.get("action")
+        if action_name not in BULK_ACTIONS:
+            return Response(
+                {"detail": f"action must be one of: {', '.join(sorted(BULK_ACTIONS))}."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        # 1. Delete Qdrant vectors and companion parent collection
+        raw_ids = data.get("ids")
+        if not isinstance(raw_ids, list) or not raw_ids:
+            return Response({"detail": "ids must be a non-empty list."}, status=status.HTTP_400_BAD_REQUEST)
+        if len(raw_ids) > BULK_MAX_IDS:
+            return Response(
+                {"detail": f"At most {BULK_MAX_IDS} documents per request."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
-            delete_document_qdrant_data(doc_id)
-        except Exception as e:
-            logger.warning("Failed to delete Qdrant points for doc %s: %s", doc_id, e)
+            ids = list(dict.fromkeys(int(i) for i in raw_ids))
+        except (TypeError, ValueError):
+            return Response({"detail": "ids must be integers."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. Evict in-memory RAG instance
-        try:
-            evict_rag_instance(doc_id)
-        except Exception as e:
-            logger.warning("Failed to evict RAG instance for doc %s: %s", doc_id, e)
-
-        # 3. Delete physical file in media/documents/, unless another document still
-        #    references it (duplicates created before files were copied share one file)
-        still_referenced = bool(instance.file) and Document.objects.filter(
-            file=instance.file.name
-        ).exclude(id=doc_id).exists()
-        if file_path and not still_referenced and os.path.exists(file_path):
+        collection = None
+        if action_name == "move":
             try:
-                os.remove(file_path)
-            except Exception as e:
-                logger.warning("Failed to remove physical file %s: %s", file_path, e)
+                collection = Collection.objects.get(id=int(data.get("collection_id")))
+            except (TypeError, ValueError, Collection.DoesNotExist):
+                return Response(
+                    {"detail": "collection_id is not a valid collection."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not can_file_into_collection(request.user, collection):
+                return Response(
+                    {"detail": "You cannot add documents to this collection."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
-        # 4. Delete PostgreSQL row (CASCADE)
-        super().perform_destroy(instance)
+        tag = None
+        if action_name == "add_tag":
+            tag_name = data.get("tag")
+            tag_name = tag_name.strip() if isinstance(tag_name, str) else ""
+            if not tag_name or len(tag_name) > 100:
+                return Response({"detail": "tag must be 1-100 characters."}, status=status.HTTP_400_BAD_REQUEST)
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+
+        user = request.user
+        visible = {
+            d.id: d
+            for d in Document.objects.filter(
+                Q(owner=user)
+                | Q(shares__shared_with_user=user)
+                | Q(primary_collection__shares__shared_with_user=user),
+                id__in=ids,
+            ).distinct().select_related("primary_collection")
+        }
+        required = BULK_ACTIONS[action_name]
+
+        succeeded, failed = [], []
+        for doc_id in ids:
+            doc = visible.get(doc_id)
+            if doc is None:
+                failed.append({"id": doc_id, "reason": "not_found", "detail": "Document not found."})
+                continue
+            if not has_document_permission(user, doc, required):
+                failed.append({"id": doc_id, "reason": "permission_denied", "detail": "Permission denied."})
+                continue
+            try:
+                if action_name == "move":
+                    if doc.primary_collection_id != collection.id:
+                        doc.primary_collection = collection
+                        doc.save(update_fields=["primary_collection", "date_modified"])
+                elif action_name == "remove_from_collection":
+                    if doc.primary_collection_id is not None:
+                        doc.primary_collection = None
+                        doc.save(update_fields=["primary_collection", "date_modified"])
+                elif action_name in ("trash", "restore"):
+                    target = action_name == "trash"
+                    if doc.in_trash != target:
+                        doc.in_trash = target
+                        doc.save(update_fields=["in_trash"])
+                elif action_name == "add_tag":
+                    doc.tags.add(tag)
+                elif action_name == "delete":
+                    _delete_document_permanently(doc)
+            except Exception as e:  # one bad document must not abort the rest of the batch
+                logger.warning("Bulk %s failed for doc %s: %s", action_name, doc_id, e)
+                failed.append({"id": doc_id, "reason": "error", "detail": "The action failed on the server."})
+                continue
+            succeeded.append(doc_id)
+
+        return Response({"action": action_name, "succeeded": succeeded, "failed": failed})
 
     @action(detail=True, methods=["post"], url_path="toggle-trash")
     def toggle_trash(self, request, pk=None):

@@ -475,3 +475,130 @@ class ReindexCommandTests(TestCase):
             service.index_chunks.assert_not_called()
             doc.refresh_from_db()
             self.assertEqual(doc.rag_status, "INDEXED")
+
+
+class BulkDocumentActionTests(_MediaTestCase):
+    """POST /api/v1/documents/bulk/ applies one action to many documents with per-document checks."""
+
+    URL = "/api/v1/documents/bulk/"
+
+    def setUp(self):
+        super().setUp()
+        from ..collections_app.models import Collection, CollectionShare
+        self.Collection = Collection
+        self.CollectionShare = CollectionShare
+        self.other = User.objects.create_user(username="bulk_other", email="x@univ.edu", password="pw123456")
+        self.parent = Collection.objects.create(owner=self.owner, name="Parent")
+        self.child = Collection.objects.create(owner=self.owner, name="Child", parent=self.parent)
+        self.mine = [Document.objects.create(owner=self.owner, title=f"Mine {i}") for i in range(3)]
+        self.foreign = Document.objects.create(owner=self.other, title="Not shared")
+        self.shared_edit = Document.objects.create(owner=self.other, title="Shared EDIT")
+        DocumentShare.objects.create(document=self.shared_edit, shared_with_user=self.owner, permission="EDIT")
+        self.shared_view = Document.objects.create(owner=self.other, title="Shared VIEW")
+        DocumentShare.objects.create(document=self.shared_view, shared_with_user=self.owner, permission="VIEW")
+
+    def _bulk(self, payload):
+        return self.client.post(self.URL, payload, format="json")
+
+    def _failed_reasons(self, resp):
+        return {f["id"]: f["reason"] for f in resp.data["failed"]}
+
+    def test_move_into_nested_collection_with_partial_failures(self):
+        ids = [d.id for d in self.mine] + [self.foreign.id, self.shared_edit.id, self.shared_view.id]
+        resp = self._bulk({"action": "move", "ids": ids, "collection_id": self.child.id})
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted([d.id for d in self.mine] + [self.shared_edit.id]))
+        self.assertEqual(
+            self._failed_reasons(resp),
+            {self.foreign.id: "not_found", self.shared_view.id: "permission_denied"},
+        )
+        for d in self.mine:
+            d.refresh_from_db()
+            self.assertEqual(d.primary_collection_id, self.child.id)
+        self.shared_view.refresh_from_db()
+        self.assertIsNone(self.shared_view.primary_collection_id)
+
+    def test_move_into_someone_elses_collection_is_forbidden(self):
+        theirs = self.Collection.objects.create(owner=self.other, name="Theirs")
+        resp = self._bulk({"action": "move", "ids": [self.mine[0].id], "collection_id": theirs.id})
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.mine[0].refresh_from_db()
+        self.assertIsNone(self.mine[0].primary_collection_id)
+
+        # An EDIT share on the collection allows filing into it.
+        self.CollectionShare.objects.create(collection=theirs, shared_with_user=self.owner, permission="EDIT")
+        resp = self._bulk({"action": "move", "ids": [self.mine[0].id], "collection_id": theirs.id})
+        self.assertEqual(resp.data["succeeded"], [self.mine[0].id])
+
+    def test_patch_cannot_file_into_someone_elses_collection(self):
+        theirs = self.Collection.objects.create(owner=self.other, name="Theirs")
+        url = f"/api/v1/documents/{self.mine[0].id}/"
+        resp = self.client.patch(url, {"primary_collection": theirs.id}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        resp = self.client.patch(url, {"primary_collection": self.child.id}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["primary_collection"], self.child.id)
+
+    def test_remove_from_collection(self):
+        Document.objects.filter(id__in=[d.id for d in self.mine]).update(primary_collection=self.child)
+        resp = self._bulk({"action": "remove_from_collection", "ids": [d.id for d in self.mine]})
+        self.assertEqual(len(resp.data["succeeded"]), 3)
+        self.assertFalse(Document.objects.filter(primary_collection__isnull=False, owner=self.owner).exists())
+
+    def test_trash_and_restore_are_owner_only(self):
+        ids = [self.mine[0].id, self.mine[1].id, self.shared_edit.id]
+        resp = self._bulk({"action": "trash", "ids": ids})
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted(ids[:2]))
+        self.assertEqual(self._failed_reasons(resp), {self.shared_edit.id: "permission_denied"})
+        self.assertEqual(Document.objects.filter(in_trash=True).count(), 2)
+
+        resp = self._bulk({"action": "restore", "ids": ids[:2]})
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted(ids[:2]))
+        self.assertFalse(Document.objects.filter(in_trash=True).exists())
+
+    def test_add_tag(self):
+        resp = self._bulk({"action": "add_tag", "ids": [self.mine[0].id, self.shared_view.id], "tag": " review "})
+        self.assertEqual(resp.data["succeeded"], [self.mine[0].id])
+        self.assertEqual(list(self.mine[0].tags.values_list("name", flat=True)), ["review"])
+        self.assertEqual(self._bulk({"action": "add_tag", "ids": [self.mine[0].id], "tag": "  "}).status_code, 400)
+
+    def test_delete_uses_full_cleanup(self):
+        doc = self._doc_with_file(title="With file")
+        path = doc.file.path
+        self.assertTrue(os.path.exists(path))
+        ids = [doc.id, self.mine[0].id, self.shared_edit.id]
+        with patch("apps.documents.views.delete_document_qdrant_data") as qdrant_delete, \
+             patch("apps.documents.views.evict_rag_instance") as evict:
+            resp = self._bulk({"action": "delete", "ids": ids})
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted([doc.id, self.mine[0].id]))
+        self.assertEqual(self._failed_reasons(resp), {self.shared_edit.id: "permission_denied"})
+        self.assertEqual(sorted(c.args[0] for c in qdrant_delete.call_args_list), sorted([doc.id, self.mine[0].id]))
+        self.assertEqual(evict.call_count, 2)
+        self.assertFalse(os.path.exists(path))
+        self.assertFalse(Document.objects.filter(id__in=[doc.id, self.mine[0].id]).exists())
+        self.assertTrue(Document.objects.filter(id=self.shared_edit.id).exists())
+
+    def test_invalid_requests(self):
+        for payload in (
+            {"action": "explode", "ids": [self.mine[0].id]},
+            {"action": "trash", "ids": []},
+            {"action": "trash", "ids": "1,2"},
+            {"action": "trash", "ids": ["abc"]},
+            {"action": "move", "ids": [self.mine[0].id]},
+            {"action": "move", "ids": [self.mine[0].id], "collection_id": 999999},
+        ):
+            self.assertEqual(self._bulk(payload).status_code, status.HTTP_400_BAD_REQUEST, payload)
+
+    def test_tree_counts_are_direct_and_exclude_trash(self):
+        # Two shares on the collection used to multiply the count through the join.
+        self.CollectionShare.objects.create(collection=self.child, shared_with_user=self.other, permission="VIEW")
+        third = User.objects.create_user(username="bulk_third", email="t@univ.edu", password="pw123456")
+        self.CollectionShare.objects.create(collection=self.child, shared_with_user=third, permission="VIEW")
+        Document.objects.filter(id__in=[self.mine[0].id, self.mine[1].id]).update(primary_collection=self.child)
+        Document.objects.filter(id=self.mine[2].id).update(primary_collection=self.child, in_trash=True)
+        resp = self.client.get("/api/v1/collections/tree/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        parent = next(n for n in resp.data if n["id"] == self.parent.id)
+        self.assertEqual(parent["document_count"], 0)
+        self.assertEqual(parent["children"][0]["id"], self.child.id)
+        self.assertEqual(parent["children"][0]["document_count"], 2)

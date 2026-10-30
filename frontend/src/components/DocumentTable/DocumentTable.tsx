@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './DocumentTable.module.css';
 import type { Document, SortKey, SortState, Collection } from '../../types';
 import { flattenCollections } from '../../utils/collections';
+import type { RowSelectModifiers } from '../../hooks/useDocumentSelection';
+import type { BulkActionHandlers } from '../BulkActions/BulkActions';
 import { formatDateTime } from '../../utils/format';
 import {
   FaFileLines,
@@ -20,12 +22,24 @@ import {
   FaXmark,
   FaTag,
   FaCube,
+  FaFolderMinus,
 } from 'react-icons/fa6';
+
+/** drag-and-drop payload type carrying a JSON array of document ids. */
+export const DOC_IDS_DRAG_TYPE = 'application/x-scidoc-ids';
 
 export interface DocumentTableProps {
   documents: Document[];
-  selectedDocId: string | null;
-  onSelectDoc: (id: string) => void;
+  /** Selected ids among the visible rows. */
+  selectedIds: ReadonlySet<string>;
+  /** Row click: plain = select only; toggle = Ctrl/Cmd; range = Shift. */
+  onRowSelect: (id: string, mods?: RowSelectModifiers) => void;
+  /** Checkbox: toggle one row without touching the rest. */
+  onToggleRow: (id: string) => void;
+  onSelectAllVisible: () => void;
+  onClearSelection: () => void;
+  /** Actions applied to the whole selection (context menu inside a multi-selection). */
+  bulkActions?: BulkActionHandlers;
   onOpenPdf: (doc: Document) => void;
   onRestoreDoc?: (id: string) => void;
   onEditDoc?: (doc: Document) => void;
@@ -47,14 +61,16 @@ interface ContextMenuState {
   x: number;
   y: number;
   doc: Document;
+  /** Opened inside a multi-selection: the menu acts on every selected row. */
+  multiCount: number;
   /** Row to return focus to when the menu closes via keyboard. */
   returnFocusTo: HTMLElement | null;
 }
 
 const COLUMNS: Array<{ key: SortKey; label: string; width: string }> = [
-  { key: 'title', label: 'Title', width: '50%' },
+  { key: 'title', label: 'Title', width: '48%' },
   { key: 'creator', label: 'Creator', width: '30%' },
-  { key: 'lastRead', label: 'Last Read', width: '20%' },
+  { key: 'lastRead', label: 'Last Read', width: '22%' },
 ];
 
 function RagBadge({ doc }: { doc: Document }) {
@@ -110,8 +126,12 @@ function moveFocus(container: HTMLElement | null, current: Element | null, delta
 
 export const DocumentTable: React.FC<DocumentTableProps> = ({
   documents,
-  selectedDocId,
-  onSelectDoc,
+  selectedIds,
+  onRowSelect,
+  onToggleRow,
+  onSelectAllVisible,
+  onClearSelection,
+  bulkActions,
   onOpenPdf,
   onRestoreDoc,
   onEditDoc,
@@ -133,7 +153,15 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
   const focusSubmenuOnOpen = useRef(false);
+  const selectAllRef = useRef<HTMLInputElement>(null);
   const flatCollections = flattenCollections(collections);
+  const selectedCount = documents.reduce((n, d) => n + (selectedIds.has(d.id) ? 1 : 0), 0);
+  const allSelected = documents.length > 0 && selectedCount === documents.length;
+  const someSelected = selectedCount > 0 && !allSelected;
+
+  useEffect(() => {
+    if (selectAllRef.current) selectAllRef.current.indeterminate = someSelected;
+  }, [someSelected]);
 
   // Close context menu on outside click or window scroll
   useEffect(() => {
@@ -161,13 +189,17 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   }, [isCollectionSubmenuOpen]);
 
   const openMenuAt = (x: number, y: number, doc: Document, returnFocusTo: HTMLElement | null) => {
-    onSelectDoc(doc.id);
+    // Right-clicking inside a multi-selection keeps it and acts on all of it (Zotero/Finder);
+    // anywhere else, the clicked row becomes the only selection.
+    const multiCount = bulkActions && selectedIds.has(doc.id) && selectedCount > 1 ? selectedCount : 0;
+    if (!multiCount) onRowSelect(doc.id);
     setIsCollectionSubmenuOpen(false);
     setContextMenu({
       // Keep menu inside viewport boundaries
       x: Math.min(x, window.innerWidth - 220),
       y: Math.min(y, window.innerHeight - 260),
       doc,
+      multiCount,
       returnFocusTo,
     });
   };
@@ -185,7 +217,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       if (!doc.inTrash) onOpenPdf(doc);
     } else if (e.key === ' ') {
       e.preventDefault();
-      onSelectDoc(doc.id);
+      if (e.ctrlKey || e.metaKey) onToggleRow(doc.id);
+      else onRowSelect(doc.id, { range: e.shiftKey });
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const sibling = (e.key === 'ArrowDown'
@@ -194,7 +227,8 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
       if (sibling?.tabIndex === 0) {
         sibling.focus();
         const id = sibling.dataset.docId;
-        if (id) onSelectDoc(id);
+        // Shift+Arrow extends the selection; Ctrl/Cmd+Arrow only moves focus.
+        if (id && !(e.ctrlKey || e.metaKey)) onRowSelect(id, { range: e.shiftKey });
       }
     } else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
       e.preventDefault();
@@ -276,14 +310,48 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
     }
   };
 
+  /** Ctrl/Cmd+A selects every visible row, Escape clears the selection (focus inside the table). */
+  const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (menuRef.current?.contains(e.target as Node)) return;
+    const target = e.target as HTMLElement;
+    const isTextInput = target.tagName === 'INPUT' && (target as HTMLInputElement).type !== 'checkbox';
+    if (isTextInput || target.isContentEditable) return;
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'a' || e.key === 'A')) {
+      e.preventDefault();
+      onSelectAllVisible();
+    } else if (e.key === 'Escape' && selectedCount > 0) {
+      e.preventDefault();
+      onClearSelection();
+    }
+  };
+
   const ariaSortFor = (key: SortKey): 'ascending' | 'descending' | 'none' =>
     sortState.key === key ? (sortState.direction === 'asc' ? 'ascending' : 'descending') : 'none';
 
   return (
-    <div className={styles.tableContainer}>
-      <table className={styles.table} aria-label="Documents" aria-busy={isLoading}>
+    <div className={styles.tableContainer} onKeyDown={handleContainerKeyDown}>
+      <table
+        className={styles.table}
+        role="grid"
+        aria-label="Documents"
+        aria-busy={isLoading}
+        aria-multiselectable="true"
+        aria-rowcount={documents.length + 1}
+      >
         <thead className={styles.tableHead}>
           <tr>
+            <th scope="col" className={`${styles.th} ${styles.checkboxCell}`}>
+              <input
+                ref={selectAllRef}
+                type="checkbox"
+                className={styles.rowCheckbox}
+                checked={allSelected}
+                disabled={documents.length === 0}
+                onChange={() => (allSelected ? onClearSelection() : onSelectAllVisible())}
+                aria-label={allSelected ? 'Deselect all documents' : 'Select all visible documents'}
+                title={allSelected ? 'Deselect all' : 'Select all visible (Ctrl+A)'}
+              />
+            </th>
             {COLUMNS.map((col) => (
               <th
                 key={col.key}
@@ -307,7 +375,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         <tbody>
           {documents.length === 0 ? (
             <tr>
-              <td colSpan={3} className={styles.emptyState}>
+              <td colSpan={4} className={styles.emptyState}>
                 {isLoading
                   ? 'Loading library…'
                   : isTrashView
@@ -317,7 +385,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             </tr>
           ) : (
             documents.map((doc) => {
-              const isSelected = doc.id === selectedDocId;
+              const isSelected = selectedIds.has(doc.id);
               const isDraggable = !doc.inTrash;
               return (
                 <tr
@@ -329,17 +397,36 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   className={`${styles.tr} ${isSelected ? styles.trSelected : ''} ${
                     isDraggable ? styles.draggableRow : ''
                   }`}
-                  onClick={() => onSelectDoc(doc.id)}
+                  onMouseDown={(e) => {
+                    // Keep Shift+click from selecting page text.
+                    if (e.shiftKey) e.preventDefault();
+                  }}
+                  onClick={(e) => onRowSelect(doc.id, { toggle: e.ctrlKey || e.metaKey, range: e.shiftKey })}
                   onDoubleClick={() => !doc.inTrash && onOpenPdf(doc)}
                   onKeyDown={(e) => handleRowKeyDown(e, doc)}
                   onContextMenu={(e) => handleRowContextMenu(e, doc)}
                   draggable={isDraggable}
                   onDragStart={(e) => {
-                    e.dataTransfer.setData('text/plain', doc.id);
+                    // Dragging a row inside a multi-selection drags every selected (non-trashed) row.
+                    const ids = isSelected && selectedCount > 1
+                      ? documents.filter((d) => selectedIds.has(d.id) && !d.inTrash).map((d) => d.id)
+                      : [doc.id];
+                    e.dataTransfer.setData(DOC_IDS_DRAG_TYPE, JSON.stringify(ids));
+                    e.dataTransfer.setData('text/plain', ids.join(','));
                     e.dataTransfer.setData('application/json', JSON.stringify({ id: doc.id, title: doc.title }));
                     e.dataTransfer.effectAllowed = 'copyMove';
                   }}
                 >
+                  <td className={`${styles.td} ${styles.checkboxCell}`} onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      className={styles.rowCheckbox}
+                      checked={isSelected}
+                      onChange={() => onToggleRow(doc.id)}
+                      aria-label={`Select ${doc.title}`}
+                      tabIndex={-1}
+                    />
+                  </td>
                   <td className={styles.td}>
                     <div className={styles.titleCell}>
                       <FaFileLines className={styles.docIcon} aria-hidden="true" />
@@ -385,8 +472,111 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
         </tbody>
       </table>
 
-      {/* Zotero-like Right-Click Context Menu (also Shift+F10 / ContextMenu key on a focused row) */}
-      {contextMenu && (
+      {/* Right-click context menus (also Shift+F10 / ContextMenu key on a focused row) */}
+      {contextMenu && contextMenu.multiCount > 0 && bulkActions && (
+        <div
+          ref={menuRef}
+          className={styles.contextMenu}
+          role="menu"
+          aria-label={`Actions for ${contextMenu.multiCount} selected documents`}
+          style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={handleMenuKeyDown}
+        >
+          <div className={styles.contextMenuHeader} aria-hidden="true">
+            {contextMenu.multiCount} documents selected
+          </div>
+          {isTrashView ? (
+            <>
+              <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(bulkActions.onRestore)}>
+                <FaRotateLeft aria-hidden="true" style={{ color: '#10b981' }} />
+                <span>Restore {contextMenu.multiCount} from Trash</span>
+              </div>
+              <div
+                role="menuitem"
+                tabIndex={-1}
+                className={`${styles.contextMenuItem} ${styles.contextMenuDanger}`}
+                onClick={act(bulkActions.onDeletePermanently)}
+              >
+                <FaTrash aria-hidden="true" />
+                <span>Delete {contextMenu.multiCount} Permanently...</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div
+                role="menuitem"
+                tabIndex={-1}
+                aria-haspopup="menu"
+                aria-expanded={isCollectionSubmenuOpen}
+                data-submenu="collections"
+                className={`${styles.contextMenuItem} ${styles.contextMenuSubmenuContainer}`}
+                onMouseEnter={() => setIsCollectionSubmenuOpen(true)}
+                onMouseLeave={() => setIsCollectionSubmenuOpen(false)}
+                onClick={() => {
+                  focusSubmenuOnOpen.current = true;
+                  setIsCollectionSubmenuOpen(true);
+                }}
+              >
+                <FaFolderPlus aria-hidden="true" style={{ color: '#0ea5e9' }} />
+                <span style={{ flex: 1 }}>Move {contextMenu.multiCount} to Collection</span>
+                <FaChevronRight aria-hidden="true" style={{ fontSize: '10px', color: 'var(--text-muted)' }} />
+                {isCollectionSubmenuOpen && (
+                  <div
+                    ref={submenuRef}
+                    role="menu"
+                    aria-label="Collections"
+                    className={styles.contextSubmenu}
+                    style={contextMenu.x > window.innerWidth - 440 ? { right: '100%', left: 'auto' } : { left: '100%' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {flatCollections.length === 0 ? (
+                      <div style={{ padding: '8px 12px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                        No collections available
+                      </div>
+                    ) : (
+                      flatCollections.map((col) => (
+                        <div
+                          key={col.id}
+                          role="menuitem"
+                          tabIndex={-1}
+                          className={styles.contextMenuItem}
+                          style={{ paddingLeft: `${12 + col.depth * 10}px` }}
+                          onClick={act(() => bulkActions.onMove(col.id, col.name))}
+                        >
+                          <FaFolder aria-hidden="true" style={{ color: col.color || 'var(--accent-blue)', fontSize: '11px' }} />
+                          <span style={{ flex: 1 }}>{col.name}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+              <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(bulkActions.onRemoveFromCollection)}>
+                <FaFolderMinus aria-hidden="true" style={{ color: '#ef4444' }} />
+                <span>Remove from Collection</span>
+              </div>
+              <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(bulkActions.onAddTag)}>
+                <FaTag aria-hidden="true" style={{ color: '#10b981' }} />
+                <span>Add Tag to {contextMenu.multiCount}...</span>
+              </div>
+              <div className={styles.contextMenuDivider} role="separator" />
+              <div
+                role="menuitem"
+                tabIndex={-1}
+                className={`${styles.contextMenuItem} ${styles.contextMenuDanger}`}
+                onClick={act(bulkActions.onTrash)}
+              >
+                <FaTrash aria-hidden="true" />
+                <span>Move {contextMenu.multiCount} to Trash</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Zotero-like Right-Click Context Menu for a single document */}
+      {contextMenu && contextMenu.multiCount === 0 && (
         <div
           ref={menuRef}
           className={styles.contextMenu}
@@ -419,7 +609,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
               }}
             >
               <FaFolderPlus aria-hidden="true" style={{ color: '#0ea5e9' }} />
-              <span style={{ flex: 1 }}>Add to Collection</span>
+              <span style={{ flex: 1 }}>Move to Collection</span>
               <FaChevronRight aria-hidden="true" style={{ fontSize: '10px', color: 'var(--text-muted)' }} />
 
               {isCollectionSubmenuOpen && (

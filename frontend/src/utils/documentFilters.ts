@@ -31,7 +31,7 @@ export function sortDocuments(
 /**
  * Filter documents based on:
  * 1. Active Library Navigation section (recent, publications, duplicates, unfiled, trash)
- * 2. Selected collection id
+ * 2. Selected collection scope (see utils/collections.ts `collectionScope`)
  * 3. Selected tag
  * 4. Free-text search query (title, creator, tags, domains)
  */
@@ -39,7 +39,7 @@ export function filterDocuments(
   docs: Document[],
   query: string,
   activeNavId: string | null,
-  selectedCollectionId: string | null,
+  collectionScope: ReadonlySet<string> | null,
   selectedTag: string | null
 ): Document[] {
   return docs.filter((doc) => {
@@ -72,8 +72,9 @@ export function filterDocuments(
       if (doc.inTrash) return false;
     }
 
-    // 2. Collection Filtering — compare by id (names are not unique across the tree)
-    if (selectedCollectionId && doc.collectionId !== selectedCollectionId) {
+    // 2. Collection Filtering — by id (names are not unique across the tree). The scope is
+    //    the selected collection, plus its descendants when "show subcollection items" is on.
+    if (collectionScope && !(doc.collectionId && collectionScope.has(doc.collectionId))) {
       return false;
     }
 

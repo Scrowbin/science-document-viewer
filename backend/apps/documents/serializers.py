@@ -5,6 +5,8 @@ from .models import (
     Annotation, Note, DocumentShare, RelatedDocument
 )
 
+from .permissions import can_file_into_collection
+
 User = get_user_model()
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -186,6 +188,19 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         # Delegate representation to DocumentDetailSerializer so response includes tags, authors, domains
         return DocumentDetailSerializer(instance, context=self.context).data
+
+    def validate_primary_collection(self, value):
+        # The field accepts any collection id; only allow ones this user may file into.
+        # Keeping a document in the collection it already has is always allowed.
+        if value is None:
+            return value
+        if self.instance is not None and self.instance.primary_collection_id == value.id:
+            return value
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        if not can_file_into_collection(user, value):
+            raise serializers.ValidationError("You cannot add documents to this collection.")
+        return value
 
     def validate_file(self, value):
         if not value:

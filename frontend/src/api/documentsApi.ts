@@ -133,6 +133,8 @@ export const documentsApi = {
     section?: 'recent' | 'publications' | 'duplicates' | 'unfiled';
     collection?: string | number;
     tag?: string;
+    /** The list endpoint excludes Trash unless this is set. */
+    in_trash?: boolean;
   }): Promise<Document[]> {
     const res = await apiClient.get<DjangoDocumentRaw[]>('/documents/', { params });
     return res.data.map(mapDjangoDocToFrontend);
@@ -177,6 +179,23 @@ export const documentsApi = {
    */
   async deleteDocument(id: string | number): Promise<void> {
     await apiClient.delete(`/documents/${id}/`);
+  },
+
+  /**
+   * Apply one action to many documents in a single request. The server checks each
+   * document separately and reports which ids succeeded and which failed (and why).
+   */
+  async bulkAction(request: BulkActionRequest): Promise<BulkActionResult> {
+    const res = await apiClient.post<BulkActionResponseRaw>('/documents/bulk/', {
+      action: request.action,
+      ids: request.ids.map((id) => Number(id)),
+      ...(request.collectionId != null ? { collection_id: Number(request.collectionId) } : {}),
+      ...(request.tag != null ? { tag: request.tag } : {}),
+    });
+    return {
+      succeeded: res.data.succeeded.map(String),
+      failed: res.data.failed.map((f) => ({ id: String(f.id), reason: f.reason, detail: f.detail })),
+    };
   },
 
   /**
@@ -282,6 +301,35 @@ export const documentsApi = {
     return response.data;
   },
 };
+
+export type BulkAction = 'move' | 'remove_from_collection' | 'trash' | 'restore' | 'delete' | 'add_tag';
+
+export interface BulkActionRequest {
+  action: BulkAction;
+  ids: string[];
+  /** Required for 'move'. */
+  collectionId?: string;
+  /** Required for 'add_tag'. */
+  tag?: string;
+}
+
+export interface BulkActionFailure {
+  id: string;
+  /** 'not_found' | 'permission_denied' | 'error' */
+  reason: string;
+  detail?: string;
+}
+
+export interface BulkActionResult {
+  succeeded: string[];
+  failed: BulkActionFailure[];
+}
+
+interface BulkActionResponseRaw {
+  action: BulkAction;
+  succeeded: number[];
+  failed: Array<{ id: number; reason: string; detail?: string }>;
+}
 
 export type ChunkStrategy = 'section' | 'section_token' | 'section_overlap' | 'hierarchical';
 

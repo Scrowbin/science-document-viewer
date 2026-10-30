@@ -63,3 +63,12 @@ class IsOwnerOrCollaborator(permissions.BasePermission):
         if required is None:
             return False
         return PERMISSION_RANK[level] >= PERMISSION_RANK[required]
+
+
+def can_file_into_collection(user, collection):
+    """True if the user may put documents into this collection (owner, or an EDIT share)."""
+    if not user or not user.is_authenticated or collection is None:
+        return False
+    if collection.owner_id == user.id:
+        return True
+    return collection.shares.filter(shared_with_user=user, permission='EDIT').exists()

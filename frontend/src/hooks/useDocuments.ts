@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import type { Document, RagStatus } from '../types';
-import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
+import { documentsApi, type BulkAction, type BulkActionFailure, type LookupDoiResult } from '../api/documentsApi';
 
 export type ToastFn = (msg: string, type?: 'success' | 'error') => void;
 
@@ -23,6 +23,91 @@ function emptyUploadMeta(file: File): LookupDoiResult {
   return { title, short_title: '', authors: [], doi: '', date: '', repository: '', extra: '', tags: [], domains: [] };
 }
 
+export interface BulkActionOptions {
+  /** Target collection for 'move'. */
+  collectionId?: string;
+  collectionName?: string;
+  /** Tag name for 'add_tag'. */
+  tag?: string;
+}
+
+export interface BulkOutcome {
+  succeeded: string[];
+  failed: BulkActionFailure[];
+}
+
+const BULK_VERBS: Record<BulkAction, { done: string; failed: string }> = {
+  move: { done: 'Moved', failed: 'moved' },
+  remove_from_collection: { done: 'Removed', failed: 'removed from the collection' },
+  trash: { done: 'Moved', failed: 'moved to Trash' },
+  restore: { done: 'Restored', failed: 'restored' },
+  delete: { done: 'Permanently deleted', failed: 'deleted' },
+  add_tag: { done: 'Tagged', failed: 'tagged' },
+};
+
+const FAILURE_REASONS: Record<string, string> = {
+  permission_denied: 'permission denied',
+  not_found: 'not found',
+  error: 'server error',
+};
+
+function plural(n: number): string {
+  return `${n} document${n === 1 ? '' : 's'}`;
+}
+
+/** "Moved 5 documents to "Methods"" / "2 could not be moved: permission denied". */
+function describeBulkOutcome(action: BulkAction, outcome: BulkOutcome, opts: BulkActionOptions): string {
+  const parts: string[] = [];
+  const n = outcome.succeeded.length;
+  if (n > 0) {
+    const verb = BULK_VERBS[action].done;
+    if (action === 'move') parts.push(`${verb} ${plural(n)} to "${opts.collectionName ?? 'collection'}"`);
+    else if (action === 'remove_from_collection') parts.push(`${verb} ${plural(n)} from their collection`);
+    else if (action === 'trash') parts.push(`${verb} ${plural(n)} to Trash`);
+    else if (action === 'add_tag') parts.push(`${verb} ${plural(n)} with "${opts.tag ?? ''}"`);
+    else parts.push(`${verb} ${plural(n)}`);
+  }
+  if (outcome.failed.length > 0) {
+    const counts = new Map<string, number>();
+    outcome.failed.forEach((f) => {
+      const label = FAILURE_REASONS[f.reason] ?? f.reason;
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    });
+    const reasons = Array.from(counts.entries())
+      .map(([label, c]) => (counts.size > 1 ? `${label} (${c})` : label))
+      .join(', ');
+    parts.push(`${outcome.failed.length} could not be ${BULK_VERBS[action].failed}: ${reasons}`);
+  }
+  return parts.join('. ');
+}
+
+/** The optimistic local version of a document after a bulk action (null = removed). */
+function applyBulkLocally(doc: Document, action: BulkAction, opts: BulkActionOptions): Document | null {
+  switch (action) {
+    case 'move':
+      return {
+        ...doc,
+        collectionId: opts.collectionId ?? null,
+        metadata: { ...doc.metadata, documentGroups: opts.collectionName ? [opts.collectionName] : [] },
+      };
+    case 'remove_from_collection':
+      return { ...doc, collectionId: null, metadata: { ...doc.metadata, documentGroups: [] } };
+    case 'trash':
+      return { ...doc, inTrash: true };
+    case 'restore':
+      return { ...doc, inTrash: false };
+    case 'add_tag': {
+      const tags = doc.metadata.tags ?? [];
+      if (!opts.tag || tags.includes(opts.tag)) return doc;
+      return { ...doc, metadata: { ...doc.metadata, tags: [...tags, opts.tag] } };
+    }
+    case 'delete':
+      return null;
+    default:
+      return doc;
+  }
+}
+
 export interface UseDocumentsReturn {
   documents: Document[];
   setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
@@ -39,6 +124,8 @@ export interface UseDocumentsReturn {
   handleSetDocumentCollection: (docId: string, collectionId: string | null, collectionName: string | null) => Promise<void>;
   handleAddTagToDocument: (docId: string, tagName: string) => Promise<void>;
   handleToggleReadStatus: (doc: Document) => Promise<void>;
+  /** One request for many documents; optimistic, rolls back only the ids that failed. */
+  handleBulkAction: (action: BulkAction, ids: string[], opts?: BulkActionOptions) => Promise<BulkOutcome | null>;
   // Upload preview flow
   handleFileUpload: (file: File) => Promise<void>;
   uploadModalFile: File | null;
@@ -78,9 +165,14 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     const fetchDocs = async () => {
       setIsLoadingDocs(true);
       try {
-        const liveDocs = await documentsApi.getDocuments();
+        // The list endpoint leaves out Trash unless asked, so load both; otherwise the
+        // Trash view would be empty after every reload.
+        const [liveDocs, trashedDocs] = await Promise.all([
+          documentsApi.getDocuments(),
+          documentsApi.getDocuments({ in_trash: true }),
+        ]);
         if (!isMounted) return;
-        setDocuments(liveDocs);
+        setDocuments([...liveDocs, ...trashedDocs]);
         setIsLiveApiConnected(true);
         setLoadError(null);
       } catch (err) {
@@ -265,6 +357,66 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     });
   }, [findDoc, handleUpdateDocument, showToast]);
 
+  const handleBulkAction = useCallback(async (
+    action: BulkAction,
+    ids: string[],
+    opts: BulkActionOptions = {}
+  ): Promise<BulkOutcome | null> => {
+    const unique = Array.from(new Set(ids));
+    if (unique.length === 0) return null;
+
+    // Snapshot the affected documents so failed ids can be put back exactly as they were.
+    const snapshot = new Map<string, Document>();
+    documentsRef.current.forEach((d) => {
+      if (unique.includes(d.id)) snapshot.set(d.id, d);
+    });
+    const order = documentsRef.current.map((d) => d.id);
+
+    setDocuments((prev) =>
+      prev.flatMap((d) => {
+        if (!snapshot.has(d.id)) return [d];
+        const next = applyBulkLocally(d, action, opts);
+        return next ? [next] : [];
+      })
+    );
+
+    const rollback = (failedIds: string[]) => {
+      if (failedIds.length === 0) return;
+      const failedSet = new Set(failedIds);
+      setDocuments((prev) => {
+        const present = new Set(prev.map((d) => d.id));
+        const restored = prev.map((d) => (failedSet.has(d.id) && snapshot.has(d.id) ? snapshot.get(d.id)! : d));
+        // Re-insert documents that were optimistically removed, near their old position.
+        failedIds.forEach((id) => {
+          const original = snapshot.get(id);
+          if (!original || present.has(id)) return;
+          const oldIdx = order.indexOf(id);
+          const insertAt = restored.findIndex((d) => order.indexOf(d.id) > oldIdx);
+          if (insertAt === -1) restored.push(original);
+          else restored.splice(insertAt, 0, original);
+        });
+        return restored;
+      });
+    };
+
+    try {
+      const result = await documentsApi.bulkAction({
+        action,
+        ids: unique,
+        collectionId: opts.collectionId,
+        tag: opts.tag,
+      });
+      rollback(result.failed.map((f) => f.id));
+      showToast(describeBulkOutcome(action, result, opts), result.failed.length > 0 ? 'error' : 'success');
+      return result;
+    } catch (err) {
+      console.warn(`Bulk ${action} failed, rolling back:`, err);
+      rollback(unique);
+      showToast(describeApiError(err, `Could not update ${plural(unique.length)}`), 'error');
+      return null;
+    }
+  }, [showToast]);
+
   // ─── Upload preview flow ──────────────────────────────────────────────────
   const [uploadModalFile, setUploadModalFile] = useState<File | null>(null);
   const [isExtractingUpload, setIsExtractingUpload] = useState(false);
@@ -371,6 +523,7 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleBulkAction,
     handleFileUpload,
     uploadModalFile,
     isExtractingUpload,

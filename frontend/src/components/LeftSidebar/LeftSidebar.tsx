@@ -12,10 +12,26 @@ import {
   FaChevronRight,
   FaFileLines,
   FaPlus,
+  FaSitemap,
 } from 'react-icons/fa6';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
 import { CreateCollectionModal } from '../CreateCollectionModal/CreateCollectionModal';
+import { DOC_IDS_DRAG_TYPE } from '../DocumentTable/DocumentTable';
+
+/** Document ids carried by a drag from the document table (one or many rows). */
+function readDraggedDocIds(dt: DataTransfer): string[] {
+  const json = dt.getData(DOC_IDS_DRAG_TYPE);
+  if (json) {
+    try {
+      const parsed: unknown = JSON.parse(json);
+      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+    } catch {
+      // fall through to the plain-text payload
+    }
+  }
+  return dt.getData('text/plain').split(',').map((id) => id.trim()).filter(Boolean);
+}
 
 export interface LeftSidebarProps {
   collapsed: boolean;
@@ -26,7 +42,11 @@ export interface LeftSidebarProps {
   selectedCollectionId: string | null;
   onSelectCollection: (id: string | null) => void;
   onCreateCollection?: (name: string, color?: string, parentId?: string | null) => Promise<void>;
-  onDropDocOnCollection?: (docId: string, colId: string, colName: string) => void;
+  /** Documents dropped on a collection folder (one id, or every row of a multi-selection). */
+  onDropDocsOnCollection?: (docIds: string[], colId: string, colName: string) => void;
+  /** Show items from subcollections when a collection is selected (counts follow the same rule). */
+  includeSubcollections?: boolean;
+  onToggleIncludeSubcollections?: () => void;
   tags: string[];
   selectedTag: string | null;
   onSelectTag: (tag: string | null) => void;
@@ -45,7 +65,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   selectedCollectionId,
   onSelectCollection,
   onCreateCollection,
-  onDropDocOnCollection,
+  onDropDocsOnCollection,
+  includeSubcollections = false,
+  onToggleIncludeSubcollections,
   tags,
   selectedTag,
   onSelectTag,
@@ -82,21 +104,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createModalParentId, setCreateModalParentId] = useState<string | null>(null);
 
-  // Tree Expansion State: expand all collections by default
-  const [expandedCollections, setExpandedCollections] = useState<Set<string>>(() => {
-    const set = new Set<string>();
-    const addAll = (list: Collection[]) => {
-      for (const item of list) {
-        set.add(item.id);
-        if (item.children) addAll(item.children);
-      }
-    };
-    addAll(collections);
-    return set;
-  });
+  // Tree expansion: every collection starts expanded, including ones that arrive after
+  // mount (the tree loads asynchronously), so only the user's collapses are tracked.
+  const [collapsedCollections, setCollapsedCollections] = useState<Set<string>>(() => new Set());
 
   const toggleExpandCollection = (id: string) => {
-    setExpandedCollections((prev) => {
+    setCollapsedCollections((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -149,7 +162,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         )
       : [];
     const hasChildren = Boolean(col.children && col.children.length > 0);
-    const isExpanded = expandedCollections.has(col.id);
+    const isExpanded = !collapsedCollections.has(col.id);
 
     const isDropTarget = dragOverColId === col.id;
 
@@ -165,9 +178,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           onClick={() => onSelectCollection(isActive ? null : col.id)}
           title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
           onDragOver={(e) => {
-            if (onDropDocOnCollection) {
+            if (onDropDocsOnCollection) {
               e.preventDefault();
-              e.dataTransfer.dropEffect = 'copy';
+              e.dataTransfer.dropEffect = 'move';
               if (dragOverColId !== col.id) {
                 setDragOverColId(col.id);
               }
@@ -181,9 +194,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           onDrop={(e) => {
             e.preventDefault();
             setDragOverColId(null);
-            const docId = e.dataTransfer.getData('text/plain');
-            if (docId && onDropDocOnCollection) {
-              onDropDocOnCollection(docId, col.id, col.name);
+            const docIds = readDraggedDocIds(e.dataTransfer);
+            if (docIds.length > 0 && onDropDocsOnCollection) {
+              onDropDocsOnCollection(docIds, col.id, col.name);
             }
           }}
         >
@@ -227,16 +240,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           )}
         </div>
 
-        {/* Nested child collections */}
-        {!collapsed && hasChildren && isExpanded && (
-          col.children!.map((child) => renderCollectionNode(child, depth + 1))
-        )}
-
-        {/* Nested documents under collection */}
+        {/* Documents filed directly in the selected collection */}
         {!collapsed && isActive && colDocs.length > 0 && (
           <div
             className={styles.nestedDocList}
-            style={depth > 0 ? { paddingLeft: `${24 + depth * 14}px` } : undefined}
+            style={{ paddingLeft: `${28 + depth * 14}px` }}
+            aria-label={`Documents in ${col.name}`}
           >
             {colDocs.map((d) => (
               <div
@@ -255,6 +264,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </div>
             ))}
           </div>
+        )}
+
+        {/* Nested child collections (after this folder's own documents, so those are never
+            drawn below a subfolder and mistaken for the subfolder's content) */}
+        {!collapsed && hasChildren && isExpanded && (
+          col.children!.map((child) => renderCollectionNode(child, depth + 1))
         )}
       </React.Fragment>
     );
@@ -333,6 +348,22 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         {!collapsed ? (
           <div className={styles.sidebarSectionTitleRow}>
             <span className={styles.sidebarSectionTitle}>Collections</span>
+            {onToggleIncludeSubcollections && (
+              <button
+                type="button"
+                className={`${styles.addCollectionBtn} ${styles.subcollectionToggle} ${includeSubcollections ? styles.toggleBtnActive : ''}`}
+                onClick={onToggleIncludeSubcollections}
+                aria-pressed={includeSubcollections}
+                aria-label="Show items from subcollections"
+                title={
+                  includeSubcollections
+                    ? 'Showing items from subcollections (click to show only items filed directly in a collection)'
+                    : 'Showing only items filed directly in a collection (click to include subcollections)'
+                }
+              >
+                <FaSitemap />
+              </button>
+            )}
             {onCreateCollection && (
               <button
                 type="button"
