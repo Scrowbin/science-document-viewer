@@ -299,3 +299,68 @@
 }
 
 
+
+/* ─── Accessible sort headers & keyboard focus ───────────────────────────── */
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sortButton:focus-visible,
+.tr:focus-visible,
+.contextMenuItem:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.contextMenuItem:focus {
+  background-color: var(--bg-hover);
+}
+
+/* ─── Additional rag_status badges ───────────────────────────────────────── */
+.ragPendingBadge,
+.ragFailedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ragPendingBadge {
+  color: var(--status-neutral);
+  background-color: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+}
+
+.ragFailedBadge {
+  color: var(--status-danger);
+  background-color: var(--status-danger-subtle);
+  border: 1px solid var(--status-danger);
+}
+
+.statusDotGrey,
+.statusDotRed {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.statusDotGrey {
+  background-color: var(--status-neutral);
+  animation: pulse 1.6s infinite;
+}
+
+.statusDotRed {
+  background-color: var(--status-danger);
+}

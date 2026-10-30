@@ -17,6 +17,18 @@ import {
 } from 'react-icons/fa6';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
+import { flattenCollections } from '../../utils/collections';
+import { formatDateTime } from '../../utils/format';
+
+function cloneMetadata(meta: DocumentMetadata): DocumentMetadata {
+  return {
+    ...meta,
+    authors: [...meta.authors],
+    tags: [...meta.tags],
+    domains: [...meta.domains],
+    documentGroups: [...meta.documentGroups],
+  };
+}
 
 export interface MetadataPanelProps {
   document: Document | null;
@@ -28,20 +40,6 @@ export interface MetadataPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   onInspectChunks?: (doc: Document) => void;
-}
-
-function flattenCollections(
-  cols: Collection[],
-  depth = 0
-): Array<{ id: string; name: string; depth: number; color?: string }> {
-  const result: Array<{ id: string; name: string; depth: number; color?: string }> = [];
-  for (const col of cols) {
-    result.push({ id: col.id, name: col.name, depth, color: col.color });
-    if (col.children && col.children.length > 0) {
-      result.push(...flattenCollections(col.children, depth + 1));
-    }
-  }
-  return result;
 }
 
 /**
@@ -59,10 +57,11 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   onToggleCollapse,
   onInspectChunks,
 }) => {
-  const [prevDocId, setPrevDocId] = useState<string | null>(document?.id ?? null);
-  const [draft, setDraft] = useState<DocumentMetadata | null>(
-    document ? JSON.parse(JSON.stringify(document.metadata)) : null
-  );
+  const [syncedFrom, setSyncedFrom] = useState<{ doc: Document | null; editing: boolean }>({
+    doc: document,
+    editing: isEditing,
+  });
+  const [draft, setDraft] = useState<DocumentMetadata | null>(document ? cloneMetadata(document.metadata) : null);
   const [newTagText, setNewTagText] = useState('');
   const [newDomainText, setNewDomainText] = useState('');
   const [newGroupText, setNewGroupText] = useState('');
@@ -120,11 +119,23 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     setCustomPanelWidth(null);
   };
 
-  // Sync draft state with incoming document per React recommendation (avoiding useEffect setState)
-  const currentDocId = document ? document.id : null;
-  if (currentDocId !== prevDocId) {
-    setPrevDocId(currentDocId);
-    setDraft(document ? JSON.parse(JSON.stringify(document.metadata)) : null);
+  // Sync the draft with the incoming document (render-time pattern, no effect):
+  //  - another document was selected  -> fresh draft, clear pending inputs;
+  //  - editing just started           -> fresh draft from the latest data;
+  //  - document updated while viewing -> resync, so the next edit starts current.
+  // While editing the same document, server updates (e.g. rag_status polling) never clobber the draft.
+  if (syncedFrom.doc !== document || syncedFrom.editing !== isEditing) {
+    const docChanged = (syncedFrom.doc?.id ?? null) !== (document?.id ?? null);
+    const startedEditing = isEditing && !syncedFrom.editing;
+    setSyncedFrom({ doc: document, editing: isEditing });
+    if (docChanged || startedEditing || !isEditing) {
+      setDraft(document ? cloneMetadata(document.metadata) : null);
+    }
+    if (docChanged) {
+      setNewTagText('');
+      setNewDomainText('');
+      setNewGroupText('');
+    }
   }
 
   // If collapsed, render slim vertical rail
@@ -195,7 +206,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   const handleAddAuthor = () => {
     setDraft((prev) => {
       if (!prev) return prev;
-      return { ...prev, authors: [...prev.authors, 'New Author'] };
+      return { ...prev, authors: [...prev.authors, ''] };
     });
   };
 
@@ -233,7 +244,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
         metadata: {
           ...document.metadata,
           tags: nextTags,
-          dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          dateModified: new Date().toISOString(),
         },
       };
       setDraft(updatedDoc.metadata);
@@ -258,7 +269,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
         metadata: {
           ...document.metadata,
           tags: nextTags,
-          dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          dateModified: new Date().toISOString(),
         },
       };
       setDraft(updatedDoc.metadata);
@@ -321,15 +332,17 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
         ? [...draft.domains, newDomainText.trim()]
         : draft.domains;
 
+    const authors = draft.authors.map((a) => a.trim()).filter(Boolean);
     const updatedDoc: Document = {
       ...document,
       title: draft.title,
-      creator: draft.authors.join(', ') || document.creator,
+      creator: authors.join(', '),
       metadata: {
         ...draft,
+        authors,
         tags: finalTags,
         domains: finalDomains,
-        dateModified: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        dateModified: new Date().toISOString(),
       },
     };
     setNewTagText('');
@@ -340,7 +353,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
 
   // Cancel changes
   const handleCancel = () => {
-    setDraft(JSON.parse(JSON.stringify(document.metadata)));
+    setDraft(cloneMetadata(document.metadata));
     onToggleEdit?.(false);
   };
 
@@ -551,6 +564,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                               type="text"
                               className={styles.metaInput}
                               value={author}
+                              placeholder="Author name"
+                              aria-label={`Author ${i + 1}`}
                               onChange={(e) => handleAuthorChange(i, e.target.value)}
                             />
                             <button
@@ -589,11 +604,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                     <div>
                       <select
                         className={styles.metaSelect}
-                        value={
-                          flattenCollections(collections).find((c) =>
-                            rawValue.includes(c.name)
-                          )?.id ?? ''
-                        }
+                        aria-label="Collection"
+                        value={document.collectionId ?? ''}
                         onChange={(e) => {
                           const selectedColId = e.target.value || null;
                           const selectedCol = flattenCollections(collections).find(
@@ -751,7 +763,11 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                     ) : (
                       <span>
                         {typeof rawValue === 'string' && rawValue.trim().length > 0 ? (
-                          rawValue
+                          field.key === 'dateAdded' || field.key === 'dateModified' ? (
+                            <time dateTime={rawValue}>{formatDateTime(rawValue)}</time>
+                          ) : (
+                            rawValue
+                          )
                         ) : (
                           <span style={{ color: 'var(--text-muted)' }}>—</span>
                         )}

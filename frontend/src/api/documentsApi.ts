@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Document, DocumentMetadata } from '../types';
+import type { Document, DocumentMetadata, DocumentPermission, RagStatus } from '../types';
 
 export interface DjangoDocumentRaw {
   id: number | string;
@@ -56,50 +56,67 @@ export interface LookupDoiResult {
   license?: string;
 }
 
+const KNOWN_PERMISSIONS: readonly DocumentPermission[] = ['OWNER', 'EDIT', 'COMMENT', 'VIEW', 'NONE'];
+const KNOWN_RAG_STATUSES: readonly RagStatus[] = ['PENDING', 'INDEXING', 'INDEXED', 'FAILED'];
+
+function toPermission(value: string | undefined): DocumentPermission | undefined {
+  return KNOWN_PERMISSIONS.find((p) => p === value);
+}
+
+function toRagStatus(value: string | undefined): RagStatus | undefined {
+  return KNOWN_RAG_STATUSES.find((s) => s === value);
+}
+
 /**
  * Transforms Django Document API response to the frontend Document interface.
+ * Missing values stay empty: no placeholder metadata is invented here, because
+ * whatever is mapped may later be sent back to the server on save.
  */
 export function mapDjangoDocToFrontend(doc: DjangoDocumentRaw): Document {
-  const authorList: string[] = (doc.authors || []).map((a) => {
-    if (typeof a === 'string') return a;
-    return a.full_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || 'Unknown';
-  });
-
-  const creatorString = authorList.length > 0 ? authorList.join(', ') : 'Unknown';
+  const authorList: string[] = (doc.authors || [])
+    .map((a) => {
+      if (typeof a === 'string') return a;
+      return a.full_name || `${a.first_name || ''} ${a.last_name || ''}`.trim();
+    })
+    .filter((a) => a.trim().length > 0);
 
   const metadata: DocumentMetadata = {
-    title: doc.title || 'Untitled Document',
-    shortTitle: doc.short_title || doc.title || '',
+    title: doc.title || '',
+    shortTitle: doc.short_title || '',
     itemType: doc.item_type || 'journalArticle',
-    repository: doc.repository || 'Crossref',
+    repository: doc.repository || '',
     archiveId: doc.archive_id || '',
     doi: doc.doi || '',
     url: doc.url || '',
-    genre: doc.genre || 'Academic Paper',
-    date: doc.date ? new Date(doc.date).getFullYear().toString() : '2025',
-    language: doc.language || 'English',
-    license: doc.license || 'Open Access',
-    version: doc.version || '1.0',
-    citationKey: doc.citation_key || (doc.doi ? doc.doi.replace(/[^a-zA-Z0-9]/g, '') : 'cite_key'),
-    locationInArchive: doc.loc_in_archive || 'Main Vault',
-    dateAdded: doc.date_added || new Date().toISOString(),
+    genre: doc.genre || '',
+    // Keep the full ISO date exactly as the server sent it; it is sent back unchanged on save.
+    date: doc.date || '',
+    language: doc.language || '',
+    license: doc.license || '',
+    version: doc.version || '',
+    citationKey: doc.citation_key || '',
+    locationInArchive: doc.loc_in_archive || '',
+    dateAdded: doc.date_added || '',
     extra: doc.extra || '',
-    dateModified: doc.date_modified || new Date().toISOString(),
-    authors: authorList.length > 0 ? authorList : ['Unknown Author'],
+    dateModified: doc.date_modified || '',
+    authors: authorList,
     tags: doc.tags || [],
-    domains: doc.domains || ['Scientific Research'],
+    domains: doc.domains || [],
     documentGroups: doc.primary_collection_name ? [doc.primary_collection_name] : [],
     groupColor: '#3b82f6',
   };
 
   return {
     id: String(doc.id),
-    title: doc.title,
-    creator: creatorString,
-    lastRead: doc.last_read ? new Date(doc.last_read).toLocaleDateString() : '',
+    title: doc.title || 'Untitled Document',
+    creator: authorList.join(', '),
+    // ISO timestamp; formatted only at display time (see utils/format.ts).
+    lastRead: doc.last_read || '',
     file: doc.file_url,
     fileSize: doc.file_size,
-    ragStatus: doc.rag_status,
+    ragStatus: toRagStatus(doc.rag_status),
+    collectionId: doc.primary_collection != null ? String(doc.primary_collection) : null,
+    userPermission: toPermission(doc.user_permission),
     isPublication: doc.is_publication,
     isDuplicate: doc.is_duplicate,
     inTrash: doc.in_trash,
@@ -187,109 +204,60 @@ export const documentsApi = {
   },
 
   /**
-   * Lookup metadata from Crossref by DOI with resilient browser fallback.
+   * Lookup metadata from Crossref by DOI (via the backend proxy), falling back
+   * to the public OpenAlex API when the backend proxy is unreachable.
+   * Only values actually returned by a registry are used; nothing is invented.
    */
   async lookupDoi(doi: string): Promise<LookupDoiResult> {
     try {
       const res = await apiClient.post<LookupDoiResult>('/metadata/lookup-doi/', { doi });
       return res.data;
     } catch (backendErr) {
-      console.warn('Backend DOI proxy request failed, trying client-side fallback:', backendErr);
       const clean = doi.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '');
       const fullDoi = /^s\d{4,5}-\d+/i.test(clean) ? `10.1038/${clean}` : clean;
-
-      // Direct fallback to OpenAlex API (CORS enabled, 99.9% uptime)
       try {
         const resp = await fetch(`https://api.openalex.org/works/doi:${encodeURIComponent(fullDoi)}`);
         if (resp.ok) {
-          const data = await resp.json();
+          const data = (await resp.json()) as OpenAlexWork;
+          if (!data.title) throw backendErr;
           const authors = (data.authorships || [])
-            .map((a: { author?: { display_name?: string } }) => a.author?.display_name)
-            .filter(Boolean) as string[];
+            .map((a) => a.author?.display_name)
+            .filter((name): name is string => Boolean(name));
           return {
             doi: fullDoi,
-            title: data.title || 'Academic Paper',
-            short_title: data.title || '',
-            authors: authors.length > 0 ? authors : ['Unknown Author'],
-            repository: data.primary_location?.source?.display_name || 'Academic Journal',
-            date: data.publication_date || `${data.publication_year || 2024}-01-01`,
-            item_type: 'journal-article',
-            url: data.doi || `https://doi.org/${fullDoi}`,
-            extra: 'Retrieved via academic registry.',
-            tags: ['Computer Science', 'Data Science'],
-            domains: [data.primary_location?.source?.display_name || 'General Science'],
-            language: 'en',
-            license: 'Open Access',
+            title: data.title,
+            short_title: '',
+            authors,
+            repository: data.primary_location?.source?.display_name || '',
+            date: data.publication_date || '',
+            item_type: 'journalArticle',
+            url: `https://doi.org/${fullDoi}`,
+            extra: '',
+            tags: [],
+            domains: [],
           };
         }
       } catch (clientErr) {
-        console.warn('Client-side OpenAlex lookup failed:', clientErr);
+        console.warn('OpenAlex DOI fallback failed:', clientErr);
       }
-
-      // Canonical demo fallback for NumPy paper
-      if (fullDoi === '10.1038/s41586-020-2649-2') {
-        return {
-          doi: '10.1038/s41586-020-2649-2',
-          title: 'Array programming with NumPy',
-          short_title: 'Array programming with NumPy',
-          authors: [
-            'Charles R. Harris',
-            'K. Jarrod Millman',
-            'Stéfan J. van der Walt',
-            'Ralf Gommers',
-            'Pauli Virtanen',
-            'David Cournapeau',
-            'Travis E. Oliphant',
-          ],
-          repository: 'Nature',
-          date: '2020-09-16',
-          item_type: 'journal-article',
-          url: 'https://doi.org/10.1038/s41586-020-2649-2',
-          extra: 'Array programming provides a powerful, compact and expressive syntax for accessing, manipulating and operating on data in vectors, matrices and higher-dimensional arrays. NumPy is the primary array programming library for the Python language.',
-          tags: ['Computer Science', 'Software Systems', 'NumPy', 'Data Analysis'],
-          domains: ['Computer Science', 'Computational Science'],
-          language: 'en',
-          license: 'Open Access',
-        };
-      }
-
       throw backendErr;
     }
   },
 
   /**
    * Uploads a PDF to extract metadata without persisting to the database.
-   * Matches metadata_extract_usecase.png preview pane requirement.
+   * Throws when the server cannot extract metadata; the caller decides how to
+   * present an empty, user-editable form.
    */
-  async extractPdfMetadata(file: File): Promise<LookupDoiResult> {
-    console.log(`[PDF-EXTRACT] 📤 Sending ${file.name} (${(file.size / 1024).toFixed(1)} KB) to POST /api/v1/metadata/extract-pdf/...`);
+  async extractPdfMetadata(file: File, signal?: AbortSignal): Promise<LookupDoiResult> {
     const formData = new FormData();
     formData.append('file', file);
-    try {
-      const response = await apiClient.post<LookupDoiResult>('/metadata/extract-pdf/', formData);
-      console.log(`[PDF-EXTRACT] ✅ Success! Received academic metadata from server:`, response.data);
-      return response.data;
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { status?: number; data?: unknown }; message?: string };
-      console.error(
-        `[PDF-EXTRACT] ❌ Server metadata extraction failed!`,
-        '\n• HTTP Status:', axiosErr.response?.status,
-        '\n• Server Response:', axiosErr.response?.data,
-        '\n• Error Message:', axiosErr.message || err
-      );
-      const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
-      return {
-        title: cleanTitle,
-        short_title: cleanTitle.slice(0, 100),
-        authors: ['Unknown Author'],
-        repository: 'Direct PDF Upload',
-        item_type: 'journalArticle',
-        date: new Date().getFullYear().toString(),
-        extra: '',
-        tags: ['General Science'],
-        domains: ['General Science'],
-      };
-    }
+    const response = await apiClient.post<LookupDoiResult>('/metadata/extract-pdf/', formData, {
+      signal,
+      // Extraction may contact arXiv/Crossref; allow more than the CRUD default.
+      timeout: 60_000,
+    });
+    return response.data;
   },
 
   /**
@@ -297,7 +265,7 @@ export const documentsApi = {
    */
   async getDocumentChunks(
     documentId: string | number,
-    strategy: 'section' | 'section_token' | 'section_overlap' = 'section_overlap',
+    strategy: ChunkStrategy = 'section_overlap',
     maxTokens: number = 350,
     overlap: number = 70
   ): Promise<DocumentChunksResponse> {
@@ -315,6 +283,15 @@ export const documentsApi = {
   },
 };
 
+export type ChunkStrategy = 'section' | 'section_token' | 'section_overlap' | 'hierarchical';
+
+interface OpenAlexWork {
+  title?: string;
+  publication_date?: string;
+  authorships?: Array<{ author?: { display_name?: string } }>;
+  primary_location?: { source?: { display_name?: string } };
+}
+
 export interface DocumentChunk {
   chunk_id: string;
   section: string;
@@ -324,12 +301,18 @@ export interface DocumentChunk {
   token_count: number;
   preview: string;
   text: string;
+  /** Hierarchical strategy only: parent section id / text / token estimate. */
+  parent_id?: string;
+  parent_text?: string;
+  parent_tokens?: number;
+  /** Hierarchical strategy only: child text without the "[heading]" prefix. */
+  child_text?: string;
 }
 
 export interface DocumentChunksResponse {
   document_id: string;
   document_title: string;
-  strategy: 'section' | 'section_token' | 'section_overlap';
+  strategy: ChunkStrategy;
   max_tokens: number;
   overlap: number;
   total_chunks: number;

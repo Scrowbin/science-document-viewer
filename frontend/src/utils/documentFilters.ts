@@ -9,23 +9,29 @@ export function sortDocuments(
   key: SortKey,
   direction: SortDirection
 ): Document[] {
+  const sign = direction === 'asc' ? 1 : -1;
   return [...docs].sort((a, b) => {
-    let valA = a[key] ?? '';
-    let valB = b[key] ?? '';
-
-    valA = valA.toString().toLowerCase();
-    valB = valB.toString().toLowerCase();
-
-    if (valA < valB) return direction === 'asc' ? -1 : 1;
-    if (valA > valB) return direction === 'asc' ? 1 : -1;
-    return 0;
+    if (key === 'lastRead') {
+      // Sort by the ISO timestamp value; unread documents always sort last.
+      const tA = a.lastRead ? Date.parse(a.lastRead) : NaN;
+      const tB = b.lastRead ? Date.parse(b.lastRead) : NaN;
+      const hasA = !Number.isNaN(tA);
+      const hasB = !Number.isNaN(tB);
+      if (!hasA && !hasB) return 0;
+      if (!hasA) return 1;
+      if (!hasB) return -1;
+      return (tA - tB) * sign;
+    }
+    const valA = (a[key] ?? '').toString().toLowerCase();
+    const valB = (b[key] ?? '').toString().toLowerCase();
+    return valA.localeCompare(valB) * sign;
   });
 }
 
 /**
  * Filter documents based on:
  * 1. Active Library Navigation section (recent, publications, duplicates, unfiled, trash)
- * 2. Selected collection name
+ * 2. Selected collection id
  * 3. Selected tag
  * 4. Free-text search query (title, creator, tags, domains)
  */
@@ -33,7 +39,7 @@ export function filterDocuments(
   docs: Document[],
   query: string,
   activeNavId: string | null,
-  selectedCollectionName: string | null,
+  selectedCollectionId: string | null,
   selectedTag: string | null
 ): Document[] {
   return docs.filter((doc) => {
@@ -53,12 +59,7 @@ export function filterDocuments(
           if (doc.inTrash || !doc.isDuplicate) return false;
           break;
         case 'unfiled':
-          if (
-            doc.inTrash ||
-            (doc.metadata.documentGroups && doc.metadata.documentGroups.length > 0)
-          ) {
-            return false;
-          }
+          if (doc.inTrash || doc.collectionId) return false;
           break;
         case 'trash':
           if (!doc.inTrash) return false;
@@ -71,8 +72,8 @@ export function filterDocuments(
       if (doc.inTrash) return false;
     }
 
-    // 2. Collection Filtering — compare against collection name from live data
-    if (selectedCollectionName && !doc.metadata.documentGroups?.includes(selectedCollectionName)) {
+    // 2. Collection Filtering — compare by id (names are not unique across the tree)
+    if (selectedCollectionId && doc.collectionId !== selectedCollectionId) {
       return false;
     }
 

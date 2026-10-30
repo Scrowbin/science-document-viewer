@@ -6,6 +6,7 @@ export interface DoiModalProps {
   isOpen: boolean;
   doiInput: string;
   isLookingUpDoi: boolean;
+  isSaving?: boolean;
   doiPreview: LookupDoiResult | null;
   onInputChange: (val: string) => void;
   onLookup: () => void;
@@ -23,6 +24,7 @@ export function DoiModal({
   isOpen,
   doiInput,
   isLookingUpDoi,
+  isSaving = false,
   doiPreview,
   onInputChange,
   onLookup,
@@ -33,7 +35,13 @@ export function DoiModal({
 
   return (
     <div className={styles.modalBackdrop} onClick={onClose}>
-      <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modalDialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add paper from DOI"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>
             <FaBarcode style={{ color: '#3b82f6' }} />
@@ -90,7 +98,7 @@ export function DoiModal({
             <div className={styles.doiPreviewBox}>
               <div className={styles.doiPreviewTitle}>{doiPreview.title}</div>
               <div className={styles.doiPreviewMeta}>
-                <strong>Authors:</strong> {doiPreview.authors?.join(', ') || 'Unknown'}
+                <strong>Authors:</strong> {doiPreview.authors?.join(', ') || '—'}
               </div>
               {doiPreview.repository && (
                 <div className={styles.doiPreviewMeta}>
@@ -116,9 +124,9 @@ export function DoiModal({
             type="button"
             className={styles.btnPrimary}
             onClick={onSave}
-            disabled={!doiPreview}
+            disabled={!doiPreview || isSaving}
           >
-            Save to Library
+            {isSaving ? 'Saving...' : 'Save to Library'}
           </button>
         </div>
       </div>

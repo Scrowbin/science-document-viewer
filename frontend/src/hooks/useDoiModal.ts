@@ -1,29 +1,29 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
 import type { Document } from '../types';
-import { createEmptyMetadata } from '../utils/documentDefaults';
+import { describeApiError, type ToastFn } from './useDocuments';
 
 export interface UseDoiModalReturn {
   showDoiModal: boolean;
   doiInput: string;
   isLookingUpDoi: boolean;
+  isSavingDoi: boolean;
   doiPreview: LookupDoiResult | null;
   openDoiModal: () => void;
   closeDoiModal: () => void;
   setDoiInput: (val: string) => void;
-  handleLookupDoi: (showToast: (msg: string, type?: 'success' | 'error') => void) => Promise<void>;
-  handleSaveDoiDocument: (
-    setDocuments: React.Dispatch<React.SetStateAction<Document[]>>,
-    setSelectedDocId: (id: string) => void,
-    showToast: (msg: string, type?: 'success' | 'error') => void
-  ) => Promise<void>;
+  handleLookupDoi: () => Promise<void>;
+  /** Creates the document on the server; `onCreated` receives the saved document. */
+  handleSaveDoiDocument: (onCreated: (doc: Document) => void) => Promise<void>;
 }
 
-export function useDoiModal(): UseDoiModalReturn {
+export function useDoiModal(showToast: ToastFn): UseDoiModalReturn {
   const [showDoiModal, setShowDoiModal] = useState(false);
   const [doiInput, setDoiInput] = useState('');
   const [isLookingUpDoi, setIsLookingUpDoi] = useState(false);
+  const [isSavingDoi, setIsSavingDoi] = useState(false);
   const [doiPreview, setDoiPreview] = useState<LookupDoiResult | null>(null);
+  const isSavingRef = useRef(false);
 
   const openDoiModal = useCallback(() => {
     setShowDoiModal(true);
@@ -35,7 +35,7 @@ export function useDoiModal(): UseDoiModalReturn {
     setDoiInput('');
   }, []);
 
-  const handleLookupDoi = useCallback(async (showToast: (msg: string, type?: 'success' | 'error') => void) => {
+  const handleLookupDoi = useCallback(async () => {
     let clean = doiInput.trim();
     if (!clean) return;
 
@@ -54,69 +54,47 @@ export function useDoiModal(): UseDoiModalReturn {
     } finally {
       setIsLookingUpDoi(false);
     }
-  }, [doiInput]);
+  }, [doiInput, showToast]);
 
-  const handleSaveDoiDocument = useCallback(async (
-    setDocuments: React.Dispatch<React.SetStateAction<Document[]>>,
-    setSelectedDocId: (id: string) => void,
-    showToast: (msg: string) => void
-  ) => {
-    if (!doiPreview) return;
+  const handleSaveDoiDocument = useCallback(async (onCreated: (doc: Document) => void) => {
+    if (!doiPreview || isSavingRef.current) return;
+    isSavingRef.current = true;
+    setIsSavingDoi(true);
     try {
       const newDoc = await documentsApi.createDocument({
         title: doiPreview.title,
-        short_title: doiPreview.short_title || doiPreview.title,
-        doi: doiPreview.doi,
-        url: doiPreview.url || `https://doi.org/${doiPreview.doi}`,
+        short_title: doiPreview.short_title || '',
+        doi: doiPreview.doi || '',
+        url: doiPreview.url || (doiPreview.doi ? `https://doi.org/${doiPreview.doi}` : ''),
         author_names: doiPreview.authors || [],
         item_type: doiPreview.item_type || 'journalArticle',
-        repository: doiPreview.repository || 'Crossref',
+        repository: doiPreview.repository || '',
         extra: doiPreview.extra || '',
         tag_names: doiPreview.tags || [],
         domain_names: doiPreview.domains || [],
-        language: doiPreview.language || 'en',
+        language: doiPreview.language || '',
         license: doiPreview.license || '',
         date: doiPreview.date || null,
       });
-      setDocuments((prev) => [newDoc, ...prev]);
-      setSelectedDocId(newDoc.id);
+      onCreated(newDoc);
       setShowDoiModal(false);
       setDoiPreview(null);
       setDoiInput('');
-      showToast(`Added "${newDoc.title}" to library!`);
+      showToast(`Added "${newDoc.title}" to library`);
     } catch (err) {
-      console.warn('Backend document creation failed, creating locally:', err);
-      const localDoc: Document = {
-        id: `doc-${Date.now()}`,
-        title: doiPreview.title,
-        creator: doiPreview.authors?.join(', ') || 'Unknown Author',
-        lastRead: 'Just now',
-        metadata: createEmptyMetadata(doiPreview.title, {
-          shortTitle: doiPreview.short_title || doiPreview.title,
-          doi: doiPreview.doi,
-          url: doiPreview.url || `https://doi.org/${doiPreview.doi}`,
-          authors: doiPreview.authors && doiPreview.authors.length > 0 ? doiPreview.authors : ['Unknown Author'],
-          repository: doiPreview.repository || 'Crossref',
-          itemType: doiPreview.item_type || 'journalArticle',
-          date: doiPreview.date ? doiPreview.date.slice(0, 4) : '2026',
-          tags: doiPreview.tags || [],
-          domains: doiPreview.domains || [],
-          extra: doiPreview.extra || '',
-        }),
-      };
-      setDocuments((prev) => [localDoc, ...prev]);
-      setSelectedDocId(localDoc.id);
-      setShowDoiModal(false);
-      setDoiPreview(null);
-      setDoiInput('');
-      showToast(`Added "${localDoc.title}" to library!`);
+      console.warn('Saving DOI document failed:', err);
+      showToast(describeApiError(err, 'Failed to save document'), 'error');
+    } finally {
+      isSavingRef.current = false;
+      setIsSavingDoi(false);
     }
-  }, [doiPreview]);
+  }, [doiPreview, showToast]);
 
   return {
     showDoiModal,
     doiInput,
     isLookingUpDoi,
+    isSavingDoi,
     doiPreview,
     openDoiModal,
     closeDoiModal,

@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Annotation } from '../types';
+import type { Annotation, Rect } from '../types';
 
 export const annotationsApi = {
   /**
@@ -20,7 +20,8 @@ export const annotationsApi = {
       page_number: number;
       type: 'highlight' | 'note' | 'underline';
       color?: string;
-      rects?: Array<{ x1: number; y1: number; x2: number; y2: number }>;
+      // PDF-point rects, see the `Rect` doc comment for the stored format.
+      rects?: Rect[];
       selected_text?: string;
       comment?: string;
     }

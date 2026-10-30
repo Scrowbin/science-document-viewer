@@ -32,12 +32,12 @@ export function UserMenu({
   onNavigate,
   onLogout,
 }: UserMenuProps) {
-  const statusLabel = isLoadingDocs ? 'Connecting...' : isLiveApiConnected ? 'Django API' : 'Demo Mode';
+  const statusLabel = isLoadingDocs ? 'Connecting...' : isLiveApiConnected ? 'Django API' : 'Offline';
   const statusTitle = isLoadingDocs
     ? 'Connecting to backend...'
     : isLiveApiConnected
     ? 'Connected to Django Backend API'
-    : 'Operating in offline / mock demo mode';
+    : 'Cannot reach the backend API';
 
   return (
     <div className={styles.userHeaderSection} ref={menuRef}>

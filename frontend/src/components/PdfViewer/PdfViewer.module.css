@@ -12,7 +12,9 @@
 
 /* ─── Top Toolbar ──────────────────────────────────────────────────────── */
 .pdfToolbar {
-  height: 44px;
+  min-height: 44px;
+  flex-wrap: wrap;
+  gap: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -70,8 +72,45 @@
 .pdfPageIndicator {
   font-size: 11.5px;
   color: var(--text-secondary);
-  padding: 0 6px;
+  padding: 0 6px 0 0;
   white-space: nowrap;
+}
+
+.pdfZoomIndicator {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.pageInput {
+  width: 40px;
+  padding: 3px 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 11.5px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.pageInput:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.toolbarColorBtn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 /* AI Assistant Toolbar Button */
@@ -129,88 +168,173 @@
   position: relative;
 }
 
-/* ─── Canvas Scroll Area ───────────────────────────────────────────────── */
-/*
- * KEY FIX for the "PDF sinking to the left" and broken scrollbars:
- * - overflow: auto enables both scrollbars when content exceeds the container
- * - We do NOT use `align-items: center` here because that prevents
- *   the horizontal scrollbar from appearing (the content is always
- *   "centered" so it never overflows). Instead we center via margin
- *   on the page container when there is enough room.
- * - min-width: 0 prevents flex children from shrinking the scroll area
- */
-.pdfCanvasScrollArea {
+/* ─── Main column (find bar + notices + scroll area) ─────────────────────── */
+.viewerMain {
   flex: 1;
   min-width: 0;
-  overflow: auto;
-  /* Dark background matching the "grey document tray" look */
-  background-color: #4b5563;
-  padding: 24px;
-  /* Items start from the left so the scrollbar activates when zoomed in */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   position: relative;
 }
 
-/* Loading text */
-.loadingIndicator {
-  color: #e5e7eb;
-  padding: 20px;
-  font-size: 13px;
-  align-self: center;
+/* ─── Scroll Area (continuous pages) ───────────────────────────────────── */
+.pdfCanvasScrollArea {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  background-color: #4b5563;
+  padding: 24px;
+  position: relative;
+  outline: none;
+  overflow-anchor: none;
 }
 
-/* ─── PDF Page Container ───────────────────────────────────────────────── */
+.pdfCanvasScrollArea:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent-blue);
+}
+
 /*
- * Contains the canvas + annotation layer.
- * `display: inline-block` + `margin: 0 auto` auto-centers the page when
- * the scroll area is wider than the page, but allows the scrollbar to
- * appear when the page is wider than the scroll area.
+ * The host is as wide as the widest page (so zoomed pages scroll horizontally) but at
+ * least as wide as the scroll area (so narrower pages are centred).
  */
-.pdfPageContainer {
+.pagesHost {
+  width: max-content;
+  min-width: 100%;
+}
+
+.pagesColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.pdfPage {
   position: relative;
+  flex-shrink: 0;
   background-color: #ffffff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  margin: 0 auto 24px auto;
-  /* display inline-block so the container hugs the canvas tightly */
-  display: inline-block;
   user-select: text;
-  /* Ensures that at high zoom levels the container can grow wider than the parent */
-  flex-shrink: 0;
 }
 
-.pdfCanvas {
+.canvasWrapper {
+  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.canvasWrapper:empty::after {
+  content: attr(data-page-label);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* Stretched to the page box: acts as the zoom preview until it is re-rasterised. */
+.pageCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
 }
 
-/* ─── Annotation Layer ─────────────────────────────────────────────────── */
-.annotationLayer {
+/* pdf.js text layer (selection, find). Its size comes from the page's scale CSS variables. */
+.pdfTextLayer {
+  z-index: 2;
+}
+
+/* pdf.js link layer: only the link areas take the pointer. */
+.linkLayer {
+  z-index: 3;
+}
+
+/*
+ * Our overlays (highlights, notes, find/citation marks, popups) sit above the text layer.
+ * The layer is transparent to the pointer; only the shapes are interactive, so text
+ * selection keeps working everywhere else.
+ */
+.overlayLayer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  z-index: 4;
   pointer-events: none;
 }
 
-.highlightOverlay {
+.highlightRect {
   position: absolute;
-  background-color: rgba(255, 235, 59, 0.45);
   border-radius: 2px;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
   pointer-events: auto;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
-.highlightOverlay:hover {
-  background-color: rgba(255, 235, 59, 0.7);
-  box-shadow: 0 0 0 1px #f59e0b;
+.highlightRect:hover {
+  opacity: 0.6;
 }
 
+.highlightRectActive {
+  opacity: 0.6;
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 1px;
+}
+
+/* While the highlight tool is active, drags over existing highlights select text. */
+.passThrough {
+  pointer-events: none;
+}
+
+.pagesHighlightTool .pdfTextLayer {
+  cursor: text;
+}
+
+.findRect {
+  position: absolute;
+  background-color: rgba(250, 204, 21, 0.45);
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.findRectCurrent {
+  background-color: rgba(249, 115, 22, 0.55);
+  box-shadow: 0 0 0 1px #ea580c;
+}
+
+.citationRect {
+  position: absolute;
+  background-color: rgba(56, 189, 248, 0.3);
+  border-bottom: 2px solid #0284c7;
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  animation: aiHighlightPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes aiHighlightPulse {
+  0%,
+  100% {
+    background-color: rgba(56, 189, 248, 0.4);
+  }
+  50% {
+    background-color: rgba(56, 189, 248, 0.2);
+  }
+}
+
+/* Sticky note pin: its pointed bottom-left corner sits exactly on the stored anchor. */
 .stickyPin {
   position: absolute;
-  transform: translate(-50%, -100%);
+  transform: translate(0, -100%);
+  transform-origin: 0 100%;
   width: 28px;
   height: 28px;
   background-color: #3b82f6;
@@ -224,21 +348,184 @@
   cursor: grab;
   user-select: none;
   pointer-events: auto;
-  transition: transform 0.12s ease, background-color 0.15s;
+  transition: transform 0.12s ease, filter 0.15s;
   z-index: 10;
 }
 
 .stickyPin:hover {
-  transform: translate(-50%, -105%) scale(1.1);
-  background-color: #1d4ed8;
+  transform: translate(0, -100%) scale(1.1);
+  filter: brightness(0.9);
+}
+
+.stickyPinActive {
+  box-shadow: 0 0 0 3px var(--accent-blue), 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .stickyPinDragging {
   cursor: grabbing !important;
-  transform: translate(-50%, -105%) scale(1.2) !important;
+  transform: translate(0, -100%) scale(1.2) !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
   z-index: 40 !important;
   transition: none !important;
+}
+
+/* ─── Loading / error state ────────────────────────────────────────────── */
+.viewerStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 48px auto;
+  max-width: 420px;
+  padding: 24px;
+  color: #e5e7eb;
+  font-size: 13px;
+  text-align: center;
+}
+
+.viewerStatusError {
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid #ef4444;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+}
+
+.viewerStatusIcon {
+  color: #ef4444;
+  font-size: 22px;
+}
+
+.viewerStatusTitle {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.viewerStatusText {
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.viewerStatusActions {
+  display: flex;
+  gap: 8px;
+}
+
+.viewerStatusActions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Find bar ─────────────────────────────────────────────────────────── */
+.findBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.findIcon {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.findInput {
+  flex: 1;
+  max-width: 320px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.findInput:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.findStatus {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  min-width: 70px;
+}
+
+.findBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.findBtn:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.findBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Citation notice ──────────────────────────────────────────────────── */
+.citationNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  border-left: 3px solid #f59e0b;
+  color: var(--text-primary);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.citationNoticeIcon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.citationNoticeClose {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  padding: 2px;
+}
+
+.citationNoticeClose:hover {
+  color: var(--text-primary);
 }
 
 /* ─── Annotations Sidebar ──────────────────────────────────────────────── */
@@ -385,6 +672,12 @@
   min-height: 0;
   margin: -14px;
   height: calc(100% + 28px);
+}
+
+.sidebarHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .pdfNotesTitle {
@@ -546,6 +839,7 @@
 .notePopoverModal {
   position: absolute;
   z-index: 100;
+  pointer-events: auto;
   background-color: var(--bg-main);
   border: 1px solid var(--border-color);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
@@ -587,6 +881,9 @@
 }
 
 .btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background-color: var(--accent-blue);
   color: #ffffff;
   border: none;
@@ -619,19 +916,6 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── PDF Text Layer ───────────────────────────────────────────────────── */
-.pdfTextLayer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: clip;
-  z-index: 2;
-  user-select: text;
-  pointer-events: auto;
 }
 
 /* ─── Selection Popup (Floating Toolbar) ────────────────────────────────── */
@@ -709,6 +993,11 @@
 }
 
 .contextMenuItem {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -759,6 +1048,7 @@
 }
 
 .contextColorDot {
+  padding: 0;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -773,6 +1063,8 @@
 
 /* ─── Metadata Preview Notice Banner ─────────────────────────────────────── */
 .metadataPreviewNotice {
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -827,43 +1119,7 @@
   opacity: 0.9;
 }
 
-/* ─── AI Citation Grounded Highlight & Floating Banner ──────────────────── */
-.aiHighlightContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 15;
-}
-
-.aiCitationOverlay {
-  position: absolute;
-  background-color: rgba(56, 189, 248, 0.35);
-  border-bottom: 2px solid #0284c7;
-  border-radius: 2px;
-  mix-blend-mode: multiply;
-  animation: aiHighlightPulse 2.5s infinite ease-in-out;
-  pointer-events: auto;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
-}
-
-@keyframes aiHighlightPulse {
-  0% {
-    background-color: rgba(56, 189, 248, 0.45);
-    box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
-  }
-  50% {
-    background-color: rgba(56, 189, 248, 0.2);
-    box-shadow: 0 0 2px rgba(56, 189, 248, 0.15);
-  }
-  100% {
-    background-color: rgba(56, 189, 248, 0.45);
-    box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
-  }
-}
-
+/* ─── AI Citation Floating Banner ──────────────────────────────────────── */
 .aiCitationBanner {
   position: absolute;
   display: inline-flex;

@@ -257,3 +257,32 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.warningBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--status-warning);
+  background-color: var(--status-warning-subtle);
+  border: 1px solid var(--status-warning);
+  border-radius: 6px;
+}
+
+.warningBox svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.modalDialog:focus {
+  outline: none;
+}
+
+.modalCloseBtn:disabled,
+.btnSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

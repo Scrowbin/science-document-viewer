@@ -385,3 +385,55 @@
   background-color: var(--bg-sidebar);
 }
 
+
+/* ─── Offline / load-error banner ────────────────────────────────────────── */
+.offlineBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--status-danger);
+  background-color: var(--status-danger-subtle);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.offlineBanner span {
+  flex: 1;
+  min-width: 0;
+}
+
+.offlineRetryBtn {
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-on-accent);
+  background-color: var(--status-danger);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.offlineRetryBtn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.emptyViewer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.toastRegion {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: visible;
+}

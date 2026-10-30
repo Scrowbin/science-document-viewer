@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import styles from './AiChatPanel.module.css';
-import type { Document, ChatMessage, ChatSource } from '../../types';
-import { ragApi } from '../../api';
+import type { Document, ChatMessage, ChatSource, RagStatus } from '../../types';
+import { ragApi, classifyRagError, type RagErrorInfo } from '../../api/ragApi';
+import { useChatSessions } from '../../hooks/useChatSession';
+import type { ChatRequestKind } from '../../context/ChatSessionContextDefinition';
 import {
   FaRobot,
   FaPaperPlane,
@@ -11,6 +14,9 @@ import {
   FaFileLines,
   FaBookOpen,
   FaArrowsRotate,
+  FaStop,
+  FaCircleExclamation,
+  FaCircleInfo,
 } from 'react-icons/fa6';
 
 export interface AiChatPanelProps {
@@ -27,30 +33,100 @@ const STARTER_PROMPTS = [
   'Summarize the primary contributions.',
 ];
 
+/** Must match the backend limit (400 `question_too_long`). */
+const MAX_QUESTION_CHARS = 2000;
+
+const REPHRASE_HINTS = [
+  'Use the terms the paper itself uses (e.g. a method or dataset name).',
+  'Ask about one specific section, table, or result.',
+  'Split a compound question into smaller ones.',
+];
+
 let idCounter = 0;
 function nextId(prefix: string): string {
   idCounter += 1;
-  return `${prefix}-${idCounter}`;
+  return `${prefix}-${Date.now()}-${idCounter}`;
 }
 
 function getFormattedTime(): string {
   try {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } catch {
-    return 'Just now';
+    return '';
   }
 }
 
-function createWelcomeMessage(doc: Document): ChatMessage {
-  return {
-    id: `welcome-${doc.id}`,
-    role: 'assistant',
-    content: `Hello! I am your AI Research Assistant grounded in "${doc.title || 'this paper'}". Ask any technical question regarding the methodology, datasets, or experimental results, or click "Summarize Document" below.`,
-    timestamp: 'Just now',
-    sources: [
-      { page: 1, snippet: 'Document overview and introduction.' },
-    ],
-  };
+interface StatusDisplay {
+  label: string;
+  tone: 'success' | 'warning' | 'danger' | 'neutral';
+}
+
+function describeRagStatus(status: RagStatus | undefined, hasFile: boolean): StatusDisplay {
+  if (!hasFile) return { label: 'No PDF attached', tone: 'neutral' };
+  switch (status) {
+    case 'INDEXED':
+      return { label: 'Indexed', tone: 'success' };
+    case 'INDEXING':
+      return { label: 'Indexing…', tone: 'warning' };
+    case 'PENDING':
+      return { label: 'Queued for indexing', tone: 'warning' };
+    case 'FAILED':
+      return { label: 'Indexing failed', tone: 'danger' };
+    default:
+      return { label: 'Index status unknown', tone: 'neutral' };
+  }
+}
+
+function describeRequestError(info: RagErrorInfo, kind: ChatRequestKind): string {
+  const what = kind === 'summary' ? 'The summary' : kind === 'reindex' ? 'Re-indexing' : 'The answer';
+  switch (info.kind) {
+    case 'forbidden':
+      return kind === 'reindex'
+        ? 'Only the owner of this document can re-index it.'
+        : 'You do not have permission to use the AI assistant on this document.';
+    case 'indexing':
+      return 'This document is still being indexed. Try again once indexing has finished.';
+    case 'question_too_long':
+      return `Your question is too long. Please keep it under ${MAX_QUESTION_CHARS.toLocaleString()} characters.`;
+    case 'timeout':
+      return `${what} took too long (over 2 minutes). The local model may be overloaded; try again or ask a shorter question.`;
+    case 'network':
+      return 'Cannot reach the server. Check that the backend is running and your connection is up.';
+    case 'not_found':
+      return 'This document no longer exists on the server.';
+    case 'server':
+      return `${what} failed on the server${info.status ? ` (HTTP ${info.status})` : ''}${
+        info.detail ? `: ${info.detail}` : '.'
+      } Check that Ollama is running.`;
+    default:
+      return `${what} failed${info.status ? ` (HTTP ${info.status})` : ''}${info.detail ? `: ${info.detail}` : '.'}`;
+  }
+}
+
+// Answers come from an LLM: render Markdown, but never raw HTML, and open links safely.
+const markdownComponents: Components = {
+  a: ({ children, href }) => (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
+};
+
+function MarkdownContent({ text }: { text: string }) {
+  return (
+    <ReactMarkdown skipHtml components={markdownComponents}>
+      {text}
+    </ReactMarkdown>
+  );
+}
+
+function ElapsedSeconds({ since }: { since: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, []);
+  return <>{Math.max(0, Math.floor((now - since) / 1000))}s</>;
 }
 
 export const AiChatPanel: React.FC<AiChatPanelProps> = ({
@@ -59,163 +135,258 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   activeCitationChunkId,
   onClose,
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [createWelcomeMessage(doc)]);
+  const chat = useChatSessions();
+  const { messages, pending } = chat.getSession(doc.id);
   const [inputQuery, setInputQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const [prevDocId, setPrevDocId] = useState(doc.id);
-  if (doc.id !== prevDocId) {
-    setPrevDocId(doc.id);
-    setMessages([createWelcomeMessage(doc)]);
-    setInputQuery('');
-    setIsLoading(false);
-  }
+  const isBusy = pending !== null;
+  const isReindexing = pending?.kind === 'reindex';
+  const isIndexing = doc.ragStatus === 'INDEXING';
+  const isOwner = doc.userPermission === 'OWNER';
+  const hasFile = Boolean(doc.file);
+  const inputDisabled = isIndexing || isReindexing;
+  const status = describeRagStatus(isReindexing ? 'INDEXING' : doc.ragStatus, hasFile);
+  const lastModel = [...messages].reverse().find((m) => m.role === 'assistant' && m.model)?.model;
+  const questionTooLong = inputQuery.length > MAX_QUESTION_CHARS;
 
-  // Auto-scroll to bottom of messages
+  // Auto-scroll to the newest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages.length, isBusy]);
 
-  const [isReindexing, setIsReindexing] = useState(false);
+  const docId = doc.id;
+
+  const runRequest = async (kind: 'chat' | 'summary', userText: string, question?: string) => {
+    if (isBusy || inputDisabled) return;
+    chat.appendMessages(docId, [
+      { id: nextId('user'), role: 'user', content: userText, timestamp: getFormattedTime() },
+    ]);
+    const controller = chat.beginRequest(docId, kind);
+    try {
+      const res =
+        kind === 'chat' && question !== undefined
+          ? await ragApi.askQuestion(docId, question, { signal: controller.signal })
+          : await ragApi.summarizeDocument(docId, { signal: controller.signal });
+      chat.appendMessages(docId, [
+        {
+          id: nextId('assistant'),
+          role: 'assistant',
+          content: res.answer,
+          sources: res.refused ? [] : res.sources,
+          refused: res.refused,
+          degraded: res.degraded,
+          model: res.model,
+          timestamp: getFormattedTime(),
+        },
+      ]);
+    } catch (err) {
+      const info = classifyRagError(err);
+      if (info.kind === 'aborted') {
+        chat.appendMessages(docId, [
+          { id: nextId('notice'), role: 'assistant', content: 'Request stopped.', isNotice: true, timestamp: getFormattedTime() },
+        ]);
+      } else {
+        console.warn('AI assistant request failed:', err);
+        chat.appendMessages(docId, [
+          {
+            id: nextId('err'),
+            role: 'assistant',
+            content: describeRequestError(info, kind),
+            isError: true,
+            timestamp: getFormattedTime(),
+          },
+        ]);
+        if (info.kind === 'indexing') {
+          chat.setRagStatus(docId, 'INDEXING');
+        }
+      }
+    } finally {
+      chat.endRequest(docId, controller);
+    }
+  };
+
+  const handleSendMessage = (textToSend?: string) => {
+    const query = (textToSend ?? inputQuery).trim();
+    if (!query || query.length > MAX_QUESTION_CHARS) return;
+    if (textToSend === undefined) setInputQuery('');
+    void runRequest('chat', query, query);
+  };
+
+  const handleSummarize = () => {
+    void runRequest('summary', 'Summarize this document: key problem, methodology and findings.');
+  };
 
   const handleReindex = async () => {
-    if (isReindexing || isLoading) return;
-    setIsReindexing(true);
-    const systemNotice: ChatMessage = {
-      id: nextId('sys-reindex'),
-      role: 'assistant',
-      content: '🔄 Requesting vector re-indexing from local pipeline...',
-      timestamp: getFormattedTime(),
-    };
-    setMessages((prev) => [...prev, systemNotice]);
+    if (isBusy || !isOwner) return;
+    chat.appendMessages(docId, [
+      {
+        id: nextId('notice'),
+        role: 'assistant',
+        content: 'Re-indexing this document. This can take a minute on CPU…',
+        isNotice: true,
+        timestamp: getFormattedTime(),
+      },
+    ]);
+    chat.setRagStatus(docId, 'INDEXING');
+    const controller = chat.beginRequest(docId, 'reindex');
     try {
-      const res = await ragApi.reindexDocument(doc.id);
-      const doneNotice: ChatMessage = {
-        id: nextId('sys-reindex-done'),
-        role: 'assistant',
-        content: `✅ Document re-indexed successfully (${res.status || 'INDEXED'}). Vector store updated with fresh chunk embeddings.`,
-        timestamp: getFormattedTime(),
-      };
-      setMessages((prev) => [...prev, doneNotice]);
+      const res = await ragApi.reindexDocument(docId, { signal: controller.signal });
+      const ok = res.status === 'INDEXED';
+      chat.setRagStatus(docId, ok ? 'INDEXED' : 'FAILED');
+      chat.appendMessages(docId, [
+        ok
+          ? {
+              id: nextId('notice'),
+              role: 'assistant',
+              content: 'Re-indexing finished. The assistant is ready.',
+              isNotice: true,
+              timestamp: getFormattedTime(),
+            }
+          : {
+              id: nextId('err'),
+              role: 'assistant',
+              content: `Re-indexing failed${res.detail ? `: ${res.detail}` : '.'}`,
+              isError: true,
+              timestamp: getFormattedTime(),
+            },
+      ]);
     } catch (err) {
-      console.warn('Reindex error:', err);
-      const failNotice: ChatMessage = {
-        id: nextId('sys-reindex-fail'),
-        role: 'assistant',
-        content: '⚠️ Re-indexing request sent. Vector store will synchronize in the background.',
-        timestamp: getFormattedTime(),
-      };
-      setMessages((prev) => [...prev, failNotice]);
+      const info = classifyRagError(err);
+      chat.appendMessages(docId, [
+        info.kind === 'aborted'
+          ? {
+              id: nextId('notice'),
+              role: 'assistant',
+              content: 'Stopped waiting for re-indexing. It may still finish on the server.',
+              isNotice: true,
+              timestamp: getFormattedTime(),
+            }
+          : {
+              id: nextId('err'),
+              role: 'assistant',
+              content: describeRequestError(info, 'reindex'),
+              isError: true,
+              timestamp: getFormattedTime(),
+            },
+      ]);
     } finally {
-      setIsReindexing(false);
-    }
-  };
-
-  const handleSendMessage = async (textToSend?: string) => {
-    const query = (textToSend ?? inputQuery).trim();
-    if (!query || isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: nextId('user'),
-      role: 'user',
-      content: query,
-      timestamp: getFormattedTime(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputQuery('');
-    setIsLoading(true);
-
-    try {
-      const response = await ragApi.askQuestion(doc.id, query, doc.title);
-      const assistantMessage: ChatMessage = {
-        id: nextId('assistant'),
-        role: 'assistant',
-        content: response.answer,
-        sources: response.sources,
-        timestamp: getFormattedTime(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err) {
-      console.error('Failed to get answer:', err);
-      const errorMessage: ChatMessage = {
-        id: nextId('err'),
-        role: 'assistant',
-        content: 'An error occurred while communicating with the research assistant. Please verify your backend server or Ollama instance.',
-        isError: true,
-        timestamp: getFormattedTime(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSummarize = async () => {
-    if (isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: nextId('user-summary'),
-      role: 'user',
-      content: '✨ Please summarize this document with key methodology and findings.',
-      timestamp: getFormattedTime(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-
-    try {
-      const response = await ragApi.summarizeDocument(doc.id, doc.title);
-      const assistantMessage: ChatMessage = {
-        id: nextId('assistant-summary'),
-        role: 'assistant',
-        content: response.summary,
-        sources: response.sources,
-        timestamp: getFormattedTime(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err) {
-      console.error('Failed to summarize:', err);
-    } finally {
-      setIsLoading(false);
+      chat.endRequest(docId, controller);
+      // Re-read the authoritative status from the server.
+      chat.refreshDocument(docId).catch(() => undefined);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const handleClearHistory = () => {
-    setMessages([
-      {
-        id: nextId('cleared'),
-        role: 'assistant',
-        content: `Chat history cleared. How can I assist you with "${doc.title}"?`,
-        timestamp: getFormattedTime(),
-      },
-    ]);
+  const renderMessage = (msg: ChatMessage) => {
+    if (msg.role === 'user') {
+      return (
+        <div key={msg.id} className={styles.userMessageCard}>
+          <div className={styles.userMessageText}>{msg.content}</div>
+          {msg.timestamp && <div className={styles.messageMeta}>{msg.timestamp}</div>}
+        </div>
+      );
+    }
+
+    if (msg.isNotice || msg.isError) {
+      return (
+        <div
+          key={msg.id}
+          className={`${styles.noticeCard} ${msg.isError ? styles.noticeCardError : ''}`}
+          role={msg.isError ? 'alert' : undefined}
+        >
+          {msg.isError ? <FaCircleExclamation aria-hidden="true" /> : <FaCircleInfo aria-hidden="true" />}
+          <span>{msg.content}</span>
+        </div>
+      );
+    }
+
+    if (msg.refused) {
+      return (
+        <div key={msg.id} className={`${styles.assistantMessageCard} ${styles.refusedCard}`}>
+          <div className={styles.assistantHeader}>
+            <FaCircleInfo aria-hidden="true" />
+            <span>No answer found in this paper</span>
+          </div>
+          <p className={styles.refusedText}>
+            The retrieved passages do not contain enough evidence to answer this question. Try rephrasing:
+          </p>
+          <ul className={styles.hintList}>
+            {REPHRASE_HINTS.map((hint) => (
+              <li key={hint}>{hint}</li>
+            ))}
+          </ul>
+          {msg.timestamp && <div className={styles.messageMeta}>{msg.timestamp}</div>}
+        </div>
+      );
+    }
+
+    return (
+      <div key={msg.id} className={styles.assistantMessageCard}>
+        <div className={styles.assistantHeader}>
+          <FaRobot aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
+          <span>Grounded Answer</span>
+        </div>
+
+        {msg.degraded && (
+          <div className={styles.degradedBanner} role="note">
+            <FaCircleExclamation aria-hidden="true" />
+            <span>The local model did not respond; showing retrieved passages.</span>
+          </div>
+        )}
+
+        <div className={styles.messageContent}>
+          <MarkdownContent text={msg.content} />
+        </div>
+
+        {msg.sources && msg.sources.length > 0 && (
+          <div className={styles.sourcesSection}>
+            <span className={styles.sourcesSectionLabel}>Retrieved Citations:</span>
+            <div className={styles.sourcesBadgeRow}>
+              {msg.sources.map((src: ChatSource, sIdx: number) => {
+                const isActive =
+                  src.chunk_id != null && activeCitationChunkId != null && activeCitationChunkId === src.chunk_id;
+                const hasSection = src.section && !src.section.toLowerCase().startsWith('page ');
+                const label = `Page ${src.page}${hasSection ? ` • ${src.section}` : ''}`;
+                return (
+                  <button
+                    key={`${src.chunk_id ?? 'src'}-${sIdx}`}
+                    type="button"
+                    className={`${styles.pageCitationBadge} ${isActive ? styles.pageCitationBadgeActive : ''}`}
+                    onClick={() => onJumpToPage(src.page, src)}
+                    aria-pressed={isActive}
+                    aria-label={`Jump to source: ${label}`}
+                    title={
+                      src.snippet
+                        ? `[${src.section || `Page ${src.page}`}]\n"${src.snippet}"\nClick to jump & highlight section in document`
+                        : `Jump to Page ${src.page}`
+                    }
+                  >
+                    <FaBookOpen aria-hidden="true" style={{ fontSize: 10 }} />
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className={styles.messageMeta}>
+          {msg.model && <span className={styles.messageModel}>{msg.model}</span>}
+          <span>{msg.timestamp}</span>
+        </div>
+      </div>
+    );
   };
 
-  /**
-   * Helper to format markdown headings or bold text cleanly.
-   */
-  const renderFormattedContent = (content: string) => {
-    const lines = content.split('\n');
-    return lines.map((line, idx) => {
-      if (line.startsWith('### ')) {
-        return <h3 key={idx}>{line.replace('### ', '')}</h3>;
-      }
-      if (line.startsWith('## ')) {
-        return <h3 key={idx}>{line.replace('## ', '')}</h3>;
-      }
-      return <p key={idx}>{line}</p>;
-    });
-  };
+  const pendingLabel =
+    pending?.kind === 'reindex' ? 'Re-indexing' : pending?.kind === 'summary' ? 'Summarizing' : 'Thinking';
 
   return (
     <div className={styles.aiPanelWrapper}>
@@ -223,29 +394,34 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
       <div className={styles.panelHeader}>
         <div className={styles.panelHeaderLeft}>
           <span className={styles.panelTitle}>
-            <FaRobot className={styles.robotIcon} />
+            <FaRobot className={styles.robotIcon} aria-hidden="true" />
             AI Assistant
           </span>
-          <span className={styles.modelBadge}>llama3.2:3b</span>
+          {lastModel && <span className={styles.modelBadge} title="Model that produced the latest answer">{lastModel}</span>}
         </div>
 
         <div className={styles.headerActions}>
+          {isOwner && hasFile && (
+            <button
+              type="button"
+              className={styles.headerActionBtn}
+              onClick={handleReindex}
+              disabled={isBusy}
+              title="Re-index document vectors in local vector database"
+              aria-label="Re-index document"
+            >
+              <FaArrowsRotate className={isReindexing ? styles.spinIcon : ''} aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             className={styles.headerActionBtn}
-            onClick={handleReindex}
-            disabled={isReindexing || isLoading}
-            title="Re-index document vectors in local vector database"
-          >
-            <FaArrowsRotate className={isReindexing ? styles.spinIcon : ''} />
-          </button>
-          <button
-            type="button"
-            className={styles.headerActionBtn}
-            onClick={handleClearHistory}
+            onClick={() => chat.clearMessages(docId)}
+            disabled={isBusy || messages.length === 0}
             title="Clear chat history"
+            aria-label="Clear chat history"
           >
-            <FaRotateLeft />
+            <FaRotateLeft aria-hidden="true" />
           </button>
           {onClose && (
             <button
@@ -253,8 +429,9 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
               className={styles.headerActionBtn}
               onClick={onClose}
               title="Close AI panel"
+              aria-label="Close AI panel"
             >
-              <FaXmark />
+              <FaXmark aria-hidden="true" />
             </button>
           )}
         </div>
@@ -263,14 +440,27 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
       {/* 2. Document Context Banner */}
       <div className={styles.docContextBanner}>
         <span className={styles.docContextTitle} title={doc.title}>
-          <FaFileLines style={{ marginRight: 5, verticalAlign: 'middle' }} />
+          <FaFileLines aria-hidden="true" style={{ marginRight: 5, verticalAlign: 'middle' }} />
           {doc.title || 'Active Document'}
         </span>
-        <span className={styles.ragStatusIndicator}>
-          <span className={styles.ragStatusDot} />
-          {doc.ragStatus === 'INDEXED' ? 'Indexed' : 'RAG Active'}
+        <span className={`${styles.ragStatusIndicator} ${styles[`tone_${status.tone}`]}`} role="status">
+          <span className={styles.ragStatusDot} aria-hidden="true" />
+          {status.label}
         </span>
       </div>
+
+      {doc.ragStatus === 'FAILED' && !isReindexing && hasFile && (
+        <div className={styles.failedBanner} role="alert">
+          <span>Indexing this PDF failed, so the assistant cannot answer yet.</span>
+          {isOwner ? (
+            <button type="button" className={styles.retryBtn} onClick={handleReindex} disabled={isBusy}>
+              <FaArrowsRotate aria-hidden="true" /> Retry
+            </button>
+          ) : (
+            <span className={styles.failedHint}>Ask the owner to re-index it.</span>
+          )}
+        </div>
+      )}
 
       {/* 3. Quick Action & Starter Chips */}
       <div className={styles.quickActionsContainer}>
@@ -278,9 +468,9 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
           type="button"
           className={styles.summarizeHeroBtn}
           onClick={handleSummarize}
-          disabled={isLoading}
+          disabled={isBusy || inputDisabled}
         >
-          <FaWandMagicSparkles />
+          <FaWandMagicSparkles aria-hidden="true" />
           <span>Summarize Document</span>
         </button>
 
@@ -291,7 +481,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
               type="button"
               className={styles.promptChip}
               onClick={() => handleSendMessage(prompt)}
-              disabled={isLoading}
+              disabled={isBusy || inputDisabled}
             >
               {prompt}
             </button>
@@ -300,71 +490,33 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
       </div>
 
       {/* 4. Chat Messages Stream */}
-      <div className={styles.chatMessagesArea}>
-        {messages.length === 0 ? (
+      <div className={styles.chatMessagesArea} role="log" aria-live="polite" aria-label="AI assistant conversation">
+        {messages.length === 0 && !isBusy && (
           <div className={styles.emptyFeed}>
-            <FaRobot className={styles.emptyFeedIcon} />
-            <span>Ask any question to retrieve grounded answers from this research paper.</span>
+            <FaRobot className={styles.emptyFeedIcon} aria-hidden="true" />
+            <span>
+              Ask a question about “{doc.title || 'this paper'}”. Answers are grounded in the paper’s text and cite the
+              pages they come from.
+            </span>
           </div>
-        ) : (
-          messages.map((msg) => {
-            const isUser = msg.role === 'user';
-            return (
-              <div
-                key={msg.id}
-                className={isUser ? styles.userMessageCard : styles.assistantMessageCard}
-              >
-                {!isUser && (
-                  <div className={styles.assistantHeader}>
-                    <FaRobot style={{ color: 'var(--accent-blue)' }} />
-                    <span>Grounded Answer</span>
-                  </div>
-                )}
-
-                <div className={styles.messageContent}>
-                  {renderFormattedContent(msg.content)}
-                </div>
-
-                {/* Grounded Page Citations */}
-                {!isUser && msg.sources && msg.sources.length > 0 && (
-                  <div className={styles.sourcesSection}>
-                    <span className={styles.sourcesSectionLabel}>Retrieved Citations:</span>
-                    <div className={styles.sourcesBadgeRow}>
-                      {msg.sources.map((src: ChatSource, sIdx: number) => {
-                        const isActive = activeCitationChunkId === src.chunk_id;
-                        const hasSection = src.section && !src.section.toLowerCase().startsWith('page ');
-                        return (
-                          <button
-                            key={sIdx}
-                            type="button"
-                            className={`${styles.pageCitationBadge} ${isActive ? styles.pageCitationBadgeActive : ''}`}
-                            onClick={() => onJumpToPage(src.page, src)}
-                            title={src.snippet ? `[${src.section || `Page ${src.page}`}]\n"${src.snippet}"\nClick to jump & highlight section in document` : `Jump to Page ${src.page}`}
-                          >
-                            <FaBookOpen style={{ fontSize: 10 }} />
-                            <span>Page {src.page}{hasSection ? ` • ${src.section}` : ''}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div className={styles.messageMeta}>
-                  <span>{msg.timestamp}</span>
-                </div>
-              </div>
-            );
-          })
         )}
 
-        {/* Loading Indicator */}
-        {isLoading && (
+        {messages.map(renderMessage)}
+
+        {pending && (
           <div className={styles.loadingBubble}>
-            <FaRobot style={{ color: 'var(--accent-blue)', fontSize: 13 }} />
-            <div className={styles.typingDot} />
-            <div className={styles.typingDot} />
-            <div className={styles.typingDot} />
+            <FaRobot aria-hidden="true" style={{ color: 'var(--accent-blue)', fontSize: 13 }} />
+            <span className={styles.loadingLabel}>
+              {pendingLabel}… <ElapsedSeconds since={pending.startedAt} />
+            </span>
+            <button
+              type="button"
+              className={styles.stopBtn}
+              onClick={() => chat.abortRequest(docId)}
+              aria-label="Stop waiting for this request"
+            >
+              <FaStop aria-hidden="true" /> Stop
+            </button>
           </div>
         )}
 
@@ -373,28 +525,46 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
 
       {/* 5. Input Bar */}
       <div className={styles.inputContainer}>
+        <label htmlFor={`ai-chat-input-${docId}`} className={styles.visuallyHidden}>
+          Ask a question about this paper
+        </label>
         <div className={styles.inputForm}>
           <textarea
-            ref={textareaRef}
+            id={`ai-chat-input-${docId}`}
             rows={1}
             className={styles.chatTextarea}
-            placeholder="Ask anything about this paper... (Enter to send)"
+            placeholder={
+              inputDisabled ? 'Indexing in progress… please wait' : 'Ask anything about this paper... (Enter to send)'
+            }
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={inputDisabled}
+            aria-invalid={questionTooLong}
+            aria-describedby={`ai-chat-hint-${docId}`}
           />
           <button
             type="button"
             className={styles.sendButton}
             onClick={() => handleSendMessage()}
-            disabled={!inputQuery.trim() || isLoading}
-            title="Send query"
+            disabled={!inputQuery.trim() || isBusy || inputDisabled || questionTooLong}
+            title="Send question"
+            aria-label="Send question"
           >
-            <FaPaperPlane style={{ fontSize: 11 }} />
+            <FaPaperPlane aria-hidden="true" style={{ fontSize: 11 }} />
           </button>
         </div>
-        <div className={styles.inputHint}>
-          Press <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for newline
+        <div id={`ai-chat-hint-${docId}`} className={`${styles.inputHint} ${questionTooLong ? styles.inputHintError : ''}`}>
+          {questionTooLong ? (
+            <>
+              Question is too long ({inputQuery.length.toLocaleString()} / {MAX_QUESTION_CHARS.toLocaleString()}{' '}
+              characters).
+            </>
+          ) : (
+            <>
+              Press <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for newline
+            </>
+          )}
         </div>
       </div>
     </div>

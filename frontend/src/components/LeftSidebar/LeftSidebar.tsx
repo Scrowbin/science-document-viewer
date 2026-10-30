@@ -145,7 +145,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     const isActive = selectedCollectionId === col.id;
     const colDocs = documents
       ? documents.filter(
-          (d) => !d.inTrash && d.metadata.documentGroups?.includes(col.name)
+          (d) => !d.inTrash && d.collectionId === col.id
         )
       : [];
     const hasChildren = Boolean(col.children && col.children.length > 0);
