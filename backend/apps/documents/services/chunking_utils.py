@@ -11,7 +11,7 @@ import math
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import pymupdf
 from bs4 import BeautifulSoup
@@ -299,6 +299,8 @@ def chunk_document(pdf_path: str, strategy: Optional[str] = None) -> List[Docume
                             "chunk_size": len(c.get("text", "")),
                             "token_count": c.get("token_count", estimate_tokens(c.get("text", ""))),
                             "strategy": "hierarchical",
+                            # Citation location (not used in retrieval or the prompt)
+                            **{k: c[k] for k in ("loc_page_start", "loc_page_end", "locations") if k in c},
                         },
                     )
                     for i, c in enumerate(raw_chunks)
@@ -366,6 +368,24 @@ def estimate_tokens(text: str) -> int:
     return max(1, math.ceil(len(words) * 1.33))
 
 
+def _line_map_fields(
+    lines: List[str], meta: List[Tuple[int, List[float]]], sec_text: str, page_sizes: Dict[int, List[float]]
+) -> Dict[str, Any]:
+    """
+    Side output for citation highlighting: where each line of sec_text sits in the PDF.
+    line_map rows are [char_start, char_end, page, x0, y0, x1, y1] (PDF points, top-left origin).
+    The section text itself is never changed; if it is not exactly the newline-joined lines, no map is returned.
+    """
+    if len(lines) != len(meta) or "\n".join(lines) != sec_text:
+        return {}
+    rows, pos = [], 0
+    for text, (page, bbox) in zip(lines, meta):
+        rows.append([pos, pos + len(text), page, *bbox])
+        pos += len(text) + 1
+    pages = sorted({m[0] for m in meta})
+    return {"line_map": rows, "page_sizes": {p: page_sizes[p] for p in pages if p in page_sizes}}
+
+
 def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
     """
     Extracts structured academic sections from a PDF using layout-aware PyMuPDF.
@@ -379,17 +399,22 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
     sections: List[Dict[str, Any]] = []
     current_title = "Abstract"
     current_text_lines: List[str] = []
+    # Parallel to current_text_lines: (page, [x0, y0, x1, y1]) of each line, for citation locations
+    current_line_meta: List[Tuple[int, List[float]]] = []
+    page_sizes: Dict[int, List[float]] = {}
     current_start_page = 1
     current_end_page = 1
 
     for page_idx in range(len(doc)):
         page = doc[page_idx]
         page_num = page_idx + 1
+        page_sizes[page_num] = [round(page.rect.width, 2), round(page.rect.height, 2)]
         d = page.get_text("dict")
 
         for b in d.get("blocks", []):
             if b.get("type") == 0:
                 block_lines: List[str] = []
+                block_meta: List[Tuple[int, List[float]]] = []
                 for l in b.get("lines", []):
                     line_spans = [
                         s.get("text", "").strip()
@@ -398,6 +423,7 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                     ]
                     if line_spans:
                         block_lines.append(" ".join(line_spans))
+                        block_meta.append((page_num, [round(float(v), 2) for v in l.get("bbox", (0, 0, 0, 0))]))
 
                 if not block_lines:
                     continue
@@ -445,8 +471,10 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                                 "page_end": current_end_page,
                                 "text": sec_text,
                                 "token_count": estimate_tokens(sec_text),
+                                **_line_map_fields(current_text_lines, current_line_meta, sec_text, page_sizes),
                             })
                         current_text_lines = []
+                        current_line_meta = []
 
                     current_title = first_line
                     current_start_page = page_num
@@ -454,8 +482,10 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
 
                     if len(block_lines) > content_start_idx:
                         current_text_lines.extend(block_lines[content_start_idx:])
+                        current_line_meta.extend(block_meta[content_start_idx:])
                 else:
                     current_text_lines.extend(block_lines)
+                    current_line_meta.extend(block_meta)
                     current_end_page = page_num
 
     # Flush final section
@@ -468,6 +498,7 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                 "page_end": current_end_page,
                 "text": sec_text,
                 "token_count": estimate_tokens(sec_text),
+                **_line_map_fields(current_text_lines, current_line_meta, sec_text, page_sizes),
             })
 
     doc.close()

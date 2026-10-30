@@ -6,7 +6,7 @@ Provides unified chunking implementations across:
   3. semantic: Sentence splitting + consecutive sentence embedding similarity + drop thresholding (percentile-based) with max_token ceiling.
   4. section: Pure section-based chunks (1 chunk per section).
   5. section_token: Section-aware chunking bounded to max_tokens, zero overlap.
-  6. section_overlap: Section-aware chunking with token limits and sliding window overlap (production default).
+  6. section_overlap: Section-aware chunking with token limits and sliding window overlap (flat baseline; default of the /chunks/ inspection API).
 """
 
 import math
@@ -223,6 +223,36 @@ def chunk_semantic(
     return chunks
 
 
+def locate_span(section: Dict[str, Any], char_start: int, char_end: int) -> Dict[str, Any]:
+    """
+    Citation location of section text[char_start:char_end], from the section's line_map
+    (rows [char_start, char_end, page, x0, y0, x1, y1]; see chunking_utils.extract_sections_from_pdf).
+    Returns {} when the section has no line map. Lines cut by the span are clipped horizontally in
+    proportion to the characters covered (an approximation; glyph widths vary).
+    """
+    rows = section.get("line_map")
+    if not rows:
+        return {}
+    sizes = section.get("page_sizes") or {}
+    by_page: Dict[int, List[List[float]]] = {}
+    for ls, le, page, x0, y0, x1, y1 in rows:
+        if le <= char_start or ls >= char_end or le <= ls:
+            continue
+        a = (max(char_start, ls) - ls) / (le - ls)
+        b = (min(char_end, le) - ls) / (le - ls)
+        by_page.setdefault(int(page), []).append(
+            [round(x0 + a * (x1 - x0), 2), y0, round(x0 + b * (x1 - x0), 2), y1])
+    if not by_page:
+        return {}
+    pages = sorted(by_page)
+    return {
+        "loc_page_start": pages[0],
+        "loc_page_end": pages[-1],
+        "locations": [{"page": p, "width": (sizes.get(p) or [0, 0])[0], "height": (sizes.get(p) or [0, 0])[1],
+                       "rects": by_page[p]} for p in pages],
+    }
+
+
 def chunk_hierarchical(
     sections: List[Dict[str, Any]],
     child_max_tokens: int = 200,
@@ -272,6 +302,7 @@ def chunk_hierarchical(
                 "char_end": len(parent_text),
                 "chunk_index": 0,
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
+                **locate_span(sec, 0, len(parent_text)),
             })
             continue
 
@@ -305,6 +336,7 @@ def chunk_hierarchical(
                 "char_end": char_end,
                 "chunk_index": c_idx,
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
+                **locate_span(sec, char_start, char_end),
             })
             c_idx += 1
             start_idx += step_words

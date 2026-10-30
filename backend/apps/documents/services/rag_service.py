@@ -346,6 +346,10 @@ class RagService:
                 "strategy": strat,
                 "version": "1.0",
             }
+            # Citation location (PDF points, top-left origin); display only, not used in retrieval or prompts
+            for key in ("loc_page_start", "loc_page_end", "locations"):
+                if chunk.get(key) is not None:
+                    payload[key] = chunk[key]
 
             # If hierarchical, record parent
             if is_hierarchical:
@@ -1314,7 +1318,10 @@ def query_document(
             "parent_id": doc.metadata.get("parent_id"),
             "char_start": doc.metadata.get("char_start"),
             "char_end": doc.metadata.get("char_end"),
-            "parent_text": doc.metadata.get("parent_text"),
+            # Citation location for the viewer (null for documents indexed before locations existed)
+            "page_start": doc.metadata.get("loc_page_start"),
+            "page_end": doc.metadata.get("loc_page_end"),
+            "locations": doc.metadata.get("locations"),
         })
 
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
@@ -1376,7 +1383,8 @@ def summarize_document(
         page = doc.metadata.get("page", 1)
         chunk_id = doc.metadata.get("matched_child_id", doc.metadata.get("chunk_id", f"summary-p{page}"))
         section = doc.metadata.get("section", "")
-        matched_text = doc.metadata.get("matched_child_text", doc.page_content).strip()
+        # child_text has no "[heading]" prefix, so the viewer can match it against the page text
+        matched_text = (doc.metadata.get("matched_child_text") or doc.metadata.get("child_text") or doc.page_content).strip()
         raw_text = doc.page_content.strip()
         snippet = matched_text.replace("\n", " ")
         if len(snippet) > 150:
@@ -1390,7 +1398,10 @@ def summarize_document(
             "parent_id": doc.metadata.get("parent_id"),
             "char_start": doc.metadata.get("char_start"),
             "char_end": doc.metadata.get("char_end"),
-            "parent_text": doc.metadata.get("parent_text"),
+            # Citation location for the viewer (null for documents indexed before locations existed)
+            "page_start": doc.metadata.get("loc_page_start"),
+            "page_end": doc.metadata.get("loc_page_end"),
+            "locations": doc.metadata.get("locations"),
         })
 
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
