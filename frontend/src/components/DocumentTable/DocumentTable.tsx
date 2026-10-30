@@ -59,11 +59,7 @@ const COLUMNS: Array<{ key: SortKey; label: string; width: string }> = [
 
 function RagBadge({ doc }: { doc: Document }) {
   if (!doc.file) {
-    return (
-      <span className={styles.metadataOnlyBadge} title="Bibliographic metadata only. Attach original PDF to read full text.">
-        Metadata Only
-      </span>
-    );
+    return null;
   }
   switch (doc.ragStatus) {
     case 'INDEXED':
