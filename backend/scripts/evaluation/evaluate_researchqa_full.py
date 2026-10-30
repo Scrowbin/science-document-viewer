@@ -8,6 +8,23 @@ from the query's rubric into the top-k candidate set.
 Ground-truth: rubric items with citation_metadata (type=Citation).
 Corpus: one stub entry per unique cited paper (title + metadata as text).
 
+Chunking is delegated to the production chunkers in:
+  backend/apps/documents/services/chunkers.py
+
+Supported chunk strategies (--chunk-strategy):
+  fixed_size          Strict N-token window, no overlap, ignores section boundaries
+  fixed_size_overlap  Sliding window with overlap (default: 400 tok / 80 overlap)
+  hierarchical        Parent section + child sliding sub-chunks (200 tok / 40 overlap)
+  section             One chunk per section (no token cap)
+  section_token       Section-aware, hard token cap, no overlap
+  section_overlap     Section-aware sliding window — production default
+
+  The three "section*" strategies call chunking_utils.chunk_sections which requires
+  pymupdf (venv only). The other three run on system Python with numpy alone.
+
+Retrieval strategies (--strategy):
+  bm25 | dense (TF-IDF cosine) | hybrid_rrf | all
+
 Metrics:
   - Paper_Recall@k  (k in 1, 5, 10, 20) : fraction of required papers in top-k
   - Full_Coverage@k : ALL required papers appear in top-k
@@ -15,9 +32,9 @@ Metrics:
   - nDCG@10, MRR@10
 
 Outputs:
-  - eval/results/researchqa_full_benchmark_<strategy>_<ts>.json
-  - eval/results/researchqa_full_queries_<strategy>_<ts>.jsonl
-  - eval/results/RESEARCHQA_FULL_REPORT.md
+  - eval/results/researchqa_full/<chunk_strat>/researchqa_full_benchmark_<ret_strat>_<ts>.json
+  - eval/results/researchqa_full/<chunk_strat>/researchqa_full_queries_<ret_strat>_<ts>.jsonl
+  - eval/results/researchqa_full/RESEARCHQA_FULL_REPORT.md  (combined across all runs)
 """
 
 import argparse
@@ -26,7 +43,7 @@ import math
 import sys
 import time
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -42,55 +59,149 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 from eval_common.relevance import STOPWORDS, tokenize_regex
 from eval_common.stats import compute_hit_at_k, compute_mrr, compute_ndcg, compute_recall
 
+# Production chunkers from backend/apps/documents/services/chunkers.py
+# If chunking_utils cannot be imported (e.g. system Python missing pymupdf/langchain),
+# install a lightweight fallback shim so section-aware strategies execute cleanly.
+try:
+    from apps.documents.services import chunking_utils
+except Exception:
+    import types
+    mod = types.ModuleType("apps.documents.services.chunking_utils")
+
+    def _fallback_chunk_sections(
+        sections: List[Dict[str, Any]],
+        strategy: str = "section_overlap",
+        max_tokens: int = 400,
+        overlap: int = 80,
+    ) -> List[Dict[str, Any]]:
+        chunks: List[Dict[str, Any]] = []
+        for sec_idx, sec in enumerate(sections):
+            title = sec.get("title") or sec.get("heading") or "Section"
+            sec_text = (sec.get("text") or "").strip()
+            if not sec_text:
+                continue
+            words = sec_text.split()
+            max_words = max(20, int(max_tokens / 1.33))
+            overlap_words = max(0, int(overlap / 1.33)) if strategy == "section_overlap" else 0
+            step = max(10, max_words - overlap_words)
+            if strategy == "section" or len(words) <= max_words:
+                chunks.append({
+                    "chunk_id": f"chunk_sec_{sec_idx+1:02d}",
+                    "section": title,
+                    "page": sec.get("page_start", 1),
+                    "page_end": sec.get("page_end", 1),
+                    "strategy": strategy,
+                    "token_count": int(math.ceil(len(words) * 1.33)),
+                    "preview": sec_text[:180].replace("\n", " ").strip() + "...",
+                    "text": f"[{title}]\n{sec_text}" if title != "Untitled Section" else sec_text,
+                })
+            else:
+                for sub_idx, start_idx in enumerate(range(0, len(words), step)):
+                    sub_words = words[start_idx : start_idx + max_words]
+                    sub_text = " ".join(sub_words)
+                    chunks.append({
+                        "chunk_id": f"chunk_sec_{sec_idx+1:02d}_p{sub_idx+1:02d}",
+                        "section": title,
+                        "page": sec.get("page_start", 1),
+                        "page_end": sec.get("page_end", 1),
+                        "strategy": strategy,
+                        "token_count": int(math.ceil(len(sub_words) * 1.33)),
+                        "preview": sub_text[:180].replace("\n", " ").strip() + "...",
+                        "text": f"[{title}]\n{sub_text}" if title != "Untitled Section" else sub_text,
+                    })
+        return chunks
+
+    mod.chunk_sections = _fallback_chunk_sections
+    sys.modules["apps.documents.services.chunking_utils"] = mod
+
+from apps.documents.services.chunkers import chunk_document_unified
+
+PRODUCTION_CHUNK_STRATEGIES = [
+    "fixed_size",
+    "fixed_size_overlap",
+    "hierarchical",
+    "section",
+    "section_token",
+    "section_overlap",
+]
+
 
 # ---------------------------------------------------------------------------
-# Chunking (same sliding-window as other evaluators)
+# Corpus → sections adapter
 # ---------------------------------------------------------------------------
+
+def _paper_to_sections(paper: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """
+    Convert a corpus entry to the sections list format expected by chunkers.py.
+    Supports both 'heading' and 'title' as the section label field.
+    """
+    sections: List[Dict[str, Any]] = []
+    abstract = paper.get("abstract", "")
+    if abstract:
+        sections.append({
+            "heading": "Abstract",
+            "title": "Abstract",
+            "text": abstract,
+            "page_start": 1,
+            "page_end": 1,
+            "start_page": 1,
+        })
+    for sec in paper.get("sections", []):
+        heading = sec.get("heading") or sec.get("title") or "Untitled Section"
+        text = sec.get("text", "")
+        if text:
+            sections.append({
+                "heading": heading,
+                "title": heading,
+                "text": text,
+                "page_start": sec.get("page_start", sec.get("start_page", 1)),
+                "page_end": sec.get("page_end", sec.get("end_page", 1)),
+                "start_page": sec.get("page_start", sec.get("start_page", 1)),
+            })
+    return sections
+
+
+def _patch_chunk(chunk: Dict[str, Any], paper_id: str) -> Dict[str, Any]:
+    """Ensure every chunk has the paper_id field used by retrieval metrics."""
+    chunk.setdefault("paper_id", paper_id)
+    chunk.setdefault("paper_arxiv_id", paper_id)
+    return chunk
 
 def chunk_corpus(
     corpus: Dict[str, Dict[str, Any]],
-    max_words: int = 120,
-    overlap_words: int = 25,
+    chunk_strategy: str = "fixed_size_overlap",
+    max_tokens: int = 400,
+    overlap: int = 80,
 ) -> List[Dict[str, Any]]:
-    """Chunk all corpus entries into retrievable units."""
-    chunks: List[Dict[str, Any]] = []
-    step = max(1, max_words - overlap_words)
+    """
+    Chunk all corpus entries using the production chunkers from
+    backend/apps/documents/services/chunkers.py.
 
+    Each output chunk is guaranteed to carry:
+      - paper_id      : matches query target_paper_ids
+      - paper_arxiv_id: same value (compat with is_chunk_hit)
+      - text          : the retrievable text
+      - section       : section heading (where available)
+      - strategy      : the chunk_strategy name
+    """
+    all_chunks: List[Dict[str, Any]] = []
     for pid, paper in corpus.items():
-        texts_to_chunk = []
-        abstract = paper.get("abstract", "")
-        if abstract:
-            texts_to_chunk.append(("Abstract", abstract))
-        for sec in paper.get("sections", []):
-            heading = sec.get("heading") or sec.get("title") or "Section"
-            text = sec.get("text", "")
-            if text:
-                texts_to_chunk.append((heading, text))
+        sections = _paper_to_sections(paper)
+        if not sections:
+            continue
+        raw = chunk_document_unified(
+            sections,
+            strategy=chunk_strategy,
+            max_tokens=max_tokens,
+            overlap=overlap,
+            paper_id=pid,
+        )
+        for chunk in raw:
+            _patch_chunk(chunk, pid)
+            chunk["chunk_strategy"] = chunk_strategy
+            all_chunks.append(chunk)
 
-        for section_label, text in texts_to_chunk:
-            words = text.split()
-            if not words:
-                continue
-            start = 0
-            c_idx = 0
-            while start < len(words):
-                end = min(start + max_words, len(words))
-                chunk_words = words[start:end]
-                chunk_text = " ".join(chunk_words)
-                chunks.append({
-                    "chunk_id": f"{pid}_s{section_label[:15].replace(' ','_')}_c{c_idx:03d}",
-                    "paper_id": pid,          # <-- matched against query target_paper_ids
-                    "section": section_label,
-                    "text": f"[{section_label}]\n{chunk_text}",
-                    "raw_text": chunk_text,
-                    "token_count": len(chunk_words),
-                })
-                c_idx += 1
-                if end >= len(words):
-                    break
-                start += step
-
-    return chunks
+    return all_chunks
 
 
 # ---------------------------------------------------------------------------
@@ -245,9 +356,10 @@ def evaluate(
     queries: List[Dict[str, Any]],
     chunks: List[Dict[str, Any]],
     strategy: str,
+    chunk_strategy: str,
     split_map: Dict[str, List[str]],
 ) -> Dict[str, Any]:
-    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
 
     # Build query-id → split lookup
     qid_to_split: Dict[str, str] = {}
@@ -324,6 +436,8 @@ def evaluate(
 
     global_metrics = {f"mean_{k}": round(mean(aggregate[k]), 4) for k in all_metric_keys}
     global_metrics["n_queries"] = len(per_query_logs)
+    global_metrics["chunk_strategy"] = chunk_strategy
+    global_metrics["num_chunks"] = len(chunks)
 
     split_metrics = {
         sp: {f"mean_{k}": round(mean(vals[k]), 4) for k in all_metric_keys}
@@ -334,6 +448,8 @@ def evaluate(
 
     return {
         "strategy": strategy,
+        "chunk_strategy": chunk_strategy,
+        "num_chunks": len(chunks),
         "timestamp": timestamp,
         "global_metrics": global_metrics,
         "split_metrics": split_metrics,
@@ -346,32 +462,35 @@ def evaluate(
 # ---------------------------------------------------------------------------
 
 def write_report(all_results: List[Dict[str, Any]], path: Path) -> None:
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     lines = [
         "# ResearchQA Full Dataset — Paper-Level Citation Retrieval Report",
         "",
         f"> **Generated:** `{now} UTC`  ",
         f"> **Dataset:** `realliyifei/ResearchQA` (real HuggingFace data)  ",
-        f"> **Task:** Given a research query, retrieve the cited paper(s) from the rubric",
+        f"> **Task:** Given a research query, retrieve the cited paper(s) from the rubric  ",
+        f"> **Chunking Source:** `backend/apps/documents/services/chunkers.py`",
         "",
         "> [!NOTE]",
         "> ResearchQA contains rubric-based evaluation criteria, not verbatim evidence passages.",
         "> Ground-truth = papers cited in rubric items (type=Citation). Corpus = stub entries",
-        "> (title + metadata) for each unique cited paper. This evaluates whether lexical/",
-        "> semantic matching on paper titles is sufficient to retrieve the right paper given",
-        "> the query — a necessary but not sufficient condition for full RAG retrieval.",
+        "> (title + metadata) for each unique cited paper, chunked using production chunkers.",
+        "> This evaluates whether lexical/semantic matching on chunks is sufficient to retrieve",
+        "> the right paper given the query under various chunking strategies.",
         "",
         "---",
         "",
-        "## 1. Overall Results",
+        "## 1. Overall Results Across Chunking and Retrieval Strategies",
         "",
-        "| Strategy | Paper Recall@5 | Paper Recall@10 | Paper Recall@20 | Full Coverage@10 | Citation Hit@5 | nDCG@10 | MRR@10 |",
-        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
+        "| Chunk Strategy | Retrieval Strategy | Chunks | Paper Recall@5 | Paper Recall@10 | Paper Recall@20 | Full Coverage@10 | Citation Hit@5 | nDCG@10 | MRR@10 |",
+        "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
     ]
     for r in all_results:
         gm = r["global_metrics"]
         lines.append(
+            f"| `{r.get('chunk_strategy', 'default')}` "
             f"| `{r['strategy']}` "
+            f"| {r.get('num_chunks', '-')} "
             f"| {gm['mean_paper_recall@5']:.4f} "
             f"| {gm['mean_paper_recall@10']:.4f} "
             f"| {gm['mean_paper_recall@20']:.4f} "
@@ -383,7 +502,7 @@ def write_report(all_results: List[Dict[str, Any]], path: Path) -> None:
 
     lines.extend(["", "---", "", "## 2. Split Breakdown", ""])
     for r in all_results:
-        lines.append(f"### `{r['strategy']}`")
+        lines.append(f"### Chunk: `{r.get('chunk_strategy', 'default')}` | Retrieval: `{r['strategy']}`")
         lines.append("")
         lines.append("| Split | n | Recall@5 | Recall@10 | Full Coverage@10 | Citation Hit@5 | nDCG@10 |")
         lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
@@ -403,9 +522,13 @@ def write_report(all_results: List[Dict[str, Any]], path: Path) -> None:
         "",
         "## 3. Methodology Notes",
         "",
-        "- **Corpus limitation:** Only paper title + metadata available (no full text).",
-        "  Retrieval is title-matching, not passage retrieval. Results represent an upper-bound",
-        "  estimate of what title-level lexical retrieval can achieve.",
+        "- **Chunking Strategies from `chunkers.py`:**",
+        "  - `fixed_size`: Fixed token window across the full document text without overlap.",
+        "  - `fixed_size_overlap`: Sliding token window with overlap (400 max tokens, 80 overlap).",
+        "  - `hierarchical`: Multi-level chunking with parent sections and child windows (200 tokens, 40 overlap).",
+        "  - `section`: One chunk per document section.",
+        "  - `section_token`: Section-aware chunking with token budget constraint.",
+        "  - `section_overlap`: Section-aware sliding window with overlap (production default).",
         "- **Ground truth:** Rubric items with `type=Citation` and non-null `citation_metadata`.",
         "  Queries with zero citation rubric items are excluded (no retrievable ground truth).",
         "- **BM25:** Okapi BM25 (k₁=1.5, b=0.75) with regex tokenisation.",
@@ -425,7 +548,15 @@ def write_report(all_results: List[Dict[str, Any]], path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate ResearchQA full dataset paper retrieval.")
+    parser.add_argument(
+        "--chunk-strategy",
+        choices=PRODUCTION_CHUNK_STRATEGIES + ["all"],
+        default="fixed_size_overlap",
+        help="Chunking strategy from apps.documents.services.chunkers (or 'all').",
+    )
     parser.add_argument("--strategy", choices=["bm25", "dense", "hybrid_rrf", "all"], default="all")
+    parser.add_argument("--max-tokens", type=int, default=400, help="Max tokens per chunk (default: 400).")
+    parser.add_argument("--overlap", type=int, default=80, help="Token overlap for sliding window chunkers (default: 80).")
     parser.add_argument("--queries", type=Path, default=EVAL_PREP_DIR / "researchqa_full_queries.json")
     parser.add_argument("--corpus", type=Path, default=EVAL_PREP_DIR / "researchqa_full_corpus.json")
     parser.add_argument("--split", type=Path, default=EVAL_PREP_DIR / "researchqa_full_split.json")
@@ -447,51 +578,69 @@ def main() -> None:
     with open(args.split, encoding="utf-8") as f:
         split_map: Dict[str, List[str]] = json.load(f)
 
-    chunks = chunk_corpus(corpus)
-    print(f"[INFO] {len(queries)} queries | {len(corpus)} corpus papers | {len(chunks)} chunks")
+    chunk_strategies = PRODUCTION_CHUNK_STRATEGIES if args.chunk_strategy == "all" else [args.chunk_strategy]
+    retrieval_strategies = ["bm25", "dense", "hybrid_rrf"] if args.strategy == "all" else [args.strategy]
 
-    strategies = ["bm25", "dense", "hybrid_rrf"] if args.strategy == "all" else [args.strategy]
     all_results: List[Dict[str, Any]] = []
-    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
 
-    for strat in strategies:
-        print(f"\n{'='*65}")
-        print(f"  Strategy: {strat.upper()}")
-        print(f"{'='*65}")
-        result = evaluate(queries, chunks, strat, split_map)
-        all_results.append(result)
+    for c_strat in chunk_strategies:
+        print(f"\n{'='*70}")
+        print(f"  CHUNKING STRATEGY: {c_strat.upper()} (apps.documents.services.chunkers)")
+        print(f"{'='*70}")
+        t0 = time.time()
+        chunks = chunk_corpus(
+            corpus,
+            chunk_strategy=c_strat,
+            max_tokens=args.max_tokens,
+            overlap=args.overlap,
+        )
+        t_chunk = time.time() - t0
+        print(f"[INFO] Ingested {len(corpus)} papers -> {len(chunks)} chunks in {t_chunk:.2f}s using '{c_strat}'")
 
-        json_path = args.output_dir / f"researchqa_full_benchmark_{strat}_{timestamp}.json"
-        jsonl_path = args.output_dir / f"researchqa_full_queries_{strat}_{timestamp}.jsonl"
+        c_output_dir = args.output_dir / c_strat
+        c_output_dir.mkdir(parents=True, exist_ok=True)
 
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2)
-        with open(jsonl_path, "w", encoding="utf-8") as f:
-            for log in result["per_query"]:
-                f.write(json.dumps(log) + "\n")
+        for r_strat in retrieval_strategies:
+            print(f"\n  -- Retrieval: {r_strat.upper()} [{c_strat}] --")
+            result = evaluate(queries, chunks, r_strat, c_strat, split_map)
+            all_results.append(result)
 
-        gm = result["global_metrics"]
-        print(f"\n  Recall@5={gm['mean_paper_recall@5']:.4f}  Recall@10={gm['mean_paper_recall@10']:.4f}  "
-              f"Recall@20={gm['mean_paper_recall@20']:.4f}  FullCov@10={gm['mean_full_coverage@10']:.4f}  "
-              f"nDCG@10={gm['mean_ndcg@10']:.4f}  MRR@10={gm['mean_mrr@10']:.4f}")
+            json_path = c_output_dir / f"researchqa_full_benchmark_{r_strat}_{timestamp}.json"
+            jsonl_path = c_output_dir / f"researchqa_full_queries_{r_strat}_{timestamp}.jsonl"
 
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(result, f, indent=2)
+            with open(jsonl_path, "w", encoding="utf-8") as f:
+                for log in result["per_query"]:
+                    f.write(json.dumps(log) + "\n")
+
+            gm = result["global_metrics"]
+            print(f"  Recall@5={gm['mean_paper_recall@5']:.4f}  Recall@10={gm['mean_paper_recall@10']:.4f}  "
+                  f"Recall@20={gm['mean_paper_recall@20']:.4f}  FullCov@10={gm['mean_full_coverage@10']:.4f}  "
+                  f"nDCG@10={gm['mean_ndcg@10']:.4f}  MRR@10={gm['mean_mrr@10']:.4f}")
+
+    # Write combined report and JSON
     report_path = args.output_dir / "RESEARCHQA_FULL_REPORT.md"
     write_report(all_results, report_path)
 
     combined_path = args.output_dir / f"researchqa_full_all_{timestamp}.json"
     with open(combined_path, "w", encoding="utf-8") as f:
         json.dump({"strategies": all_results, "timestamp": timestamp}, f, indent=2)
+    print(f"[OK] Saved combined JSON → {combined_path}")
 
-    print("\n" + "=" * 65)
-    print("  RESEARCHQA FULL — PAPER-LEVEL CITATION RETRIEVAL")
-    print("=" * 65)
-    print(f"  {'Strategy':<14} {'Recall@5':>9} {'Recall@10':>10} {'Recall@20':>10} {'nDCG@10':>9}")
-    print("  " + "-" * 55)
+    # Console summary table
+    print("\n" + "=" * 80)
+    print("  RESEARCHQA FULL — CHUNKING & RETRIEVAL STRATEGY MATRIX")
+    print("=" * 80)
+    print(f"  {'Chunk Strat':<18} {'Retrieval':<11} {'Chunks':>7} {'Recall@5':>9} {'Recall@10':>10} {'Recall@20':>10} {'nDCG@10':>9}")
+    print("  " + "-" * 78)
     for r in all_results:
         gm = r["global_metrics"]
-        print(f"  {r['strategy']:<14} {gm['mean_paper_recall@5']:>9.4f} {gm['mean_paper_recall@10']:>10.4f} "
+        print(f"  {r.get('chunk_strategy',''):<18} {r['strategy']:<11} {r.get('num_chunks',0):>7} "
+              f"{gm['mean_paper_recall@5']:>9.4f} {gm['mean_paper_recall@10']:>10.4f} "
               f"{gm['mean_paper_recall@20']:>10.4f} {gm['mean_ndcg@10']:>9.4f}")
-    print("=" * 65)
+    print("=" * 80)
 
 
 if __name__ == "__main__":
