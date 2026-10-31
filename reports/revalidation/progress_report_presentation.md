@@ -357,7 +357,16 @@ flowchart LR
 | section_overlap | 0.381 | 0.406 | 0.429 |
 | fixed_size | 0.406 | 0.439 | 0.449 |
 
-- **Fusion adds +0.02 to +0.05 for flat chunkers and weaker embedders,** but nothing for the production pair (e5 + hierarchical: convex −0.005). RQ4's "hybrid adds nothing" is true for production, not in general.
+- **Fusion (convex_fix vs dense) helps flat chunkers, not hierarchical.** Paired bootstrap per chunker × embedder, Holm over the 15 cells (exploratory: tested after seeing the grid):
+
+  | Chunker | e5 | ModernBERT | arctic | bge | MiniLM |
+  |---|---|---|---|---|---|
+  | hierarchical | −0.005 | +0.006 | +0.017 | +0.032 | +0.037 |
+  | section_overlap | +0.036 | +0.042 | **+0.039*** | **+0.047*** | **+0.074*** |
+  | fixed_size | **+0.053*** | +0.037 | **+0.043*** | +0.027 | **+0.056*** |
+
+  \* significant after Holm. All 10 flat cells gain, 6 significantly; no hierarchical cell is significant, and the production pair (hierarchical + e5) is −0.005 [−0.035, +0.024]. RQ4's "hybrid adds nothing" is true for production, not in general.
+- **Weaker embedders gaining more is only a trend,** and only within hierarchical (e5 < ModernBERT < arctic < bge < MiniLM, none significant alone). Among flat chunkers it doesn't hold: e5 gains the most with fixed_size.
 - **The old production fusion (`rrf_prod`) is the worst mode under every chunker,** which confirms the switch to dense.
 - **Embedders keep the same order under every chunker,** so no embedder needs a special chunker.
 
@@ -405,7 +414,7 @@ flowchart LR
 |---|---|---|
 | **Retrieval quality ranking:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM; none beats e5 significantly | RQ3 and stage 1, both on the same C-RET-150 papers and questions (stage 1 contains RQ3's comparison as one slice). Their agreement shows the two scripts are consistent, not an independent replication | **Now**, worded as selection-stage evidence |
 | **Retrieval speed and memory:** e5 17 ms per query, MiniLM 9 ms, ModernBERT 64 ms (RQ3-v2, measured with nothing else running) | Direct measurements on this laptop; they don't need confirming the way quality scores do. Stage 1's figures are higher (e5 30 ms) because other work shared the CPU | **Now** (ModernBERT's 13.8 GB as "observed in this configuration") |
-| **Hybrid search depends on the pipeline:** it helps flat chunkers and weaker embedders, not the production pair | Stage 1 interaction table (6.3) | **Now**, as selection-stage evidence |
+| **Hybrid search depends on the chunker:** it helps flat chunkers (6 of 10 cells significant), not hierarchical or the production pair | Stage 1, convex vs dense per cell (6.3); exploratory test after seeing the grid | **Now**, as selection-stage evidence |
 | **Which full system to use** (chunker + embedder + LLM) | Stage 2: the LLM takes 4–6 s per answer against 30–90 ms for retrieval, so the LLM decides the speed trade-off | **After stage 2** |
 | **How good the chosen system really is** | Picking the best of 160 combinations inflates its score (winner's curse), so the headline numbers must come from untouched papers | **After RQ6** (C-INT). RQ6 confirms the final system; it does not re-compare embedders |
 | **Whether ModernBERT is expensive by nature, and whether e5 can run faster** | ModernBERT with a 512-token cap; e5 in ONNX INT8 | **After the post-RQ6 checks**. These can only add a footnote to "e5 is the best trade-off" |
@@ -499,7 +508,7 @@ flowchart LR
   - semantic chunking added: an RQ2 extension (2 versions, registry version 12) and 40 combinations in the grid (versions 13–15);
   - NFR-07 question scope guard added (blocks none of the evaluation questions).
 - **2026-10-31, after stage 1:**
-  - stage 1 results: production holds up; fusion helps only flat chunkers and weaker embedders; ModernBERT is the most accurate but expensive;
+  - stage 1 results: production holds up; fusion helps flat chunkers, not hierarchical; ModernBERT is the most accurate but expensive;
   - stage-2 shortlist and gates written;
   - section 6 rewritten as slides; "Where we are" table and scope guard added to the pipeline diagram;
   - two post-RQ6 efficiency checks planned: e5 in ONNX INT8 (parity and speed), and ModernBERT with a 512-token cap (memory and speed).
