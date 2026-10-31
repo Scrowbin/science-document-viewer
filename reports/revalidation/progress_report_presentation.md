@@ -256,15 +256,17 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 - **Method:** C-RET (QASPER Train), 335 papers / 567 questions; PeerQA-PDF as an external descriptive check. 7 arms on the same e5 vectors: dense, BM25, RRF and convex hybrids (each with the old whitespace tokenizer and a fixed tokenizer); cross-encoder reranking as an extension.
 - **Rule:** a hybrid must gain ≥ 0.02.
 
-| Arm | nDCG@10 | Δ vs dense [95% CI] |
-|---|---|---|
-| **dense** | **0.445** | — |
-| convex_fix | 0.444 | −0.002 [−0.022, +0.018] |
-| rrf_prod (old production) | 0.432 | −0.013 [−0.042, +0.016] |
-| rrf_fix | 0.432 | −0.013 [−0.038, +0.012] |
-| bm25_fix / bm25_prod | 0.362 / 0.319 | clearly worse |
-| rerank MiniLM cross-encoder (extension) | 0.457 | +0.012 [−0.018, +0.041], **+1.4 s per query at P95** |
-| rerank bge-reranker-base (extension) | 0.355 | −0.090 [−0.122, −0.058], +8.6 s |
+| Arm | nDCG@10 | Δ vs dense [95% CI] | Ranking time per query, P50 / P95 |
+|---|---|---|---|
+| **dense** | **0.445** | — | 0.03 / 0.05 ms |
+| convex_fix | 0.444 | −0.002 [−0.022, +0.018] | 0.26 / 0.51 ms |
+| rrf_prod (old production) | 0.432 | −0.013 [−0.042, +0.016] | 0.35 / 0.65 ms |
+| rrf_fix | 0.432 | −0.013 [−0.038, +0.012] | 0.27 / 0.54 ms |
+| bm25_fix / bm25_prod | 0.362 / 0.319 | clearly worse | 0.25 / 0.50 · 0.35 / 0.72 ms |
+| rerank MiniLM cross-encoder (extension) | 0.457 | +0.012 [−0.018, +0.041] | **+1,041 / +1,433 ms** |
+| rerank bge-reranker-base (extension) | 0.355 | −0.090 [−0.122, −0.058] | **+6,338 / +8,574 ms** |
+
+*Ranking time is scoring and sorting one paper's chunks (C-RET, 567 queries), not including the query embedding (e5, ~17 ms, the same for every arm). Reranking times are added on top of dense retrieval.*
 
 **Findings:**
 - **Hybrid search adds nothing on QASPER,** so production switched RRF → dense. The old mode stays selectable as `rrf_legacy`.
