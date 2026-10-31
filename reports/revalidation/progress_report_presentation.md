@@ -102,7 +102,7 @@ flowchart LR
 **What changed in the conclusions:**
 - **Extraction:** `pymupdf_layout` was kept in both. Now we know why: text recovery is equal across extractors, and headings are what help.
 - **Chunking:** hierarchical was kept in both. Its large lead in the midterm (0.688 vs 0.540–0.580 nDCG@10) shrinks to a statistical tie on CEC under the budgeted, real-pipeline test.
-- **Embedding:** e5-small-v2 was kept in both. ModernBERT's midterm lead (+0.035) is not significant.
+- **Embedding:** e5-small-v2 was kept in both. ModernBERT led by +0.035 nDCG@10 at the midterm (untested); in the revalidation its lead is +0.010 and not significant.
 - **Retrieval:** the midterm app used RRF hybrid without testing it. The revalidation found dense alone is as good or better for the production pipeline, so **production switched to dense**.
 - **LLM:** llama3.2:3b was assumed at the midterm; it is now measured and kept. phi4-mini was added as a candidate.
 
