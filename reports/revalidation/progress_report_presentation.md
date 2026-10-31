@@ -212,6 +212,15 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 **Findings:**
 - **No flat strategy beats hierarchical,** so it is kept.
 - **But the +0.06 nDCG lead is partly an artefact.** Hierarchical units are bigger, so they count as "relevant" more easily. On CEC, which compares the same assembled text, the three strategies are statistically tied.
+- **Why hierarchical has the lowest CEC: it often wastes context budget.** The app adds parent sections in rank order and stops at the first one that doesn't fit the 1,600-token budget. Parents are big, so this happens often:
+
+  | Chunker | Mean context | Stops early (< 5 units and < 1,400 tokens) | CEC@0.5 |
+  |---|---|---|---|
+  | hierarchical | 1,318 tokens, 3.4 units | **48% of questions** | 0.732: **0.690 when it stops early**, 0.770 otherwise |
+  | fixed_size | 1,579 tokens, 4.0 units | 3% | 0.758 |
+  | section_overlap | 1,244 tokens, 4.9 units | 11% | 0.743 |
+
+  When hierarchical fills its budget, its coverage (0.770) beats fixed_size's (0.758). It is better per token; production's assembly is what loses coverage. This is a descriptive diagnosis on existing data. The fix (skip a parent that doesn't fit and keep going) changes answers, so it waits until after RQ6.
 - **Parent expansion clearly helps.** Using the small children directly loses 0.055 CEC [−0.082, −0.027]. Small units are good for *ranking*, but must be expanded before *generation*.
 
 **Semantic chunking (extension, running):**
@@ -449,6 +458,7 @@ flowchart LR
   - numbered citations in answers;
   - follow-up questions that use chat history;
   - a fuller NFR-07: the current word-list guard is limited, so a safety instruction in the LLM prompt (refuse anything too risky) and a labelled out-of-scope test set will follow;
+  - **context assembly that fills the budget:** when a parent section doesn't fit, skip it (or shrink it to fit) and keep going, instead of stopping. Today 48% of hierarchical contexts stop early, and those have lower coverage (CEC 0.690 vs 0.770). Test old vs new on answer quality, separately from the reference-list fix;
   - **extraction on answer quality:** pymupdf_layout vs pymupdf_layout + reference stripping vs GROBID, scored on Token F1 and human review. GROBID's +0.059 nDCG@10 / +0.084 CEC (the largest lead in the study) may partly reflect that QASPER's gold paragraphs were themselves parsed with GROBID (via S2ORC), so answer quality is the fair test;
   - **e5 in ONNX INT8:** check its results match the current e5 (parity) and measure indexing speed. It is the same model and the most likely real-world speed gain;
   - **ModernBERT with a 512-token input cap:** re-measure its memory and speed. This decides whether "ModernBERT is too expensive" is true in general or only a configuration artefact (it currently accepts up to 8,192 tokens; our chunks are ≤ 400). Either answer goes in the thesis;

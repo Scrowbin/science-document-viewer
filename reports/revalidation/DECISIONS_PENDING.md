@@ -84,6 +84,11 @@ After you approve, I implement the changes, run the backend tests (≥ 51 plus n
 
   Register it before it runs. Report it as a post-evaluation finding.
 
+### 5b. Post-RQ6 context-assembly fix (approved 2026-10-31)
+- **Finding (descriptive, RQ2-v2 data on C-RET):** production assembly stops at the first parent that doesn't fit the 1,600-token budget (`rag_service.py`, `if accum_tokens + used_tokens > token_budget ...: break`). 48% of hierarchical contexts end with < 5 units and < 1,400 tokens, and those have CEC@0.5 0.690 against 0.770 for the rest (fixed_size 0.758). Hierarchical's lowest-CEC result is therefore mostly unused budget, not worse chunks.
+- **Planned change:** skip a parent that doesn't fit, or window it to the remaining budget, and continue down the ranking.
+- **Test:** old vs new on answer quality (Token F1 + human review), paired, registered before running. Kept separate from the reference-list fix so each effect is measured on its own.
+
 ### 6. Post-RQ6 efficiency checks (approved 2026-10-31; not selection, run after RQ6)
 1. **e5-small-v2 in ONNX INT8:**
    - parity against the current PyTorch FP32 e5: cosine similarity of the vectors, and identical top-k / nDCG@10 on C-RET;
