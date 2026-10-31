@@ -1,5 +1,7 @@
 # Thesis-Derived System Specification — Research-Document Manager with RAG Assistant
 
+> **Status note (2026-10-29 audit):** This specification was compiled from the midterm report. Its requirement and decision IDs (SYS-, ARCH-, DEC-) are still cited by the thesis, but its implementation and experiment status entries are outdated: RQ4 and RQ5 have since been completed and RQ6 has not been executed. See `DU_AN_CNTT_TOAN_VAN.md` and `reports/audit/` for the current state.
+
 > **Source:** `DACNTT_GiuaKy.pdf` (81 PDF pages, Vietnamese, Google-Docs export, text layer present).
 > **Purpose:** standalone, evidence-backed specification of what the thesis says the application *should be*, for a downstream coding auditor who has not read the PDF.
 > **Scope guard:** no source code was inspected; nothing here asserts that any feature is actually implemented.

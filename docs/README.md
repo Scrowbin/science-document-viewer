@@ -1,19 +1,16 @@
 # Project Documentation (`docs/`)
 
-This directory houses the system architecture diagrams, use-case specifications, and midterm research planning documents for the Scientific Document Manager.
+This directory houses the system architecture diagrams, use-case figures, and supporting design/verification notes for the Scientific Document Manager. The complete thesis is [`../DU_AN_CNTT_TOAN_VAN.md`](../DU_AN_CNTT_TOAN_VAN.md); the latest project audit is in [`../reports/audit/`](../reports/audit/).
 
 ---
 
-## 1. Midterm Research & Scope Planning (`docs/planning/`)
+## 1. Architecture & Design Diagrams
 
-| Document | Purpose |
-| :--- | :--- |
-| **[MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md](file:///c:/DACNTT/docs/planning/MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md)** | **Master Midterm Strategy & Audit:** Codebase audit, scope reduction directives, 14-day sprint roadmap, pilot benchmark dataset specs, and diagnostic error analysis framework. |
-| **[MIDTERM_PRESENTATION_SLIDES.md](file:///c:/DACNTT/docs/planning/MIDTERM_PRESENTATION_SLIDES.md)** | **Defense Deck Outline:** Presentation deck content covering problem statement, system architecture, RAG design, and benchmark metrics. |
-
----
-
-## 2. Architecture & Design Diagrams
+* **`diagrams/`**: Mermaid / PlantUML sources (system architecture, ERD, ingestion and Q&A sequences, use case, user workflow).
 * **`accounts.drawio`**: Relational user model & authentication sequence diagram.
-* **`documents.drawio`**: Document management, M2M tag/author schema, and collection hierarchy.
-* **`metadata_extract_usecase.png`**: Visual use case flow for automated PDF metadata extraction.
+* **`metadata_extract_usecase.png`**, **`use_case_for_now.png`**: Use case flows (PDF metadata extraction, overall system).
+
+## 2. Supporting Notes
+
+* **`thesis_alignment_decisions.md`**: Architectural decisions D1–D21 aligning the implementation with the thesis.
+* **`SYSTEM_DESIGN_AUDIT.md`**, **`DATA_VERIFICATION.md`**: Earlier (pre-RQ4/RQ5) design and data verification audits, kept as historical records.

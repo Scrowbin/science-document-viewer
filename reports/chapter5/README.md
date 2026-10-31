@@ -51,4 +51,3 @@ Kịch bản đọc trực tiếp dữ liệu từ các tệp kết quả JSON �
 - 4 tệp bảng dữ liệu định dạng `.csv` được xuất vào `reports/chapter5/tables/`.
 - 5 tệp hình ảnh đồ thị độ phân giải cao (300 DPI, phông chữ khoa học) được xuất đồng thời vào:
   - `reports/chapter5/figures/`
-  - `docs/figures/` (đồng bộ cho tài liệu luận văn tổng thể).

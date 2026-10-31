@@ -9,7 +9,7 @@ Reads directly from verified authoritative JSON result files in eval/results/:
 
 Outputs:
   - CSV tables into reports/chapter5/tables/
-  - PNG plots into reports/chapter5/figures/ and docs/figures/
+  - PNG plots into reports/chapter5/figures/
 """
 
 import json
@@ -33,11 +33,9 @@ REPO_ROOT = os.path.abspath(os.path.join(CHAPTER5_DIR, "..", ".."))
 RESULTS_DIR = os.path.join(REPO_ROOT, "eval", "results")
 TABLES_DIR = os.path.join(CHAPTER5_DIR, "tables")
 FIGURES_DIR = os.path.join(CHAPTER5_DIR, "figures")
-DOCS_FIG_DIR = os.path.join(REPO_ROOT, "docs", "figures")
 
 os.makedirs(TABLES_DIR, exist_ok=True)
 os.makedirs(FIGURES_DIR, exist_ok=True)
-os.makedirs(DOCS_FIG_DIR, exist_ok=True)
 
 
 def generate_rq1_tables_and_plots():
@@ -135,7 +133,6 @@ def generate_rq1_tables_and_plots():
     plt.tight_layout()
 
     fig.savefig(os.path.join(FIGURES_DIR, "fig5_1_rq1_ndcg10.png"), bbox_inches='tight')
-    fig.savefig(os.path.join(DOCS_FIG_DIR, "fig5_1_rq1_ndcg10.png"), bbox_inches='tight')
     plt.close(fig)
 
     # 3. Plot RQ1 Latency
@@ -162,7 +159,6 @@ def generate_rq1_tables_and_plots():
     plt.tight_layout()
 
     fig.savefig(os.path.join(FIGURES_DIR, "fig5_2_rq1_latency.png"), bbox_inches='tight')
-    fig.savefig(os.path.join(DOCS_FIG_DIR, "fig5_2_rq1_latency.png"), bbox_inches='tight')
     plt.close(fig)
 
 
@@ -264,7 +260,6 @@ def generate_rq2_tables_and_plots():
     plt.tight_layout()
 
     fig.savefig(os.path.join(FIGURES_DIR, "fig5_3_rq2_chunking_ndcg10.png"), bbox_inches='tight')
-    fig.savefig(os.path.join(DOCS_FIG_DIR, "fig5_3_rq2_chunking_ndcg10.png"), bbox_inches='tight')
     plt.close(fig)
 
 
@@ -368,7 +363,6 @@ def generate_rq3_tables_and_plots():
     plt.tight_layout()
 
     fig.savefig(os.path.join(FIGURES_DIR, "fig5_4_rq3_embedding_ndcg10.png"), bbox_inches='tight')
-    fig.savefig(os.path.join(DOCS_FIG_DIR, "fig5_4_rq3_embedding_ndcg10.png"), bbox_inches='tight')
     plt.close(fig)
 
     # 3. Plot RQ3 Quality vs Cost (Pareto Frontier)
@@ -420,7 +414,6 @@ def generate_rq3_tables_and_plots():
     plt.tight_layout()
 
     fig.savefig(os.path.join(FIGURES_DIR, "fig5_5_rq3_quality_cost.png"), bbox_inches='tight')
-    fig.savefig(os.path.join(DOCS_FIG_DIR, "fig5_5_rq3_quality_cost.png"), bbox_inches='tight')
     plt.close(fig)
 
 

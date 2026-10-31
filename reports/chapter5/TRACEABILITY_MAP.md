@@ -9,18 +9,18 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 
 *Tệp nguồn:*
 - **Toàn bộ Benchmark QASPER (Full Benchmark N=1.585 bài báo, 5.049 câu hỏi):**
-  - Trích xuất & phân phối chính: [`eval/phases/phase_0_baseline/artifacts/qasper_full_corpus_eda.json`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/qasper_full_corpus_eda.json)
-  - Đối chiếu Pilot vs Toàn bộ: [`eval/phases/phase_0_baseline/artifacts/eda_pilot_vs_full_comparison.csv`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/eda_pilot_vs_full_comparison.csv)
-  - Bảng phân phối câu hỏi: [`eval/phases/phase_0_baseline/artifacts/eda_question_distribution.csv`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/eda_question_distribution.csv)
-  - Bảng phân phối tiêu đề đề mục: [`eval/phases/phase_0_baseline/artifacts/eda_section_heading_distribution.csv`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/eda_section_heading_distribution.csv)
-  - Chỉ mục truy vết từng câu hỏi: [`eval/phases/phase_0_baseline/artifacts/eda_corpus_traceability_index.jsonl`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/eda_corpus_traceability_index.jsonl)
+  - Trích xuất & phân phối chính: [`eval/phases/phase_0_baseline/artifacts/qasper_full_corpus_eda.json`](../../eval/phases/phase_0_baseline/artifacts/qasper_full_corpus_eda.json)
+  - Đối chiếu Pilot vs Toàn bộ: [`eval/phases/phase_0_baseline/artifacts/eda_pilot_vs_full_comparison.csv`](../../eval/phases/phase_0_baseline/artifacts/eda_pilot_vs_full_comparison.csv)
+  - Bảng phân phối câu hỏi: [`eval/phases/phase_0_baseline/artifacts/eda_question_distribution.csv`](../../eval/phases/phase_0_baseline/artifacts/eda_question_distribution.csv)
+  - Bảng phân phối tiêu đề đề mục: [`eval/phases/phase_0_baseline/artifacts/eda_section_heading_distribution.csv`](../../eval/phases/phase_0_baseline/artifacts/eda_section_heading_distribution.csv)
+  - Chỉ mục truy vết từng câu hỏi: [`eval/phases/phase_0_baseline/artifacts/eda_corpus_traceability_index.jsonl`](../../eval/phases/phase_0_baseline/artifacts/eda_corpus_traceability_index.jsonl)
 - **Kiểm toán tính khả dụng tệp PDF vật lý:**
-  - Bản kê kiểm toán: [`eval/audit/pdf_availability_manifest.json`](file:///c:/DACNTT/eval/audit/pdf_availability_manifest.json)
-  - Bảng tổng hợp độ khả dụng: [`eval/audit/pdf_availability_summary.csv`](file:///c:/DACNTT/eval/audit/pdf_availability_summary.csv)
+  - Bản kê kiểm toán: [`eval/audit/pdf_availability_manifest.json`](../../eval/audit/pdf_availability_manifest.json)
+  - Bảng tổng hợp độ khả dụng: [`eval/audit/pdf_availability_summary.csv`](../../eval/audit/pdf_availability_summary.csv)
 - **Mẫu Pilot thăm dò sơ bộ (Pilot N=100 bài báo, 250 câu hỏi):**
-  - Tệp JSON gốc: [`eval/phases/phase_0_baseline/artifacts/qasper_comprehensive_eda.json`](file:///c:/DACNTT/eval/phases/phase_0_baseline/artifacts/qasper_comprehensive_eda.json)
+  - Tệp JSON gốc: [`eval/phases/phase_0_baseline/artifacts/qasper_comprehensive_eda.json`](../../eval/phases/phase_0_baseline/artifacts/qasper_comprehensive_eda.json)
 - **Phân hoạch ngữ liệu thực nghiệm:**
-  - Bảng phân hoạch: [`reports/chapter5/tables/table_5_0_dataset_partition.csv`](file:///c:/DACNTT/reports/chapter5/tables/table_5_0_dataset_partition.csv)
+  - Bảng phân hoạch: [`reports/chapter5/tables/table_5_0_dataset_partition.csv`](../../reports/chapter5/tables/table_5_0_dataset_partition.csv)
 
 ### 0.1. Toàn bộ Benchmark QASPER (N = 1.585 bài báo, 5.049 câu hỏi)
 
@@ -77,7 +77,7 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 
 ## 1. Truy Vết RQ1 — Phương Pháp Bóc Tách Văn Bản PDF
 
-*Tệp nguồn:* [`eval/results/rq1_extraction_20261024_000639.json`](file:///c:/DACNTT/eval/results/rq1_extraction_20261024_000639.json) (47 bài báo QASPER Dev).
+*Tệp nguồn:* [`eval/results/rq1_extraction_20261024_000639.json`](../../eval/results/rq1_extraction_20261024_000639.json) (47 bài báo QASPER Dev).
 
 | Khẳng định số học / Chỉ số | Giá trị báo cáo | Vị trí trong tệp JSON gốc (JSON Pointer / Field) | Phương pháp kiểm chứng | Trạng thái đối soát |
 | :--- | :---: | :--- | :--- | :---: |
@@ -106,7 +106,7 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 
 ## 2. Truy Vết RQ2 — Chiến Lược Phân Mảnh Văn Bản
 
-*Tệp nguồn:* [`eval/results/rq2_chunking_20261024_013443.json`](file:///c:/DACNTT/eval/results/rq2_chunking_20261024_013443.json) (47 bài báo, 127 câu hỏi, ngân sách 1.600 tokens).
+*Tệp nguồn:* [`eval/results/rq2_chunking_20261024_013443.json`](../../eval/results/rq2_chunking_20261024_013443.json) (47 bài báo, 127 câu hỏi, ngân sách 1.600 tokens).
 
 | Khẳng định số học / Chỉ số | Giá trị báo cáo | Vị trí trong tệp JSON gốc (JSON Pointer / Field) | Phương pháp kiểm chứng | Trạng thái đối soát |
 | :--- | :---: | :--- | :--- | :---: |
@@ -142,7 +142,7 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 
 ## 3. Truy Vết RQ3 — Mô Hình Biểu Diễn Vector (Embedding Benchmark)
 
-*Tệp nguồn:* [`eval/results/thesis_embedding_benchmark.json`](file:///c:/DACNTT/eval/results/thesis_embedding_benchmark.json) (207 bài báo, 615 câu hỏi, 5.207 chunks, $\tau = 0,55$).
+*Tệp nguồn:* [`eval/results/thesis_embedding_benchmark.json`](../../eval/results/thesis_embedding_benchmark.json) (207 bài báo, 615 câu hỏi, 5.207 chunks, $\tau = 0,55$).
 
 | Khẳng định số học / Chỉ số | Giá trị báo cáo | Vị trí trong tệp JSON gốc (JSON Pointer / Field) | Phương pháp kiểm chứng | Trạng thái đối soát |
 | :--- | :---: | :--- | :--- | :---: |
@@ -192,6 +192,48 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 
 ---
 
+## 3A. Truy Vết RQ4 — Truy Xuất Lai trên QASPER Test (bổ sung khi kiểm toán 29/10/2026)
+
+Nguồn: `eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_qasper_test_hierarchical_benchmark.json` (khóa `arms`). Đã đối chiếu trực tiếp từng ô của Bảng 5.5.
+
+| Khẳng định trong Chương 5 | Giá trị | Trường JSON | Ghi chú | Trạng thái |
+| :--- | :---: | :--- | :--- | :---: |
+| Quy mô tập Test | 408 bài, 1.310 câu hỏi, 14.035 đoạn con | `metadata.total_papers / total_queries / total_chunks` | Văn bản từ `full_text` QASPER JSON | 100% Khớp |
+| Dense Only nDCG@10 | **0,5655** | `arms["Dense Only (e5-small-v2)"].ndcg10` | | 100% Khớp |
+| BM25 nDCG@10, $p_{\text{adj}}$ | **0,5065**, 0,0030 | `arms["BM25 Only (WordPiece)"].ndcg10 / p_adj_vs_dense` | Holm 3 phép so sánh: $3 \times 0,0010$ | 100% Khớp |
+| RRF $k=60$ nDCG@10, $\Delta$, $p_{\text{adj}}$ | **0,5662**, +0,0008, 0,8696 | `arms["Hybrid RRF (k=60) [Prod]"]` | | 100% Khớp |
+| Convex $\alpha=0,7$ nDCG@10, $\Delta$, CI, $p_{\text{adj}}$ | **0,5806**, +0,0152, [+0,0045; +0,0262], 0,0140 | `arms["Hybrid Convex (alpha=0.7)"]` | Holm: $2 \times 0,0070$ | 100% Khớp |
+| Recall@20 RRF / Convex | 0,6413 / 0,6525 | `arms[...].recall20` | | 100% Khớp |
+
+## 3B. Truy Vết RQ5 — Mô Hình Ngôn Ngữ Lớn Cục Bộ (bổ sung khi kiểm toán 29/10/2026)
+
+Nguồn định lượng: `eval/phases/phase_9_generation/artifacts/rq5_llm_generation_benchmark_500q.json`. Các giá trị trung bình, số ca từ chối, $\Delta$ và trị số $t$ được tính lại độc lập từ `detailed_records` (500 bản ghi/mô hình) và khớp hoàn toàn.
+
+| Khẳng định trong Chương 5 | Giá trị | Trường JSON / Cách tính lại | Trạng thái |
+| :--- | :---: | :--- | :---: |
+| Token F1 (3b / 1b / qwen) | 0,2033 / 0,1346 / 0,2324 | `model_summaries[m].token_f1_mean`; trung bình `detailed_records[m][*].token_f1` | 100% Khớp |
+| Số ca từ chối | 243 / 294 / 50 | `refusal_count`; đếm `is_refusal` | 100% Khớp |
+| Containment Proxy | 37,9% / 29,3% / 60,3% | `automated_containment_proxy_mean` | 100% Khớp |
+| P50 / P95 / thông lượng (3b) | 6,55 s / 15,16 s / 12,7 tok/s | `timing` (thống kê thứ tự `sorted[n//2]`, `sorted[int(0,95n)]`) | 100% Khớp |
+| $\Delta$ 3b vs 1b, $t$ | +0,0687, +6,2597 | Trung bình chênh lệch theo bài báo ($K=250$) | 100% Khớp (tính lại) |
+| $\Delta$ 3b vs qwen, $t$ | −0,0291, −2,5028 | như trên | 100% Khớp (tính lại) |
+| $\Delta$ 1b vs qwen, $t$ | −0,0978, −8,9651 | như trên | 100% Khớp (tính lại) |
+| F1 trên 244 câu cả 3b và qwen cùng trả lời | 0,3797 / 0,3002 | Phân tích hậu kiểm mô tả trên `detailed_records` | Tính mới khi kiểm toán |
+| RAM tiến trình Ollama | Không báo cáo | `memory.samples_count` = 0 (3b), 1 (1b, qwen) | Không đo được |
+
+Nguồn kiểm toán người (đã hiệu chỉnh phép gán mô hình): `eval/phases/phase_9_generation/artifacts/human_faithfulness_review/correction/corrected_human_review_summary.json`, tạo bởi `eval/phases/phase_9_generation/scripts/remap_human_labels_by_answer.py`.
+
+| Khẳng định trong Chương 5 | Giá trị (3b / 1b / qwen) | Trường JSON | Trạng thái |
+| :--- | :---: | :--- | :---: |
+| `SUPPORTED` | 10 / 7 / 10 | `per_model[m].counts.SUPPORTED` | 100% Khớp |
+| `REFUSAL_VALID` | 5 / 4 / 0 | `per_model[m].counts.REFUSAL_VALID` | 100% Khớp |
+| `UNSUPPORTED` + `CONTRADICTED` | 1 / 3 / 7 | `counts.UNSUPPORTED + counts.CONTRADICTED` | 100% Khớp |
+| `UNJUSTIFIED_REFUSAL` | 3 / 6 / 0 | `counts["MISSING_INFO - UNJUSTIFIED_REFUSAL"]` | 100% Khớp |
+| Tương quan `SUPPORTED`–F1 / –Containment | +0,644 / +0,591 | `correlations.point_biserial_*` | 100% Khớp |
+| Tương quan ảo giác–Containment | −0,043 | `correlations.point_biserial_unsupported_or_contradicted_vs_containment` | 100% Khớp |
+
+---
+
 ## 4. Ma Trận Truy Vết Luồng Dữ Liệu Toàn Trình (End-to-End Pipeline Traceability)
 
 | Câu hỏi | Tập dữ liệu đầu vào | Mã nguồn thực thi đánh giá | Tệp kết quả JSON gốc | Bảng CSV ấn phẩm | Đồ thị PNG ấn phẩm | Mục tương ứng trong Chương 5 | Cấu phần tương ứng trong Chương 4 |
@@ -199,4 +241,6 @@ Bản đồ này kết nối từng khẳng định định lượng, chỉ số
 | **RQ1** | 47 bài báo QASPER Dev | `backend/scripts/evaluate_rq1_extractors.py` | `eval/results/rq1_extraction_20261024_000639.json`<br/>`rq1_extraction_queries_20261024_000639.jsonl` | `reports/chapter5/tables/table_5_1_rq1_extraction.csv` | `fig5_1_rq1_ndcg10.png`<br/>`fig5_2_rq1_latency.png` | **Mục 5.2** (Bảng 5.1, Hình 5.1, 5.2) | `chunking_utils.py` (`extract_sections_from_pdf`)<br/>Mục 4.7.2 |
 | **RQ2** | 47 bài báo, 127 câu hỏi, 1.600 tokens | `backend/scripts/evaluate_rq2_chunking.py` | `eval/results/rq2_chunking_20261024_013443.json`<br/>`rq2_chunking_queries_20261024_013443.jsonl` | `reports/chapter5/tables/table_5_2_rq2_chunking.csv` | `fig5_3_rq2_chunking_ndcg10.png` | **Mục 5.3** (Bảng 5.2, Hình 5.3) | `chunking_utils.py` (`chunk_sections`, `section_overlap`)<br/>Mục 4.7.5 |
 | **RQ3** | 207 bài báo, 615 câu hỏi, 5.207 chunks | `backend/scripts/run_thesis_embedding_benchmark.py` | `eval/results/thesis_embedding_benchmark.json` | `reports/chapter5/tables/table_5_3_rq3_embedding.csv` | `fig5_4_rq3_embedding_ndcg10.png`<br/>`fig5_5_rq3_quality_cost.png` | **Mục 5.4** (Bảng 5.3, Hình 5.4, 5.5) | `rag_service.py` (`intfloat/e5-small-v2`, `MODEL_PREFIX_SPECS`)<br/>Mục 4.7.5 |
+| **RQ4** | 408 bài báo QASPER Test, 1.310 câu hỏi | `eval/phases/phase_6_hybrid_retrieval/scripts/evaluate_full_qasper_rq4_hybrid.py` | `eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_qasper_test_hierarchical_benchmark.json` | — | — | **Mục 5.5** (Bảng 5.5) | Truy xuất lai RRF $k=60$ |
+| **RQ5** | 500 câu hỏi / 250 bài báo QASPER Train; 60 câu trả lời kiểm toán | `eval/phases/phase_9_generation/scripts/evaluate_rq5_llm_generation.py`, `remap_human_labels_by_answer.py` | `rq5_llm_generation_benchmark_500q.json`; `correction/corrected_human_review_summary.json` | — | — | **Mục 5.6** (Bảng 5.6, 5.7a, 5.7, 5.7b) | Mô hình sinh `llama3.2:3b` |
 | **Tổng hợp** | Toàn bộ RQ1–RQ3 | `reports/chapter5/scripts/generate_tables_and_plots.py` | Các tệp kết quả trên | `reports/chapter5/tables/table_5_4_summary_rq1_rq3.csv` | Toàn bộ 5 đồ thị | **Mục 5.5** (Bảng 5.4) | Bảng kiểm kê tính năng Mục 4.7.6 & Kiến trúc Mục 4.3 |
