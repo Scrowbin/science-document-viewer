@@ -19,7 +19,7 @@ This document represents the **consolidated, definitive, and unified research re
 +───────┬──────────────────────────────┬────────────────────────────┬──────────────────────────────────────┬──────────────────+
 | Step  | Scope & Method               | Primary Evaluation Metric  | Empirical Result / Status            | Validation Level |
 +───────┼──────────────────────────────┼────────────────────────────┼──────────────────────────────────────┼──────────────────+
-| **0** | Baseline & Environment Audit | Pass Rate & Setup Tests    | 29/29 Tests passing; QASPER EDA      | 🟢 Complete      |
+| **0** | Baseline & Environment Audit | Pass Rate & Setup Tests    | 51/51 backend tests; QASPER EDA      | 🟢 Complete      |
 | **1** | PDF Text & Layout Extraction | Heading Recall & 1-CER     | 100.0% Pilot Recall; 37.3% 1-CER Dev | 🟢 Complete      |
 | **2** | Subword & Sentence Chunking  | Truncation & nDCG@4 (Dev)  | 0.0% Silent Trunc; nDCG@4 = 0.4628   | 🟢 Complete      |
 | **3** | Dense Embedding Selection    | Within-Paper nDCG@10 / @4  | e5-small-v2 (0.5522) & ModernBERT win| 🟢 Complete      |
@@ -27,10 +27,12 @@ This document represents the **consolidated, definitive, and unified research re
 | **5** | Query Preprocessing          | Task Prefixes & Text Clean  | Task prefixes verified for e5/bge    | 🟢 Complete      |
 | **6** | Hybrid Retrieval (Test)      | Context nDCG@10 (Test)      | Convex (0.5806*) / RRF (0.5662)      | 🟢 Complete      |
 | **7** | Context Assembly             | Token Budget Packing        | Context formatted with source tags   | 🟢 Complete      |
-| **8** | Local LLM Generation (RQ5)   | Answer F1, Faithfulness, Latency | 16-seed pilot done; Stage A formalized | 🟡 In Progress  |
+| **8** | Local LLM Generation (RQ5)   | Answer F1, Faithfulness, Latency | 500q benchmark + 60-answer audit (corrected) | 🟢 Complete |
 | **9** | Page Attribution & Citation  | Citation Precision & Recall| Page locator mapped to PDF canvas    | 🟢 Complete      |
 +───────┴──────────────────────────────┴────────────────────────────┴──────────────────────────────────────┴──────────────────+
 ```
+
+> **Audit note (2026-10-29):** The per-model human-faithfulness figures for RQ5 were corrected after an answer-to-model attribution error was found; see [`CORRECTED_HUMAN_FAITHFULNESS_REPORT.md`](phases/phase_9_generation/artifacts/human_faithfulness_review/correction/CORRECTED_HUMAN_FAITHFULNESS_REPORT.md) and the project audit in [`reports/audit/`](../reports/audit/). RQ6 (end-to-end) has not been executed.
 
 > [!NOTE]
 > **Definitive Research Execution Ledger:** Every task across the pipeline stages is tracked in the formal operational ledger: [`eval/research_execution_ledger.md`](file:///c:/DACNTT/eval/research_execution_ledger.md) documenting initial states, executed actions, generated artifacts, and verification evidence.
@@ -723,7 +725,7 @@ To evaluate the cumulative real-world impact of the optimized pipeline, we bench
 
 ## 8. Prioritized Backlog & Execution Directives
 
-Following the Midterm Scope Reduction ([`MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md`](file:///c:/DACNTT/MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md)), all non-RAG backlog items (multi-user collaboration, arbitrary file uploads, avatar profiles) remain **DEFERRED** to guarantee 100% focus on the core single-user RAG pipeline.
+Following the Midterm Scope Reduction (`MIDTERM_AUDIT_AND_SCOPE_REDUCTION.md`, historical planning document, removed in the 2026-10-29 cleanup), all non-RAG backlog items (multi-user collaboration, arbitrary file uploads, avatar profiles) remain **DEFERRED** to guarantee 100% focus on the core single-user RAG pipeline.
 
 ### Active Remaining Steps
 1. **Step 4B: Top-2 Finalist Distractor Robustness at Scale (Backlog Task RAG-2-SCALE-IR):**

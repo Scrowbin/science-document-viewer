@@ -1,0 +1,170 @@
+{
+ "experiment": "EXT-RQ5-LLM",
+ "role": "SELECTION-STAGE EXTENSION (not independent confirmation)",
+ "manifest": "eval_sample_manifest_500q.json",
+ "questions": 500,
+ "papers": 250,
+ "ollama_version": "0.40.13",
+ "options": {
+  "temperature": 0,
+  "num_predict": 256
+ },
+ "num_ctx": "Ollama default (same as RQ5)",
+ "means": {
+  "llama3.2:3b": {
+   "token_f1": 0.2018,
+   "is_refusal": 0.486,
+   "containment_proxy": 0.3829
+  },
+  "phi4-mini": {
+   "token_f1": 0.2329,
+   "is_refusal": 0.5,
+   "containment_proxy": 0.3982
+  },
+  "qwen2.5:1.5b": {
+   "token_f1": 0.2396,
+   "is_refusal": 0.292,
+   "containment_proxy": 0.5232
+  }
+ },
+ "primary_family_token_f1_vs_llama3.2:3b": [
+  {
+   "comparison": "phi4-mini - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": 0.0311,
+   "ci95": [
+    0.0091,
+    0.0533
+   ],
+   "p_raw": 0.005,
+   "p_holm": 0.005,
+   "ci95_half_width": 0.0221
+  },
+  {
+   "comparison": "qwen2.5:1.5b - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": 0.0379,
+   "ci95": [
+    0.015,
+    0.0608
+   ],
+   "p_raw": 0.0016,
+   "p_holm": 0.0032,
+   "ci95_half_width": 0.0229
+  }
+ ],
+ "secondary_refusal_rate": [
+  {
+   "comparison": "phi4-mini - llama3.2:3b",
+   "metric": "is_refusal",
+   "diff": 0.014,
+   "ci95": [
+    -0.026,
+    0.054
+   ],
+   "p_raw": 0.5335,
+   "p_holm": 0.5335
+  },
+  {
+   "comparison": "qwen2.5:1.5b - llama3.2:3b",
+   "metric": "is_refusal",
+   "diff": -0.194,
+   "ci95": [
+    -0.244,
+    -0.144
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0004
+  }
+ ],
+ "per_model": {
+  "llama3.2:3b": {
+   "token_f1_by_type": {
+    "extractive": 0.2601,
+    "abstractive": 0.1372,
+    "boolean": 0.0414
+   },
+   "refusals": 243,
+   "errors": 0,
+   "boolean_accuracy": {
+    "n": 72,
+    "correct": 19,
+    "accuracy": 0.2639,
+    "wilson95": [
+     0.176,
+     0.376
+    ]
+   },
+   "latency_wall_s_p50": 5.62,
+   "latency_wall_s_p95": 12.45,
+   "tokens_per_s_mean": 13.5,
+   "digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+   "memory_this_session": {
+    "ollama_tree_working_set_peak_mb": 8795.2,
+    "python_working_set_peak_mb": 100.7
+   },
+   "size_vram": 0
+  },
+  "phi4-mini": {
+   "token_f1_by_type": {
+    "extractive": 0.3026,
+    "abstractive": 0.1596,
+    "boolean": 0.0346
+   },
+   "refusals": 250,
+   "errors": 0,
+   "boolean_accuracy": {
+    "n": 72,
+    "correct": 11,
+    "accuracy": 0.1528,
+    "wilson95": [
+     0.088,
+     0.253
+    ]
+   },
+   "latency_wall_s_p50": 6.03,
+   "latency_wall_s_p95": 16.87,
+   "tokens_per_s_mean": 11.2,
+   "digest": "78fad5d182a7c33065e153a5f8ba210754207ba9d91973f57dffa7f487363753",
+   "memory_this_session": {
+    "ollama_tree_working_set_peak_mb": 9035.0,
+    "python_working_set_peak_mb": 29.7
+   },
+   "size_vram": 0
+  },
+  "qwen2.5:1.5b": {
+   "token_f1_by_type": {
+    "extractive": 0.3146,
+    "abstractive": 0.1632,
+    "boolean": 0.0231
+   },
+   "refusals": 146,
+   "errors": 0,
+   "boolean_accuracy": {
+    "n": 72,
+    "correct": 15,
+    "accuracy": 0.2083,
+    "wilson95": [
+     0.131,
+     0.316
+    ]
+   },
+   "latency_wall_s_p50": 4.04,
+   "latency_wall_s_p95": 9.52,
+   "tokens_per_s_mean": 26.5,
+   "digest": "65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+   "memory_this_session": {
+    "ollama_tree_working_set_peak_mb": 5972.1,
+    "python_working_set_peak_mb": 30.8
+   },
+   "size_vram": 0
+  }
+ },
+ "decision_rule": "RQ6 extra condition only if Token F1 diff >= +0.03, CI lower bound > 0, Holm p < 0.05; never the production default",
+ "rq6_extra_condition": "phi4-mini",
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42,
+  "unit": "paper"
+ }
+}

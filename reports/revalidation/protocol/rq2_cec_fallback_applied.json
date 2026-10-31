@@ -1,0 +1,20 @@
+{
+  "note": "Application of the pre-registered CEC fallback rule (common.json cec.fallback_rule), recorded before RQ2-v2 runs",
+  "date": "2026-10-30",
+  "cec_check": {
+    "labels": "eval/phases/phase_2_chunking/artifacts/cec_human_check/cec_labels_final_strict.json (hash registered in protocol record version 7 before the key was opened)",
+    "result": "eval/phases/phase_2_chunking/artifacts/cec_human_check/cec_check_result.json",
+    "agreement_tau_0.5": "20/30 = 0.667 (Wilson 95% [0.488, 0.808]); Cohen kappa 0.33",
+    "label_provenance": "Not an independent human judgment: sheet pre-filled by a separate Claude session, 4 deferred cases resolved by the user, then rechecked by Claude under a strict 'answers the question fully' criterion at the user's instruction. Reported as a limitation."
+  },
+  "rule_fired": "agreement < 0.80, so budgeted nDCG@10 becomes RQ2-v2 primary; CEC@0.5 becomes secondary",
+  "how_applied": {
+    "script": "rq2v2_budgeted_chunking.py runs unchanged (frozen hash). It already computes the same Holm m=2 family on ndcg10 ('secondary_ndcg10').",
+    "primary_family": "secondary_ndcg10 from summary.json: hierarchical vs fixed_size and hierarchical vs section_overlap, Holm m=2, B=10,000 seed 42",
+    "decision_rule": "replace hierarchical only if a flat strategy beats it by >= 0.05 budgeted nDCG@10 with CI lower bound > 0 (SESOI 0.05 and every other element unchanged from RQ2-v2; only the metric is swapped, as the fallback rule says)",
+    "script_decision_field": "the script's own 'decision' field is CEC-based and is reported as secondary only",
+    "why_sesoi_unchanged": "The fallback rule swaps the metric and names no new threshold. Keeping 0.05 is the literal reading and the more conservative one (harder to replace the incumbent)."
+  },
+  "ext_rq2_child": "Its addendum keeps CEC primary regardless (nDCG not comparable across those arms) and requires this caveat: CEC agreement with the check labels was 0.667, below 0.80.",
+  "other_rqs": "CEC was secondary in RQ1/RQ3/RQ4 and the extensions; those CEC results (e.g. the GROBID +0.084 lead) now carry the same caveat."
+}

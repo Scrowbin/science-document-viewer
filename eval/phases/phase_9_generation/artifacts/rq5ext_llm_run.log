@@ -1,0 +1,77 @@
+[llama3.2:3b] 50/500
+[llama3.2:3b] 100/500
+[llama3.2:3b] 150/500
+[llama3.2:3b] 200/500
+[llama3.2:3b] 250/500
+[llama3.2:3b] 300/500
+[llama3.2:3b] 350/500
+[llama3.2:3b] 400/500
+[llama3.2:3b] 450/500
+[llama3.2:3b] 500/500
+[phi4-mini] 50/500
+[phi4-mini] 100/500
+[phi4-mini] 150/500
+[phi4-mini] 200/500
+[phi4-mini] 250/500
+[phi4-mini] 300/500
+[phi4-mini] 350/500
+[phi4-mini] 400/500
+[phi4-mini] 450/500
+[phi4-mini] 500/500
+[qwen2.5:1.5b] 50/500
+[qwen2.5:1.5b] 100/500
+[qwen2.5:1.5b] 150/500
+[qwen2.5:1.5b] 200/500
+[qwen2.5:1.5b] 250/500
+[qwen2.5:1.5b] 300/500
+[qwen2.5:1.5b] 350/500
+[qwen2.5:1.5b] 400/500
+[qwen2.5:1.5b] 450/500
+[qwen2.5:1.5b] 500/500
+{
+ "questions": 500,
+ "means": {
+  "llama3.2:3b": {
+   "token_f1": 0.2018,
+   "is_refusal": 0.486,
+   "containment_proxy": 0.3829
+  },
+  "phi4-mini": {
+   "token_f1": 0.2329,
+   "is_refusal": 0.5,
+   "containment_proxy": 0.3982
+  },
+  "qwen2.5:1.5b": {
+   "token_f1": 0.2396,
+   "is_refusal": 0.292,
+   "containment_proxy": 0.5232
+  }
+ },
+ "primary_family_token_f1_vs_llama3.2:3b": [
+  {
+   "comparison": "phi4-mini - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": 0.0311,
+   "ci95": [
+    0.0091,
+    0.0533
+   ],
+   "p_raw": 0.005,
+   "p_holm": 0.005,
+   "ci95_half_width": 0.0221
+  },
+  {
+   "comparison": "qwen2.5:1.5b - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": 0.0379,
+   "ci95": [
+    0.015,
+    0.0608
+   ],
+   "p_raw": 0.0016,
+   "p_holm": 0.0032,
+   "ci95_half_width": 0.0229
+  }
+ ],
+ "rq6_extra_condition": "phi4-mini"
+}

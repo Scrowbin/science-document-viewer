@@ -1,0 +1,202 @@
+{
+ "experiment": "RQ4-v2",
+ "cohort": "PEERQA-PDF",
+ "role": "DESCRIPTIVE",
+ "papers": 107,
+ "questions": 288,
+ "failures": [],
+ "means": {
+  "dense": {
+   "ndcg10": 0.3396,
+   "cec_0.5": 0.816,
+   "cec_0.3": 0.9444,
+   "cec_0.7": 0.6458,
+   "context_tokens": 1297.6562
+  },
+  "bm25_prod": {
+   "ndcg10": 0.3084,
+   "cec_0.5": 0.7708,
+   "cec_0.3": 0.9444,
+   "cec_0.7": 0.5833,
+   "context_tokens": 1315.5764
+  },
+  "rrf_prod": {
+   "ndcg10": 0.354,
+   "cec_0.5": 0.8125,
+   "cec_0.3": 0.9688,
+   "cec_0.7": 0.6424,
+   "context_tokens": 1318.8681
+  },
+  "bm25_fix": {
+   "ndcg10": 0.3513,
+   "cec_0.5": 0.8194,
+   "cec_0.3": 0.9514,
+   "cec_0.7": 0.6354,
+   "context_tokens": 1320.7778
+  },
+  "rrf_fix": {
+   "ndcg10": 0.3795,
+   "cec_0.5": 0.8438,
+   "cec_0.3": 0.9549,
+   "cec_0.7": 0.6979,
+   "context_tokens": 1319.3681
+  },
+  "convex_prod": {
+   "ndcg10": 0.3656,
+   "cec_0.5": 0.8611,
+   "cec_0.3": 0.9688,
+   "cec_0.7": 0.6979,
+   "context_tokens": 1322.8819
+  },
+  "convex_fix": {
+   "ndcg10": 0.3752,
+   "cec_0.5": 0.8333,
+   "cec_0.3": 0.9618,
+   "cec_0.7": 0.6979,
+   "context_tokens": 1309.2257
+  }
+ },
+ "primary_family_ndcg10": [
+  {
+   "comparison": "rrf_prod - dense",
+   "metric": "ndcg10",
+   "diff": 0.0144,
+   "ci95": [
+    -0.0129,
+    0.0402
+   ],
+   "p_raw": 0.2844,
+   "p_holm": 0.2844
+  },
+  {
+   "comparison": "rrf_fix - dense",
+   "metric": "ndcg10",
+   "diff": 0.0399,
+   "ci95": [
+    0.0178,
+    0.0629
+   ],
+   "p_raw": 0.0004,
+   "p_holm": 0.0012
+  },
+  {
+   "comparison": "convex_fix - dense",
+   "metric": "ndcg10",
+   "diff": 0.0356,
+   "ci95": [
+    0.0148,
+    0.0587
+   ],
+   "p_raw": 0.0006,
+   "p_holm": 0.0012
+  }
+ ],
+ "bm25_fix_vs_dense_ndcg10_descriptive": {
+  "comparison": "bm25_fix - dense",
+  "metric": "ndcg10",
+  "diff": 0.0116,
+  "ci95": [
+   -0.017,
+   0.0424
+  ],
+  "p_raw": 0.4286
+ },
+ "secondary_cec_0.5": [
+  {
+   "comparison": "rrf_prod - dense",
+   "metric": "cec_0.5",
+   "diff": -0.0035,
+   "ci95": [
+    -0.0507,
+    0.0418
+   ],
+   "p_raw": 0.9567,
+   "p_holm": 0.9567
+  },
+  {
+   "comparison": "rrf_fix - dense",
+   "metric": "cec_0.5",
+   "diff": 0.0278,
+   "ci95": [
+    -0.0148,
+    0.0686
+   ],
+   "p_raw": 0.2182,
+   "p_holm": 0.6546
+  },
+  {
+   "comparison": "convex_fix - dense",
+   "metric": "cec_0.5",
+   "diff": 0.0174,
+   "ci95": [
+    -0.0185,
+    0.0553
+   ],
+   "p_raw": 0.408,
+   "p_holm": 0.816
+  }
+ ],
+ "descriptive": [
+  {
+   "comparison": "rrf_fix - rrf_prod",
+   "metric": "ndcg10",
+   "diff": 0.0255,
+   "ci95": [
+    0.0026,
+    0.0507
+   ],
+   "p_raw": 0.0306
+  },
+  {
+   "comparison": "convex_prod - dense",
+   "metric": "ndcg10",
+   "diff": 0.026,
+   "ci95": [
+    0.0067,
+    0.0457
+   ],
+   "p_raw": 0.0078
+  }
+ ],
+ "decision_rule": "dense unless a *_fix hybrid >= +0.02 nDCG@10 with CI lower bound > 0; tie order bm25_fix < rrf_fix < convex_fix",
+ "decision": "n/a (descriptive cohort)",
+ "rank_latency_ms": {
+  "dense": {
+   "p50": 0.036,
+   "p95": 0.093
+  },
+  "bm25_prod": {
+   "p50": 0.768,
+   "p95": 2.024
+  },
+  "rrf_prod": {
+   "p50": 0.721,
+   "p95": 1.674
+  },
+  "bm25_fix": {
+   "p50": 0.525,
+   "p95": 1.137
+  },
+  "rrf_fix": {
+   "p50": 0.518,
+   "p95": 1.108
+  },
+  "convex_prod": {
+   "p50": 0.753,
+   "p95": 1.649
+  },
+  "convex_fix": {
+   "p50": 0.518,
+   "p95": 1.148
+  }
+ },
+ "memory": {
+  "python_working_set_baseline_mb": 434.9,
+  "python_working_set_peak_mb": 1483.0
+ },
+ "elapsed_s": 1013.4,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

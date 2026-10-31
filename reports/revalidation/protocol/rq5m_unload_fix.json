@@ -1,0 +1,13 @@
+{
+  "amendment": "RQ5-M: unload every resident model before measuring the next",
+  "date": "2026-10-30",
+  "type": "implementation bug fix in a frozen script (second deviation, recorded before the re-run)",
+  "affected_file": "eval/phases/phase_9_generation/scripts/rq5_resource_profile.py",
+  "frozen_definition": "rq5_rq6.json RQ5-M: per-model cold load and peak Ollama-tree working set; models unloaded between conditions",
+  "bug": "Before each model the script unloaded only that model. Models measured earlier (keep_alive 10 min), or loaded outside the run, stayed resident, so each per-model peak could include other models' runners and the cold load could include eviction work.",
+  "evidence": "Run 2 peaks 4,563 / 2,142 / 848 MB (3b / 1b / qwen). Measured in isolation (all models unloaded, /api/ps empty, 3 RQ5 prompts): 2,552 / 1,555 / 572 MB, matching /api/ps sizes 2,449 / 1,453 / 464 MB at context 4,096.",
+  "fix": "New unload_all(): unload every model listed by /api/ps and wait until it is empty, before each model. Nothing else changed.",
+  "run_2": "Kept as artifacts/rq5_resource_profile/summary_run2_contaminated_memory.json; its memory and cold-load figures are superseded. Stability counts are expected to be unaffected.",
+  "outcome_independence": "RQ5-M is descriptive (no decision rule). The fix was prompted by a smoke-test memory figure inconsistent with RQ5-M, not by any model comparison.",
+  "also_affects": "rq5ext_llm_candidates.py (not yet registered or run) now calls the same unload_all()."
+}

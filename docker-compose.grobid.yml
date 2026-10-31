@@ -1,0 +1,29 @@
+# GROBID server for the RQ1 extractor comparison (6th extractor) and the optional
+# USE_GROBID ingestion path. CRF-only image: CPU-friendly, no deep-learning models.
+#
+#   docker compose -f docker-compose.grobid.yml up -d
+#   curl.exe http://localhost:8070/api/isalive      # -> true
+#   docker compose -f docker-compose.grobid.yml down
+#
+# Stop it before timed benchmarks so it does not compete for CPU/RAM.
+
+services:
+  grobid:
+    image: grobid/grobid:0.8.2-crf
+    container_name: science_doc_grobid
+    restart: "no"
+    init: true
+    ports:
+      - "8070:8070"  # REST API + web console
+    ulimits:
+      core: 0
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8070/api/isalive || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s

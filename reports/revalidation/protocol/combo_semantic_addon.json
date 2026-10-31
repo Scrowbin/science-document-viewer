@@ -1,0 +1,26 @@
+{
+  "experiment": "EXP-REVAL-COMBO (stage-1 add-on: semantic chunking)",
+  "type": "amendment to combo_test.json; user decision 2026-10-31 (\"Add on, pymupdf_layout\"). Recorded before the stage-1 summary.json existed; the per-embedder stage-1 result files existed but were not analysed or read.",
+  "rationale": "The professor's brute-force requirement applies to every chunker. Semantic chunking was left out of RQ2-v2 and of the stage-1 grid as 'covered historically'. EXT-RQ2-SEMANTIC tests it one factor at a time; this add-on puts it through the same combination grid as the other chunkers.",
+  "cohort": "C-RET-150 (QASPER v0.3 Train, 150 papers / 249 questions), same questions as stage 1. Never C-INT.",
+  "grid": {
+    "extractor": ["pymupdf_layout"],
+    "chunker": ["semantic_v1", "semantic_v2"],
+    "embedder": ["e5", "minilm", "arctic", "bge", "modernbert"],
+    "retrieval": ["dense", "rrf_fix", "convex_fix", "rrf_prod"],
+    "cells": 40
+  },
+  "chunkers": "semantic_v1 = branch chunk_semantic; semantic_v2 = teammate's chunk_semantic, vendored from origin/main 49dcac6 (sha256 206a7a57...adc6); both with their defaults, exactly as in ext_rq2_semantic.json.",
+  "splitting_embedder": "Sentence-similarity split points are computed with e5-small-v2 in every cell (both implementations are written for e5's 'passage: ' prefix). Units are therefore identical across the 5 retrieval embedders, which only embed and rank the finished chunks. Stated as a design limitation.",
+  "pipeline": "identical to stage 1: sections -> chunker -> retrieval embedder (correct prefixes) -> ranking -> production context assembly (1,600 est. tokens, <= 5 units); semantic units are flat (no parent expansion). Same per-question metrics and gate score definition as stage 1.",
+  "why_not_pypdf": "pypdf is already a grid factor for the three other chunkers, and RQ1 showed pymupdf_layout ahead; the pypdf x semantic cells would add ~5 h of CPU to confirm an effect the grid already measures.",
+  "shortlist_rule": "Semantic is one more chunker family: its top 2 cells by mean nDCG@10 (ties: CEC@0.5) across both versions join the stage-2 shortlist, in addition to the stage-1 shortlist (top 2 per chunker + production). This mirrors the stage-1 rule exactly.",
+  "gate_rule": "As stage 1: e5 cells keep 0.80; other embedders get the threshold giving the same gate-refusal rate as production (pymupdf_layout|hierarchical|e5|dense at 0.80) on these questions.",
+  "comparisons": "Descriptive as stage 1: CEC@0.5 of each of the 40 cells vs production, Holm within the add-on family (m=40), paper-cluster bootstrap B=10,000 seed 42. nDCG@10 is not compared across chunkers (units differ), as in stage 1.",
+  "relation_to_ext_rq2_semantic": "EXT-RQ2-SEMANTIC still runs unchanged for the one-factor RQ2 conclusion. Its clause 'a semantic arm enters stage 2 only if it beats hierarchical by >= 0.05 nDCG@10' is superseded by this shortlist rule, so semantic enters stage 2 the same way as every other chunker. Its stage-2 decision field is reported but not acted on.",
+  "stage2_effect": "Up to 2 extra pipelines in stage 2 (x 5 LLMs), subject to the same successive-halving and selection rules. The stage-2 script reads the combined shortlist; it is hashed after its smoke test, as already planned.",
+  "cost_estimate": "Semantic chunking once per paper and version (~1 h, cached and shared by all embedders), then embedding: ~2.8 h ModernBERT, ~1.2 h for the other 4 embedders.",
+  "precision_rule": "As stage 1: report and propose, do not expand.",
+  "script": "eval/phases/phase_12_combination/scripts/combo_stage1b_semantic.py",
+  "output": "eval/phases/phase_12_combination/artifacts/stage1b_semantic/"
+}

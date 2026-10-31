@@ -1,0 +1,78 @@
+{
+  "accepted": true,
+  "records": 60,
+  "status_counts": {
+    "VALID_IDENTICAL_ANSWERS_SAME_LABEL": 15,
+    "VALID": 45
+  },
+  "bijective_per_question": true,
+  "attribution_changed_vs_original_mapping": 26,
+  "attribution_unchanged_vs_original_mapping": 19,
+  "label_moved_to_different_model": {
+    "llama3.2:3b | REFUSAL_VALID": {
+      "original": 4,
+      "corrected": 5
+    },
+    "llama3.2:3b | MISSING_INFO - PARTIAL": {
+      "original": 2,
+      "corrected": 1
+    },
+    "llama3.2:3b | MISSING_INFO - UNJUSTIFIED_REFUSAL": {
+      "original": 1,
+      "corrected": 3
+    },
+    "llama3.2:3b | UNSUPPORTED": {
+      "original": 2,
+      "corrected": 0
+    },
+    "llama3.2:1b | SUPPORTED": {
+      "original": 9,
+      "corrected": 7
+    },
+    "llama3.2:1b | REFUSAL_VALID": {
+      "original": 2,
+      "corrected": 4
+    },
+    "llama3.2:1b | MISSING_INFO - PARTIAL": {
+      "original": 1,
+      "corrected": 0
+    },
+    "llama3.2:1b | MISSING_INFO - UNJUSTIFIED_REFUSAL": {
+      "original": 5,
+      "corrected": 6
+    },
+    "qwen2.5:0.5b | SUPPORTED": {
+      "original": 8,
+      "corrected": 10
+    },
+    "qwen2.5:0.5b | REFUSAL_VALID": {
+      "original": 3,
+      "corrected": 0
+    },
+    "qwen2.5:0.5b | MISSING_INFO - PARTIAL": {
+      "original": 1,
+      "corrected": 3
+    },
+    "qwen2.5:0.5b | MISSING_INFO - UNJUSTIFIED_REFUSAL": {
+      "original": 3,
+      "corrected": 0
+    },
+    "qwen2.5:0.5b | UNSUPPORTED": {
+      "original": 4,
+      "corrected": 6
+    }
+  },
+  "match_method_counts": {
+    "exact": 60
+  },
+  "identical_answer_collision_questions": [
+    "REV-01",
+    "REV-04",
+    "REV-06",
+    "REV-09",
+    "REV-12",
+    "REV-16",
+    "REV-20"
+  ],
+  "problems": []
+}

@@ -1,0 +1,18 @@
+{
+  "dev": {
+    "papers_in_split": 281,
+    "papers_with_queries": 276,
+    "queries": 892,
+    "queries_with_no_relevant_parent": 2,
+    "queries_per_paper_mean": 3.23,
+    "queries_per_paper_max": 10
+  },
+  "test": {
+    "papers_in_split": 416,
+    "papers_with_queries": 408,
+    "queries": 1310,
+    "queries_with_no_relevant_parent": 0,
+    "queries_per_paper_mean": 3.21,
+    "queries_per_paper_max": 9
+  }
+}

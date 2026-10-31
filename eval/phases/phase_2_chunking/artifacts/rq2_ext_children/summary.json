@@ -1,0 +1,77 @@
+{
+ "experiment": "EXT-RQ2-CHILD",
+ "cohort": "C-RET",
+ "role": "SELECTION EXTENSION (descriptive)",
+ "papers": 335,
+ "questions": 567,
+ "failures": [],
+ "means": {
+  "hierarchical": {
+   "cec_0.5": 0.7319,
+   "cec_0.3": 0.9224,
+   "cec_0.7": 0.6155,
+   "ndcg10": 0.445,
+   "context_tokens": 1317.776,
+   "n_units": 3.4444
+  },
+  "children_only": {
+   "cec_0.5": 0.6772,
+   "cec_0.3": 0.866,
+   "cec_0.7": 0.5379,
+   "ndcg10": 0.3546,
+   "context_tokens": 865.746,
+   "n_units": 5.0
+  }
+ },
+ "primary_cec_0.5": [
+  {
+   "comparison": "children_only - hierarchical",
+   "metric": "cec_0.5",
+   "diff": -0.0547,
+   "ci95": [
+    -0.0824,
+    -0.027
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0002,
+   "ci95_half_width": 0.0277
+  }
+ ],
+ "sensitivity_cec_0.3": [
+  {
+   "comparison": "children_only - hierarchical",
+   "metric": "cec_0.3",
+   "diff": -0.0564,
+   "ci95": [
+    -0.0824,
+    -0.0322
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0002
+  }
+ ],
+ "sensitivity_cec_0.7": [
+  {
+   "comparison": "children_only - hierarchical",
+   "metric": "cec_0.7",
+   "diff": -0.0776,
+   "ci95": [
+    -0.1102,
+    -0.047
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0002
+  }
+ ],
+ "note_ndcg10": "relevance units differ (children vs parents); nDCG@10 not comparable across arms",
+ "decision_rule": "descriptive only; never adopted",
+ "memory": {
+  "python_working_set_baseline_mb": 434.8,
+  "python_working_set_peak_mb": 773.6
+ },
+ "elapsed_s": 113.8,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

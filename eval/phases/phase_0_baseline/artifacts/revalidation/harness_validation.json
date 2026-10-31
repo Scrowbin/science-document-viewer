@@ -1,0 +1,32 @@
+{
+ "A_e1_fusion": {
+  "papers": [
+   "1503.00841",
+   "1601.02403",
+   "1603.01514"
+  ],
+  "comparisons": 48,
+  "all_match_4dp": true,
+  "mismatches": []
+ },
+ "B_rq2_chunk_embed": {
+  "papers": [
+   "1603.09631",
+   "1609.00425",
+   "1610.09225"
+  ],
+  "comparisons": 21,
+  "all_match_4dp": true,
+  "mismatches": []
+ },
+ "C_production_hybrid_search": {
+  "papers": [
+   "1603.09631",
+   "1609.00425",
+   "1610.09225"
+  ],
+  "queries_compared": 7,
+  "identical_contexts": true,
+  "mismatches": []
+ }
+}

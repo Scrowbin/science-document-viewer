@@ -1,0 +1,13 @@
+{
+  "amendment": "RQ5-M Ollama memory sampler fix",
+  "date": "2026-10-30",
+  "type": "implementation bug fix in a frozen script (deviation, recorded before the re-run)",
+  "affected_file": "eval/phases/phase_9_generation/scripts/rq5_resource_profile.py",
+  "frozen_definition": "rq5_rq6.json RQ5-M: peak summed working set of the Ollama process tree (server plus model runners), tray app excluded",
+  "bug": "TreeSampler matched only processes named ollama.exe. In Ollama 0.40.13 the model runs in a child process named llama-server.exe, so the first run measured only the server (~45 MB) and not the model.",
+  "evidence": "With qwen2.5:0.5b loaded: ollama.exe 44 MB, llama-server.exe 487 MB (child of ollama.exe), 'ollama app.exe' 36 MB (tray, not a child).",
+  "fix": "Sum ollama.exe and all its descendants (psutil children(recursive=True)). The tray app is excluded because it is not a descendant. Nothing else in the script changed.",
+  "first_run": "Preserved as artifacts/rq5_resource_profile/summary_run1_invalid_ollama_memory.json and artifacts/rq5m_run1_invalid_memory.log. Its timing and stability numbers are valid but are superseded by the re-run; its Ollama memory figure is invalid and must not be reported.",
+  "outcome_independence": "RQ5-M is descriptive (no decision rule). The fix was prompted by an implausible measurement, not by any comparison between models.",
+  "also_affects": "eval/phases/phase_9_generation/scripts/rq5ext_llm_candidates.py imports TreeSampler from this file; that extension has not run yet."
+}

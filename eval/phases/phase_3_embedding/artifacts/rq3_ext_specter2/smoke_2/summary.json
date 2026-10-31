@@ -1,0 +1,26 @@
+{
+ "experiment": "EXT-RQ3-SPECTER2",
+ "cohort": "C-RET-150",
+ "role": "SELECTION EXTENSION",
+ "model": "allenai/specter2_base + specter2_adhoc_query (queries) / specter2 proximity (passages)",
+ "papers": 2,
+ "questions": 6,
+ "failures": [],
+ "efficiency": {
+  "indexing_chunks_per_s": 4.96,
+  "query_latency_ms": {
+   "p50": 49.91,
+   "p95": 60.57,
+   "n": 100
+  },
+  "memory": {
+   "python_working_set_baseline_mb": 435.0,
+   "python_working_set_peak_mb": 1496.4
+  },
+  "units": 217
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

@@ -779,3 +779,15 @@ All artifacts reside under [`eval/phases/phase_9_generation/artifacts/human_fait
 1. **Zero Model Inference:** No LLM inference calls or Ollama interactions were performed.
 2. **Frozen Benchmark Integrity:** Source manifest (`eval_sample_manifest_500q.json`) and inference checkpoint (`rq5_inference_checkpoint.jsonl`) remain 100% frozen with identical SHA-256 checksums.
 3. **No Fabricated Labels:** Annotation fields remain strictly blank. The package is **prepared and validated for human annotation, not completed**.
+
+---
+
+## 20. Independent Audit — Correction of Human-Review Model Attribution (2026-10-29)
+
+**Finding.** The signed review sheet (`review_and_signed.md`) orders the three answers of many items differently from the blinded package and `restricted_model_label_mapping.json`. `unblind_and_analyze_faithfulness.py` joined labels on `(review_id, blind_label)`, so 26 of 45 distinguishable answers were credited to the wrong model (15 further rows are byte-identical answers from two models with identical labels, where attribution cannot affect counts).
+
+**Correction.** New script `scripts/remap_human_labels_by_answer.py` re-attributes each adjudicated label by exact answer-text match against `rq5_inference_checkpoint.jsonl`, with question/context checks and a one-to-one constraint. 60/60 records validated, 0 unresolved. Outputs in `human_faithfulness_review/correction/`. Corrected SUPPORTED counts: 10 / 7 / 10 (3b / 1b / qwen); unsupported-or-contradicted: 1 / 3 / 7.
+
+**Preserved unchanged.** `review_and_signed.md`, all `audit/` files, `restricted_model_label_mapping.json`, `faithfulness_annotations_unblinded.{csv,jsonl}`, `UNBLINDED_HUMAN_FAITHFULNESS_REPORT.md` (superseded for per-model figures; see `correction/CORRECTED_HUMAN_FAITHFULNESS_REPORT.md`).
+
+**Unaffected.** The 500-question automated benchmark (`rq5_llm_generation_benchmark_500q.json`) and its statistics.

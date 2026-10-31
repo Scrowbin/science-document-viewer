@@ -1,0 +1,7 @@
+{
+  "correction_to": "reports/revalidation/protocol/rq5m_unload_fix.json (registered, protocol record version 4; left unchanged)",
+  "date": "2026-10-30",
+  "what_was_wrong": "The 'bug' and 'evidence' fields attributed the RQ5-M run-2 memory peaks to other models staying resident. Run 3 (every model unloaded and /api/ps empty before each model) gave 4,872 / 2,222 / 849 MB, essentially the same as run 2. The isolated figures (2,552 / 1,555 / 572 MB) came from only 3 requests with one prompt, so they weren't comparable.",
+  "actual_cause": "Ollama 0.40.13 starts llama-server.exe without --cache-ram, so llama.cpp's default host-RAM prompt cache (up to 8,192 MiB) applies. The runner's private memory grows ~40 MB per distinct prompt (2,497 MB after 1 request -> 3,632 MB after 30, model size 2,449 MB). See artifacts/rq5_resource_profile/memory_diagnostics.json.",
+  "consequence": "Run-2 memory figures were valid peaks after 121 requests, not contaminated. The unload_all() change stays (harmless, and it guarantees cold starts). Run 3 is the reported run. RQ5-M now reports both the post-load footprint and the peak after 121 requests."
+}

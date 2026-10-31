@@ -1,0 +1,30 @@
+{
+ "note": "Descriptive, computed after the run outside the registered script. Selection-affected: conditioned on both models answering.",
+ "answered_by_both": [
+  {
+   "comparison": "phi4-mini - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": 0.0839,
+   "ci95": [
+    0.0494,
+    0.1188
+   ],
+   "p_raw": 0.0002,
+   "n_questions": 197,
+   "n_papers": 157
+  },
+  {
+   "comparison": "qwen2.5:1.5b - llama3.2:3b",
+   "metric": "token_f1",
+   "diff": -0.0058,
+   "ci95": [
+    -0.0354,
+    0.0242
+   ],
+   "p_raw": 0.7065,
+   "n_questions": 221,
+   "n_papers": 173
+  }
+ ],
+ "llama3b_rerun_identical_to_stored": "431/500"
+}

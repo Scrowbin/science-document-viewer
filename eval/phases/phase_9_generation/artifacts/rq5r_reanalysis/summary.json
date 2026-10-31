@@ -1,0 +1,232 @@
+{
+ "experiment": "RQ5-R",
+ "inference": false,
+ "boolean_accuracy": {
+  "llama3.2:3b": {
+   "n": 72,
+   "correct": 18,
+   "accuracy": 0.25,
+   "wilson95": [
+    0.164,
+    0.361
+   ],
+   "refusals": 53,
+   "unparseable": 0,
+   "token_f1_same_items": 0.0423
+  },
+  "llama3.2:1b": {
+   "n": 72,
+   "correct": 1,
+   "accuracy": 0.0139,
+   "wilson95": [
+    0.002,
+    0.075
+   ],
+   "refusals": 65,
+   "unparseable": 4,
+   "token_f1_same_items": 0.0006
+  },
+  "qwen2.5:0.5b": {
+   "n": 72,
+   "correct": 13,
+   "accuracy": 0.1806,
+   "wilson95": [
+    0.109,
+    0.285
+   ],
+   "refusals": 30,
+   "unparseable": 23,
+   "token_f1_same_items": 0.0326
+  }
+ },
+ "refusal_rate_differences": {
+  "llama3.2:3b - llama3.2:1b": {
+   "diff_refusal_rate": -0.102,
+   "ci95": [
+    -0.154,
+    -0.05
+   ],
+   "p_raw": 0.0004
+  },
+  "llama3.2:3b - qwen2.5:0.5b": {
+   "diff_refusal_rate": 0.386,
+   "ci95": [
+    0.34,
+    0.434
+   ],
+   "p_raw": 0.0002
+  },
+  "llama3.2:1b - qwen2.5:0.5b": {
+   "diff_refusal_rate": 0.488,
+   "ci95": [
+    0.44,
+    0.534
+   ],
+   "p_raw": 0.0002
+  }
+ },
+ "answered_by_both_token_f1": {
+  "llama3.2:3b - llama3.2:1b": {
+   "questions": 148,
+   "papers": 124,
+   "mean_f1": {
+    "llama3.2:3b": 0.3906,
+    "llama3.2:1b": 0.3272
+   },
+   "diff": 0.0634,
+   "ci95": [
+    0.0335,
+    0.0943
+   ],
+   "note": "selection-affected: the subset depends on both models' refusal behaviour"
+  },
+  "llama3.2:3b - qwen2.5:0.5b": {
+   "questions": 244,
+   "papers": 185,
+   "mean_f1": {
+    "llama3.2:3b": 0.3797,
+    "qwen2.5:0.5b": 0.3002
+   },
+   "diff": 0.0795,
+   "ci95": [
+    0.0482,
+    0.1107
+   ],
+   "note": "selection-affected: the subset depends on both models' refusal behaviour"
+  },
+  "llama3.2:1b - qwen2.5:0.5b": {
+   "questions": 203,
+   "papers": 152,
+   "mean_f1": {
+    "llama3.2:1b": 0.3069,
+    "qwen2.5:0.5b": 0.2733
+   },
+   "diff": 0.0336,
+   "ci95": [
+    0.007,
+    0.0611
+   ],
+   "note": "selection-affected: the subset depends on both models' refusal behaviour"
+  }
+ },
+ "human_review_wilson": {
+  "llama3.2:3b": {
+   "n": 20,
+   "labels": {
+    "REFUSAL_VALID": 5,
+    "SUPPORTED": 10,
+    "UNJUSTIFIED_REFUSAL": 3,
+    "PARTIAL": 1,
+    "CONTRADICTED": 1
+   },
+   "SUPPORTED": {
+    "k": 10,
+    "wilson95": [
+     0.299,
+     0.701
+    ]
+   },
+   "UNSUPPORTED_OR_CONTRADICTED": {
+    "k": 1,
+    "wilson95": [
+     0.009,
+     0.236
+    ]
+   },
+   "UNJUSTIFIED_REFUSAL": {
+    "k": 3,
+    "wilson95": [
+     0.052,
+     0.36
+    ]
+   },
+   "GROUNDED_COMPLIANCE": {
+    "k": 15,
+    "wilson95": [
+     0.531,
+     0.888
+    ]
+   }
+  },
+  "llama3.2:1b": {
+   "n": 20,
+   "labels": {
+    "REFUSAL_VALID": 4,
+    "CONTRADICTED": 1,
+    "SUPPORTED": 7,
+    "UNJUSTIFIED_REFUSAL": 6,
+    "UNSUPPORTED": 2
+   },
+   "SUPPORTED": {
+    "k": 7,
+    "wilson95": [
+     0.181,
+     0.567
+    ]
+   },
+   "UNSUPPORTED_OR_CONTRADICTED": {
+    "k": 3,
+    "wilson95": [
+     0.052,
+     0.36
+    ]
+   },
+   "UNJUSTIFIED_REFUSAL": {
+    "k": 6,
+    "wilson95": [
+     0.145,
+     0.519
+    ]
+   },
+   "GROUNDED_COMPLIANCE": {
+    "k": 11,
+    "wilson95": [
+     0.342,
+     0.742
+    ]
+   }
+  },
+  "qwen2.5:0.5b": {
+   "n": 20,
+   "labels": {
+    "UNSUPPORTED": 6,
+    "CONTRADICTED": 1,
+    "PARTIAL": 3,
+    "SUPPORTED": 10
+   },
+   "SUPPORTED": {
+    "k": 10,
+    "wilson95": [
+     0.299,
+     0.701
+    ]
+   },
+   "UNSUPPORTED_OR_CONTRADICTED": {
+    "k": 7,
+    "wilson95": [
+     0.181,
+     0.567
+    ]
+   },
+   "UNJUSTIFIED_REFUSAL": {
+    "k": 0,
+    "wilson95": [
+     -0.0,
+     0.161
+    ]
+   },
+   "GROUNDED_COMPLIANCE": {
+    "k": 10,
+    "wilson95": [
+     0.299,
+     0.701
+    ]
+   }
+  }
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42,
+  "unit": "paper (250 clusters)"
+ }
+}

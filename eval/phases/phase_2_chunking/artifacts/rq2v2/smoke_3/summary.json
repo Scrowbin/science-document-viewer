@@ -1,0 +1,183 @@
+{
+ "experiment": "RQ2-v2",
+ "cohort": "C-RET",
+ "role": "SELECTION",
+ "papers": 3,
+ "questions": 4,
+ "failures": [],
+ "means": {
+  "fixed_size|dense": {
+   "cec_0.5": 0.75,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.75,
+   "ndcg10": 0.5946,
+   "context_tokens": 1593.25,
+   "n_units": 4.0
+  },
+  "fixed_size|rrf_prod": {
+   "cec_0.5": 1.0,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.75,
+   "ndcg10": 0.426,
+   "context_tokens": 1593.25,
+   "n_units": 4.0
+  },
+  "section_overlap|dense": {
+   "cec_0.5": 0.75,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.75,
+   "ndcg10": 0.6539,
+   "context_tokens": 1286.75,
+   "n_units": 4.75
+  },
+  "section_overlap|rrf_prod": {
+   "cec_0.5": 0.75,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5,
+   "ndcg10": 0.258,
+   "context_tokens": 1278.0,
+   "n_units": 4.75
+  },
+  "hierarchical|dense": {
+   "cec_0.5": 1.0,
+   "cec_0.3": 1.0,
+   "cec_0.7": 1.0,
+   "ndcg10": 0.676,
+   "context_tokens": 1402.25,
+   "n_units": 2.75
+  },
+  "hierarchical|rrf_prod": {
+   "cec_0.5": 0.5,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5,
+   "ndcg10": 0.2294,
+   "context_tokens": 1293.5,
+   "n_units": 2.75
+  }
+ },
+ "primary_family_cec_0.5": [
+  {
+   "comparison": "hierarchical|dense - fixed_size|dense",
+   "metric": "cec_0.5",
+   "diff": 0.25,
+   "ci95": [
+    0.0,
+    1.0
+   ],
+   "p_raw": 0.5881,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "hierarchical|dense - section_overlap|dense",
+   "metric": "cec_0.5",
+   "diff": 0.25,
+   "ci95": [
+    0.0,
+    0.5
+   ],
+   "p_raw": 0.5877,
+   "p_holm": 1.0
+  }
+ ],
+ "secondary_ndcg10": [
+  {
+   "comparison": "hierarchical|dense - fixed_size|dense",
+   "metric": "ndcg10",
+   "diff": 0.0814,
+   "ci95": [
+    -0.0614,
+    0.3869
+   ],
+   "p_raw": 0.5881,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "hierarchical|dense - section_overlap|dense",
+   "metric": "ndcg10",
+   "diff": 0.0221,
+   "ci95": [
+    -0.4635,
+    0.3066
+   ],
+   "p_raw": 0.8093,
+   "p_holm": 1.0
+  }
+ ],
+ "sensitivity_cec_0.3": [
+  {
+   "comparison": "hierarchical|dense - fixed_size|dense",
+   "metric": "cec_0.3",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "hierarchical|dense - section_overlap|dense",
+   "metric": "cec_0.3",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0,
+   "p_holm": 1.0
+  }
+ ],
+ "sensitivity_cec_0.7": [
+  {
+   "comparison": "hierarchical|dense - fixed_size|dense",
+   "metric": "cec_0.7",
+   "diff": 0.25,
+   "ci95": [
+    0.0,
+    1.0
+   ],
+   "p_raw": 0.5881,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "hierarchical|dense - section_overlap|dense",
+   "metric": "cec_0.7",
+   "diff": 0.25,
+   "ci95": [
+    0.0,
+    0.5
+   ],
+   "p_raw": 0.5877,
+   "p_holm": 1.0
+  }
+ ],
+ "decision_rule": "replace hierarchical only if a flat strategy beats it by >= 0.05 CEC@0.5 with CI lower bound > 0",
+ "index": {
+  "fixed_size": {
+   "units": 68,
+   "units_per_paper": 22.7
+  },
+  "section_overlap": {
+   "units": 121,
+   "units_per_paper": 40.3
+  },
+  "hierarchical": {
+   "units": 202,
+   "units_per_paper": 67.3
+  }
+ },
+ "latency_ms_rank_and_assemble_dense": {
+  "p50": 0.307,
+  "p95": 2.327
+ },
+ "memory": {
+  "python_working_set_baseline_mb": 434.9,
+  "python_working_set_peak_mb": 983.4
+ },
+ "elapsed_s": 47.2,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ },
+ "decision": "keep hierarchical"
+}

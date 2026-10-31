@@ -1,0 +1,69 @@
+{
+ "experiment": "EXT-RQ3-SPECTER2",
+ "cohort": "C-RET-150",
+ "role": "SELECTION EXTENSION",
+ "model": "allenai/specter2_base + specter2_adhoc_query (queries) / specter2 proximity (passages)",
+ "papers": 150,
+ "questions": 249,
+ "failures": [],
+ "efficiency": {
+  "indexing_chunks_per_s": 4.94,
+  "query_latency_ms": {
+   "p50": 48.92,
+   "p95": 53.91,
+   "n": 100
+  },
+  "memory": {
+   "python_working_set_baseline_mb": 435.7,
+   "python_working_set_peak_mb": 1962.5
+  },
+  "units": 9783
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ },
+ "paired_questions": 249,
+ "means": {
+  "e5": {
+   "ndcg10": 0.4537,
+   "cec_0.5": 0.739,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.6386
+  },
+  "specter2": {
+   "ndcg10": 0.2808,
+   "cec_0.5": 0.6064,
+   "cec_0.3": 0.9076,
+   "cec_0.7": 0.4458
+  }
+ },
+ "primary_ndcg10_vs_e5": {
+  "comparison": "specter2 - e5",
+  "metric": "ndcg10",
+  "diff": -0.1729,
+  "ci95": [
+   -0.2185,
+   -0.1278
+  ],
+  "p_raw": 0.0002,
+  "ci95_half_width": 0.0454
+ },
+ "secondary_cec_0.5_vs_e5": {
+  "comparison": "specter2 - e5",
+  "metric": "cec_0.5",
+  "diff": -0.1325,
+  "ci95": [
+   -0.1946,
+   -0.0702
+  ],
+  "p_raw": 0.0002
+ },
+ "e5_query_latency_ms": {
+  "p50": 17.31,
+  "p95": 20.27,
+  "n": 100
+ },
+ "decision_rule": "switch only if diff >= +0.04, CI lower bound > 0, P50 latency <= 1.5x e5",
+ "decision": "keep intfloat/e5-small-v2"
+}

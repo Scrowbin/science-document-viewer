@@ -1,0 +1,6506 @@
+{
+ "papers": {
+  "1601.00901": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1601.01705": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1601.02543": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1601.04012": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1601.06068": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1602.01208": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1602.03661": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1602.07618": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1604.00117": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1604.00125": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1604.06076": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1604.07236": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.9,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 10,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1606.00189": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1606.01404": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1606.01433": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1606.06361": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1606.07298": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1606.08140": {
+   "best_match_rate": 0.25,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.25,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 0.25,
+    "pymupdf_plain": 0.25,
+    "pypdf": 0.25
+   },
+   "n_evidence": 4,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1606.08495": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1607.00424": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1607.01759": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1608.03902": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1608.04917": {
+   "best_match_rate": 0.8889,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8889,
+    "pdfplumber": 0.8889,
+    "pymupdf_layout": 0.8889,
+    "pymupdf_plain": 0.8889,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1608.06111": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1608.06378": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1608.08738": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1609.00081": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1609.01962": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1609.06791": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1610.01030": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 2,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1610.03112": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1610.05243": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1610.08597": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1610.09516": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.8333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1611.02550": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1611.03382": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1611.09441": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.8125,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 16,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1612.04675": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1612.05270": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1612.05310": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.7273,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 11,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1701.02025": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1701.03051": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1701.06538": {
+   "best_match_rate": 0.8333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8333,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 0.8333,
+    "pymupdf_plain": 0.8333,
+    "pypdf": 0.8333
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1701.08118": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1701.09123": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1702.02363": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1702.03274": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 2,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1702.06589": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1702.06777": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1703.05916": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1703.06492": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1703.08098": {
+   "best_match_rate": 0.7143,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5714,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 0.7143,
+    "pymupdf_plain": 0.5714,
+    "pypdf": 0.7143
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1703.08885": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1703.09684": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.00253": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.02385": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.02686": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.04521": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.04539": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.05907": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.06125": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1704.08424": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.00108": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.00861": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.01991": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.02394": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.03487": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.07830": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1705.10586": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1706.01723": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1706.02027": {
+   "best_match_rate": 0.4286,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.4286,
+    "pdfplumber": 0.3571,
+    "pymupdf_layout": 0.4286,
+    "pymupdf_plain": 0.4286,
+    "pypdf": 0.4286
+   },
+   "n_evidence": 14,
+   "reason": "evidence_match_below_0.70",
+   "version": "v1"
+  },
+  "1706.04115": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1706.04815": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1706.07206": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1706.09147": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.03904": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.04662": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 1,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1707.04913": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.05853": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.06878": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.06939": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.06945": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.07048": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 4,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1707.07554": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1707.07922": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1707.08559": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.00077": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.00111": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.00214": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.00481": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.01776": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.04120": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.04557": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.05592": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.06022": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.07241": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.08615": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1708.09609": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.00947": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.05411": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.05413": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.2,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.05563": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.06671": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.08858": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1709.09119": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.01507": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.02772": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.08396": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.09340": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.09753": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1710.10609": {
+   "best_match_rate": 0.6,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6,
+    "pdfplumber": 0.6,
+    "pymupdf_layout": 0.6,
+    "pymupdf_plain": 0.6,
+    "pypdf": 0.6
+   },
+   "n_evidence": 5,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1711.00106": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.00331": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.03438": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.05345": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.06288": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.06351": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.10124": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1711.11221": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1712.02121": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1712.03547": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1712.03556": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1801.02243": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1801.07537": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1802.00273": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1802.00923": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1802.05322": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.25,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 0.25,
+    "pymupdf_plain": 0.25,
+    "pypdf": 0.25
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1802.05574": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5714,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1803.03786": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1803.07771": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.00079": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.00520": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.02233": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.03396": {
+   "best_match_rate": 0.4,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.4,
+    "pdfplumber": 0.1333,
+    "pymupdf_layout": 0.4,
+    "pymupdf_plain": 0.4,
+    "pypdf": 0.4
+   },
+   "n_evidence": 15,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1804.05868": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.06506": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.08050": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.08186": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.08782": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.09301": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1804.11297": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.00460": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.02400": {
+   "best_match_rate": 0.6,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6,
+    "pdfplumber": 0.4,
+    "pymupdf_layout": 0.6,
+    "pymupdf_plain": 0.6,
+    "pypdf": 0.6
+   },
+   "n_evidence": 5,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1805.03122": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.04033": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.05581": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.07513": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1805.12032": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.01733": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.02847": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.02908": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.03191": {
+   "best_match_rate": 0.8571,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8571,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.8571,
+    "pymupdf_plain": 0.8571,
+    "pypdf": 0.8571
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.04524": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1806.09103": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1807.05154": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1807.07961": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1807.08204": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 4,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1807.08447": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1807.09000": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1807.11714": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.02022": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.04314": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.04614": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.05902": {
+   "best_match_rate": 0.9333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.9333,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.9333,
+    "pymupdf_plain": 0.9333,
+    "pypdf": 0.9333
+   },
+   "n_evidence": 15,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.06834": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.07625": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.08850": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1808.09633": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.01060": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.01341": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.01500": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.02494": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.04686": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.04960": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.7143,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.06963": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 2,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1809.08298": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1809.08652": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.01570": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.02100": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.03459": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.10254": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.10797": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.11118": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1810.13024": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.00266": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.00625": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.00854": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.01001": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5714,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.01088": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.01399": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.01734": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.6
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.04604": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.05085": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.07684": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.09529": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.09786": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.11136": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1811.11365": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.01704": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.03593": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.06038": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.06876": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.08879": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1812.10860": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.00439": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.01911": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.02222": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.02262": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.03859": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.03860": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1901.03866": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.04085": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.05280": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.10746": {
+   "best_match_rate": 0.875,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.875,
+    "pdfplumber": 0.625,
+    "pymupdf_layout": 0.875,
+    "pymupdf_plain": 0.875,
+    "pypdf": 0.75
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.10826": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1901.11117": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1902.00756": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 1,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1902.00821": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1902.07285": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1902.09314": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1902.10525": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 0.6
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1902.11049": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1903.00058": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.6,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1903.07398": {
+   "best_match_rate": 0.8889,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8889,
+    "pdfplumber": 0.1111,
+    "pymupdf_layout": 0.8889,
+    "pymupdf_plain": 0.8889,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1903.08237": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.00648": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.01608": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.02815": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.05527": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.05584": {
+   "best_match_rate": 0.9375,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.9375,
+    "pdfplumber": 0.875,
+    "pymupdf_layout": 0.9375,
+    "pymupdf_plain": 0.9375,
+    "pypdf": 0.9375
+   },
+   "n_evidence": 16,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.06941": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.09545": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.09678": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 1,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1904.09708": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1904.10500": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.07464": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.09866": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1905.10238": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.10247": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.10702": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.12260": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1905.13497": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.01183": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.4,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1906.01512": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.01946": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.02715": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.05012": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.05474": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.05963": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.06442": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.08286": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.08382": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 1,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1906.09774": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.09777": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1906.11180": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1906.11604": {
+   "best_match_rate": 0.5455,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.4545,
+    "pdfplumber": 0.1818,
+    "pymupdf_layout": 0.5455,
+    "pymupdf_plain": 0.4545,
+    "pypdf": 0.5455
+   },
+   "n_evidence": 11,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1907.00455": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.04152": {
+   "best_match_rate": 0.7143,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.7143,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.7143,
+    "pymupdf_plain": 0.7143,
+    "pypdf": 0.7143
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.04380": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.05403": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.05664": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.06458": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.10738": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.11062": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.11499": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1907.12108": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.00153": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.02402": {
+   "best_match_rate": 0.8333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8333,
+    "pdfplumber": 0.1667,
+    "pymupdf_layout": 0.8333,
+    "pymupdf_plain": 0.8333,
+    "pypdf": 0.8333
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.06006": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.06083": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.06151": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.06556": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.06725": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.07218": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.07816": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.07822": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1908.08566": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.09137": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.09951": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.10322": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.10422": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.11279": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1908.11860": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00161": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5714,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00183": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00252": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00324": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00338": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00361": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00574": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.00997": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01093": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01247": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01492": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01515": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01638": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.01958": {
+   "best_match_rate": 0.8333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8333,
+    "pdfplumber": 0.5833,
+    "pymupdf_layout": 0.8333,
+    "pymupdf_plain": 0.8333,
+    "pypdf": 0.8333
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1909.02480": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1909.02635": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.03242": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.03464": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.03526": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.04625": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05016": {
+   "best_match_rate": 0.7778,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.7778,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 0.7778,
+    "pymupdf_plain": 0.7778,
+    "pypdf": 0.7778
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05358": {
+   "best_match_rate": 0.8571,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8571,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 0.8571,
+    "pymupdf_plain": 0.8571,
+    "pypdf": 0.8571
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05360": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05478": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05855": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.05890": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.06522": {
+   "best_match_rate": 0.7778,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.7778,
+    "pdfplumber": 0.4444,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.7778,
+    "pypdf": 0.7778
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.06762": {
+   "best_match_rate": 0.8889,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8889,
+    "pdfplumber": 0.5556,
+    "pymupdf_layout": 0.8889,
+    "pymupdf_plain": 0.8889,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.07593": {
+   "best_match_rate": 0.4286,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.4286,
+    "pdfplumber": 0.2857,
+    "pymupdf_layout": 0.4286,
+    "pymupdf_plain": 0.4286,
+    "pypdf": 0.4286
+   },
+   "n_evidence": 7,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1909.07734": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.07863": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.08041": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8889,
+    "pdfplumber": 0.7778,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 0.8889,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.08103": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.08167": {
+   "best_match_rate": 0.6842,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6842,
+    "pdfplumber": 0.6842,
+    "pymupdf_layout": 0.6842,
+    "pymupdf_plain": 0.6842,
+    "pypdf": 0.6842
+   },
+   "n_evidence": 19,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1909.08306": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.08752": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 4,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1909.09018": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.875,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.09270": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.09484": {
+   "best_match_rate": 0.8889,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8889,
+    "pdfplumber": 0.8889,
+    "pymupdf_layout": 0.8889,
+    "pymupdf_plain": 0.8889,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.09779": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.11189": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.11467": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.11833": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.11879": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.12231": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.12673": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1909.13668": {
+   "best_match_rate": 0.5,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 0.5,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 4,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1909.13717": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.00194": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.00825": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 10,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.01363": {
+   "best_match_rate": 0.9091,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.9091,
+    "pdfplumber": 0.6364,
+    "pymupdf_layout": 0.9091,
+    "pymupdf_plain": 0.9091,
+    "pypdf": 0.9091
+   },
+   "n_evidence": 11,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.02334": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.02339": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.02754": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.03484": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.03771": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1910.04006": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.7059,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 17,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.04519": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.05752": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.06701": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.07134": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.08210": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.08502": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.08772": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.08987": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.09295": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.10288": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.10869": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.11204": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.11235": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1910.11491": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1910.11768": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.1429,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.11949": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.12354": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.13215": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.13890": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.14254": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1910.14497": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.00133": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.00473": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.01680": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1911.02086": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.02821": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.75,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1911.03058": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03154": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03350": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.75,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03385": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.8571,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03514": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.1818,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 11,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03584": {
+   "best_match_rate": 0.6667,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.6667,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.6667,
+    "pymupdf_plain": 0.6667,
+    "pypdf": 0.6667
+   },
+   "n_evidence": 3,
+   "reason": "evidence_match_below_0.70",
+   "version": "v1"
+  },
+  "1911.03597": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.03681": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.25,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1911.03842": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1911.03894": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.7778,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "1911.04952": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.05153": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.06192": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.06747": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.08915": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 1,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "1911.09483": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.2,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.09845": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.7778,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 0.8889
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.11698": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 11,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.11951": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.12579": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1911.13087": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.00159": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.00819": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.00864": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.00955": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.01046": {
+   "best_match_rate": 0.7826,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.7826,
+    "pdfplumber": 0.3478,
+    "pymupdf_layout": 0.7826,
+    "pymupdf_plain": 0.7826,
+    "pypdf": 0.7826
+   },
+   "n_evidence": 23,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.01220": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.01679": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.02761": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.03184": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.03234": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.03457": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.06813": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.06927": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.10167": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.10806": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.11602": {
+   "best_match_rate": 0.8333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8333,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.8333,
+    "pymupdf_plain": 0.8333,
+    "pypdf": 0.8333
+   },
+   "n_evidence": 6,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "1912.13072": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.3,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 10,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.00137": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 9,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.00582": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.02380": {
+   "best_match_rate": 0.5714,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5714,
+    "pdfplumber": 0.5714,
+    "pymupdf_layout": 0.5714,
+    "pymupdf_plain": 0.5714,
+    "pypdf": 0.5714
+   },
+   "n_evidence": 7,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "2001.02943": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.03632": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.05467": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.05672": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.06354": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.06785": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.07263": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.07615": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.08845": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.09899": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2001.10179": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.00876": {
+   "best_match_rate": 0.8333,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8333,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 0.8333,
+    "pymupdf_plain": 0.8333,
+    "pypdf": 0.8333
+   },
+   "n_evidence": 12,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.01030": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.02758": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.02800": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.03438": {
+   "best_match_rate": 0.75,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.75,
+    "pdfplumber": 0.625,
+    "pymupdf_layout": 0.625,
+    "pymupdf_plain": 0.75,
+    "pypdf": 0.75
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.05058": {
+   "best_match_rate": 0.875,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.875,
+    "pdfplumber": 0.625,
+    "pymupdf_layout": 0.875,
+    "pymupdf_plain": 0.875,
+    "pypdf": 0.875
+   },
+   "n_evidence": 8,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.05104": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.06424": {
+   "best_match_rate": 0.8,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.8,
+    "pdfplumber": 0.8,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 0.8,
+    "pypdf": 0.8
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.06644": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.8,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 10,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.08126": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.08307": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 4,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.08899": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.09637": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.10361": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2002.10832": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.5,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 0.5,
+    "pypdf": 0.5
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "2002.12328": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.00639": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3571,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 14,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.01006": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.01472": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.01769": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.02639": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.04967": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.04973": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.07758": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.08132": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.08529": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.08808": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.08897": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.09520": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6667,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.09586": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2003.09971": {
+   "best_match_rate": 0.0,
+   "kept": false,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 0.0,
+    "pymupdf_plain": 0.0,
+    "pypdf": 0.0
+   },
+   "n_evidence": 2,
+   "reason": "evidence_match_below_0.70",
+   "version": "latest"
+  },
+  "2003.10816": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.00139": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.01878": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.01894": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.4286,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.01980": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.2,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 5,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.02393": {
+   "best_match_rate": 0.7143,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 0.7143,
+    "pdfplumber": 0.2857,
+    "pymupdf_layout": 0.7143,
+    "pymupdf_plain": 0.7143,
+    "pypdf": 0.7143
+   },
+   "n_evidence": 7,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.02929": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.6429,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 14,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.03061": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.3333,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 3,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.03329": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "v1"
+  },
+  "2004.03788": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.04228": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.5,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 2,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.04315": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 0.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.04435": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  },
+  "2004.04696": {
+   "best_match_rate": 1.0,
+   "kept": true,
+   "match_rate_by_extractor": {
+    "pdfminer.six": 1.0,
+    "pdfplumber": 1.0,
+    "pymupdf_layout": 1.0,
+    "pymupdf_plain": 1.0,
+    "pypdf": 1.0
+   },
+   "n_evidence": 1,
+   "reason": "ok",
+   "version": "latest"
+  }
+ },
+ "summary": {
+  "extractors": [
+   "pymupdf_plain",
+   "pymupdf_layout",
+   "pypdf",
+   "pdfminer.six",
+   "pdfplumber"
+  ],
+  "papers_excluded_by_reason": {
+   "evidence_match_below_0.70": 28,
+   "ok": 435
+  },
+  "papers_in_population": 463,
+  "papers_kept": 435,
+  "papers_needing_v1_check": 44,
+  "papers_using_v1": 16,
+  "papers_with_usable_pdf": 463,
+  "rule": "keep if any of 5 extractors finds >= 70% of the paper's evidence paragraphs (>= 80% content-word containment each) in the latest PDF, else in v1 if better (v1 used when latest is missing)",
+  "set": "reservoir"
+ }
+}

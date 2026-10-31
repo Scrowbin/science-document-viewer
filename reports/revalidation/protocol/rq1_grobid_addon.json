@@ -1,0 +1,23 @@
+{
+  "addendum": "RQ1-v2 GROBID add-on (post-Gate-B protocol amendment)",
+  "approved_by_user": "2026-10-30, option 'Separate add-on' chosen when asked how GROBID should enter RQ1",
+  "reason": "rq1_rq4.json allowed GROBID only if it was available before Gate B (then 6 extractors would also define the keep rule). It was not available at Gate B; the user set it up afterwards.",
+  "unchanged": [
+    "Cohorts C-INT, C-RET, C-RET-150, PEERQA-PDF and the version-check files (keep rule stays on the original 5 extractors)",
+    "The frozen RQ1-v2 primary family (4 challengers vs pymupdf_layout, Holm m=4) and its decision rule",
+    "The frozen extraction cache of the 5 original extractors"
+  ],
+  "design": {
+    "script": "eval/phases/phase_1_extraction/scripts/rq1v2_grobid_addon.py",
+    "server": "GROBID 0.8.2 CRF image (grobid/grobid:0.8.2-crf) via docker-compose.grobid.yml; protocol had named 0.8.0",
+    "endpoint": "/api/processFulltextDocument, teiCoordinates=[p, head], one request at a time, timeout 300 s",
+    "tei_parsing": "one block per body <div> (head = heading; paragraphs via itertext so inline <ref> citations do not truncate text); abstract first. The historical adapter in evaluate_rq1_extractors.py is not used (p.text truncation, page_count=1, 15 s timeout).",
+    "papers": "same frozen papers and PDF versions as RQ1-v2: C-RET (primary), all opened reservoir papers except C-INT (sensitivity), C-RET-150 (downstream), PEERQA-PDF (descriptive). C-INT is never extracted.",
+    "primary": "evidence recall, grobid - pymupdf_layout, paper-cluster paired bootstrap B=10,000 seed 42, single unadjusted test labelled post-Gate-B add-on",
+    "secondary": "heading F1, client ms/page (HTTP to Docker/WSL2; not like-for-like with in-process extractors), failures (counted as recall 0), container memory via docker stats (~1-2 s sampling), downstream CEC@0.5 and nDCG@10 on C-RET-150 through the same pipeline as RQ1-v2",
+    "decision": "GROBID cannot be adopted in this run. If it would meet the frozen switch rule (>= +0.03 with CI lower bound > 0), it is reported as a lead for future work, not as a winner."
+  },
+  "deviations_before_registration": [
+    "Smoke test on 3 papers (output in rq1v2_grobid_addon/smoke_3, not used for decisions) found that in --limit mode the downstream papers were not extracted and scored 0; fixed by extracting them and reporting papers without units. No full-cohort outcome was seen before this registration."
+  ]
+}

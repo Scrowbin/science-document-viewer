@@ -1,0 +1,176 @@
+{
+  "metadata": {
+    "experiment_id": "EXP-RQ4P-PRODUCTION-FUSION",
+    "split": "test",
+    "papers": 408,
+    "queries": 1310,
+    "child_chunks": 14035,
+    "tau": 0.5,
+    "top_k": 20,
+    "context_budget_tokens": 1600,
+    "max_parents": 5,
+    "parent_trimming": "RQ4 benchmark rule (first 400 words if parent > 800 tokens); production instead windows +-200 words around the matched child",
+    "bootstrap": {
+      "B": 2000,
+      "seed": 42,
+      "unit": "paper cluster",
+      "estimand": "query-weighted mean nDCG@10 difference"
+    },
+    "queries_with_all_zero_bm25_prod": 2,
+    "latency_ms_p50": {
+      "bm25_prod_scoring": 0.126,
+      "rrf_fusion": 0.0138,
+      "convex_fusion": 0.0323
+    },
+    "latency_ms_p95": {
+      "bm25_prod_scoring": 0.2786,
+      "rrf_fusion": 0.0279,
+      "convex_fusion": 0.0649
+    },
+    "latency_note": "Measured per query with time.perf_counter on one CPU core; fusion/scoring step only (embedding and expansion excluded).",
+    "environment": {
+      "python": "3.11.7",
+      "platform": "Windows-10-10.0.26200-SP0"
+    },
+    "elapsed_s": 39.5
+  },
+  "reproduction_gate": {
+    "dense": {
+      "reproduced": 0.5655,
+      "reference": 0.5655,
+      "match_4dp": true
+    },
+    "rrf_bench": {
+      "reproduced": 0.5662,
+      "reference": 0.5662,
+      "match_4dp": true
+    },
+    "convex_bench": {
+      "reproduced": 0.5806,
+      "reference": 0.5806,
+      "match_4dp": true
+    }
+  },
+  "summary": {
+    "dense": {
+      "ndcg10": 0.5655,
+      "ndcg4": 0.5724,
+      "mrr10": 0.6415,
+      "recall20": 0.6366,
+      "hit5": 0.8267,
+      "n_parents": 3.8435
+    },
+    "bm25_bench": {
+      "ndcg10": 0.5065,
+      "ndcg4": 0.5135,
+      "mrr10": 0.5688,
+      "recall20": 0.5908,
+      "hit5": 0.7794,
+      "n_parents": 3.7969
+    },
+    "rrf_bench": {
+      "ndcg10": 0.5662,
+      "ndcg4": 0.5747,
+      "mrr10": 0.6368,
+      "recall20": 0.6413,
+      "hit5": 0.8305,
+      "n_parents": 3.8
+    },
+    "convex_bench": {
+      "ndcg10": 0.5806,
+      "ndcg4": 0.587,
+      "mrr10": 0.6556,
+      "recall20": 0.6525,
+      "hit5": 0.845,
+      "n_parents": 3.8214
+    },
+    "bm25_prod": {
+      "ndcg10": 0.4125,
+      "ndcg4": 0.4196,
+      "mrr10": 0.4716,
+      "recall20": 0.4911,
+      "hit5": 0.6771,
+      "n_parents": 3.7038
+    },
+    "rrf_prod": {
+      "ndcg10": 0.5229,
+      "ndcg4": 0.5316,
+      "mrr10": 0.5936,
+      "recall20": 0.6025,
+      "hit5": 0.7985,
+      "n_parents": 3.7611
+    },
+    "convex_prod": {
+      "ndcg10": 0.5566,
+      "ndcg4": 0.5637,
+      "mrr10": 0.6253,
+      "recall20": 0.639,
+      "hit5": 0.8282,
+      "n_parents": 3.8084
+    }
+  },
+  "stats": {
+    "rrf_prod - dense": {
+      "diff": -0.0426,
+      "ci95": [
+        -0.0563,
+        -0.028
+      ],
+      "p_raw": 0.001,
+      "p_holm_m3": 0.003,
+      "family": "pre-declared (inferential on Test, descriptive on Dev)"
+    },
+    "convex_prod - dense": {
+      "diff": -0.0089,
+      "ci95": [
+        -0.0191,
+        0.0021
+      ],
+      "p_raw": 0.1209,
+      "p_holm_m3": 0.1209,
+      "family": "pre-declared (inferential on Test, descriptive on Dev)"
+    },
+    "convex_prod - rrf_prod": {
+      "diff": 0.0337,
+      "ci95": [
+        0.0243,
+        0.0431
+      ],
+      "p_raw": 0.001,
+      "p_holm_m3": 0.003,
+      "family": "pre-declared (inferential on Test, descriptive on Dev)"
+    },
+    "rrf_bench - dense": {
+      "diff": 0.0008,
+      "ci95": [
+        -0.011,
+        0.013
+      ],
+      "p_raw": 0.8696
+    },
+    "convex_bench - dense": {
+      "diff": 0.0152,
+      "ci95": [
+        0.0045,
+        0.0262
+      ],
+      "p_raw": 0.007
+    },
+    "convex_bench - rrf_bench": {
+      "diff": 0.0144,
+      "ci95": [
+        0.0062,
+        0.0222
+      ],
+      "p_raw": 0.003
+    },
+    "bm25_prod - bm25_bench": {
+      "diff": -0.0941,
+      "ci95": [
+        -0.1134,
+        -0.0746
+      ],
+      "p_raw": 0.001
+    }
+  }
+}

@@ -1,0 +1,47 @@
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+[reservoir] grobid: 358 to extract (5 cached)
+  25/358
+  50/358
+  75/358
+  100/358
+  125/358
+  150/358
+  175/358
+  200/358
+  225/358
+  250/358
+  275/358
+  300/358
+  325/358
+  350/358
+[peerqa] grobid: 104 to extract (3 cached)
+  25/104
+  50/104
+  75/104
+  100/104
+{
+ "papers": 335,
+ "means": {
+  "pymupdf_layout": {
+   "evidence_recall": 0.9848,
+   "ok": 1.0
+  },
+  "grobid": {
+   "evidence_recall": 0.9811,
+   "ok": 1.0
+  }
+ },
+ "primary_evidence_recall": {
+  "comparison": "grobid - pymupdf_layout",
+  "metric": "evidence_recall",
+  "diff": -0.0037,
+  "ci95": [
+   -0.013,
+   0.004
+  ],
+  "p_raw": 0.3938,
+  "ci95_half_width": 0.0085,
+  "adjustment": "none (separate add-on test)"
+ },
+ "would_meet_frozen_switch_rule": false
+}

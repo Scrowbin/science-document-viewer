@@ -1,0 +1,275 @@
+{
+ "seed": 42,
+ "cases": [
+  {
+   "case_id": "CEC-01",
+   "paper_arxiv_id": "1610.09225",
+   "question_id": "3611a72f754de1e256fbd25b012197e1c24e8470",
+   "strategy": "fixed_size",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-02",
+   "paper_arxiv_id": "1912.01214",
+   "question_id": "f5e6f43454332e0521a778db0b769481e23e7682",
+   "strategy": "hierarchical",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-03",
+   "paper_arxiv_id": "1701.08229",
+   "question_id": "00c57e45ac6afbdfa67350a57e81b4fad0ed2885",
+   "strategy": "section_overlap",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-04",
+   "paper_arxiv_id": "2003.04642",
+   "question_id": "9ecde59ffab3c57ec54591c3c7826a9188b2b270",
+   "strategy": "fixed_size",
+   "cec_0.5": 0,
+   "cec_0.3": 0,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-05",
+   "paper_arxiv_id": "1808.09111",
+   "question_id": "5eabfc6cc8aa8a99e6e42514ef9584569cb75dec",
+   "strategy": "section_overlap",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-06",
+   "paper_arxiv_id": "1708.01464",
+   "question_id": "0752d71a0a1f73b3482a888313622ce9e9870d6e",
+   "strategy": "section_overlap",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-07",
+   "paper_arxiv_id": "1610.09225",
+   "question_id": "b1ce129678e37070e69f01332f1a8587e18e06b0",
+   "strategy": "section_overlap",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-08",
+   "paper_arxiv_id": "1909.11687",
+   "question_id": "d087539e6a38c42f0a521ff2173ef42c0733878e",
+   "strategy": "hierarchical",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-09",
+   "paper_arxiv_id": "1904.03288",
+   "question_id": "2ddb51b03163d309434ee403fef42d6b9aecc458",
+   "strategy": "hierarchical",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-10",
+   "paper_arxiv_id": "1912.13337",
+   "question_id": "75ff6e425ce304a35f18c0230c0d13d3913a31a9",
+   "strategy": "fixed_size",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-11",
+   "paper_arxiv_id": "1909.09587",
+   "question_id": "37be0d479480211291e068d0d3823ad0c13321d3",
+   "strategy": "section_overlap",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-12",
+   "paper_arxiv_id": "1910.01863",
+   "question_id": "abe2393415e533cb06311e74ed1c5674cff8571f",
+   "strategy": "hierarchical",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-13",
+   "paper_arxiv_id": "1808.09111",
+   "question_id": "5eabfc6cc8aa8a99e6e42514ef9584569cb75dec",
+   "strategy": "hierarchical",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-14",
+   "paper_arxiv_id": "1712.00991",
+   "question_id": "fb3d30d59ed49e87f63d3735b876d45c4c6b8939",
+   "strategy": "section_overlap",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-15",
+   "paper_arxiv_id": "1704.06194",
+   "question_id": "c0e341c4d2253eb42c8840381b082aae274eddad",
+   "strategy": "fixed_size",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-16",
+   "paper_arxiv_id": "2002.01664",
+   "question_id": "75df70ce7aa714ec4c6456d0c51f82a16227f2cb",
+   "strategy": "fixed_size",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-17",
+   "paper_arxiv_id": "1908.06941",
+   "question_id": "6844683935d0d8f588fa06530f5068bf3e1ed0c0",
+   "strategy": "hierarchical",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-18",
+   "paper_arxiv_id": "1712.00991",
+   "question_id": "fb3d30d59ed49e87f63d3735b876d45c4c6b8939",
+   "strategy": "fixed_size",
+   "cec_0.5": 0,
+   "cec_0.3": 0,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-19",
+   "paper_arxiv_id": "1809.00530",
+   "question_id": "6aa2a1e2e3666f2b2a1f282d4cbdd1ca325eb9de",
+   "strategy": "fixed_size",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-20",
+   "paper_arxiv_id": "1909.02304",
+   "question_id": "5a22293b055f5775081d6acdc0450f7bd5f5de04",
+   "strategy": "hierarchical",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-21",
+   "paper_arxiv_id": "2002.03407",
+   "question_id": "c21b87c97d1afac85ece2450ee76d01c946de668",
+   "strategy": "section_overlap",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-22",
+   "paper_arxiv_id": "1911.02855",
+   "question_id": "b5bc34e1e381dbf972d0b594fe8c66ff75305d71",
+   "strategy": "section_overlap",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-23",
+   "paper_arxiv_id": "1609.00425",
+   "question_id": "a87a009c242d57c51fc94fe312af5e02070f898b",
+   "strategy": "hierarchical",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-24",
+   "paper_arxiv_id": "1802.07862",
+   "question_id": "f7a89b9cd2792f23f2cb43d50a01b8218a6fbb24",
+   "strategy": "fixed_size",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-25",
+   "paper_arxiv_id": "1712.00991",
+   "question_id": "e025061e199b121f2ac8f3d9637d9bf987d65cd5",
+   "strategy": "hierarchical",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-26",
+   "paper_arxiv_id": "1912.01214",
+   "question_id": "f5e6f43454332e0521a778db0b769481e23e7682",
+   "strategy": "fixed_size",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  },
+  {
+   "case_id": "CEC-27",
+   "paper_arxiv_id": "1911.03059",
+   "question_id": "dc1cec824507fc85ac1ba87882fe1e422ff6cffb",
+   "strategy": "hierarchical",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-28",
+   "paper_arxiv_id": "1708.01464",
+   "question_id": "113d791df6fcfc9cecfb7b1bebaf32cc2e4402ab",
+   "strategy": "fixed_size",
+   "cec_0.5": 0,
+   "cec_0.3": 0,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-29",
+   "paper_arxiv_id": "1802.07862",
+   "question_id": "f7a89b9cd2792f23f2cb43d50a01b8218a6fbb24",
+   "strategy": "section_overlap",
+   "cec_0.5": 0,
+   "cec_0.3": 1,
+   "cec_0.7": 0
+  },
+  {
+   "case_id": "CEC-30",
+   "paper_arxiv_id": "1904.09535",
+   "question_id": "2ea4347f1992b0b3958c4844681ff0fe4d0dd1dd",
+   "strategy": "section_overlap",
+   "cec_0.5": 1,
+   "cec_0.3": 1,
+   "cec_0.7": 1
+  }
+ ]
+}

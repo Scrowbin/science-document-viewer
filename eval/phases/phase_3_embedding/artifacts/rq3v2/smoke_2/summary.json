@@ -1,0 +1,221 @@
+{
+ "experiment": "RQ3-v2",
+ "cohort": "C-RET-150",
+ "role": "SELECTION",
+ "papers": 2,
+ "questions": 6,
+ "means": {
+  "intfloat/e5-small-v2": {
+   "ndcg10": 0.4943,
+   "cec_0.5": 1.0,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5
+  },
+  "sentence-transformers/all-MiniLM-L6-v2": {
+   "ndcg10": 0.3972,
+   "cec_0.5": 0.8333,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5
+  },
+  "Snowflake/snowflake-arctic-embed-s": {
+   "ndcg10": 0.5258,
+   "cec_0.5": 1.0,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5
+  },
+  "BAAI/bge-small-en-v1.5": {
+   "ndcg10": 0.2936,
+   "cec_0.5": 0.8333,
+   "cec_0.3": 0.8333,
+   "cec_0.7": 0.5
+  },
+  "nomic-ai/modernbert-embed-base": {
+   "ndcg10": 0.3327,
+   "cec_0.5": 0.6667,
+   "cec_0.3": 1.0,
+   "cec_0.7": 0.5
+  }
+ },
+ "primary_family_ndcg10": [
+  {
+   "comparison": "sentence-transformers/all-MiniLM-L6-v2 - intfloat/e5-small-v2",
+   "metric": "ndcg10",
+   "diff": -0.0971,
+   "ci95": [
+    -0.2423,
+    0.1934
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "Snowflake/snowflake-arctic-embed-s - intfloat/e5-small-v2",
+   "metric": "ndcg10",
+   "diff": 0.0315,
+   "ci95": [
+    -0.0294,
+    0.1533
+   ],
+   "p_raw": 0.5007,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "BAAI/bge-small-en-v1.5 - intfloat/e5-small-v2",
+   "metric": "ndcg10",
+   "diff": -0.2007,
+   "ci95": [
+    -0.3011,
+    0.0
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "nomic-ai/modernbert-embed-base - intfloat/e5-small-v2",
+   "metric": "ndcg10",
+   "diff": -0.1615,
+   "ci95": [
+    -0.2423,
+    0.0
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  }
+ ],
+ "secondary_cec_0.5": [
+  {
+   "comparison": "sentence-transformers/all-MiniLM-L6-v2 - intfloat/e5-small-v2",
+   "metric": "cec_0.5",
+   "diff": -0.1667,
+   "ci95": [
+    -0.25,
+    0.0
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "Snowflake/snowflake-arctic-embed-s - intfloat/e5-small-v2",
+   "metric": "cec_0.5",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "BAAI/bge-small-en-v1.5 - intfloat/e5-small-v2",
+   "metric": "cec_0.5",
+   "diff": -0.1667,
+   "ci95": [
+    -0.25,
+    0.0
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "nomic-ai/modernbert-embed-base - intfloat/e5-small-v2",
+   "metric": "cec_0.5",
+   "diff": -0.3333,
+   "ci95": [
+    -0.5,
+    0.0
+   ],
+   "p_raw": 0.5151,
+   "p_holm": 1.0
+  }
+ ],
+ "efficiency": {
+  "intfloat/e5-small-v2": {
+   "indexing_chunks_per_s": 13.14,
+   "query_latency_ms": {
+    "p50": 24.92,
+    "p95": 28.25,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 485.7,
+    "python_working_set_peak_mb": 935.5
+   },
+   "units": 217,
+   "prefix_query": "query: ",
+   "prefix_passage": "passage: "
+  },
+  "sentence-transformers/all-MiniLM-L6-v2": {
+   "indexing_chunks_per_s": 31.9,
+   "query_latency_ms": {
+    "p50": 13.67,
+    "p95": 16.98,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 486.4,
+    "python_working_set_peak_mb": 808.3
+   },
+   "units": 217,
+   "prefix_query": "",
+   "prefix_passage": ""
+  },
+  "Snowflake/snowflake-arctic-embed-s": {
+   "indexing_chunks_per_s": 12.68,
+   "query_latency_ms": {
+    "p50": 26.08,
+    "p95": 29.29,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 485.4,
+    "python_working_set_peak_mb": 954.6
+   },
+   "units": 217,
+   "prefix_query": "Represent this sentence for searching relevant passages: ",
+   "prefix_passage": ""
+  },
+  "BAAI/bge-small-en-v1.5": {
+   "indexing_chunks_per_s": 12.81,
+   "query_latency_ms": {
+    "p50": 27.86,
+    "p95": 30.63,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 485.9,
+    "python_working_set_peak_mb": 969.4
+   },
+   "units": 217,
+   "prefix_query": "Represent this sentence for searching relevant passages: ",
+   "prefix_passage": ""
+  },
+  "nomic-ai/modernbert-embed-base": {
+   "indexing_chunks_per_s": 2.29,
+   "query_latency_ms": {
+    "p50": 82.46,
+    "p95": 93.27,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 486.1,
+    "python_working_set_peak_mb": 1752.5
+   },
+   "units": 217,
+   "prefix_query": "search_query: ",
+   "prefix_passage": "search_document: "
+  }
+ },
+ "failures": {
+  "intfloat/e5-small-v2": [],
+  "sentence-transformers/all-MiniLM-L6-v2": [],
+  "Snowflake/snowflake-arctic-embed-s": [],
+  "BAAI/bge-small-en-v1.5": [],
+  "nomic-ai/modernbert-embed-base": []
+ },
+ "decision_rule": "switch only if P50 latency <= 1.5x e5 and diff >= 0.04 with CI lower bound > 0",
+ "decision": "keep intfloat/e5-small-v2",
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

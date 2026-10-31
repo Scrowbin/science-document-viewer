@@ -1,0 +1,141 @@
+{
+  "RQ1-v2": {
+    "cohorts": [
+      "C-RET (selection)",
+      "PEERQA-PDF (descriptive)"
+    ],
+    "arms": [
+      "pymupdf_plain",
+      "pymupdf_layout",
+      "pypdf",
+      "pdfminer.six",
+      "pdfplumber"
+    ],
+    "incumbent": "pymupdf_layout",
+    "primary_metric": "evidence recall: share of evidence paragraphs with >= 0.80 content-word containment in the full text (paper-level mean, papers as clusters)",
+    "secondary": [
+      "heading F1 vs QASPER section names",
+      "ms per page",
+      "peak working-set increase per extractor subprocess",
+      "failure rate",
+      "downstream CEC@0.5 with hierarchical + e5 dense on each extractor's sections"
+    ],
+    "family": "each challenger minus pymupdf_layout (Holm m=4)",
+    "sesoi": 0.03,
+    "decision": "switch only if a challenger beats pymupdf_layout by >= 0.03 with 95% CI lower bound > 0",
+    "sensitivity": "evidence recall on all opened papers before the version-check exclusion; report whether the decision is the same",
+    "optional_arm": "grobid 0.8.0 (local Docker, localhost:8070) if available before Gate B; then the version-check keep rule uses 6 extractors"
+  },
+  "RQ2-diag": {
+    "cohort": "RQ2 Dev 47 papers / 127 q (diagnostic, exploratory)",
+    "steps": [
+      "S0 RQ2 protocol: full unbudgeted parent list (reproduces 0.6880)",
+      "S1 budget 1600 + 5-unit cap with the RQ4 first-400-words trim",
+      "S2 budget + cap + production windowing (+-200 words)",
+      "S3 production RagService.search_hierarchical path (parity script, 0.5049)"
+    ],
+    "metrics": [
+      "nDCG@10 (RQ2 convention and budgeted convention)",
+      "CEC@0.5"
+    ],
+    "inference": "none (descriptive decomposition)"
+  },
+  "RQ2-v2": {
+    "cohort": "C-RET (selection)",
+    "arms": [
+      "fixed_size (400)",
+      "section_overlap (400/80)",
+      "hierarchical (200/40, production)"
+    ],
+    "incumbent": "hierarchical",
+    "retrieval": "dense e5 (primary); production rrf_prod variant descriptive only",
+    "primary_metric": "CEC@0.5",
+    "secondary": [
+      "budgeted nDCG@10",
+      "context tokens",
+      "units per paper",
+      "indexing time",
+      "query latency",
+      "peak working set"
+    ],
+    "family": [
+      "hierarchical - fixed_size",
+      "hierarchical - section_overlap"
+    ],
+    "holm_m": 2,
+    "sesoi": 0.05,
+    "decision": "replace hierarchical only if a flat strategy beats it by >= 0.05 CEC with CI lower bound > 0"
+  },
+  "RQ3-v2": {
+    "cohort": "C-RET-150 (selection)",
+    "chunking": "hierarchical children of pymupdf_layout sections",
+    "retrieval": "dense",
+    "arms": {
+      "sentence-transformers/all-MiniLM-L6-v2": {
+        "query": "",
+        "passage": ""
+      },
+      "intfloat/e5-small-v2": {
+        "query": "query: ",
+        "passage": "passage: "
+      },
+      "Snowflake/snowflake-arctic-embed-s": {
+        "query": "Represent this sentence for searching relevant passages: ",
+        "passage": ""
+      },
+      "BAAI/bge-small-en-v1.5": {
+        "query": "Represent this sentence for searching relevant passages: ",
+        "passage": ""
+      },
+      "nomic-ai/modernbert-embed-base": {
+        "query": "search_query: ",
+        "passage": "search_document: "
+      }
+    },
+    "prefix_source": "rag_service.MODEL_PREFIX_SPECS (strings logged per run)",
+    "incumbent": "intfloat/e5-small-v2",
+    "primary_metric": "budgeted nDCG@10",
+    "secondary": [
+      "CEC@0.5",
+      "query latency P50/P95 (B=1, 10 warm-up)",
+      "indexing chunks/s (B=32)",
+      "peak working set per model subprocess"
+    ],
+    "family": "each challenger minus e5 (Holm m=4)",
+    "sesoi": 0.04,
+    "decision": "switch only if a model with P50 query latency <= 1.5x e5 beats e5 by >= 0.04 with CI lower bound > 0; ModernBERT trade-off descriptive",
+    "gate_rule": "if the embedder changes, recalibrate the 0.80 refusal gate on C-RET answerable questions only, to the e5 refusal rate"
+  },
+  "RQ4-v2": {
+    "cohorts": [
+      "C-RET (selection)",
+      "PEERQA-PDF (descriptive)",
+      "PEERQA-TEXT (descriptive; shipped GROBID text, no PDF extraction)"
+    ],
+    "chunking": "hierarchical",
+    "embedder": "intfloat/e5-small-v2",
+    "arms": {
+      "dense": "cosine",
+      "bm25_prod": "BM25Okapi on text.lower().split(), per document",
+      "rrf_prod": "DocumentRAG.hybrid_search: top-50 dense + top-50 bm25_prod, RRF k=60",
+      "bm25_fix": "BM25Okapi on tokenize_regex (39 stopwords), per document",
+      "rrf_fix": "top-50 dense + top-50 bm25_fix, RRF k=60",
+      "convex_prod": "alpha 0.7, min-max over all candidates, bm25_prod",
+      "convex_fix": "alpha 0.7, min-max over all candidates, bm25_fix"
+    },
+    "context": "production assembly (windowing); arms differ only in ranking",
+    "primary_metric": "budgeted nDCG@10",
+    "secondary": [
+      "CEC@0.5",
+      "fusion latency ms"
+    ],
+    "family": [
+      "rrf_prod - dense",
+      "rrf_fix - dense",
+      "convex_fix - dense"
+    ],
+    "holm_m": 3,
+    "sesoi": 0.02,
+    "decision": "default = dense unless a *_fix hybrid beats dense by >= 0.02 with CI lower bound > 0; tie order bm25_fix < rrf_fix < convex_fix; *_prod arms never adopted"
+  }
+}

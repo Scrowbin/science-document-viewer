@@ -1,0 +1,58 @@
+{
+  "seed": 42,
+  "bootstrap": {
+    "method": "paired paper-cluster bootstrap",
+    "B": 10000,
+    "seed": 42,
+    "estimand": "query-weighted mean difference",
+    "ci": "95% percentile"
+  },
+  "multiple_testing": "Holm within each pre-declared family",
+  "production_reference": {
+    "extractor": "pymupdf_layout",
+    "chunker": "hierarchical (child 200 / overlap 40)",
+    "embedder": "intfloat/e5-small-v2",
+    "retrieval_rq1_rq3": "dense",
+    "context": {
+      "budget_tokens": 1600,
+      "max_units": 5,
+      "parent_window_over_tokens": 800,
+      "window_pad_words": 200,
+      "token_estimate": "ceil(words * 1.33)"
+    }
+  },
+  "relevance": {
+    "tokenizer": "eval_common.relevance.tokenize_regex (39 stopwords)",
+    "ndcg_unit_tau": 0.5,
+    "r_q_floor": 1
+  },
+  "cec": {
+    "tau_primary": 0.5,
+    "tau_sensitivity": [
+      0.3,
+      0.7
+    ],
+    "evidence": "any answerable annotator, non-FLOAT",
+    "fallback_rule": "if human agreement on 30 Dev cases < 0.80, budgeted nDCG@10 becomes RQ2 primary"
+  },
+  "version_check": {
+    "found": ">= 0.80 content-word containment",
+    "keep": "any of the RQ1 extractors (5, or 6 with GROBID) finds >= 0.70 of the evidence paragraphs; v1 used when latest is missing or matches worse"
+  },
+  "hardware": {
+    "cpu": "AMD Ryzen 7 7735HS (8C/16T)",
+    "ram_usable_gb": 13.69,
+    "gpu_used": false,
+    "note": "historical results were reported on Ryzen 5 5600; latency is only compared within new runs"
+  },
+  "memory_definition": "peak working set (Windows RSS) of the Python process and summed over the Ollama process tree, sampled every 0.1 s, reported separately",
+  "peerqa": {
+    "source": "UKPLab PeerQA v1.0 (TUdatalib zip, sha256 188fa8d198346f64d419eaf836756b89f0d3169a0832f65af8b832188ea209d8)",
+    "license": "CC BY-NC-SA 4.0",
+    "pdfs": "8 EGU automatic + 102 OpenReview saved manually in a browser (OpenReview blocks automated access)",
+    "cohorts": [
+      "PEERQA-PDF",
+      "PEERQA-TEXT"
+    ]
+  }
+}

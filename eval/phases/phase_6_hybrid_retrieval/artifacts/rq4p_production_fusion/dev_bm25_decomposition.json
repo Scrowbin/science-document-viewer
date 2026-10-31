@@ -1,0 +1,11 @@
+{
+  "bm25_wp_split_wide": 0.4844,
+  "rrf_wp_split_wide": 0.5571,
+  "bm25_wp_local": 0.4724,
+  "rrf_wp_local": 0.5571,
+  "bm25_ws_stop_local": 0.4179,
+  "rrf_ws_stop_local": 0.5073,
+  "bm25_ws_local": 0.3991,
+  "rrf_ws_local": 0.5148,
+  "_note": "Post-hoc exploratory decomposition on RQ4 Dev (276 papers, 892 queries); nDCG@10 under RQ4 downstream rules. Dense-only reference: 0.5610."
+}

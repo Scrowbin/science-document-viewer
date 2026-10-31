@@ -1,0 +1,243 @@
+{
+ "C-RET": {
+  "role": "SELECTION (RQ1-RQ4)",
+  "papers": 335,
+  "questions": 567,
+  "questions_per_paper": {
+   "1": 212,
+   "2": 56,
+   "3": 35,
+   "4": 24,
+   "5": 6,
+   "6": 2
+  },
+  "question_types": {
+   "extractive": 342,
+   "abstractive": 139,
+   "boolean": 86
+  },
+  "question_words": {
+   "mean": 8.4,
+   "median": 8,
+   "p95": 15,
+   "min": 3,
+   "max": 24
+  },
+  "evidence_paragraphs_per_question": {
+   "mean": 1.7,
+   "median": 1,
+   "p95": 5,
+   "min": 1,
+   "max": 14
+  },
+  "evidence_words_per_question": {
+   "mean": 149.8,
+   "median": 126,
+   "p95": 332,
+   "min": 1,
+   "max": 795
+  },
+  "question_evidence_jaccard_mean": 0.0432,
+  "paper_words": {
+   "mean": 3703.3,
+   "median": 3495,
+   "p95": 7106,
+   "min": 436,
+   "max": 25891
+  },
+  "paper_sections": {
+   "mean": 14.0,
+   "median": 13,
+   "p95": 27,
+   "min": 4,
+   "max": 47
+  },
+  "pdf_pages": {
+   "mean": 11.2,
+   "median": 10,
+   "p95": 22,
+   "min": 2,
+   "max": 152
+  }
+ },
+ "C-RET-150": {
+  "role": "SELECTION (RQ3 shortlist)",
+  "papers": 150,
+  "questions": 249,
+  "questions_per_paper": {
+   "1": 96,
+   "2": 27,
+   "3": 14,
+   "4": 10,
+   "5": 1,
+   "6": 2
+  },
+  "question_types": {
+   "extractive": 150,
+   "boolean": 35,
+   "abstractive": 64
+  },
+  "question_words": {
+   "mean": 8.3,
+   "median": 8,
+   "p95": 15,
+   "min": 4,
+   "max": 24
+  },
+  "evidence_paragraphs_per_question": {
+   "mean": 1.8,
+   "median": 1,
+   "p95": 5,
+   "min": 1,
+   "max": 12
+  },
+  "evidence_words_per_question": {
+   "mean": 158.6,
+   "median": 130,
+   "p95": 371,
+   "min": 14,
+   "max": 795
+  },
+  "question_evidence_jaccard_mean": 0.0434,
+  "paper_words": {
+   "mean": 3612.8,
+   "median": 3494.5,
+   "p95": 7106,
+   "min": 436,
+   "max": 13129
+  },
+  "paper_sections": {
+   "mean": 14.2,
+   "median": 13.0,
+   "p95": 28,
+   "min": 4,
+   "max": 46
+  },
+  "pdf_pages": {
+   "mean": 10.8,
+   "median": 10.0,
+   "p95": 22,
+   "min": 2,
+   "max": 76
+  }
+ },
+ "C-INT": {
+  "role": "CONFIRMATION (RQ6 only; never used for tuning)",
+  "papers": 100,
+  "questions": 200,
+  "questions_per_paper": {
+   "2": 100
+  },
+  "question_types": {
+   "extractive": 122,
+   "boolean": 29,
+   "abstractive": 49
+  },
+  "question_words": {
+   "mean": 8.3,
+   "median": 8.0,
+   "p95": 15,
+   "min": 4,
+   "max": 23
+  },
+  "evidence_paragraphs_per_question": {
+   "mean": 1.7,
+   "median": 1.0,
+   "p95": 4,
+   "min": 1,
+   "max": 12
+  },
+  "evidence_words_per_question": {
+   "mean": 156.1,
+   "median": 119.5,
+   "p95": 407,
+   "min": 15,
+   "max": 1031
+  },
+  "question_evidence_jaccard_mean": 0.038,
+  "paper_words": {
+   "mean": 3806.9,
+   "median": 3661.5,
+   "p95": 6681,
+   "min": 1112,
+   "max": 25645
+  },
+  "paper_sections": {
+   "mean": 14.2,
+   "median": 13.0,
+   "p95": 27,
+   "min": 4,
+   "max": 44
+  },
+  "pdf_pages": {
+   "mean": 11.3,
+   "median": 10.0,
+   "p95": 18,
+   "min": 2,
+   "max": 103
+  }
+ },
+ "PEERQA-PDF": {
+  "role": "DESCRIPTIVE external check (RQ1, RQ4, RQ6)",
+  "license": "CC BY-NC-SA 4.0 (README in peerqa-data-v1.0.zip); non-commercial research use",
+  "papers": 107,
+  "questions": 288,
+  "venues": {
+   "openreview": 99,
+   "egu": 8
+  },
+  "questions_per_paper": {
+   "mean": 2.7,
+   "median": 2,
+   "p95": 7,
+   "min": 1,
+   "max": 9
+  },
+  "question_words": {
+   "mean": 15.7,
+   "median": 15.0,
+   "p95": 26,
+   "min": 3,
+   "max": 45
+  },
+  "answer_words": {
+   "mean": 38.3,
+   "median": 22,
+   "p95": 132,
+   "min": 1,
+   "max": 322
+  },
+  "questions_without_free_form_answer": 107,
+  "evidence_sentences_per_question": {
+   "mean": 4.0,
+   "median": 2.0,
+   "p95": 12,
+   "min": 1,
+   "max": 36
+  },
+  "question_evidence_jaccard_mean": 0.0953,
+  "pdf_pages": {
+   "mean": 23.1,
+   "median": 21,
+   "p95": 43,
+   "min": 11,
+   "max": 81
+  }
+ },
+ "RQ5-500Q": {
+  "papers": 250,
+  "questions": 500,
+  "question_types": {
+   "extractive": 319,
+   "boolean": 72,
+   "abstractive": 109
+  },
+  "gold_evidence_words": {
+   "mean": 144.6,
+   "median": 120.5,
+   "p95": 334,
+   "min": 4,
+   "max": 1238
+  }
+ }
+}

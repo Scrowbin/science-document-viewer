@@ -1,0 +1,97 @@
+{
+  "RQ5-R": {
+    "inference": false,
+    "source": "rq5_llm_generation_benchmark_500q.json + corrected human review",
+    "analyses": [
+      "Boolean accuracy (first yes/no token; refusals wrong; unparseable reported)",
+      "paired cluster CI of refusal-rate differences",
+      "answered-by-both Token F1 differences (selection-affected)",
+      "human-review counts with Wilson 95% intervals"
+    ]
+  },
+  "RQ5-M": {
+    "models": [
+      "llama3.2:3b",
+      "llama3.2:1b",
+      "qwen2.5:0.5b"
+    ],
+    "questions": "60 stride-sampled RQ5 manifest items",
+    "options": {
+      "temperature": 0,
+      "num_predict": 256
+    },
+    "cold": "unload with keep_alive=0, then one timed cold load",
+    "warm": "2 passes over the 60 questions",
+    "metrics": [
+      "Ollama-tree and Python peak working set",
+      "load / prompt-eval / eval durations",
+      "tokens per second",
+      "stability: identical outputs across the 2 warm passes"
+    ],
+    "stored_answer_comparison": "descriptive only; the stored run did not record the Ollama version or model digests",
+    "versions": {
+      "ollama": "0.40.12",
+      "llama3.2:3b": "a80c4f17acd55265",
+      "llama3.2:1b": "baf6a787fdffd633",
+      "qwen2.5:0.5b": "a8b0c51577010a27"
+    }
+  },
+  "RQ6_template": {
+    "cohort": "C-INT (confirmation; 100 papers / 200 q)",
+    "secondary_cohort": "PEERQA-PDF (descriptive)",
+    "pipeline": "production code path: sections -> chunking -> embedding -> retrieval mode -> refusal gate -> production prompt -> Ollama",
+    "configs": {
+      "NEW": "all RQ1-v2..RQ4-v2 winners; the filled config is hashed into the registry before RQ6 runs",
+      "LEGACY": "pymupdf_layout + hierarchical + e5-small-v2 + rrf_prod + gate 0.80"
+    },
+    "llms": [
+      "llama3.2:3b",
+      "qwen2.5:0.5b"
+    ],
+    "gold_reference": "gold evidence through the production prompt, no refusal gate, per LLM",
+    "conditions": [
+      "NEW x 3b",
+      "LEGACY x 3b",
+      "GOLD x 3b",
+      "NEW x qwen",
+      "LEGACY x qwen",
+      "GOLD x qwen"
+    ],
+    "generation": {
+      "temperature": 0,
+      "applies_to": "all conditions including LEGACY",
+      "prompt": "production query_document prompt"
+    },
+    "ingestion": "once per distinct (extractor, chunker, embedder) configuration, shared across conditions",
+    "primary": {
+      "metric": "Token F1, all questions, refusals scored 0",
+      "family": [
+        "(a) NEW x 3b - GOLD x 3b (retrieval loss; includes a context length / noise effect)",
+        "(b) NEW x 3b - LEGACY x 3b"
+      ],
+      "holm_m": 2,
+      "sesoi": 0.05,
+      "no_change_rule": "if NEW equals LEGACY, (b) is reported as no change adopted, Holm m=1, LEGACY not run twice"
+    },
+    "secondary": [
+      "Token F1 on answered-by-both (selection-affected)",
+      "Boolean accuracy",
+      "gate vs model refusal rates",
+      "CEC@0.5 of the retrieved context",
+      "context tokens per condition",
+      "latency per stage",
+      "memory (Python and Ollama tree)",
+      "failure counts"
+    ],
+    "human_review": {
+      "answers": 40,
+      "design": "20 questions x {NEW x 3b, NEW x qwen}; two sheets, one answer per question each, completed in separate sittings, shuffled order",
+      "second_annotator": "20 of the 40",
+      "agreement": [
+        "raw percent agreement",
+        "Cohen kappa on 6 labels (unstable at n=20)",
+        "Cohen kappa supported vs not supported"
+      ]
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+ "computed_utc": "2026-10-30T12:40:57+00:00",
+ "rule": "pre-registered: agreement < 0.80 at tau 0.5 (UNSURE = disagreement) -> nDCG@10 primary",
+ "labels_file_sha256": "60058528c0445adc01a6b3c053266899d41c8d6380e37f0b92a368dcd26f37da",
+ "results": {
+  "tau_0.5": {
+   "agree": 20,
+   "n": 30,
+   "agreement": 0.667,
+   "wilson95": [
+    0.488,
+    0.808
+   ],
+   "cohen_kappa": 0.333,
+   "cec1_label_yes": 10,
+   "cec0_label_no": 10,
+   "cec1_label_no": 5,
+   "cec0_label_yes": 5,
+   "disagreements": [
+    {
+     "case": "CEC-06",
+     "strategy": "section_overlap",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-08",
+     "strategy": "hierarchical",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-10",
+     "strategy": "fixed_size",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-11",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-13",
+     "strategy": "hierarchical",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-19",
+     "strategy": "fixed_size",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-21",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-22",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-29",
+     "strategy": "section_overlap",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-30",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    }
+   ]
+  },
+  "tau_0.3": {
+   "agree": 18,
+   "n": 30,
+   "agreement": 0.6,
+   "wilson95": [
+    0.423,
+    0.754
+   ],
+   "cohen_kappa": 0.2,
+   "cec1_label_yes": 15,
+   "cec0_label_no": 3,
+   "cec1_label_no": 12,
+   "cec0_label_yes": 0,
+   "disagreements": [
+    {
+     "case": "CEC-05",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-07",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-09",
+     "strategy": "hierarchical",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-11",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-14",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-19",
+     "strategy": "fixed_size",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-20",
+     "strategy": "hierarchical",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-21",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-22",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-24",
+     "strategy": "fixed_size",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-27",
+     "strategy": "hierarchical",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-30",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    }
+   ]
+  },
+  "tau_0.7": {
+   "agree": 20,
+   "n": 30,
+   "agreement": 0.667,
+   "wilson95": [
+    0.488,
+    0.808
+   ],
+   "cohen_kappa": 0.333,
+   "cec1_label_yes": 9,
+   "cec0_label_no": 11,
+   "cec1_label_no": 4,
+   "cec0_label_yes": 6,
+   "disagreements": [
+    {
+     "case": "CEC-06",
+     "strategy": "section_overlap",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-08",
+     "strategy": "hierarchical",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-10",
+     "strategy": "fixed_size",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-11",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-13",
+     "strategy": "hierarchical",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-16",
+     "strategy": "fixed_size",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-19",
+     "strategy": "fixed_size",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-22",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    },
+    {
+     "case": "CEC-29",
+     "strategy": "section_overlap",
+     "label": "YES",
+     "cec": 0
+    },
+    {
+     "case": "CEC-30",
+     "strategy": "section_overlap",
+     "label": "NO",
+     "cec": 1
+    }
+   ]
+  }
+ },
+ "agreement_by_strategy_tau0.5": {
+  "fixed_size": {
+   "agree": 8,
+   "disagree": 2
+  },
+  "hierarchical": {
+   "agree": 8,
+   "disagree": 2
+  },
+  "section_overlap": {
+   "agree": 4,
+   "disagree": 6
+  }
+ },
+ "decision": "FALLBACK: budgeted nDCG@10 becomes RQ2 primary; CEC secondary",
+ "caveat": "Labels are not an independent human judgment (AI pre-fill, user resolved 4 cases, AI strict recheck); see cec_labels_final_strict.json provenance."
+}

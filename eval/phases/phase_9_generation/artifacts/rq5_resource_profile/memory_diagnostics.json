@@ -1,0 +1,16 @@
+{
+  "note": "RQ5-M memory diagnostics, run outside the frozen script (2026-10-30). Ollama 0.40.13, CPU-only, all other models unloaded first.",
+  "isolated_3_requests_same_prompt": {
+    "script": "eval/phases/phase_9_generation/scripts/rq5m_diag_isolated_memory.py",
+    "ollama_tree_peak_mb": {"llama3.2:3b": 2552.4, "llama3.2:1b": 1555.2, "qwen2.5:0.5b": 571.5},
+    "api_ps_size_mb_ctx4096": {"llama3.2:3b": 2449, "llama3.2:1b": 1453, "qwen2.5:0.5b": 464}
+  },
+  "growth_llama3.2_3b_30_distinct_prompts": {
+    "script": "eval/phases/phase_9_generation/scripts/rq5m_diag_memory_growth.py",
+    "llama_server_working_set_mb_after_request": {"1": 2497, "2": 2547, "3": 2599, "6": 2692, "11": 2903, "21": 3322, "30": 3632},
+    "ollama_exe_mb": 45,
+    "api_ps_size_mb": 2449
+  },
+  "cause": "Ollama launches llama-server.exe without --cache-ram, so llama.cpp's default host-RAM prompt cache (max 8192 MiB) applies. Each distinct prompt adds ~40 MB of private memory until the cap. Runner command line: -c 4096 -np 1 --flash-attn auto -b 512 -ub 512 --context-shift --keep 4 (no --cache-ram).",
+  "correction_to_deviation_2": "rq5m_unload_fix.json attributed the run-2 peaks to other resident models. Run 3, with every model unloaded first, gave 4,872 / 2,222 / 849 MB, about the same as run 2 (4,563 / 2,142 / 848). That attribution was wrong; the peaks reflect prompt-cache growth over 121 requests. The unload fix stays in place (harmless and correct practice)."
+}

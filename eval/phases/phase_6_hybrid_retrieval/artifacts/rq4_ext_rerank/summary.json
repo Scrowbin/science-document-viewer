@@ -1,0 +1,117 @@
+{
+ "experiment": "EXT-RQ4-RERANK",
+ "cohort": "C-RET",
+ "role": "SELECTION EXTENSION",
+ "papers": 335,
+ "questions": 567,
+ "failures": [],
+ "rerankers": {
+  "rerank_minilm": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "rerank_bge": "BAAI/bge-reranker-base"
+ },
+ "revisions": {
+  "cross-encoder/ms-marco-MiniLM-L6-v2": "233902d25c",
+  "BAAI/bge-reranker-base": "2cfc18c941"
+ },
+ "top_k": 30,
+ "means": {
+  "dense": {
+   "ndcg10": 0.445,
+   "cec_0.5": 0.7319,
+   "cec_0.3": 0.9224,
+   "cec_0.7": 0.6155,
+   "context_tokens": 1317.776
+  },
+  "rerank_minilm": {
+   "ndcg10": 0.4566,
+   "cec_0.5": 0.7725,
+   "cec_0.3": 0.9489,
+   "cec_0.7": 0.6455,
+   "context_tokens": 1320.5802
+  },
+  "rerank_bge": {
+   "ndcg10": 0.3551,
+   "cec_0.5": 0.6808,
+   "cec_0.3": 0.9153,
+   "cec_0.7": 0.5326,
+   "context_tokens": 1312.8818
+  }
+ },
+ "primary_family_ndcg10": [
+  {
+   "comparison": "rerank_minilm - dense",
+   "metric": "ndcg10",
+   "diff": 0.0117,
+   "ci95": [
+    -0.0184,
+    0.0414
+   ],
+   "p_raw": 0.4564,
+   "p_holm": 0.4564,
+   "ci95_half_width": 0.0299,
+   "passes_quality": false,
+   "passes_latency": false
+  },
+  {
+   "comparison": "rerank_bge - dense",
+   "metric": "ndcg10",
+   "diff": -0.0899,
+   "ci95": [
+    -0.1216,
+    -0.0577
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0004,
+   "ci95_half_width": 0.0319,
+   "passes_quality": false,
+   "passes_latency": false
+  }
+ ],
+ "secondary_cec_0.5": [
+  {
+   "comparison": "rerank_minilm - dense",
+   "metric": "cec_0.5",
+   "diff": 0.0406,
+   "ci95": [
+    0.0034,
+    0.0783
+   ],
+   "p_raw": 0.0388,
+   "p_holm": 0.0496
+  },
+  {
+   "comparison": "rerank_bge - dense",
+   "metric": "cec_0.5",
+   "diff": -0.0511,
+   "ci95": [
+    -0.0945,
+    -0.007
+   ],
+   "p_raw": 0.0248,
+   "p_holm": 0.0496
+  }
+ ],
+ "rerank_latency_ms_added_per_query": {
+  "rerank_minilm": {
+   "p50": 1040.6,
+   "p95": 1433.1,
+   "n": 567
+  },
+  "rerank_bge": {
+   "p50": 6337.8,
+   "p95": 8573.7,
+   "n": 567
+  }
+ },
+ "decision_rule": "adopt if diff >= +0.02, CI lower bound > 0, Holm p < 0.05 and P95 added latency <= 1000 ms; if both, lower P95",
+ "decision": "dense (no reranker adopted)",
+ "memory": {
+  "python_working_set_baseline_mb": 434.1,
+  "python_working_set_peak_mb": 2306.1
+ },
+ "elapsed_s": 4420.4,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

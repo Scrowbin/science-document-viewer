@@ -1,0 +1,1710 @@
+{
+ "cohort": "PEERQA-TEXT",
+ "role": "DESCRIPTIVE external retrieval check on shipped text (RQ4)",
+ "seed": 42,
+ "n_papers": 73,
+ "n_questions": 148,
+ "membership_sha256": "2cdfa3f5313890719611089b94137526e2274d77e6dcd8b50062d47181d1f86d",
+ "license": "CC BY-NC-SA 4.0 (README in peerqa-data-v1.0.zip); non-commercial research use",
+ "population": "PeerQA v1.0; answerable (authors' label) with evidence sentences",
+ "text_source": "papers.jsonl (GROBID text shipped by the authors; no PDF extraction)",
+ "papers": [
+  "egu/esd/14-1261-2023",
+  "egu/esd/14-185-2023",
+  "egu/esd/14-81-2023",
+  "egu/esd/14-835-2023",
+  "egu/esd/14-915-2023",
+  "egu/esurf/11-33-2023",
+  "egu/esurf/11-849-2023",
+  "egu/esurf/11-917-2023",
+  "nlpeer/ARR-22/013b9bf63a6f68fd0c3ecc36f8cbe2ad5bc92ea3bfe5a9f6c15eb056ecc4f858718410182c3765b2dc2695ae29ba08fb5dea5fc495faf2bbb77205bc3f765fcd",
+  "nlpeer/ARR-22/026fbeb69144bca95d6df70934fd608871855c30486e1a88714ee1343574663f55216ee356d90a1e5110be0a86ec6b9e1f515149abe73c645caaf05409af7731",
+  "nlpeer/ARR-22/0f595b4bd968ef5daacc88c4edb581bf7f683af30b6874ba157c6d2282aabead577041409b949924e4bc5ef54c543d85a10e962be8e70304dea65e1b18441bdb",
+  "nlpeer/ARR-22/0f8bc751a0472564732a976cd152643d92d5393c2e77c8234f386a801883d09ff9540378b3dab5834544a246c22f292d5b1c4d370219943c9a19a1626a8f8781",
+  "nlpeer/ARR-22/12ea2851de6445bf343d642c6ccc8640bf7a6c28b5f20ba123d6d58f02790c7c7f8ab696e6a6b4e45bfad28bd4bc0419bdcf6358693404dd0c14d202b291503b",
+  "nlpeer/ARR-22/1370310ca3e0e0d092a2e8b58f90b0d692331caa6e3ce5ca6dacbef926f2b01ff49c81282f32c554fa66c04979a125b7548c9692c2091bb2673642102d85412d",
+  "nlpeer/ARR-22/212dff6380418cd7c050ec757b31e6b5b65bbe922aa30ffbd5950fe7a04ca737b7c7b3d706f1cd1502d7932b61d2b7c079924793e45e437526230c1e9c0626ed",
+  "nlpeer/ARR-22/21dd1d5e232c7abf421302a95ef2c9ef44c7bad069da7ca4129a8cf1bfbd6f660afee123144ebcbd8da698aed212e2ca1151a13bca7aaef50ce59d27d23aa83a",
+  "nlpeer/ARR-22/25eb5aa88234e90e4d4729fea900619c7d42062b6c8c967d02567ea0548fbc60fc4cacfd968a7f10d96f9cd92302173b1db10f7767e3b7e379ff1260c12db74d",
+  "nlpeer/ARR-22/27046f6633d116b03e48eb94976921b46a86a976ddd2199ef76c90820a95e0d85406daa5ebc9d7b12359157d20f3bd0025e1cbc2c126bb2506f5e83e93f435b5",
+  "nlpeer/ARR-22/3149648e5774b4cad7693fd8600f255328e62c395dfa804aabe286a6358502b7dac551c05fa3575496b23c7c57bfde0f43e7cd6418c5b5363a64a0c355d9c32d",
+  "nlpeer/ARR-22/3cbf91f8e2f7e62be51109688c84a2b424e6018ee3c976fbe55e5331bc9ab2f4c46491d006087aed3be35a3370c945c100bd718e2c1131de19eac3dbe93326bc",
+  "nlpeer/ARR-22/3cfcbbad78a71ca6cf4a5b2bbaee2a7ad8a1de295cf9f4103408dfeaf38a0de01b2b8d23cb94e0ef0b5f76a1947815f0335a7077bdea03ea4a29f6a2bff432cc",
+  "nlpeer/ARR-22/43e8458544e18304f6aa2c1aededf974877f088dd2ccd7d53ef71eb59e54567c0572f715ecdcbaf04c39206950c3f5628198e61ebc5ec09fa1ba0a559102f923",
+  "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+  "nlpeer/ARR-22/4b7c5fafdc37dc7cb22b9868c3dc5a3df61127f67fe8b48aaebe06624f82096f9a2fd1d81f57f86ecd7bfaae463ae744196e2c0e5f132cbd9ccff1065f620afe",
+  "nlpeer/ARR-22/6262c349a3980c6850e252b3a44391b1b1318c26fbf29be55c61c0a32b8b626e5581c98234d1ecb410674c00ebcf3ba2adfdce41c2b2d32211721372a8ed1bc0",
+  "nlpeer/ARR-22/78d7b31f3d19cf16bcc71aa109ca56b923d9082a2919fd8008060641daf4d5ae37d70daea5bb36f4aa83c9c49ad8b44e597aa41960348f3a0abe0abb529f9aea",
+  "nlpeer/ARR-22/7e701552b7cfaad6239d3d5dfcd9da1852a03a66907c789fe65d368f1c2845e723adcecd7f7008849eef13c7ca467be73de53747c3376a6bb46d1911ed1b6409",
+  "nlpeer/ARR-22/82520f1d31572d488cfeae02712db642750fda4063e5eab8a771a000f6e17e1397ab18af73e5362e4d660b3dcc78b2260e121fdefc4c1664448e1c30066d5cb9",
+  "nlpeer/ARR-22/826bda43aa717e37d1b584c3c637da2700f29c415a709db4c3188f13f85751d30d29348dfe8f635cda5b6370145e9bbc00465e76921ac9a6abdb0eee6cabdd4b",
+  "nlpeer/ARR-22/83dc885bef279cbb7a3b5b173494428b6cd043d34527016519250477d274fd1793fa0bddd2bd4bbb3edfa9709ddc85e90825a0554bfa8eceb8cb34d813c06c53",
+  "nlpeer/ARR-22/841d64f4eb3d5e3d6ea89751ea19897bb8424acf856c9dd1574ef7d2803ff7d155df1b9cc201df8b4fc8c1984f6ca8bdfaf94036960348047e8da35b0003ae34",
+  "nlpeer/ARR-22/91d9e763eb1470028002e5c97689ada4b74f30be17291a14458f7542c387a9f2a7516e60f4022d887bdbd2165aa8cce6d566db380e5a82af677917c48efc2446",
+  "nlpeer/ARR-22/a4c721144a8df14739ad3a6daa2b625723a1b9e085b0b5b0e64ec74fbca3ded7b0f3ae64d7539ee8465e6f43eee46c1f0c81fbeb96d6c0a53e3b89762b598f46",
+  "nlpeer/ARR-22/ab82036287f47b63ae70bdae7c1ed5900395bfe4538cc14db1a17281e2b45434b348472df2024151e188fe3890b88a0990bf1a36540eb39ddcc015012567bdd8",
+  "nlpeer/ARR-22/ae39c92fcd34f3ea307de8aae9eade5a405f4035c3260c64416f75a202f27dbc22063341ee73afacd4459fdee1a00d6e84c1317f5271bb087c826599f8989dd4",
+  "nlpeer/ARR-22/b94a77b25cea79056553cf9dc3c5b714410344acb0f1cf0f5eb4ff2402b61bfa005313d5e2d103aedaff9b4d1fdeadd9799df73921794d6093799ec80fbb13c1",
+  "nlpeer/ARR-22/c53c0e92d95b1e222ebbecee84efd55c426d3f9916ac9f50280eaebe6640d35f9d395744c228f1f352eb4954a72a42b3886d581396fa3202056879d792fb62b7",
+  "nlpeer/ARR-22/db3d0c16f2a8a3baf7fe008d20bfe3fd82dedab22900659a9d8352b2ecce076fa9a82869602cc78d2c3b732f645c25eacb9b0b6fc4d3b6441bfb1825109e85ea",
+  "nlpeer/ARR-22/df4051328ee57291cf600f10ef67af6872fcef0deb3ff7323b89142b68beb16ea1fbe09c44be8ccca24fe30d67a1e6dbfb715a77384c30fbeb37c362c25c743c",
+  "nlpeer/ARR-22/e4742f934fad6dc1f3389981d0d0fc6b8b48638f4c5c0a74b9dc11bdd026489bb2d3e78a6a395e82124e87c7409ff370cdff0edf375958bcf909372da1859815",
+  "nlpeer/ARR-22/eb931c7319dc1b08fb3c97fb77b60b7eac9a41d699b58e0139d655f4d1cbc5c61db8d9e9dd42e3515a6cd839518933bd7d033289be73a8111b2170e8b2bf983f",
+  "nlpeer/ARR-22/ed81d66dc55496061fd4c97530be7b966d2e734e8435092b2c0c6764f54ea145e62f67555e480d996aebb93772e0de2877ccaad504e0f2228a1395c68d157eda",
+  "nlpeer/ARR-22/eeda0f4ff6c7aef2647481ec15f8ade5a9b32ec32b643e6918a0b8d0ffa1ba44a3f2b9171ba4ba44d5c0faf3199e3bc5f0f740ee31cf48cb966493a96f35ca71",
+  "nlpeer/COLING2020/1265",
+  "nlpeer/COLING2020/1315",
+  "nlpeer/COLING2020/1367",
+  "nlpeer/COLING2020/1405",
+  "nlpeer/COLING2020/1550",
+  "nlpeer/COLING2020/1570",
+  "nlpeer/COLING2020/1681",
+  "nlpeer/COLING2020/1775",
+  "nlpeer/COLING2020/1886",
+  "nlpeer/COLING2020/341",
+  "nlpeer/COLING2020/660",
+  "nlpeer/COLING2020/679",
+  "nlpeer/COLING2020/939",
+  "nlpeer/F1000-22/10-170",
+  "nlpeer/F1000-22/10-637",
+  "nlpeer/F1000-22/10-654",
+  "nlpeer/F1000-22/10-890",
+  "nlpeer/F1000-22/11-404",
+  "nlpeer/F1000-22/11-9",
+  "nlpeer/PeerRead-ACL2017/169",
+  "nlpeer/PeerRead-ACL2017/193",
+  "nlpeer/PeerRead-ACL2017/496",
+  "nlpeer/PeerRead-ACL2017/561",
+  "nlpeer/PeerRead-ACL2017/619",
+  "nlpeer/PeerRead-ACL2017/699",
+  "nlpeer/PeerRead-ACL2017/818",
+  "nlpeer/PeerRead-CONLL2016/129",
+  "nlpeer/PeerRead-CONLL2016/13",
+  "nlpeer/PeerRead-CONLL2016/142",
+  "nlpeer/PeerRead-CONLL2016/166"
+ ],
+ "items": [
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/619",
+   "question_id": "e18d2d1a4f63c7f6364e6f075f377f505d382046",
+   "question": "How many words are in the corpus in total?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The corpus includes 180 essays : 120 ( Draft1 and Draft2 ) with an average of about 400 words and 60 ( Draft3 ) with an average of around 500 words .",
+    "L2 ( 20 ) Draft1 Draft2 Draft3 Avg # Words 379.1 412.8 484.7 Avg # Sentences 18.6 20.2 23.7 Avg # Paragraphs 3.9 4.5 4.8 Native ( 40 ) Draft1 Draft2 Draft3 Avg # Words 372.4 394.7 531.6 Avg # Sentences 18.8 20.4 25.8 Avg # Paragraphs 4.0 4.7 5.1 Table 3 : Descriptive statistics of the ArgRewrite Corpus , including average number of words , sentences and paragraphs per essay draft"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/a4c721144a8df14739ad3a6daa2b625723a1b9e085b0b5b0e64ec74fbca3ded7b0f3ae64d7539ee8465e6f43eee46c1f0c81fbeb96d6c0a53e3b89762b598f46",
+   "question_id": "54c1740d649ea5d594afbf47e72c3f52b3fcb129",
+   "question": "Have the authors tried other strategies such as initializing the student like in pkd-bert and determining the number of layers by total budgets (e.g. with a hard overhead budget for all sub-tasks)?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Ours ( KD-n ) means that knowledge distillation is applied such that the student model for each task contains exactly n task-specific layers ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/a4c721144a8df14739ad3a6daa2b625723a1b9e085b0b5b0e64ec74fbca3ded7b0f3ae64d7539ee8465e6f43eee46c1f0c81fbeb96d6c0a53e3b89762b598f46",
+   "question_id": "f0381a83196d2a14249a0133fdc040ed821d7af4",
+   "question": "Would the authors' approaches perform better when using the adapter framework?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Therefore , the adaptorbased approaches are not computationally efficient and one needs to perform a separate full forward pass for each task .",
+    "Since both parameter and computation efficiency are what we aim to achieve , the adaptor-based approaches are not comparable to our method ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/679",
+   "question_id": "7ed6482c76ae428708b4675495718652adfed68d",
+   "question": "Are the annotators of the test sets native English speakers?",
+   "answer_free_form": "In the pilot, all 3 annotators were native English speakers. For the main evaluation, 6 out of 9 annotators were native English speakers.",
+   "retrieval_evidence": [
+    "All were annotated by three annotators , each of whom was a native speaker of English and a linguist with experience with AMR .",
+    "A total of nine annotators participated in this evaluation , including the three who participated in the pilot .",
+    "All had prior training in AMR annotation , mostly from taking a semester-long course focused on AMR and other meaning representations .",
+    "Six of the annotators were native English speakers ; all were either current or former PhD students or professors at our university ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1775",
+   "question_id": "01f41162d1304c75c896de7d5abfbb94ba16051a",
+   "question": "What is the relationship between plurality and referential form in the current investigation?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "More of a surprise is the role of plurality for SRF which has attracted less attention .",
+    "The psycholinguistics literature suggests that when conjoined noun phrases are introduced into the discourse , they are treated as a group , and the group is in focus , which makes it prominent ( Patson and Warren , 2011 ) .",
+    "According to Gordon et al . ( 1999 ) ’ s repeated name penalty , referring to a prominent referent with a proper name instead of a pronoun increases the processing time .",
+    "An implication of this is the possibility that including the plurality feature in a prediction task might facilitate the pronoun detection .",
+    "Various studies , including centering-based research , tend to emphasize that referents in subject position have a higher tendency to be pronominalized in the subsequent sentence ( Brennan et al . , 1987 ; Brennan , 1995 ; Kaiser , 2010 ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1775",
+   "question_id": "83065b2300fa3f4211d91722207ee34715282178",
+   "question": "What grammatical roles are associated with more frequent pronoun use compared to proper noun use?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Various studies , including centering-based research , tend to emphasize that referents in subject position have a higher tendency to be pronominalized in the subsequent sentence ( Brennan et al . , 1987 ; Brennan , 1995 ; Kaiser , 2010 ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/ab82036287f47b63ae70bdae7c1ed5900395bfe4538cc14db1a17281e2b45434b348472df2024151e188fe3890b88a0990bf1a36540eb39ddcc015012567bdd8",
+   "question_id": "cdb59f3c15dd8d951c169a9f2fae03e000215bae",
+   "question": "Does the cross-linguistic analysis include French and Spanish?",
+   "answer_free_form": "Yes, it does.",
+   "retrieval_evidence": [
+    "We demonstrate that our approach performs well in monolingual single / cross corpus testing scenarios and achieves a zero-shot cross-lingual ranking accuracy of over 80% for both French and Spanish when trained on English data",
+    "We evaluated NPRM and regBERT models trained with a multilingual BERT ( mBERT ) model as the base for this task .",
+    "Both the models were trained on Newsela-En dataset and evaluated on Newsela-Es and Vikidia-Fr datasets ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/ab82036287f47b63ae70bdae7c1ed5900395bfe4538cc14db1a17281e2b45434b348472df2024151e188fe3890b88a0990bf1a36540eb39ddcc015012567bdd8",
+   "question_id": "465b94530bc99598bbefb742da70cf99236b86d9",
+   "question": "Why were classification-based models not used for the zero shot experiments in Tables 6 and 7?",
+   "answer_free_form": "In the comparison in Table 5 between Classification, Regression, and Ranking, classification did not do better than the other two, so it was not used later in cross-corpus/cross-lingual zero shot comparisons.",
+   "retrieval_evidence": [
+    "Since the performance is generally expected to degrade slightly in a crosscorpus setting compared to a within corpus evaluation , the rest of our experiments will only focus on regBERT and NPRM , and we don ’ t report further experiments with a BERT classifier ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/ab82036287f47b63ae70bdae7c1ed5900395bfe4538cc14db1a17281e2b45434b348472df2024151e188fe3890b88a0990bf1a36540eb39ddcc015012567bdd8",
+   "question_id": "6ceebb857d2674bd38452e8bc30a3d280f2ce647",
+   "question": "What is the reason for the lower performance on Vikidia-FR compared to Newsela-ES?",
+   "answer_free_form": "Potential reasons include nature of the datasets in both languages, and number of reading levels being different in both datasets.",
+   "retrieval_evidence": [
+    "We can notice a lower performance on VikidiaFr compared to Newsela-ES .",
+    "Apart from the fact that they are different languages , it can potentially also be due to the fact that Newsela-ES has content from the same domain as Newsela-EN , whereas Vikidia-Fr has more diverse content .",
+    "It is also possible that the ranking metrics penalize Vikidia-Fr predictions more , as there are only two reading levels .",
+    "A ranking can still be scored well if most of the ranking order is correct .",
+    "However , in the case of Vikidia-Fr , an incorrect ranking levels would result in a completely reversed list , which is heavily penalized in SRC and KTCC .",
+    "Thus , small number of completely incorrectly ranked slugs can result in low SRC and KTCC scores for Vikidia-Fr , but can still result in high SRC and KTCC scores"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/3149648e5774b4cad7693fd8600f255328e62c395dfa804aabe286a6358502b7dac551c05fa3575496b23c7c57bfde0f43e7cd6418c5b5363a64a0c355d9c32d",
+   "question_id": "5da803a19b2af774ab473d4830bcd9d986d5f1f9",
+   "question": "What is the evaluation metric used to measure the accuracy of the prediction of the triplets in the ASTE-Data datasets?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We use precision ( P ) , recall ( R ) and F1 scores as evaluation metrics to gauge the performance .",
+    "A triplet prediction is correct only if the aspect , opinion and sentiment are predicted correctly ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/660",
+   "question_id": "8d8302ac5cae236232617fac58ffa1d1cc46167b",
+   "question": "What is the definition of a plot?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "denotes the main events of a story"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/660",
+   "question_id": "33a60f4e10ce751410c46eb1e86fd26d0eb3f7c0",
+   "question": "How does the definition of a plot affect the definition of a character?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "a character is an animate entity that is important to the plot ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/660",
+   "question_id": "19343c15d0d4bdef5acd6ca32253152d6d5d3e3b",
+   "question": "Did the annotators agree on which events were important to the plot before the annotation process began?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "there was no agreement across the annotators what the events important to the plot are ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/660",
+   "question_id": "33899aa17b47761c01366cb9eb69f7c85192a4c9",
+   "question": "What is the distribution of character- and non-character-chains in the novel?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "of English Novels 30 17,251 2,808 14,443 436 16,815"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/193",
+   "question_id": "e76615760f7625a5b984cb961f5d948ab2407178",
+   "question": "Do you mean that a node in the UCCA scheme can be either a terminal or a non-terminal, but not both?",
+   "answer_free_form": "Yes",
+   "retrieval_evidence": [
+    "A node ( or unit ) corresponds to a terminal or to several terminals ( not necessarily contiguous ) viewed as a single entity according to semantic or cognitive considerations ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/0f595b4bd968ef5daacc88c4edb581bf7f683af30b6874ba157c6d2282aabead577041409b949924e4bc5ef54c543d85a10e962be8e70304dea65e1b18441bdb",
+   "question_id": "0081780bb3b2f8ca303dd426ce4ddfd89c13e80d",
+   "question": "What is the purpose of the average duration reported in Table 1?",
+   "answer_free_form": "The authors woud like to show that the proposed human evaluation method is time-effective.",
+   "retrieval_evidence": [
+    "Answering the distress call of competitions that have emphasized the urgent need for better evaluation techniques in dialogue , we present the successful development of human evaluation that is highly reliable while still remaining feasible and low cost ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1405",
+   "question_id": "1e1d76b354961f2da39efac4f5a1f3d3a904fa95",
+   "question": "What is the probability of replacing a token when using the binomial distribution for data augmentation?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We also tune the p value of the binomial distribution which is used to decide whether a token or a mention should be replaced ( cf . , Section 3 ) .",
+    "It is searched over the range from 0.1 to 0.7 , with an incrementation step of 0.2 ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "ee956c6a1b9b9808fc77d7d1f8f82237123f5000",
+   "question": "What is meant by \"edit boundaries might be unusual\"?",
+   "answer_free_form": "The edit boundaries might not be what a human rater would expect or mark.",
+   "retrieval_evidence": [
+    "Raters were warned that the edit boundaries had been determined automatically and hence might be unusual , but that they should focus on the appropriateness of the error type regardless of whether they agreed with the boundary or not ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "f3d892c65c8fc7edb3624cad07d6ef39115402eb",
+   "question": "Why was a new set of error categories designed instead of using the tagset presented in Nicholls (2003) or the CoNLL-2014 tagset?",
+   "answer_free_form": "The new tagset was deliberately different from existing ones for two reasons: 1) so that it is dataset-independent and there would be no bias towards existing datasets, and 2) the tags were designed in a way that they could be assigned fully automatically, unlike existing tagsets that require expert human knowledge.",
+   "retrieval_evidence": [
+    "a dataset-agnostic error type classifier is much more desirable ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "075a4946ae8c4a278c6e278ec00533e10c900100",
+   "question": "What is the main motivation of the paper?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "to automatically extract edits from parallel original and corrected sentences and classify them according to a new , dataset-agnostic , rulebased framework .",
+    "This not only facilitates error type evaluation at different levels of granularity , but can also be used to reduce annotator workload and standardise existing GEC datasets ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "c7611189317c1c95e4b29e2523cfef275bc0444f",
+   "question": "What are the rules for assigning error categories?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "wrote a rule to classify an edit based only on its automatic POS tags .",
+    "added another rule to similarly differentiate between Missing , Unnecessary and Replace",
+    "Finally , we extended our approach to classify errors that are not well-characterised by POS , such as Spelling or Word Order , and ultimately assigned all error types based solely on automatically-obtained , objective properties of the data .",
+    "In total , we wrote roughly 50 rules ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "3a7b3eaa4aff6471a0a70e13b5d40387f6307416",
+   "question": "What factors led raters to select \"bad\" or \"appropriate\" when evaluating the classifier output?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "“ Good ’ meant the chosen type was the most appropriate for the given edit , “ Acceptable ” meant the chosen type was appropriate , but probably not optimum , while “ Bad ” meant the chosen type was not appropriate for the edit .",
+    "whenever raters judged an edit as “ Bad ” , this could usually be traced back to a POS or parse error ; e.g . [ ring → rings ] might be considered a NOUN : NUM or VERB : SVA error depending on whether the POS tagger considered both sides of the edit nouns or verbs ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/169",
+   "question_id": "962be5303d07e7707c9750241730986cfeb7d754",
+   "question": "What data was used to perform the significance test?",
+   "answer_free_form": "CoNLL-2014 test data",
+   "retrieval_evidence": [
+    "To show that automatic references are feasible alternatives to gold references , we evaluated each team in the CoNLL2014 shared task using both types of reference with the M2 scorer ( Dahlmeier and Ng , 2012 ) , the de facto standard of GEC evaluation , and our own scorer .",
+    "Table 4 hence shows that there is little difference between the overall scores for each team , and we formally validated this hypothesis for precision , recall and F0.5 by means of bootstrap significance testing ( Efron and Tibshirani , 1993 )"
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-185-2023",
+   "question_id": "9057496eedd951deb982f5b2b2dc93c4f425bae8",
+   "question": "Why was a sensitivity study conducted without considering the remineralization of biomass at the ocean floor?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Macroalgal biomass has been reported to be recalcitrant to microbial degradation ; however , the fate of macroalgal biomass in the deep sea is uncertain ( Krause-Jensen and Duarte , 2016 ; Luo et al . , 2019 ; Sichert et al . , 2020 ) .",
+    "Thus , an extreme and idealized situation with µma set to zero is tested in sensitivity simulations ( MOS-NoRe , MOS with zero mineralization of sunk macroalgal biomass ) .",
+    "This can be thought of as a case where all biomass is permanently buried upon reaching the seafloor .",
+    "This sensitivity study can also simulate an extreme case of infinitely slow remineralization , which can help in estimating the range of possible fates of remineralized organic matter ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-915-2023",
+   "question_id": "fa4aed332eb5fea0288b6dfbfdbd4ab473df241a",
+   "question": "What criteria were used to determine the steady state of soil parameters?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The steady-state conditions used in the study are the same as those followed by Yang et al . ( 2005 ) .",
+    "Further details on the site-scale spin-up are available in Gahlot et al . ( 2020 ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/013b9bf63a6f68fd0c3ecc36f8cbe2ad5bc92ea3bfe5a9f6c15eb056ecc4f858718410182c3765b2dc2695ae29ba08fb5dea5fc495faf2bbb77205bc3f765fcd",
+   "question_id": "9c04f85fb5baad69d0ae21c1c2c07abc0422bd55",
+   "question": "What concrete steps can be taken to ensure a more diverse cross-cultural representation when building an NLP model?",
+   "answer_free_form": "For example, crowdsourcing data from multiple countries and languages, or participatory dataset construction with local communities.",
+   "retrieval_evidence": [
+    "As examples of culturally diverse data collection , Liu et al . ( 2021 ) and Yin et al . ( 2021 ) recruit geodiverse annotators from Africa , Asia and the Americas who are tasked with also providing the data ( the images ) along with the annotations ( image descriptions ) .",
+    "Examples for such communities include Universal Dependencies , dedicated to manual annotation of morphosyntactic datasets for over one hundred languages , covering the highest typological diversity to date among such datasets ( Nivre et al . , 2020 ) .",
+    "As another example , the Masakhane community aims to strengthen NLP research for African languages .",
+    "It has created MasakhaNER ( Adelani et al . , 2021 ) , a Named Entity Recognition dataset for 10 African languages , collected by native speakers of these languages ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/826bda43aa717e37d1b584c3c637da2700f29c415a709db4c3188f13f85751d30d29348dfe8f635cda5b6370145e9bbc00465e76921ac9a6abdb0eee6cabdd4b",
+   "question_id": "386f8fcdac1af53ccf85dbe8f54ed0874425acbe",
+   "question": "Is the proposed transferred model only trained on the navigation step of R2R and CVDN, while the representation step is taken from RXR?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "For each navigation path , the Room-AcrossRoom ( RxR ) dataset ( Ku et al . , 2020 ) provides 9 corresponding language instructions in 3 languages ( English , Hindi , and Telugu ) .",
+    "During training , for each navigation path , we randomly sample two instructions out of the nine corresponding instructions as the visually-aligned instruction pairs .",
+    "The two instructions can be in different languages , which helps the agent learn a cross-lingual language representation .",
+    "Exclusively learning connections between instructions in the same language will lose crucial information across languages , and we quantitatively illustrate this result in Sec . 6.1 .",
+    "Lvisual in Eqn .",
+    "In the representation learning stage , we train the multilingual encoder and visual encoder by optimizing the contrastive loss Llang in Eqn . 3 and",
+    "8 respectively .",
+    "The representation learning process transfers the language representation to domain-specific language representation and adapts the visual representation to learn the correlation underlying the navigation environments .",
+    "In the navigation learning stage , we use a mixture of imitation learning and reinforcement learning to train the agent on the navigation task as in Tan et al . ( 2019 ) .",
+    "Details can be found in Appendix ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/826bda43aa717e37d1b584c3c637da2700f29c415a709db4c3188f13f85751d30d29348dfe8f635cda5b6370145e9bbc00465e76921ac9a6abdb0eee6cabdd4b",
+   "question_id": "30a9852ea31b01d3d12aaa8769ad0acd7c0b8162",
+   "question": "Can a zero-shot transfer be performed from RXR to R2R?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Furthermore , we show that the zero-shot performance of our approach improves the baseline by 4.5% in success rate and 2.2% in SPL on R2R dataset .",
+    "On CVDN dataset , our learned representation outperforms the baseline by 0.74 in Goal Progress ( 4.05 vs . 3.31 ) after training on CVDN dataset , and outperforms the baseline by 0.42 in Goal Progress ( 0.92 vs .",
+    "Table 6 : Results on R2R validation unseen environments ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/826bda43aa717e37d1b584c3c637da2700f29c415a709db4c3188f13f85751d30d29348dfe8f635cda5b6370145e9bbc00465e76921ac9a6abdb0eee6cabdd4b",
+   "question_id": "b4872cdd5e953402e1281dddef42ded91564f45e",
+   "question": "How does your method differ from existing methods for visual and language understanding with multilinguality, such as VQA, captioning, and retrieval?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "In this paper , we work on multi-lingual vision-and-language navigation .",
+    "We use vision ( i.e . , navigation path ) as a bridge between multi-lingual instructions and learn a crosslingual representation that captures visual concepts .",
+    "Moreover , our method also use language as a bridge between different visual environments to learn an environment-agnostic visual representation ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/0f8bc751a0472564732a976cd152643d92d5393c2e77c8234f386a801883d09ff9540378b3dab5834544a246c22f292d5b1c4d370219943c9a19a1626a8f8781",
+   "question_id": "31314c6ad7630579c350af928493caac9c563dbb",
+   "question": "What are the minimum and maximum threshold (t_min, t_max) values?",
+   "answer_free_form": "According to the authors, the minimum value is 0.0005, and the maximum value is 0.995.",
+   "retrieval_evidence": [
+    "For the self-training experiments , we set the thresholds , τmin as 0.0005 and τmax as 0.995"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/0f8bc751a0472564732a976cd152643d92d5393c2e77c8234f386a801883d09ff9540378b3dab5834544a246c22f292d5b1c4d370219943c9a19a1626a8f8781",
+   "question_id": "c5b7931f3e58dd10d67e388fcd5680c37e267022",
+   "question": "What is the reasoning behind the selection of the threshold values?",
+   "answer_free_form": "For a given sentence, the distituents must exceed the constituents such that their distribution is roughly 1:10 (constituent/distituent).",
+   "retrieval_evidence": [
+    "In the same vein , the values of lower and upper bounds of the threshold are chosen to ensure the distribution of class labels is about 1 : 10 ( with the distituent class being the majority ) which is a crude estimate considering much larger sentence lengths in the WSJ-Full section .",
+    "Moreover , from a linguistic standpoint , we can be certain that the distituents must necessarily outnumber the constituents"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/7e701552b7cfaad6239d3d5dfcd9da1852a03a66907c789fe65d368f1c2845e723adcecd7f7008849eef13c7ca467be73de53747c3376a6bb46d1911ed1b6409",
+   "question_id": "0c64726cf3b593196fd8f350d0f2c2d4aba98d1e",
+   "question": "What is the label mapping of Electra's binary classification head (RTE)?",
+   "answer_free_form": "Labels are G for gap, O for no-gap.",
+   "retrieval_evidence": [
+    "we use ELECTRA ’ s discriminator head with softmax to tag each word in the input sequence as a ‘ good ’ gap or not ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1681",
+   "question_id": "a81ef48de406906c5a847928da2bc47079136f55",
+   "question": "What is the number of distinct phrases used for phrase addition in the adversarial attack generation?",
+   "answer_free_form": "seven",
+   "retrieval_evidence": [
+    "it is true . / C and that is true .",
+    "/ C . but that ’ s not the point .",
+    "Modification ContraPro Score he / she said : “ C ” 66.5 / 66.3 it is true : ” C / it is true : C 55.2 / 63.5 C and it is true . / C .",
+    "70.7 / 67.5 C but there is a catch .",
+    "/ C . but there is a catch . 67.4 / 64.6 C but why . / C . but why . 74.0 / 71.5"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1681",
+   "question_id": "93231222425deadb2547fcbf70c1ae62e5009816",
+   "question": "What is the process for generating adversarial attack examples?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We create automatic adversarial attacks on ContraPro that modify theoretically inconsequential parts of the context sentence before the occurrence of it ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1681",
+   "question_id": "5678b6bf40f5958402473fd66a08dc836eaa98a7",
+   "question": "Is the coreference resolution pipeline depicted in Table 1 universally accepted in the field of coreference resolution?",
+   "answer_free_form": "Hard to say but not really. It is an idealized pipeline",
+   "retrieval_evidence": [
+    "This idealized pipeline would produce the correct pronoun in the target language .",
+    "The coreference steps resemble the rule-based approach implemented in Stanford Corenlp ’ s CorefAnnotator ( Raghunathan et al . , 2010 ; Lee et al . , 2011 )"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1681",
+   "question_id": "ea4e2096f3a9ef7b21a3493d39e4869a823162e3",
+   "question": "Do the vocabulary items of the templates used in the paper have adequate representation in the training data?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We note that all entities appear in the training dataset we use to train our models .",
+    "The least frequent entity ( “ kangaroo ” ) appears 134 times ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1681",
+   "question_id": "587b8f363bb9be4e82b38b70f74608f844559b6f",
+   "question": "What is the data augmentation strategy?",
+   "answer_free_form": "The data augmentation strategy identifies examples with an ambiguous coreferential \"it\" and creates new examples where the gender of the translation of \"it\" is modified.",
+   "retrieval_evidence": [
+    "We attempt to do this by augmenting our training data and call it Antecedent-free augmentation ( afa ) .",
+    "We identify candidates for augmentation as sentences where a coreferential it refers to an antecedent not present in the current or previous sentence ( e.g . , I told you before . < SEP > It is red .",
+    "→ Ich habe dir schonmal gesagt .",
+    "< SEP > Es ist rot . ) .",
+    "We create augmentations by adding two new training examples where the gender of the German translation of “ it ” is modified ( e.g . , the two new targets are “ Ich habe dir schonmal gesagt .",
+    "< SEP > Er ist rot . ” and “ Ich habe dir schonmal gesagt .",
+    "< SEP > Sie ist rot . ” ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/166",
+   "question_id": "1a42a5af41f66bb6428c643d96fd05eba81ce635",
+   "question": "Do the proposed feature and experiments account for named entities that are not listed on Wikipedia?",
+   "answer_free_form": "The authors state that Wikipedia and the Gazateers are used to create features to aid NER models which can generalise to unseen NEs.",
+   "retrieval_evidence": [
+    "Figure 1 shows an example of a German sentence .",
+    "We use a cross-lingual wikifier to ground each word to the English Wikipedia .",
+    "We can see that even though the disambiguation is not perfect , the FreeBase types still provide valuable information .",
+    "That is , although “ Albrecht Lehmann ” is not an entry in Wikipedia , the wikifier still links “ Albrecht ” and “ Lehmann ” to people .",
+    "Since words in any language are grounded to the English Wikipedia , the corresponding Wikipedia categories and Freebase types can be used as language-independent features .",
+    "This method generalizes gazetteers to unseen entities .",
+    "For example , given the phrase “ Bill and Melinda Gates Foundation ” , “ Bill ” is marked as both B-PersonNames and B-Organizations , while “ Foundation ” is marked as I-Organizations .",
+    "Imagine encountering at test time a fictional organization called “ Dave and Sue Harris Foundation . ” Although there is no gazetteer that contains this name , we have learned that “ B-PersonName and B-PersonName B-PersonName Foundation ” is a strong signal for an organization ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/21dd1d5e232c7abf421302a95ef2c9ef44c7bad069da7ca4129a8cf1bfbd6f660afee123144ebcbd8da698aed212e2ca1151a13bca7aaef50ce59d27d23aa83a",
+   "question_id": "1aa55ba3f2f47947ad4df928f35cfc4c7d7035ec",
+   "question": "What is the focus of this paper: question answering, intent classification, entity classification, or translation?",
+   "answer_free_form": "We focus on cross-lingual alignment of language models for XNLU tasks.",
+   "retrieval_evidence": [
+    "we introduce CrossAligner , the principal method of a variety of effective approaches for zero-shot cross-lingual transfer based on learning alignment from unlabelled parallel data .",
+    "We focus on task-oriented XNLU that comprises two correlated objectives : i ) Intent Classification , which identifies the type of user command , e.g . ‘ edit_reminder ’ , ‘ send_message ’ or ‘ play_music ’ and ii ) Entity / Slot Recognition , which identifies relevant entities in the utterance including their types such as dates , messages , music ∗ Work conducted as Research Intern at Huawei ’ s Noah ’ s Ark Lab , London . †Equal contribution ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/21dd1d5e232c7abf421302a95ef2c9ef44c7bad069da7ca4129a8cf1bfbd6f660afee123144ebcbd8da698aed212e2ca1151a13bca7aaef50ce59d27d23aa83a",
+   "question_id": "8fc13b01107e614b030a2c7dbc65aa19d0363778",
+   "question": "Did the authors run their experiments multiple times with different random initializations to confirm the results?",
+   "answer_free_form": "We have calculated statistical significance instead.",
+   "retrieval_evidence": [
+    "For a robust comparison with the previous SOTA , we conduct a two-tailed ztest for the difference of proportions ( Schumacker , 2017 ) .",
+    "Our most effective method is statistically significant for all datasets at p < 0.01 .",
+    "The margin of improvement for slot tagging is + 2.3 ( F-Score ) over previous SOTA and significant at p < 0.01 ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/699",
+   "question_id": "70418ac3cb9f40b039a74031b89324e2b891ccf5",
+   "question": "What method is used to initialize the word embeddings?",
+   "answer_free_form": "word embeddings are randomly initialized with uniform distribution in [-0.1,0.1]",
+   "retrieval_evidence": [
+    "word embeddings are randomly initialized with uniform distribution in [0.1,0.1 ]"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/25eb5aa88234e90e4d4729fea900619c7d42062b6c8c967d02567ea0548fbc60fc4cacfd968a7f10d96f9cd92302173b1db10f7767e3b7e379ff1260c12db74d",
+   "question_id": "9073f9407118eaf0b34170000a57846d672b4a5d",
+   "question": "What criteria were used to select the four CQA models?",
+   "answer_free_form": "We try to select models with different model architectures and training strategies.",
+   "retrieval_evidence": [
+    "human evaluation and analysis , we choose the following four conversational QA models with different model architectures and training strategies"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/25eb5aa88234e90e4d4729fea900619c7d42062b6c8c967d02567ea0548fbc60fc4cacfd968a7f10d96f9cd92302173b1db10f7767e3b7e379ff1260c12db74d",
+   "question_id": "5227809e5dbd6a7ef588b7a84fc243e6cd0eed8d",
+   "question": "What was the compensation rate for the annotators hired for the Mechanical Turk crowdsourcing work?",
+   "answer_free_form": "The compensation rate is $15/hour.",
+   "retrieval_evidence": [
+    "The compensation rate for Amazon Mechanical Turk workers is calculated using $15 / h ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/25eb5aa88234e90e4d4729fea900619c7d42062b6c8c967d02567ea0548fbc60fc4cacfd968a7f10d96f9cd92302173b1db10f7767e3b7e379ff1260c12db74d",
+   "question_id": "c3790b0e0925f080c8d91160ae348f35ac367993",
+   "question": "Why was word overlap used instead of an exact match when comparing f1(s∗_{j,1}, s_{j,1})?",
+   "answer_free_form": "Sometimes the prediction may mention the same entity as the gold answer does, but with different names.",
+   "retrieval_evidence": [
+    "The reason is that sometimes the prediction may mention the same entity as the gold answer does , but with different names ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/25eb5aa88234e90e4d4729fea900619c7d42062b6c8c967d02567ea0548fbc60fc4cacfd968a7f10d96f9cd92302173b1db10f7767e3b7e379ff1260c12db74d",
+   "question_id": "721388955b97db097e963c4b221fe9af9e2da4ae",
+   "question": "What does it mean when the absolute accuracy numbers are higher than the F1 scores?",
+   "answer_free_form": "(a) Automatic evaluation gives lower scores than human evaluation because often the gold answers do not reflect all possible answers. (b) In human evaluation there are more \"unanswerable\" questions, which are easier.",
+   "retrieval_evidence": [
+    "( a ) Many conversational QA questions have multiple possible answers , and it is hard for the static dataset in automatic evaluations to capture all the answers .",
+    "It is not an issue in human evaluation because all answers are judged by human evaluators .",
+    "( b ) There are more unanswerable questions and open questions in human evaluation ( reason discussed in the next paragraph ) , which are easier—for example , models are almost always correct when answering questions like “ What else is interesting ? ” ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/1370310ca3e0e0d092a2e8b58f90b0d692331caa6e3ce5ca6dacbef926f2b01ff49c81282f32c554fa66c04979a125b7548c9692c2091bb2673642102d85412d",
+   "question_id": "672a51e77d6a34b48ad5a93aa1a37139d71e3c72",
+   "question": "What is the rationale for only analyzing the self-attention functions in the last layer of the BERT model?",
+   "answer_free_form": "The last layer of attention is selected because it represents the fully encoded inputs before the final readout for classification.",
+   "retrieval_evidence": [
+    "We collect attention representations and compute the mean attention vector over the final layer heads to capture the mixing of information in Transformer self-attention modules as in Hollenstein and Beinborn ( 2021 ) and present this as mean for all aforementioned Transformers ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/c53c0e92d95b1e222ebbecee84efd55c426d3f9916ac9f50280eaebe6640d35f9d395744c228f1f352eb4954a72a42b3886d581396fa3202056879d792fb62b7",
+   "question_id": "9dfb86a40b292918a304254d03b72b6fee37e740",
+   "question": "What is the target KB size used for MedMentions in the experiments?",
+   "answer_free_form": "The KB size for MedMentions is 2.3M.",
+   "retrieval_evidence": [
+    "The total KB size of MedMentions and ZeShEL is 2.3M and 492K , respectively ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/c53c0e92d95b1e222ebbecee84efd55c426d3f9916ac9f50280eaebe6640d35f9d395744c228f1f352eb4954a72a42b3886d581396fa3202056879d792fb62b7",
+   "question_id": "3356f072c76c12c8ebc215b5bd495d5ccbea0126",
+   "question": "Do the training and inference batches contain mentions from the same document to leverage coreferent mentions as much as possible?",
+   "answer_free_form": "Yes, the batches may contain mentions from the same document, however they are not restricted to be so nor does the method prefer within-document to across document mentions.",
+   "retrieval_evidence": [
+    "We optimize f ( · , · ) using mini-batch gradient descent by sequentially building batches of mentions B ⊂ M over the training data , where each mi ∈ B has its gold entity defined by e ⋆ i .",
+    "We then build a graph GB with nodes consisting of ( a ) each mi ∈ B , ( b ) each mention coreferent to mi ∈ B , and ( c ) the set of gold entities for each mi ∈ B ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/c53c0e92d95b1e222ebbecee84efd55c426d3f9916ac9f50280eaebe6640d35f9d395744c228f1f352eb4954a72a42b3886d581396fa3202056879d792fb62b7",
+   "question_id": "b509625d37c9da4c7585e00370dc166be8e9be88",
+   "question": "Does the model need to compute \\psi(m_i, e) for all entities in the target knowledge base during inference?",
+   "answer_free_form": "No.",
+   "retrieval_evidence": [
+    "For each mentionm , construct Em by ( a ) adding edges from m ’ s k-nearest neighbor mentions in M to m , and ( b ) adding an edge from m ’ s nearest entity to m"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/c53c0e92d95b1e222ebbecee84efd55c426d3f9916ac9f50280eaebe6640d35f9d395744c228f1f352eb4954a72a42b3886d581396fa3202056879d792fb62b7",
+   "question_id": "4a12daa058e224f39629de8997d5de7c8b0c2d3c",
+   "question": "Why not use the complete graph for training instead of pruning it?",
+   "answer_free_form": "Pruning the graph is needed to construct a single-linkage structure that provides the necessary inductive bias at training, which would be missing if the entire graph was used instead.",
+   "retrieval_evidence": [
+    "Our proposed method uses a supervised clustering training objective based on forming a directed minimum spanning tree , or arborescence , over mentions and entities .",
+    "We hypothesize that such coreference links provide a useful inductive bias because the two tasks are inherently related ( Angell et al . , 2021 ; FitzGerald et al . , 2021 ) .",
+    "In order to jointly train both the mention and entity encoders , we define a similarity measure and an analogous procedure for sampling positive training examples that intersperses the selection of coreferent mentions and gold entities based on a singlelinkage structure formed by the representations generated by the model snapshot .",
+    "We construct k-nearest neighbor graphs over coreferent mention and entity clusters , followed by the application of a pruning algorithm to generate arborescence ( directed MST ) structures rooted at entity nodes .",
+    "The resultant edges after pruning the graphs represent the pairs of positive examples used for training ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1550",
+   "question_id": "8d69a05246c31778897996bc35b60061f15554f3",
+   "question": "Are the results presented in the paper task- and dataset-specific, or can they be generalized to other tasks and datasets?",
+   "answer_free_form": "No, they can not necessarily be transferred directly for other tasks/data sets.",
+   "retrieval_evidence": [
+    "We would not a go as far as concluding that these findings are without further ado transferable to other Fake News related data sets using different tasks or label sets , but nevertheless think that our findings can serve as starting points for further experiments in related fields ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/13",
+   "question_id": "720c06898bbd974bce657e8eefac71ea8641b762",
+   "question": "How are position embeddings generated in a way similar to word embeddings?",
+   "answer_free_form": "The authors state that relative embedding positions (wrt target event mentions) are created by looking up the word in a matrix which separately represents that word for every distinct distance relative to an event mention found in the training dataset.",
+   "retrieval_evidence": [
+    "Embeddings vi p of size dp for relative positions of words are generated in a way similar to word embeddings , i.e . , by table lookup from a matrix Wp ∈ Rdp × smax ∗ 2 − 1 of trainable parameters .",
+    "Again i denotes the location of a word in a sentence ; smax is the maximum sentence length in the dataset"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/13",
+   "question_id": "52e2f447dc9bcf3dc208f99a89d4b59da4004923",
+   "question": "Are position embeddings randomly initialized?",
+   "answer_free_form": "The authors state that pretrained word2vec embeddings are combined with a randomly initialized relative position matrix.",
+   "retrieval_evidence": [
+    "the embedding matrix for relative positions ( Wp ) and all other model parameters are randomly initialized ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/13",
+   "question_id": "45a145511dd96e98d18e5ac09f454b95ceee5a38",
+   "question": "How are left and right neighbors used to create the representation?",
+   "answer_free_form": "The authors state that they compress neighbouring word embeddings around an event mention using n-gram windowing, filtering and max pooling",
+   "retrieval_evidence": [
+    "In order to compress the semantics of s words into a sentence-level feature vector with constant size , the convolution layer applies dc filters to each window of n consecutive 241 words , thereby calculating dc features for each ngram of a sentence",
+    "we feed the n-gram representations to a max-pooling layer , which identifies the maximum value for each filter .",
+    "We treat n-grams on each side of the trigger word separately during pooling , which allows the model to handle multiple event mentions per sentence"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/13",
+   "question_id": "8b0ad0aeb866b9064a6bd71b1559fe85d81a612b",
+   "question": "What is the purpose of the event-mention representation v_e?",
+   "answer_free_form": "v_e representations are used as parameters in the calculation of event (non-)coreference",
+   "retrieval_evidence": [
+    "The second part of the model ( Figure 1b ) processes the representations for two event mentions v1 e , v2 e , and augments these with pairwise comparison features vpairw to determine the compatibility of the event mentions .",
+    "The result is processed by an additional hidden layer , generating the final event-mention representation ve with size de used for the subsequent event-linking decision : ve = tanh ( Wevsent + lex + be ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/142",
+   "question_id": "5ab449ca87a0bb86111a5e4e594ac959ec7d0e86",
+   "question": "Why were post-editing rates chosen over prediction (h)ter for intrinsic uncertainty evaluation?",
+   "answer_free_form": "The authors state that normalised post-editing times (i.e. post-editing rates) are a more realistic measure with respect to operational effort, and can be adapted to different application scenarios.",
+   "retrieval_evidence": [
+    "Our decision to focus on post-editing time was based on the fact that time is a more complete measure of post-editing effort , capturing not only technical effort like HTER , but also cognitive effort ( Koponen et al . , 2012 ) .",
+    "Additionally , time is more directly applicable in real translation environments – where uncertainty estimates could be useful , as it relates directly to productivity measures ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1265",
+   "question_id": "d21452946e97bf0e1c6c6359138a49957df062e4",
+   "question": "What other tasks have you tested to demonstrate that the conclusions extracted from the experiments generalize?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Similar to the experiments presented by Devlin et al . ( 2019 ) , we use the “ GLUE Multi-Task Benchmark ” ( Wang et al . , 2018 ) consisting of multiple NLP classification tasks including sentiment analysis and textual entailment to evaluate the performance of the different model configurations .",
+    "Contrary to ( Devlin et al . , 2019 ) , we report the average accuracy of N = 3 runs instead of the maximum achieved value for each setting ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/78d7b31f3d19cf16bcc71aa109ca56b923d9082a2919fd8008060641daf4d5ae37d70daea5bb36f4aa83c9c49ad8b44e597aa41960348f3a0abe0abb529f9aea",
+   "question_id": "2e474adb8f0c5bd3285e43db4bfb774e7cd5b7a5",
+   "question": "Would the proposed knowledge prompting method still be effective when using a smaller language model as the knowledge source?",
+   "answer_free_form": "Our proposed method would still be effective when using a smaller model as knowledge source, though it can't be too small.",
+   "retrieval_evidence": [
+    "The size of knowledge generation model .",
+    "a 5.0% improvement , narrower than the 10.5% improvement given by the 175B knowledge model .",
+    "The 1.3B and 0.4B knowledge models do not give a significant improvement .",
+    "Therefore , we do not necessarily need the largest version of GPT3 as the knowledge source , though we do need the model to be relatively large in order to generate useful and reliable knowledge .",
+    "Figure 4 shows the NumerSense performance gain when using different sizes of GPT3 as the knowledge generation model .",
+    "On top of the T511b inference model , The 6.7B knowledge model gives"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/4b7c5fafdc37dc7cb22b9868c3dc5a3df61127f67fe8b48aaebe06624f82096f9a2fd1d81f57f86ecd7bfaae463ae744196e2c0e5f132cbd9ccff1065f620afe",
+   "question_id": "68cdad6fbee4b667c3a6b10e5761a4ccf660e32b",
+   "question": "Do you have data that shows how the location of a country within its time zone affects the results?",
+   "answer_free_form": "No, it was a hypothesis but I didn't test it.",
+   "retrieval_evidence": [
+    "5It would be interesting , given larger scale data collection , to perform finer-grained analysis of the correlation between sunrise and sunset times in specific locations within each country and the times indicated by workers in these locations ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/4b7c5fafdc37dc7cb22b9868c3dc5a3df61127f67fe8b48aaebe06624f82096f9a2fd1d81f57f86ecd7bfaae463ae744196e2c0e5f132cbd9ccff1065f620afe",
+   "question_id": "e7ac4283196f09643f681e08d6093e9313983cf1",
+   "question": "Has the translation of the template “the <morning> starts at <9.00>” been adapted to account for languages with grammatical gender, such as Italian?",
+   "answer_free_form": "Yes, we translated the template multiple times, each time assigning a different time expression and a different hour, to account for grammatical variations.",
+   "retrieval_evidence": [
+    "7Assigning different time expressions and hours may result in different translated templates .",
+    "For example , in Italian , morning ( mattina ) is feminine whereas afternoon ( pomeriggio ) is masculine , yielding variation in the determiner” la < time_exp > ” vs . “ il < time_exp > ” ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/db3d0c16f2a8a3baf7fe008d20bfe3fd82dedab22900659a9d8352b2ecce076fa9a82869602cc78d2c3b732f645c25eacb9b0b6fc4d3b6441bfb1825109e85ea",
+   "question_id": "cf66689ffef1b230b7bab23901a8bf528a8e97f8",
+   "question": "How does the paper incorporate section titles into the BOS representation?",
+   "answer_free_form": "The corresponding section title embeddings are added to the BOS representations.",
+   "retrieval_evidence": [
+    "If section titles are available , we can further enrich the sentence representation by adding a STE or classified STE ( STEs ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/db3d0c16f2a8a3baf7fe008d20bfe3fd82dedab22900659a9d8352b2ecce076fa9a82869602cc78d2c3b732f645c25eacb9b0b6fc4d3b6441bfb1825109e85ea",
+   "question_id": "691280cb66aae7b9fee2d8ac0937e5f970437b43",
+   "question": "Do you have any human evaluation results for the text generation task?",
+   "answer_free_form": "Yes, human evaluation can be found in Appendix A.6",
+   "retrieval_evidence": [
+    "the conclusion is highlighted .",
+    "the novel strain s256 is mentioned ; 3 ) .",
+    "In contrast , our HiStruct + model selects sentences at later positions .",
+    "The first five sentences introduce the main content and the entire proceeding of the work from an overall perspective .",
+    "To have a more intuitive understanding about the superiority of the proposed system , we showcase two samples in Figure 3 for human evaluation and case analysis .",
+    "The first arXiv sample shows that the baseline simply selects the first sentences .",
+    "Our HiStruct + model selects more informative sentences at later positions .",
+    "The PubMed sample also indicates that the baseline favors the first sentences , which is consistent with our observations in Figure 2 .",
+    "The predicted summary covers all key parts of the gold summary : 1 ) .",
+    "The extractive summaries predicted by the HiStruct + model and the baseline model are demonstrated respectively , in comparison with the gold summary ( i.e . , the abstract of the paper ) .",
+    "To construct a final summary , top7 sentences with the highest scores predicted by the model are extracted , and then combined in their original order .",
+    "Although the last two sentences highlight the same conclusion as in the gold summary that locally informed diagnosis and treatment strategies are needed , too much background information is unnecessarily included in the first five sentences .",
+    "the statistics are reported ( i.e . , 26% of primary tuberculosis ( tb ) was multidrug resistant ( mdr ) ) ; 2 ) .",
+    "The overall topic of the work is especially highlighted by the sentence with the green-colored phrase .",
+    "The predicted summary focuses on detailed background knowledge and lacks an overview of the proposed work .",
+    "The last two sentences draw conclusions and give an outlook to future work , which is indicated by the phrases highlighted in green ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/db3d0c16f2a8a3baf7fe008d20bfe3fd82dedab22900659a9d8352b2ecce076fa9a82869602cc78d2c3b732f645c25eacb9b0b6fc4d3b6441bfb1825109e85ea",
+   "question_id": "8e2cb1c95dffd133cc91ab3123074a0853c829fb",
+   "question": "What motivated the authors to experiment with their model on CNN/DM?",
+   "answer_free_form": "We hypothesize that the proposed\r\nmethod works better on datasets with conspicuous hierarchical structures (HiStruct). To prove this, CNN/DM is included as an exemplary dataset\r\nwith less conspicuous HiStruct compared to PubMed and arXiv.",
+   "retrieval_evidence": [
+    "The three datasets represent different document types ranging from short news articles to long scientific papers .",
+    "We hypothesize that the proposed method works better on datasets with more conspicuous hierarchical structures , where hi-depth and hi-width are larger .",
+    "This will be proved by comparing the performance improvements on the three datasets with different hierarchical characteristics ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/3cfcbbad78a71ca6cf4a5b2bbaee2a7ad8a1de295cf9f4103408dfeaf38a0de01b2b8d23cb94e0ef0b5f76a1947815f0335a7077bdea03ea4a29f6a2bff432cc",
+   "question_id": "e0bf6addede2ca2d1e76eac67027e72e3ff385f5",
+   "question": "Why is Hanja considered an extinct language rather than a script?",
+   "answer_free_form": "Technically, Hanja is a script and Hanmun is a writing style. However, the conventions of the previous works have represented Hanja as a language rather than script.",
+   "retrieval_evidence": [
+    "However , we will refer to Hanja as a language following the conventions of the previous works ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1570",
+   "question_id": "f29ff7d6be64035f374fe6b3fc470453591154e9",
+   "question": "Will the annotated mistakes be released upon the release of MNV2?",
+   "answer_free_form": "See in particular the entries \"incorrect\" and \"singletons\" in the dataset provided on https://github.com/amore-upf/manynames.",
+   "retrieval_evidence": [
+    "In Section 3.4 we obtained ManyNames v2 , which provides a reliable categorization of object names : the top name , alternative names for the same object ( i.e . , in the consistent response set ) , adequate names for",
+    "We now use it to define a diagnostic evaluation method for object naming models , one which is more fine-grained than the predominant single-label evaluation .",
+    "It also allows to assess whether models are affected by the same issues as humans , in particular referential and visual uncertainty ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/91d9e763eb1470028002e5c97689ada4b74f30be17291a14458f7542c387a9f2a7516e60f4022d887bdbd2165aa8cce6d566db380e5a82af677917c48efc2446",
+   "question_id": "94d3d227741b9bf8258649cb3567dc790b9dca07",
+   "question": "Why do the authors use regularization for label embeddings but not for instance embeddings?",
+   "answer_free_form": "The labels' embeddings are shared across various instances, which is the core anchors for the model to learn the representations.\r\nSince there are abundant instances that all regards and compares with the labels, it is important to prevent the representation degeneration for labels.\r\nOnce labels's representations are well kept, the instances representation can be effectively learned.\r\nHowever, the contrary cannot be so effective, because there are too many instances and you cannot always confirm the induction that they should be regularized.",
+   "retrieval_evidence": [
+    "By treating the class labels as data samples , ICL can mine better positive and negatives with the supervision signal .",
+    "LCL is based on comparing a specific label representation with corresponding instances ( i.e .",
+    "LCL is more stable as the label representation serves as the anchor which can be stably updated",
+    "As illustrated in Figure 1 ( c ) , the label embedding regularizer ( LER ) encourages the label representations to be dispersed in the unit hypersphere uniformly ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/6262c349a3980c6850e252b3a44391b1b1318c26fbf29be55c61c0a32b8b626e5581c98234d1ecb410674c00ebcf3ba2adfdce41c2b2d32211721372a8ed1bc0",
+   "question_id": "f18d6c2ac81007f7b42cab31234075307c85ee0a",
+   "question": "Do the training languages used for the non-baseline models in the cross-lingual experiments have any overlap with German?",
+   "answer_free_form": "The pretraining data does not overlap with German. Only the data used for fine-tuning is in German.",
+   "retrieval_evidence": [
+    "In our experiments we make use of the following datasets : The English Nancy Krebs dataset ( 16h ) from the Blizzard challenge 2011 ( WilhelmsTricarico et al . , 2011 ; King and Karaiskos , 2011 ) ; The German dataset of the speaker Karlsson ( 29h ) from the HUI-Audio-Corpus-German ( Puchtler et al . , 2021 ) ; The Greek ( 4h ) , Spanish ( 24h ) , Finnish ( 11h ) , Russian ( 21h ) , Hungarian ( 10h ) , Dutch ( 14h ) and French ( 19h ) subsets of the CSS10 dataset ( Park and Mulc , 2019 ) .",
+    "We also train another Tacotron 2 model and another FastSpeech 2 model on speech in 8 languages with one speaker per language ( Nancy dataset and CSS10 dataset ) and fine-tune those models on a randomly chosen 30 minute subset from the Karlsson dataset ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/83dc885bef279cbb7a3b5b173494428b6cd043d34527016519250477d274fd1793fa0bddd2bd4bbb3edfa9709ddc85e90825a0554bfa8eceb8cb34d813c06c53",
+   "question_id": "c0701214e646badb3bbb44e4985982c8e9e65fc7",
+   "question": "What measures have been taken to ensure the accuracy of the confidence network?",
+   "answer_free_form": "The authors create a scenario where the model can ask for hints. Thus, the confidence can be measured by the amount of hints the model needs. More hints mean low confidence. They also set some rules to avoid the added module from degrading the translation branch.",
+   "retrieval_evidence": [
+    "We assume that the NMT model can ask for hints ( look at ground-truth labels ) during training , but each clue comes at the cost of a slight penalty .",
+    "the model is confident about and then ask for clues when the model is uncertain about the decision .",
+    "Under this assumption , we approximate the confidence level of each translation by counting the number of hints used .",
+    "Do not provide hints at the initial stage .",
+    "Do not use high-layer hidden states to predict confidence .",
+    "Do not let the model lazily learn complex examples ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/939",
+   "question_id": "d59bc31fea9ec1c2594f0ed7813ed2d9348abc75",
+   "question": "What is the difference between the task described in the paper and the task of \"taxonomy induction\"?",
+   "answer_free_form": "While taxonomy induction is a task of constructing or extending a taxonomy, our task is confined to predicting direct hypernym(s) from each hyponym in WordNet.",
+   "retrieval_evidence": [
+    "constructing or extending a taxonomy ( taxonomy induction ) ( Snow et al . , 2006 ; Jurgens and Pilehvar , 2016 )",
+    "While some previous approaches have predicted indirect hypernyms using the transitive closure of WordNet ( Vendrov et al . , 2016 ; Li et al . , 2019 ) , we focus on predicting direct hypernyms ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/939",
+   "question_id": "fd9af00fe3f20196d71e9e364f55c157d4cd2cd3",
+   "question": "What measures were taken to ensure that paths were not shared between the training and test sets?",
+   "answer_free_form": "All queries observed during path training and all hyponyms in the training set that also appear as hyponyms in the test set are eliminated.",
+   "retrieval_evidence": [
+    "To avoid giving an unfair advantage to the path-based models , we filtered both validation and test sets to only include hyponym queries that are unseen anywhere in the full taxonomy paths of the training data .",
+    "We also exclude hyponyms from the test and validation sets which appear as hyponyms in the training set7 to prevent the models from merely copying ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/939",
+   "question_id": "d8ac040e919b01e19818a6416896dd66bd58e69d",
+   "question": "What factors were responsible for the success of the path-based model?",
+   "answer_free_form": "The success of the path-based hypernym prediction model can be attributed to three factors: (1) a more challenging training task (predicting the entire hypernym path) than the tested task (only predicting the direct hypernym), (2) attention mechanism to facilitate sequence learning, and (3) reversed target path to  facilitate path generation.",
+   "retrieval_evidence": [
+    "Our intuition behind this model is that training with a more difficult objective ( i.e . , entire hypernym path prediction rather than direct hypernym prediction ) may result in a stronger model .",
+    "In our task , the attention mechanism serves as a way to avoid “ forgetting ” the source hyponym while decoding long paths2 .",
+    "Reversing the order of the source or target sequences can the improve performance of encoder-decoder models , since the encoded hidden state is closer to the first target token ( Sutskever et al . , 2014 ; Gillick et al . , 2016 ) .",
+    "Motivated by this , we experiment with a model variant called hypo2path rev in which we reverse the target path to generate a sequence of hypernyms starting from the direct hypernym of the source .",
+    "This frames every generation step as direct hypernym prediction , which the decoder may more easily learn ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "3611098cfd2590d775531ef564d87617713fe8bf",
+   "question": "What is the rationale for using ese methods on user-generated text?",
+   "answer_free_form": "User-generated text data is abundant and is largely unlabeled. Furthermore, user-generated text has distinctive characteristics than well-written text. Therefore, it provides a practical domain, or setting, that was not well considered by previous studies. Meanwhile, \r\nmany NLP applications are dependent on user-generated text and requires entities mined from these data.",
+   "retrieval_evidence": [
+    "Despite the recent progress , reported success of ESE methods is largely limited to benchmarks focusing on named entities ( e.g . , countries , diseases ) and well-written text such as Wikipedia .",
+    "Furthermore , the evaluation is limited to top 1050 predictions regardless of the actual size of the entity set .",
+    "As a result , it is unclear whether the reported effectiveness of ESE methods is conditional to datasets , domains , and / or evaluation methods .",
+    "User-generated text data is abundant and is largely unlabeled .",
+    "Enabling NLP applications including semantic search and question answering ( Li et al . , 2019 ; Bhutani et al . , 2020 ; Dai and Song , 2019 ) over user-generated text requires entities mined from these largely unlabeled data .",
+    "Furthermore , user-generated text has distinctive characteristics than well-written text , making it appropriate for this study ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "9d285bc752521120d3b45a5b35069f1365c8f603",
+   "question": "What is the rationale for using set expansion approaches to construct a dictionary from customer reviews?",
+   "answer_free_form": "Entities are integral to many applications that require natural language understanding. However, training (annotated) data in new domains is scarce. Therefore, a common practice when building an application is a new domain is to first have a small seed set of entities, and then use set expansion methods to increase the entity set size.",
+   "retrieval_evidence": [
+    "Entities are integral to applications that require understanding natural language text such as semantic search ( Inan et al . , 2021 ; Lashkari et al . , 2019 ) , question answering ( Chandrasekaran et al . , 2020 ; Cheng and Erk , 2020 ) and knowledge base construction ( Goel et al . , 2021 ; Al-Moslmi et al . , 2020 ) .",
+    "new entities ( e.g . , ‘ coffee ’ , ‘ clock ’ ) that belong to the same semantic concept ( e.g . , room features ) .",
+    "Since training data in new domains is scarce , many existing ESE methods expand a small seed set by learning to rank new entity candidates with limited supervision ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "ae75b890d30e2879b6a6571bbc634ee4e6157e30",
+   "question": "What is the practical application of measuring the performance of a method using MAP at gold-k?",
+   "answer_free_form": "The practical application. is to stress test ESE methods in scenarios where the concept size is large, with a specific emphasis on recall, especially for special entities (multifaceted, vague, or non-named).",
+   "retrieval_evidence": [
+    "it gives an estimate of recall7 which is crucial to estimate effectiveness in real-world settings with commonly large concept sizes .",
+    "Intuitively , using",
+    "kg would include more instances of multifaceted , vague and non-named entities that would otherwise be ignored in small k .",
+    "However , for other scenarios , especially for evaluation on benchmarks where the goal is to stress test methods , evaluation at kg is more appropriate ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "23c1d98a22e68ab8a92b7b1cd2fee83fa79e9a86",
+   "question": "What is the optimal depth of a ranked list of entities returned by an entity search engine approach for a user to find all relevant entities?",
+   "answer_free_form": "For annotating the benchmarks in this study, a depth of 200 is used based on preliminary observations of the authors.",
+   "retrieval_evidence": [
+    "For entities with rank > 200 , we label the corresponding concept-entity pairs to be all negatives based on our preliminary observations that most of them are incorrect ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "f2564b011de1ce166a9e4410c3857b5a9c2496ce",
+   "question": "Can the authors provide an explanation for the significant performance difference between cgexpan and lm-base?",
+   "answer_free_form": "CGExpan significantly outperforms LM-base on well-curated datasets but underperforms LM-base on user-generated text datasets. An explanation is that, CGExpan has an assumption that each entity should only belong to one concept, thus it scores each candidate entity by selecting one positive concept and multiple negative concepts, which may penalize entities belonging to multiple concepts (multifaceted entities) or mentioned in different contexts (vague entities). This assumption is useful on well-curated domains but may not generalize to user-generated text. Later experiments also verified that special entities (multifaceted, vague or non-named) have a higher negative impact on CGExpan compared to LM-base.",
+   "retrieval_evidence": [
+    "Figure 3 shows that SOTA method CGExpan outperforms other methods on existing wellcurated benchmarks which aligns with the reported success of the method .",
+    "Surprisingly , simpler baseline methods ( Emb-Base and LM-Base ) that were not optimal on well-curated benchmarks , significantly outperform their SOTA counterparts ( SetExpan and CGExpan , respectively ) on user-generated text benchmarks , with LM-Base obtaining the best performance .",
+    "Similarly , CGExpan , which scores each candidate entity by selecting one positive concept and multiple negative concepts , may penalize entities belonging to multiple concepts ( multifaceted entities ) or mentioned in different contexts ( vague entities ) .",
+    "Therefore , many of the carefully designed approaches useful on well-curated domains may not generalize to user-generated text .",
+    "As shown , almost all methods show lower recall of entities that exhibit challenging characteristics than entities without these characteristics , and SOTA methods suffer larger drops than simple methods .",
+    "This supports our hypothesis that characteristics of user-generated text negatively affect performances ,"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/488687633dbb7f9cbac3b0164d08e1cef083aa01ab86fad82e7c5b199bda3c1213b66dfcf3627a183c977d0aee40f46f169cdd51a5efe539ec4fc02981a383f7",
+   "question_id": "8952c8598f43e3e36131d56d62db44fded0352d3",
+   "question": "What factors contribute to the improved performance of the lm-base model compared to the cgexpan model on user-generated datasets?",
+   "answer_free_form": "One factor is that CGExpan has assumptions that only apply to well-curated domains, while LM-base does not have such assumptions. CGExpan has the assumption that each entity should only belong to one concept, thus it scores each candidate entity by selecting one positive concept and multiple negative concepts, which may penalize entities belonging to multiple concepts (multifaceted entities) or mentioned in different contexts (vague entities). This assumption is useful on well-curated domains but may not generalize to user-generated text. Another factor, as shown by later experiments, is that special entities (multifaceted, vague or non-named) have a higher negative impact on CGExpan compared to LM-base.",
+   "retrieval_evidence": [
+    "Similarly , CGExpan , which scores each candidate entity by selecting one positive concept and multiple negative concepts , may penalize entities belonging to multiple concepts ( multifaceted entities ) or mentioned in different contexts ( vague entities ) .",
+    "Therefore , many of the carefully designed approaches useful on well-curated domains may not generalize to user-generated text .",
+    "As shown , almost all methods show lower recall of entities that exhibit challenging characteristics than entities without these characteristics , and SOTA methods suffer larger drops than simple methods .",
+    "This supports our hypothesis that characteristics of user-generated text negatively affect performances ,"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/82520f1d31572d488cfeae02712db642750fda4063e5eab8a771a000f6e17e1397ab18af73e5362e4d660b3dcc78b2260e121fdefc4c1664448e1c30066d5cb9",
+   "question_id": "fd627c54f792bc91ab0db4a51e8311a23d8af60d",
+   "question": "What method was used to obtain trait scores for prompts that did not have them in the original dataset?",
+   "answer_free_form": "The method was described in Mathias and Bhattacharyya (2018a). In short, the remaining essays were annotated by a set of annotators for the different trait scores. The link to the pdf of that paper is: https://aclanthology.org/L18-1187.pdf",
+   "retrieval_evidence": [
+    "we use the trait-specific scores provided by Mathias and Bhattacharyya ( 2018a ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/841d64f4eb3d5e3d6ea89751ea19897bb8424acf856c9dd1574ef7d2803ff7d155df1b9cc201df8b4fc8c1984f6ca8bdfaf94036960348047e8da35b0003ae34",
+   "question_id": "5e1848003c61e22bf4eebdf7db76bd3e4429b05c",
+   "question": "Why is the beam search algorithm incorrect?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Better Model Score ; Better Hypothesis The most critical issue is that beam search is designed to efficiently approximate argmax ŷ = p ( ŷ | x ; θ ) , but the optimal model score is neither our goal nor a guarantee of a good hypothesis .",
+    "In Figure 3 , we compare the correlation of model score and ROUGE under beam search for text summarization .",
+    "The Pearson correlation between these two variables is very weak .",
+    "Beyond ROUGE score , the example in Fig .",
+    "The hypothesis with the best score under beam search is not substantially better quality than hypotheses with slightly lower scores ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1315",
+   "question_id": "243ba726cb4daf8fbda6f6d48d26e88dca0c43e4",
+   "question": "How was the decision made to classify a scientific paper as correlational or causal when the conclusion contains multiple sentences classified under different taxonomical classes, such as direct causal and correlational?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "A research paper ’ s finding is regarded as “ correlational ” if at least one sentence in the conclusion subsection uses correlational language and no sentence uses direct or conditional causal language ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1315",
+   "question_id": "688f86f3ac9975c060ad5460319ed031a11135ae",
+   "question": "What is the calculation used to generate the rate shown in Figure 3a?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "we designed a conservative strategy for identifying exaggeration in all paper-press pair with the paper ’ s finding predicted as “ correlational ” , as illustrated in Figure 2 .",
+    "After applying the exaggeration identification strategy to our corpus of 16,431 paper-press pairs , out of 6,244 cases in which the original research papers drew correlational conclusions , we found 1,391 ( 22% ) cases of exaggeration ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/212dff6380418cd7c050ec757b31e6b5b65bbe922aa30ffbd5950fe7a04ca737b7c7b3d706f1cd1502d7932b61d2b7c079924793e45e437526230c1e9c0626ed",
+   "question_id": "c0f788c455af0bee35fb5b9cc36af6a5ec6aaf3f",
+   "question": "Why was additional fine-tuning on Clip not included in the experiments?",
+   "answer_free_form": "The CLIP fine-tuning is mentioned as text in the appendix. The authors state that on fine-tuning last few layers of CLIP with a classification head, the performance was always worse than extracted features used with SVM.",
+   "retrieval_evidence": [
+    "However , when we experimented with fine-tuning the last few layers of CLIP with a classification head on top , it always performed worse than using extracted features for classification with SVM ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/e4742f934fad6dc1f3389981d0d0fc6b8b48638f4c5c0a74b9dc11bdd026489bb2d3e78a6a395e82124e87c7409ff370cdff0edf375958bcf909372da1859815",
+   "question_id": "5ac9e91c8d313af9a0771c5e3e46e95d2a7c2315",
+   "question": "What is the new evaluation metric proposed in the paper?",
+   "answer_free_form": "multi-span partial match",
+   "retrieval_evidence": [
+    "To measure the overlap between the predictions and ground truth answers , we propose the partial match precision , recall , and F1 by treating each predicted span or ground-truth answer span as a string .",
+    "In detail , for each pair of prediction pi and ground truth answer tj , we define the partial retrieved score and partial relevant score as the length of the longest common substring ( LCS ) between pi and tj , divided by the length of pi and tj , respectively , as :",
+    "srelij = len ( LCS ( pi , tj ) ) / len ( tj ) ( 9 )",
+    "sretij = len ( LCS ( pi , tj ) ) / len ( pi ) ( 8 )"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/3cbf91f8e2f7e62be51109688c84a2b424e6018ee3c976fbe55e5331bc9ab2f4c46491d006087aed3be35a3370c945c100bd718e2c1131de19eac3dbe93326bc",
+   "question_id": "7cd7d4d944b16a2603aaaf3ebb5628edd813a346",
+   "question": "What is the criteria for delimiter placement in the sentence aggregation model?",
+   "answer_free_form": "The delimiter is placed (or set to 1) where sentences should be kept separate, it is not placed (or =0) where sentences should be merged. The training data are created from originally separate (=1) or automatically split (=0) sentences.",
+   "retrieval_evidence": [
+    "The output δi “ 1 means that the neighboring facts should be mentioned separately , i.e .",
+    "Conversely , δi “ 0 means that the facts should be aggregated and their corresponding sentences should be fused .",
+    "We create the training examples using the synthesized sentences in the WIKIFLUENT corpus , in which we set δi “ 0 for the sentences i , i ` 1 which were originally aggregated ( i.e . , are the result of splitting a single sentence ) and δi “ 1 otherwise ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/3cbf91f8e2f7e62be51109688c84a2b424e6018ee3c976fbe55e5331bc9ab2f4c46491d006087aed3be35a3370c945c100bd718e2c1131de19eac3dbe93326bc",
+   "question_id": "b49d17a4084f479d1c1f3e920a863be370968f66",
+   "question": "What methods were used to develop the per-triple templates?",
+   "answer_free_form": "We handcrafted 354 templates for WebNLG and 8 templates for E2E manually, one per each RDF relation.",
+   "retrieval_evidence": [
+    "We transform triples into facts ( § 3.1 ) using a singletriple template ti for each predicate .",
+    "For example , if pi “ instrument , then T ppiq “ “ si plays oi ” ( cf .",
+    "Table 1 ) .",
+    "We follow previous work in which simple hand-crafted templates have been used",
+    "We hand-crafted templates for all 354 predicates , including unseen predicates in the test set .7",
+    "We created a template for each of the 8 attributes manually ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/ae39c92fcd34f3ea307de8aae9eade5a405f4035c3260c64416f75a202f27dbc22063341ee73afacd4459fdee1a00d6e84c1317f5271bb087c826599f8989dd4",
+   "question_id": "d6e7e983c6f9cf1c2edfb637e9b8992550798fa2",
+   "question": "Can the annotation scheme be easily adapted to more domains?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The design also allows us to distinguish between domain-specific versus generic intent modules .",
+    "For example , the module overdraft is clearly related to BANKING , but the module change is much more generic , likely to occur in several different domains ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-890",
+   "question_id": "8397ceb9d91201c9f2eb30de3c87e1e8243a827d",
+   "question": "What is the conceptual model presented in Figure 2?",
+   "answer_free_form": "Conceptual model is based on  thematic analysis from participants' feedback.",
+   "retrieval_evidence": [
+    "The collected data and themes were used to verify , enrich and create the “ flow ” , referring to the conceptual framework in Figure 1 and factors that influence recycling intention from RQ 1 to address RQ 2 ,",
+    "Incorporating gamified learning to improve recycling intention can be brought about through social influence and intrinsic and extrinsic motivations .",
+    "The elements of games like leaderboard , levels , points and rewards are significant to develop an engaging and purposeful activity to attract the youth to participate in recycling .",
+    "Based on the responses from the youths , themost prominent one is on social influences .",
+    "From the FGDs , 16 out of 29 youths think that competition and leaderboard are highly affecting peers to work towards a goal .",
+    "They are often feel challenged to perform their best to not lag far behind those with better achievements .",
+    "This factor is believed to pose a significant role in encouraging recycling intention among youths .",
+    "Besides , to further explore the relationship between gamification , motivation and recycling intention ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-890",
+   "question_id": "174eff40340ae0616a2328f75efd8cf8431b3150",
+   "question": "How was the conceptual model in Figure 2 developed?",
+   "answer_free_form": "It is based on the procedures of the EGL activity from participation to focus group discussion.",
+   "retrieval_evidence": [
+    "This activity involved 100 youths from three institutions , one high school and two colleges in Selangor , Malaysia , who were 16 – 23 years old and staying at home due to the pandemic .",
+    "Participants were recruited from their schools and colleges through the activity recruitment poster and “ Word-of-Mouth ” from the teachers and lecturers .",
+    "They provided written consent to participate on the day of the activity and were informed that the data would be for research and publication use .",
+    "Then , their crafts will be evaluated by art teachers and ranked on a leaderboard .",
+    "The participants who were ranked on the leaderboard will receive certificates and prizes .",
+    "After experiencing two-level EGL , 29 students were purposively selected as FGD participants .",
+    "Participants with excellent achievement , commitment and attention to the activity were selected for the FGD .",
+    "Figure 2 shows the overview of the EGL activity flow ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-637",
+   "question_id": "4d731fb4c24a75b5ee1cebcea2ba3c48604b70d4",
+   "question": "Are all participants in the trial pregnant women who are less than 36 weeks gestation?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "MiQuit3 ( ClinicalTrials.gov NCT03231553 ) is an RCT evaluating the effectiveness of a text-message , smoking cessation self-help support programme for pregnant smokers ( MiQuit ) , and the protocol has been published previously12 .",
+    "This factorial SWAT was embedded at the 36week gestational time point .",
+    "all participants that had not yet had their 36week gestational follow-up , approximately 200 , were eligible to participate in the SWAT"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-637",
+   "question_id": "4b69c2fc616efa2493d74c9e2d094d20917814e2",
+   "question": "What additional participants were excluded from the analysis due to missing covariates?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Five participants withdrew prior to the implementation of the SWAT and are not included in the analysis .",
+    "Participants were only included in a model if all relevant covariates for that model were present .",
+    "Three participants were not contacted due to difficulties / adverse events associated with their pregnancy , but are still included in the analysis under ITT principles ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-637",
+   "question_id": "7fc5d5331df7a49becd6f0436973f6e3948db2d0",
+   "question": "What were the reasons for excluding additional participants from the analysis?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Five participants withdrew prior to the implementation of the SWAT and are not included in the analysis .",
+    "Participants were only included in a model if all relevant covariates for that model were present .",
+    "Three participants were not contacted due to difficulties / adverse events associated with their pregnancy , but are still included in the analysis under ITT principles ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-637",
+   "question_id": "9c94c1db5e17d67bbbfba1c1b4118bfafc313610",
+   "question": "What is the difference between those who received personalised and non-personalised texts?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Personalised versus non-personalised OR = 0.44 0.22 to 0.87 0.02",
+    "Personalised versus non-personalised OR = 0.61 0.30 to 1.24 0.17",
+    "Personalised versus non-personalised IRR = 1.14 0.92 to 1.41 0.23",
+    "This suggest that neither timing nor personalisation of the text message reminder affect the time taken to complete the questionnaire .",
+    "It also showed that personalised text messages have no effect on completion time , or number of attempts to contact required .",
+    "However , it did show that there was some evidence that sending a non-personalised text message reminder would have a larger increase in response than sending personalised text messages did , but these finding were only significant when exploring telephone data collection .",
+    "Personalised versus non-personalised HR = 0.76 0.54 to 1.07 0.12"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-9",
+   "question_id": "76cf779b03c2bb2be322573563eedc11ec4fef98",
+   "question": "What threshold was used for coverage when downloading the datasets in the Methods section?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "In this study , a total number of 30,229 SARS-CoV2 virus genomes data with collection dates ranging from 20200101 to 20210321 were retrieved ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-9",
+   "question_id": "995850ab01f742029e9e0f83fe4cd751879eb0ab",
+   "question": "What criteria were used to select the top 10 nonsynonymous mutations?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The top 10 highest frequency nonsynonymous"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-9",
+   "question_id": "63f4805ada06d482aabb6197f06e85ab22732bdf",
+   "question": "Where were the gtf and vcf files used for predicting mutation effects on protein function obtained from?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Figshare : SIFT4G ( SARS-CoV2 ) .",
+    "https : / / doi.org / 10.6084 / m9 ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-9",
+   "question_id": "774fc6b5b5889fdb85d4bd28c1d6c57fca8d0022",
+   "question": "What is the basis for the -2.5 threshold for determining deleterious mutations?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Nat .",
+    "Protoc .",
+    "Vaser R , Adusumalli S , LengSN , et al . : SIFTmissensepredictions for genomes .",
+    "Dec . 2015 ; 11 ( 1 ) : 1 – 9"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-9",
+   "question_id": "f48e319d1d04182fbc821170fd0429d5b73f141e",
+   "question": "What are the genetic nomenclatures associated with the top 10 nonsynonymous mutations?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Lineage ( VOC ) B .1.1.7 ( α ) B .1.351 ( β ) P .1 ( γ ) B .1.617.2 ( δ ) BA .1 ( ο"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/eb931c7319dc1b08fb3c97fb77b60b7eac9a41d699b58e0139d655f4d1cbc5c61db8d9e9dd42e3515a6cd839518933bd7d033289be73a8111b2170e8b2bf983f",
+   "question_id": "41338acb67bcf333b2817c15b8b74290fb3d9327",
+   "question": "What other downstream tasks, such as natural language inference, question answering, and semantic role labeling, have been tested using an encoder that has been transferred from language 1 to language 2 without any parameter updates?",
+   "answer_free_form": "No other tasks are tested in this paper.",
+   "retrieval_evidence": [
+    "Downstream Task .",
+    "We evaluate the pretrained encoders with dependency parsing to see if the structural knowledge learned with artificial language is beneficial to predict the structure of natural language ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/eb931c7319dc1b08fb3c97fb77b60b7eac9a41d699b58e0139d655f4d1cbc5c61db8d9e9dd42e3515a6cd839518933bd7d033289be73a8111b2170e8b2bf983f",
+   "question_id": "d3ce17368ff699857360c15972ad48cb235350b8",
+   "question": "Why does setting the vector dimension to 10 cause the conditional token distribution to become close to the Zipfian distribution?",
+   "answer_free_form": "The vector dimension is set to 10 so that the token distribution becomes close to the Zipfian distribution.\r\nThe value is determined empirically.",
+   "retrieval_evidence": [
+    "We set the dimension of the word and discourse vector to as we empirically find that this makes the entire token distribution close to the Zipfian distribution ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/ed81d66dc55496061fd4c97530be7b966d2e734e8435092b2c0c6764f54ea145e62f67555e480d996aebb93772e0de2877ccaad504e0f2228a1395c68d157eda",
+   "question_id": "d88d8f911add3ead1f649741f7c22700199f9094",
+   "question": "Will the code and dataset associated with this paper be made available to the public?",
+   "answer_free_form": "Yes",
+   "retrieval_evidence": [
+    "1Code to reproduce all results can be found at https : / / github.com / facebookresearch / quip ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/341",
+   "question_id": "1fd3a7fbc973d1042fee519c269028acdbb1ccec",
+   "question": "Why is the antecedent included in the sum in #6, rather than using \"verb-nsubj:noun-obj:noun => nsubj:noun-verb-obj:noun\"?",
+   "answer_free_form": "The antecedent encodes \"VSO is a dominant word order\" and the consequent encodes \"SVO is an alternative word order of VSO\".",
+   "retrieval_evidence": [
+    "We denote “ p is a dominant word order in ` ” as v ` p and “ p is an alternative word order of q in ` ” as v ` p + v ` q"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/341",
+   "question_id": "df9756e054d7db2937ebc51e1ed8477345e57387",
+   "question": "What does the logical atom \"nsubj:noun-verb-obj:noun\" mean in the context of the paper?",
+   "answer_free_form": "The atom represents a construction in which a verb is the head, its left child is a noun connected by \"nsubj\" and its right child is a noun connected by \"obj\". The value of the atom is the relative frequency of the construction.",
+   "retrieval_evidence": [
+    "Double-link property : relative frequency of a construction involving one head and two dependents",
+    "The subscripts of v ` represent the constructions : hyphens connect words , the head is represented by its part-of-speech tag , and the dependents are represented by their dependency relation and their part-of-speech tag , combined by a colon ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "ff4b45b2af4e13f58512fc1783fc12dd129feb6f",
+   "question": "Does the model incorporate wave erosion?",
+   "answer_free_form": "The Dionisos model environment incorporates wave (mechanical marine) erosion as a temporally variable user-defined value.",
+   "retrieval_evidence": [
+    "This becomes especially challenging when the target sequence is within the dynamic coastal zone .",
+    "For example , Malatesta et al . ( 2022 ) demonstrates how overprinting can lead to ambiguities in erosional rates and inferred uplift rates of coastal terraces .",
+    "Within the Dionisos environment , four forms of weathering are taken into account : ( 1 ) maximum subaerial weathering rate , ( 2 ) maximum weathering decay in the marine environment ,",
+    "To quantify the mechanical and biological erosion under marine conditions , we use a maximum 100 m Myr − 1 weathering rate ( between the lower and the average values , 0 and 1000 m Myr − 1 , respectively , used by Paulay and McEdward , 1990 ) ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "70ee52925bfa4ed21c8798964ec74fcdd0f9845f",
+   "question": "Is the subaerial erosion rate equivalent to the maximum weathering rate?",
+   "answer_free_form": "The subaerial erosion rate and maximum weathering rate are the same thing and this discrepancy was corrected in the published version by adding \"maximum subaerial weathering\".",
+   "retrieval_evidence": [
+    "Within the Dionisos environment , four forms of weathering are taken into account : ( 1 ) maximum subaerial weathering rate ,",
+    "Therefore , we utilize a maximum subaerial weathering of 100 m Myr − 1 ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "a8d6ed01ff1866040e47a7082ff97ea95a6edd03",
+   "question": "Is there a scientific reason for the Greenland Ice Sheet (GRIS) to start melting before the Antarctic Ice Sheet (AIS), beyond the convenience of creating two distinct peaks in a model or analysis?",
+   "answer_free_form": "The Greenland Ice sheet and Antarctica Ice Sheet have significant differences in boundary conditions that control their respective stability.",
+   "retrieval_evidence": [
+    "This scenario represents possible discrepancies in GrIS–AIS stability and variable hemispherespecific climate fluctuations ( e.g . , Govin et al . , 2012 ; Stone et al . , 2016 ) , and it is consistent with the interpretation of fossil reef sequences from Western Australia described by O ’ Leary et al . ( 2013 ) ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "fc938634e35cc53e7b6cb50564929eabb0fc7afe",
+   "question": "Could you clarify what is meant by \"production versus depth curves\"?",
+   "answer_free_form": "The production vs. depth curves of the model represent the natural distribution of reef coral growing depths.",
+   "retrieval_evidence": [
+    "This production-versusdepth curve represents the non-linear relationship between carbonate producer growth rate and depth ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "9be6e9b8ef3f3db6f29bafd74243978f78f2f657",
+   "question": "Could you clarify what you mean by \"actual exposed MIS 5e facies are lacking\"?",
+   "answer_free_form": "The \"actual MIS 5e facies\" refers to the respective model output for each scenario is sometimes eroded and/or missing.",
+   "retrieval_evidence": [
+    "While we do see preserved exposed fossil MIS 5e reef facies at Lembetabe ( e.g . , Battistini , 1965 ; Boyden et al . , 2022 ) , the corresponding MIS 5e sequences within produced synthetic well logs are sometimes lacking ( Fig . 8c ) .",
+    "This “ preservation bias ” is especially apparent when following the progression of sedimentation through the LIG"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-917-2023",
+   "question_id": "e7b7d480aa1076d06dccb8bcb2b7f2b1fd0f9c87",
+   "question": "Do you believe that the model presented in your study can be easily applied to other geographical areas?",
+   "answer_free_form": "This paper outlines a methodology for validating geological field interpretations and should be applied to other last interglacial outcrops around the world.",
+   "retrieval_evidence": [
+    "While the application of the model is spatially limited , these insights into the sensitivity of the LIG geological record provide a starting point for further analysis of other , more GIA and tectonically diverse LIG coral-dominated coastlines .",
+    "Additional investigation into the interplay between GrIS and AIS contribution magnitude and timing is warranted .",
+    "Furthermore , specific effort should be placed in testing locations where previous RSL curves similar in geometry to the G2A5 scenario explored here have been described ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/df4051328ee57291cf600f10ef67af6872fcef0deb3ff7323b89142b68beb16ea1fbe09c44be8ccca24fe30d67a1e6dbfb715a77384c30fbeb37c362c25c743c",
+   "question_id": "eeba4b725b3f8ad526cddce373ff444a591594c9",
+   "question": "What could explain the difference in performance between the DICTA test set and the new test set, particularly the difference between the cha and wor scores?",
+   "answer_free_form": "DICTA test set is part of Nakdimons training set. Additionally, it consists of Wikipedia first-paragraphs only, which contain definitions and rare names, often repeated.",
+   "retrieval_evidence": [
+    "However , it is relatively small and non-diverse : all 22 documents in the dataset originate in a single source , namely Hebrew Wikipedia articles .",
+    "Therefore , we created a new test set8 from a larger variety of texts , including high-quality Wikipedia articles and edited news stories , as well as user-generated blog posts .",
+    "We use the same technique and style for dotting this corpus as we do for the MODERN corpus ( § 2.2 ) , but the documents were 8https : / / github.com / elazarg / hebrew _ diacritized / tree / master / test_modern collected in different ways .",
+    "Dicta test set"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-654",
+   "question_id": "f456517fc41bfab6dfd062990edf1364e78eb104",
+   "question": "What is orthology assignment?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Gprofiler2 is also used to find orthologs in another species of a userprovided list of genes .",
+    "To this end , the user simply needs to upload a list of genes , and select the original and the target species .",
+    "and the assignment of orthologous genes across species"
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-81-2023",
+   "question_id": "6c9381de277251ad2ce40cd39b94a872cbc4126e",
+   "question": "Is the authors' conclusion about the accuracy of the CMIP6 climate models in simulating the processes based on the agreement between the observed data and the models' predictions in terms of the residual variability?",
+   "answer_free_form": "No it's based on the performance of the detection method even when mean trends are removed. The residual variance is justification for using models to detect change in observations",
+   "retrieval_evidence": [
+    "Confidence in these results is strengthened by the consistency of the variability in the model forced response estimates and observed forced response estimates .",
+    "The residuals of the linear fit to the observed and modelled forced response estimates have comparable distributions , shown in Fig .",
+    "This residual variance consistency justifies the use of the model-derived RR fingerprint on observations , and decreases the likelihood of spurious detection .",
+    "Finally , the fact that the relationship between relative spatial precipitation patterns and the forced precipitation trend derived from climate model simulations ( the ridge model ) holds in observations suggests accuracy of the CMIP6 climate models in simulating the processes relevant to the spatial pattern of forced change in mean and extreme precipitation ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-81-2023",
+   "question_id": "6610ad96e462f49d6d8f20fee0cdc6dd8a70175a",
+   "question": "What is the impact on detection or signal-to-noise ratio (SNR) if RR-based fingerprint construction is not applied?",
+   "answer_free_form": "detection won't be possible if no SNR-maximising method/process is applied to the noise observational data",
+   "retrieval_evidence": [
+    "robust detection and attribution ( D & A ) of forced change in the water cycle are impaired by low signal-to-noise ratios .",
+    "The concept of detection and attribution is to use climate model simulations in which the applied forcings are known and internal variability can be reduced by averaging multiple realisations , to estimate a so-called fingerprint that represents the effect of the applied forcings on climate variables of interest ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/11-404",
+   "question_id": "7c6f77a64467e8275e381a36386d66650b13e832",
+   "question": "Does the term \"aes\" refer to the phenomenon that smiling faces are estimated to be older than neutral faces in direct age estimations, or does it also refer to the phenomenon that smiling face group is retrospectively estimated to be younger?",
+   "answer_free_form": "The term AES refers specifically to the phenomenon that a smiling face makes one look older.",
+   "retrieval_evidence": [
+    "However , contrary to the commonly held association between smiling and youth , Ganel ( 2015 ) showed that a smiling face is estimated to be older than a neutral face .",
+    "This phenomenon , in which smiling faces are evaluated as being older than neutral faces , is called the aging effect of smiling ( AES ; Ganel & Goodale , 2021 ) ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-CONLL2016/129",
+   "question_id": "6d0c861407de2db08718ca55a383b59284a8e223",
+   "question": "What validation data is used to determine the number of selected in-domain sentences?",
+   "answer_free_form": "The authors state that the number of training sentences is chosen based on performance on the held-out data in the caption for Table 2. The held-out data (dev size) is indicated in Table 1.",
+   "retrieval_evidence": [
+    "Table 2 : Summary of the results .",
+    "Data size is given as number of sentence pairs .",
+    "The number of selected in-domain sentences is determined by the performance on held-out data .",
+    "“ M ” represents million , “ K ” represents thousand"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/561",
+   "question_id": "d07dca8f8e126c43dacdaf145ec4103ef25400f5",
+   "question": "What would be the impact of not having access to pre-trained embeddings on the performance of this method?",
+   "answer_free_form": "Performance decreases by about 1% on the CoNLL 2003 NER task, and by 1.4% on the CoNLL 2000 Chunking task when removing pretrained language model embeddings.",
+   "retrieval_evidence": [
+    "Our main contribution is to show that the context sensitive representation captured in the LM embeddings is useful in the supervised sequence tagging setting . When we include the LM embeddings in our system overall performance increases from 90.87% to 91.93% F1 for the CoNLL 2003 NER task , a more then 1% absolute F1 increase , and a substantial improvement over the previous state of the art .",
+    "We also establish a new state of the art result ( 96.37% F1 ) for the CoNLL 2000 Chunking task .",
+    "Importantly , the LM embeddings amounts to an average absolute improvement of 1.06 and 1.37 F1 in the NER and Chunking tasks ,",
+    "Our baseline without LM 90.87 ± 0.13 TagLM 91.93 ± 0.19",
+    "Our baseline without LM 95.00 ± 0.08 TagLM 96.37 ± 0.05"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "d116c7fcf72b4f8bfc56c2d3d370838e2909dbd2",
+   "question": "What are the thickness and cell size of the domain in the mesh used for the model?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We use a onedimensional model column with a domain depth of 100 m ( e.g . Westermann et al . , 2016 ; Schmidt et al . , 2021 ) and grid cell sizes increasing with depth ( Fig . 2 ) .",
+    "Figure 2 .",
+    "Schematic of the model grid , indicating cell sizes at different depths and upper and lower boundary conditions .",
+    "As an upper boundary condition , the surface energy balance ( SEB ) forced by near-surface meteorological data is used .",
+    "The lower boundary condition is provided by a constant geothermal heat flux , Qgeo"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "f0628ce3da13acc0dca5b2831a44218e9fcda52a",
+   "question": "What specific effects of wind on the snowpack are included in the model, given that wind drift is mentioned but the redistribution of snow by wind is represented using the snowfall factor?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The snow model used in this study was introduced by Zweigel et al . ( 2021 ) and is based on the Crocus snow scheme ( Vionnet et al . , 2012 ) , which accounts for snow microphysics and is designed to reproduce a realistic snowpack structure ( see Vionnet et al . , 2012 , for defining equations and Zweigel et al . , 2021 , for implementation in CryoGrid ) .",
+    "Snowfall is added with density and microphysical properties derived from model forcing data , in particular air temperature and wind speed .",
+    "The snow density evolves due to compaction by the overburden pressure of overlying snow layers , as well as wind compaction and refreezing of meltand rainwater ( Vionnet et al . , 2012 ) .",
+    "The amount of snowfall from the forcing data can be adjusted by a so-called snowfall factor ( sf ) , with which the snowfall rate from the model forcing is multiplied .",
+    "With this , the effects of wind-induced snow redistribution on ground temperatures can be represented at least phenomenologically ( Martin et al . , 2019 ) , using sf < 1 for areas with net snow ablation and sf > 1 for areas with net deposition ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "39b0b51062706eb6424a4115088dcee05de45183",
+   "question": "Is the forcing data for the two sites downloaded and downscaled separately, resulting in two distinct series of data?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "ERA5 output is provided as interpolated point values on a regular latitude–longitude grid at a resolution of 0.25 ◦ at an hourly frequency , both at the surface level , corresponding to Earth ’ s surface as represented in the reanalysis , and at 37 pressure levels in the atmosphere from 1000 to 1 hPa .",
+    "We obtained data for the entire reanalysis period , from 1951 to 2019 , and converted this into a moving 3hourly average , which is the temporal resolution that the model is run at"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "d756c534f9d6dbb409a3d2f47dbebc8ef83b291c",
+   "question": "What is the time resolution of the forcing data used in the study, specifically, is it daily?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "ERA5 output is provided as interpolated point values on a regular latitude–longitude grid at a resolution of 0.25 ◦ at an hourly frequency , both at the surface level , corresponding to Earth ’ s surface as represented in the reanalysis , and at 37 pressure levels in the atmosphere from 1000 to 1 hPa ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "14a1430828aadefa84e1b1ce027c45adc66ed369",
+   "question": "What is the source of the hydraulic conductivity (kh) values used in the study?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "in well-drained conditions , which are typical in sloping terrain .",
+    "For the saturated hydraulic conductivity KH , a fixed value of 10 − 5 ms −"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "587b947b50e65e3caa8174633245ab39edbdb0f0",
+   "question": "Did the authors conduct analyses using detrended data to isolate the effect of the temperature increase?",
+   "answer_free_form": "No, we did not (as it did not comply with the aim of the study)",
+   "retrieval_evidence": [
+    "The ERA5 reanalysis dataset allows us to simulate the evolution of the ground thermal regime and ground ice content from 1951 to 2019 , during which mean air temperatures increased from − 4.5 ◦ C ( 1951 – 1960 ) to − 3.8 ◦ C ( 2010 – 2019 ) for Juvvasshøe and from 0.5 ◦ C ( 1951 – 1960 ) to 1.2 ◦ C ( 2010 – 2019 ) at Ivarsfjorden"
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "caf7df11e9d765886f69925e1c3af86ef5a57f3f",
+   "question": "What type of soil retention curve was used in the study?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "For soil hydrology , a gravity-driven bucket scheme is used ( Westermann et al . , 2022 ) .",
+    "Rainfall provided by the model forcing is added to the uppermost grid cell , while evaporation is determined by the surface energy balance calculations ( note that we consider unvegetated surfaces and thus do not account for transpiration ) .",
+    "capacity infiltrates downwards until either the water table or a non-permeable layer , such as a frozen grid cell , is reached .",
+    "If all grid cells are saturated , excess water is removed as surface runoff .",
+    "We use a one-dimensional model set-up but simulate lateral drainage of water by introducing a seepage face , i.e ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-33-2023",
+   "question_id": "d8a50cdb65ed8748d21f38c329ba009a97073bb4",
+   "question": "How sensitive are the study's results to variations in hydraulic conductivity?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "To investigate the effect of subsurface drainage on ground temperatures and ground ice conditions , we distinguish undrained and drained scenarios by using two different values of d lat ( Eq . 1 ) for the idealized stratigraphies .",
+    "A d lat value of 104 m is used for undrained cases , which emulates conditions at a flat surface , resulting in a good approximation of one-dimensional water balance , where only surface water is removed .",
+    "For the drained cases , a d lat value of 1 m is used , which results in well-drained conditions , which are typical in sloping terrain .",
+    "For the saturated hydraulic conductivity KH , a fixed value of 10 − 5 ms − 1 is used for all stratigraphies , although the true hydraulic conductivities almost certainly differ between stratigraphies .",
+    "However , the key parameter controlling lateral water fluxes in Eq . ( 1 ) is in reality the “ drainage timescale ” KH / d lat ( s − 1 ) , which is varied by 4 orders of magnitude between KH / d lat = 10 − 5 s − 1 ( d lat = 1 m , well-drained conditions ) and KH / d lat = 10 − 9 s − 1 ( d lat = 104 m , undrained conditions ) .",
+    "As the study set-up is designed to analyse these two “ confining cases ” , it is sufficient to only vary d lat and leave KH constant for simplicity .",
+    "Further sensitivity tests for d lat and KH are provided in Table S2"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/eeda0f4ff6c7aef2647481ec15f8ade5a9b32ec32b643e6918a0b8d0ffa1ba44a3f2b9171ba4ba44d5c0faf3199e3bc5f0f740ee31cf48cb966493a96f35ca71",
+   "question_id": "1818a27b73310c09fb736d5e044187417bda0dbc",
+   "question": "Do the experts who annotated the dataset have expertise in linguistics or in the domain of the dataset?",
+   "answer_free_form": "Not directly. One annotator has a linguistics background, two others have a computer science background.",
+   "retrieval_evidence": [
+    "Female annotator is a professional annotator with a background in Linguistics and the two males with a background in Computer Science ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/eeda0f4ff6c7aef2647481ec15f8ade5a9b32ec32b643e6918a0b8d0ffa1ba44a3f2b9171ba4ba44d5c0faf3199e3bc5f0f740ee31cf48cb966493a96f35ca71",
+   "question_id": "83065c1670e7bbe6476efd1959f21480a4f3bf69",
+   "question": "What is the distinction between \"skill\", \"knowledge\" and \"attitude\" in this work?",
+   "answer_free_form": "\"knowledge\" is something you can learn, with \"skill\" you should be able to apply your learned knowledge. \"Attitude\" are better known as soft skills.",
+   "retrieval_evidence": [
+    "hard skills are usually referred to as knowledge components , and applying these hard skills to something is considered a skill component .",
+    "Then , soft skills are referred to as attitudes , these are part of skill components ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-849-2023",
+   "question_id": "5c790742a803e76547d117cf4a77434d1737b5b1",
+   "question": "What factors, besides temperature and precipitation, could influence the distribution of glaciers in a given area?",
+   "answer_free_form": "There are several factors we consider in the paper and noted above. Basically, precipitation has to be converted to glacier accumulation and you need to account for mass loss.  Not all precipitation will become glacier mass -- some may blow away or run off. We use temperature to drive mass loss, but it is more complicated than that since additional factors (like humidity) control the efficiency of melting.",
+   "retrieval_evidence": [
+    "In our model , we have neglected other spatially variable surface processes that could have influenced the extent of the Elwha glacier .",
+    "Specifically , we did not account for the separate influences that precipitation type , cloudiness , humidity , and sublimation would have on glacier accumulation and melt .",
+    "Rain will not contribute to glacier mass gain .",
+    "If a significant portion of the precipitation falls as rain , then we are overestimating accumulation .",
+    "Cloudiness modulates the amount of solar radiation that reaches a glacier ’ s surface .",
+    "If the Elwha valley is less cloudy than the Quinault valley , then we expect that more solar radiation would increase local air temperatures and enhance glacier melt ( Huss et al . , 2009 ) .",
+    "Additionally , there could be spatial patterns in humidity that influence glacier mass balance .",
+    "If the Elwha valley is systematically less humid , we expect that the lapse rate should be larger than in the wetter Quinault valley .",
+    "Descending airflow in the lee of the mountain range could decrease humidity and increase lapse rate in the Elwha valley relative to the Quinault .",
+    "Additionally , a more sophisticated glacier model could be used for twodimensional simulations that would depict the valley geometry more specifically and include two-dimensional spatial variability in precipitation and aspect-related melting .",
+    "Our flowline model captures the variability in the direction of the steepest precipitation gradients but neglects variability across the valleys that may be important , especially for spatially variable drivers of ablation , such as topographic shading ."
+   ]
+  },
+  {
+   "paper_id": "egu/esurf/11-849-2023",
+   "question_id": "cfbd6962220a29ddfda999443b628e02ebd2d79b",
+   "question": "Does the orientation of the grid, with potentially more north-facing slopes in the Elwha area than in the Quinault area, affect the absorption of solar radiation, thereby influencing glacier distribution?",
+   "answer_free_form": "We do not include topographic shading as a factor influencing melting in the model - so the answer to this question is no - not in our model.  In the real world, the north-facing slopes of the Elwha headwaters may have been important in the mass balance of past glaciers.",
+   "retrieval_evidence": [
+    "Our flowline model captures the variability in the direction of the steepest precipitation gradients but neglects variability across the valleys that may be important , especially for spatially variable drivers of ablation , such as topographic shading ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/026fbeb69144bca95d6df70934fd608871855c30486e1a88714ee1343574663f55216ee356d90a1e5110be0a86ec6b9e1f515149abe73c645caaf05409af7731",
+   "question_id": "83530bafc1c5be644377cb397e6cd677c2461435",
+   "question": "What are the comparative performance results of the proposed augmentation method compared to other baselines with more training data?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "To the best of our knowledge , this is the first method to improve a variety of mainstream data augmentation methods .",
+    "Moreover , we are pleased to find that text smoothing can be well combined with various data augmentation methods , further improving the baseline data augmentation methods .",
+    "As shown in Table3 , text smoothing can bring significant improvements of 5.98% , 2.79% , 2.39% , 2.92% , 2.17% , 6.48% , 3.21% , 3.03% to EDA , BackTrans , CBERT , BERTexpand , BERTprepend , GPT2context , BARTword , and BARTspan , respectively ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/026fbeb69144bca95d6df70934fd608871855c30486e1a88714ee1343574663f55216ee356d90a1e5110be0a86ec6b9e1f515149abe73c645caaf05409af7731",
+   "question_id": "2232dbbc8cc84a0ea37abeaeb5623b33ebf821e2",
+   "question": "What is the setting for the number of augmented samples generated for each original sample in the proposed method?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    ". Considering that the amount of data increases to 2 times after combination , we expand the data used in the baseline experiments to the same amount for the fairness of comparison ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-1261-2023",
+   "question_id": "916923a8909ab06632f575b7f36db3ac70642419",
+   "question": "What are the relative sizes of the mixing efficiencies, kappa(m) and kappa(v)?",
+   "answer_free_form": "In order to be more informative, we will add one more column to Table 1 in the revised version, which will present the maximum of \\kappa_v in relation to \\kappa_m for each of wave cases. For example for the first case (kh = 0.5, Ak = 0.0125) max(\\kappa_v) is approx. 16 times lower than \\kappa_m, while for the last case (kh = 2.0, Ak = 0.2) max(\\kappa_v) is approx. 2000 times larger.",
+   "retrieval_evidence": [
+    "A summary of wave parameters is provided in Table 1 together with wave-induced diffusivity values at the surface in relation to its molecular counterpart",
+    "Basic dimensionless parameters of mechanically generated regular waves .",
+    "Depth Height–depth Steepness Wave-induced Ursell parameter ratio parameter diffusivity number kh H / h Ak κv ( 0 ) / κm HL2 / h3 0.5 0.05 0.0125 0.36 7.9 0.5 0.1 0.025 2.91 15.8 0.5 0.2 0.05 23.3 31.6 1 0.05 0.025 0.8 1.97 1 0.1 0.05 6.4 3.95 1 0.2 0.1 51.3 7.9 2 0.05 0.05 2.01 0.49 2 0.1 0.1 16.1 0.99 2 0.2 0.2 128.9 1.97"
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-1261-2023",
+   "question_id": "27642536b6affc6438fc0e5a5b2ce6b2d5208309",
+   "question": "Does this study apply to nearshore, offshore, or both environments, considering the parameters given appear to be mostly relevant for surfzone dynamics?",
+   "answer_free_form": "The model may be applied to deep-water as well as shallow water conditions, which was already presented in (Sulisz and Paprota, 2015, Math. Probl. Eng.). Here, we present the cases corresponding to kh = 0.5 … 2.0 for two reasons. First of all we want to directly compare the cases presented in the previous work (Sulisz and Paprota, 2019, Ocean Engineering, 194, 106622), in which only weakly-nonlinear model was presented to showcase differences and importance of including higher-order terms (strong nonlinearity). The second issue is that in an analysed region, for deep-water cases corresponding to kh = \\pi, the mixing would completely swept away the hotter water from the domain.",
+   "retrieval_evidence": [
+    "This method allows modelling of non-breaking waves with strong nonlinearities and admits amplitude dispersion , nonlinear wave–wave interactions in deep and intermediate waters , and solitary wave propagation , which go beyond the applicability of weakly nonlinear approaches .",
+    "It should be noted that the model may be applied to deepwater as well as shallow-water conditions , which are presented in the work of Sulisz and Paprota ( 2015 ) .",
+    "Here , the cases correspond to a limited range of kh from 0.5 to 2.0 .",
+    "In this way , the results from the previous work ( Sulisz and Paprota , 2019 ) may be directly compared .",
+    "Moreover , for deepwater conditions corresponding to kh > π , the mixing would completely sweep away the warmer water from the analysed part of the fluid domain for the selected time frame , and this case was omitted in the present study ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-1261-2023",
+   "question_id": "130985a6f0c94e81204c5a5014faa6017dc2a328",
+   "question": "Is the problem under investigation genuinely nonlinear, or does it pertain more accurately to a weakly nonlinear context?",
+   "answer_free_form": "The problem is truly nonlinear, while we solve Laplace equation with nonlinear boundary conditions more accurately and beyond the applicability of weakly-nonlinear approaches. Our higher-order method allows modelling of waves with strong nonlinearity indicated by a high value of Ursell parameter.",
+   "retrieval_evidence": [
+    "The improvements cover the more exact calculations of the wave velocity field using a fully nonPublished by Copernicus Publications on behalf of the European Geosciences Union . 1262 M .",
+    "This method allows modelling of non-breaking waves with strong nonlinearities and admits amplitude dispersion , nonlinear wave–wave interactions in deep and intermediate waters , and solitary wave propagation , which go beyond the applicability of weakly nonlinear approaches .",
+    "The model belongs to a family of wave solutions based on a pseudo-spectral approach , which consider highly nonlinear non-breaking waves and originate from methods derived by Dommermuth and Yue ( 1987 ) and West et al . ( 1987 ) ( see also Paprota and Sulisz , 2019 , for a review ) .",
+    "Fully nonlinear solution An alternative approach , which admits higher-order wave components , is based on the spectral method applied to the wavemaker problem ( Paprota and Sulisz , 2018 ) ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-835-2023",
+   "question_id": "38fd5c934ea22bcbd89cb660fa062dde0c388b4a",
+   "question": "Do you calculate both radiative forcing and effective radiative forcing, including adjustments, for aerosol-cloud interaction and aerosol-radiation interaction?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "To quantify the climate impacts we apply the well-known RF metric ( Ramaswamy et al . , 2019 ) .",
+    "More specifically , the climate impact of the transport sectors is estimated as the difference in the radiative fluxes between a reference and a sensitivity simulation , the latter completely neglecting the emissions of the given sector ( see also Sect . 2 ) .",
+    "Given that we are using an aerosol–cloud coupled model , the radiative fluxes and the resulting forcings calculated here explicitly consider the impact of cloud adjustments ; hence the RF values presented in the following can be regarded as effective radiative forcings ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-835-2023",
+   "question_id": "119de3a4efede0edf897a3283fcc2548feeab094",
+   "question": "How will the relative contribution of the transport sector to the atmospheric black carbon (BC) burden change when the total atmospheric BC load varies significantly during heavy forest fire conditions?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "On the other hand , the representation of the aerosol concentration background in the model can play a significant role in characterizing the impact of the perturbation introduced by the emissions of the specific sectors .",
+    "This is particularly the case when analysing the scenario projections , as the potential reduction in the emissions for a given sector needs to be set in the context of the emission changes in other sectors .",
+    "Policy measures cannot therefore be evaluated only focusing on a single sector but have to be considered as part of a larger picture .",
+    "The representation of the background is also a modelling challenge , and our results suggest that an accurate representation of the aerosol background concentrations is important and can significantly affect the estimated impacts , as is clear when comparing the outcome of the present study with the results of the previous assessment obtained with a predecessor version of the same model .",
+    "The prominent role of the background has further consequences for the development and application of climate response models ( e.g ."
+   ]
+  },
+  {
+   "paper_id": "egu/esd/14-835-2023",
+   "question_id": "62c4850291b8bbec583b5c791f8ac5f978915eb1",
+   "question": "Which specific fleet is being referred to in the context of the reduction measures discussed?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "the land transport fleet"
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1367",
+   "question_id": "e7cb5933a3df86f543cb36cb77b3f41cd7ad4021",
+   "question": "What advantages does a rule-based approach have over statistical or neural methods when working with small corpora for indigenous languages?",
+   "answer_free_form": "Rule-based approaches have an advantage over statistical or neural approaches when sufficient training data is lacking, which is typically the case for low-resource languages.",
+   "retrieval_evidence": [
+    "Rule-based approaches may seem outdated in contrast to statistical or neural methods .",
+    "However , with most Indigenous languages , existing corpora are not large enough to produce accurate statistical models ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/27046f6633d116b03e48eb94976921b46a86a976ddd2199ef76c90820a95e0d85406daa5ebc9d7b12359157d20f3bd0025e1cbc2c126bb2506f5e83e93f435b5",
+   "question_id": "cf91a671c7d2248b716cf143ff64e032fed4681e",
+   "question": "What impact does the layer norm approximation have on the performance of the tasks discussed in the paper?",
+   "answer_free_form": "Layernorm approximation may lead to attention overflow, which dramastically affect the performance of downstream tasks",
+   "retrieval_evidence": [
+    "Another challenge of THE-X is the attention score input of layer normalization .",
+    "In most cases , the scale of multi-head attention output is very dense around [ − 1 , 1 ] .",
+    "However , before normalization , we also observe the attention scores are scarily sparse , with some extreme values reaching 1e4 , which is difficult for our LN-distill stage .",
+    "To prevent the overflow attention scores , we use the weight decay of Adam optimizer as regularization ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/F1000-22/10-170",
+   "question_id": "413aa7a24c99874e0aae31b569348cc6c4e39b14",
+   "question": "What recommendations can be made based on the views expressed on coordination, preparation, and decision-makers?",
+   "answer_free_form": "To align with the sequence of the sections in the paper, the question may be slightly revised as 'What recommendations can be made based on the views expressed on preparation, coordination, and actions taken by the decision-makers?'",
+   "retrieval_evidence": [
+    "We recommend increased budgetary allocation and efficiency , along with targeted policy approaches to address these constraints .",
+    "We recommend a science-based professional response involving relevant experts such as public health professionals , infectious disease epidemiologists , health policy and systems experts , medical anthropologists , health economists , health communication experts , laboratory scientists , and relevant clinicians .",
+    "In the long run , a dedicated public health career track , which is currently absent in the Bangladeshi health sector , must be",
+    "We believe , involving the right kind of professionals will solve most of the incoordination , but special attention and consideration should be given in favor of multisectoral collaboration .",
+    "The collaboration and coordination should be extended to the religious leaders , cultural activists , for-profit private sector , non-governmental organizations , political parties , and the most important , the community groups and individuals ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/43e8458544e18304f6aa2c1aededf974877f088dd2ccd7d53ef71eb59e54567c0572f715ecdcbaf04c39206950c3f5628198e61ebc5ec09fa1ba0a559102f923",
+   "question_id": "b4885c9ebb178f8daa578cef0c857a1de41d8d54",
+   "question": "What is the relationship between the location of conferences and diversity of participation in NLP research?",
+   "answer_free_form": "Since researchers are eager to participate in conferences organised in their neighbourhood, the diversity of participation in NLP research is directly related to the diversity of conference locations.",
+   "retrieval_evidence": [
+    "We show how the trade-off between carbon cost and diversity of an event depends on its location and type .",
+    "We hypothesise that series of events occurring in different locations have the benefit of encouraging local researchers to attend , increasing the diversity of participation .",
+    "Knowing that each event generates diversity by encouraging researchers from the nearby countries to participate , we can now measure how well this effect works for different conferences .",
+    "It might be expected that achieving high diversity comes at a cost of longer journeys .",
+    "We verify this by plotting the diversity of in-person events against travel distance ( average per publication ) in Figure 8 .",
+    "Most events are indeed arranged along an upward direction , but some do not belong to that trend .",
+    "For example , we can see that EACL conferences deliver more diversity than others for the same travel distance .",
+    "Some ACL meetings10 , on the contrary , are associated with very long travel and not so much diversity .",
+    "LREC events are clear outliers here , since they have by far the highest diversity for low distances .",
+    "The dashed line corresponding to the diversity index of journals indicates that the diversity observed in many in-person events is much higher .",
+    "Note that the online conferences are not included in this analysis , since their format was often unclear to authors in the moment of submission .",
+    "Holding conferences across the globe allows researchers from diverse locations to attend an event without flying as far as in a scenario where all conferences were located in one region ( as was the case in the early days of the ACL conferences ) .",
+    "Holding conferences in different locations will only lead to increased diversity if these events are advertised to and attended by a majority of people from the region they are held in ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/818",
+   "question_id": "2f2f032a41170e9076b11476d1a5db33c693141b",
+   "question": "How did you decide which action verbs to select?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "We pick 50 classes of Levin verbs from both “ alternation classes ” and “ verb classes ” ( Levin , 1993 ) , which corresponds to about 1100 unique verbs .",
+    "We sort this list by frequency of occurrence in our frame patterns in the Google Syntax Ngrams corpus ( Goldberg and Orwant , 2013 ) and pick the top 100 verbs ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/818",
+   "question_id": "7603a58573eeaabda0e22ca42e407dd44c83bd3e",
+   "question": "What are \"action frames\"?",
+   "answer_free_form": "Random variables that associate a syntactic pattern with an implication about the real-world relations between two arguments.",
+   "retrieval_evidence": [
+    "Figure 2",
+    "The above definition assumes that there is only a single implication relation for any given verb with respect to a specific knowledge dimension .",
+    "This is generally not true , since a verb , especially a common action verb , can often invoke a number of different frames according to frame semantics ( Fillmore , 1976 ) .",
+    "Thus , given a number of different frame relations v1 . . .",
+    "We use this notation going forward ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/818",
+   "question_id": "6de0c620431f72ce5a6331d7dde1b8df91e24936",
+   "question": "What criteria do you use to determine which knowledge dimensions to annotate for each frame?",
+   "answer_free_form": "We annotate all dimensions for each frame, but discard those determined to lack significance.",
+   "retrieval_evidence": [
+    "After removing frame / attribute combinations and object pairs that received less than 2 / 3 agreement , or were selected by at least 2 / 3 workers to have no relation , we end up with roughly 400 – 600 usable frames and 2100 – 2500 usable object pairs per attribute ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/818",
+   "question_id": "92b04f60c27edb89dcdc8dcd575bcb9872f0e307",
+   "question": "Are the incorrectly-classified actions/objects ambiguous for humans?",
+   "answer_free_form": "Yes",
+   "retrieval_evidence": [
+    "Example 7 highlights an underspecified frame .",
+    "One crowd worker provided the example , “ PERSON stopped the fly with { the jar / a swatter } , ” where fly < weight { jar , swatter } ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/818",
+   "question_id": "736606d36d72227a7f9c8fc8dd277f578873590c",
+   "question": "What factors contribute to the model's mistakes?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "Figure 4",
+    "Example 7 highlights an underspecified frame",
+    "This example illustrates complex underlying physics we do not model : a brake—the pedal itself—is used to stop a car , but it does so by applying significant force through a separate system .",
+    "Example 10 demonstrates a case of polysemy where the model picks the wrong side ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/b94a77b25cea79056553cf9dc3c5b714410344acb0f1cf0f5eb4ff2402b61bfa005313d5e2d103aedaff9b4d1fdeadd9799df73921794d6093799ec80fbb13c1",
+   "question_id": "f93968140cd136a68ce07f696c16560746f63a87",
+   "question": "What is the conclusion reached regarding the comparison of words and morphemes?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "These preliminary results suggest that considering only one type of boundary is a too naive view of the segmentation process and does not allow us to fully benefit from annotated data .",
+    "They call for models that would carefully distinguish boundaries within words and between words , with appropriate supervision for each of these levels ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/PeerRead-ACL2017/496",
+   "question_id": "3dcb179b38dc273c0db3cf0b4513c5aa409210b2",
+   "question": "Do separate objectives need to be used to govern the encoder and decoder modules of the NMT model?",
+   "answer_free_form": null,
+   "retrieval_evidence": [
+    "The classifier is trained with a cross-entropy loss ;",
+    ". We feed ENCi ( s ) to a neural classifier that is trained to predict POS or morphological tags and evaluate the quality of the representation based on our ability to train a good classifier .",
+    "We follow a similar procedure for analyzing representation learning in DEC ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/ARR-22/12ea2851de6445bf343d642c6ccc8640bf7a6c28b5f20ba123d6d58f02790c7c7f8ab696e6a6b4e45bfad28bd4bc0419bdcf6358693404dd0c14d202b291503b",
+   "question_id": "da72c5aada0a4b421a7919d5ef2739ddb658ae5e",
+   "question": "How many samples were used to generate the results in Table 2?",
+   "answer_free_form": "MBR uses 100 samples, random sampling is only one sample per sentence",
+   "retrieval_evidence": [
+    "Further , we compare length-normalized beam search decoding with MBR ( with 100 samples ) , greedy decoding , and random sampling ."
+   ]
+  },
+  {
+   "paper_id": "nlpeer/COLING2020/1886",
+   "question_id": "b79e294382978a8a9cebe595211529bcb653e0f2",
+   "question": "How are the topics for n-grams chosen?",
+   "answer_free_form": "The topics of the returned n-grams are defined using Emapth Lexicon.",
+   "retrieval_evidence": [
+    "11We detect the topic using the Empath lexicon ( Fast et al . , 2016 ) , and use the LIWC lexicon ( Pennebaker et al . , 2001 ) to detect function words ."
+   ]
+  }
+ ]
+}

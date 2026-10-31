@@ -1,0 +1,44 @@
+{
+  "amendment_to": "reports/revalidation/protocol/rq5_rq6.json RQ6_template (frozen pre-Gate-B)",
+  "date": "2026-10-31",
+  "recorded_before": "any RQ6 run; C-INT has no exposure event beyond its planned registration",
+  "user_decisions": {
+    "2026-10-30 extra LLM": "phi4-mini is added as an EXTRA RQ6 condition (EXT-RQ5-LLM: it and qwen2.5:1.5b both passed; the user chose phi4-mini). It never replaces the production default.",
+    "2026-10-30 PeerQA": "the PeerQA arm runs on all RQ6 LLMs (llama3.2:3b, qwen2.5:0.5b, phi4-mini) instead of 3b only",
+    "2026-10-30 human review": "enlarged from 40 to 102 answers",
+    "2026-10-30 combination test": "the NEW system is the winner of COMBO stage 2 (protocol combo_test.json); LEGACY stays the previous production configuration (pymupdf_layout + hierarchical + e5-small-v2 + rrf_legacy + gate 0.80)",
+    "2026-10-30 chunker": "the teammate's chunkers.py rewrite is NOT merged before RQ6; the current chunker is used",
+    "2026-10-30 ResearchQA": "not added to RQ6: it is multi-paper citation retrieval over title stubs, not single-paper QA"
+  },
+  "conditions": {
+    "C-INT (100 papers / 200 q)": [
+      "NEW x llama3.2:3b", "LEGACY x llama3.2:3b", "GOLD x llama3.2:3b",
+      "NEW x qwen2.5:0.5b", "LEGACY x qwen2.5:0.5b", "GOLD x qwen2.5:0.5b",
+      "NEW x phi4-mini", "GOLD x phi4-mini"
+    ],
+    "PEERQA-PDF (107 papers / 288 q)": [
+      "NEW x llama3.2:3b", "GOLD x llama3.2:3b",
+      "NEW x qwen2.5:0.5b", "GOLD x qwen2.5:0.5b",
+      "NEW x phi4-mini", "GOLD x phi4-mini"
+    ],
+    "if the stage-2 winner uses an LLM other than llama3.2:3b": "that LLM's NEW, LEGACY and GOLD conditions are added on C-INT, and the primary family uses it in place of llama3.2:3b (NEW x winner-LLM vs GOLD x winner-LLM; NEW x winner-LLM vs LEGACY x llama3.2:3b). Recorded in the filled rq6_config.json before running."
+  },
+  "primary_family_unchanged": "C-INT: (a) NEW vs GOLD (retrieval loss), (b) NEW vs LEGACY; Holm m=2; SESOI 0.05; Token F1 over all questions, refusals 0. If NEW equals LEGACY: (b) reported as 'no change adopted', Holm m=1.",
+  "descriptive": "phi4-mini and qwen2.5:0.5b pairs (NEW vs GOLD) and all PeerQA comparisons; never part of the confirmatory family",
+  "peerqa_scoring": {
+    "primary": "Token F1 against the authors' free-form answer, only on the 181 questions that have one (107 of 288 have none)",
+    "sensitivity": "Token F1 against PeerQA's released generated answers (qa-augmented-answers.jsonl), all 288 questions; labelled LLM-written references",
+    "retrieval_measures": "CEC and context tokens on all 288 questions",
+    "check": "the README does not describe how the augmented answers were made; this is stated as a limitation"
+  },
+  "human_review": {
+    "answers": 102,
+    "design": "34 C-INT questions x 3 NEW conditions (one per RQ6 LLM: llama3.2:3b, qwen2.5:0.5b, phi4-mini); questions drawn with seed 42 stratified by question type, after the run, before anyone reads the answers",
+    "blinding": "model and system labels hidden; answer order shuffled with seed 42; three sheets, one answer per question each, completed in separate sittings; mapping kept in a restricted file; reattribution by exact answer text (as in the RQ5 correction)",
+    "labels": "the 6-label RQ5 rubric (SUPPORTED, PARTIAL, UNSUPPORTED, CONTRADICTED, REFUSAL_VALID, UNJUSTIFIED_REFUSAL)",
+    "second_reviewer": "20 of the 102 (seeded), if a group member is available; otherwise reported as single-reviewer",
+    "agreement": "raw percent agreement; Cohen kappa on 6 labels (unstable at n=20); kappa on supported vs not supported"
+  },
+  "harness": "eval/phases/phase_11_integrated/scripts/rq6_integrated.py (hashed with the filled rq6_config.json before running)",
+  "still_open": "the NEW system (COMBO stage-2 winner); filled into rq6_config.json and hashed before RQ6"
+}

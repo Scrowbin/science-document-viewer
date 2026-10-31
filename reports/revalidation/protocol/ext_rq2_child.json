@@ -1,0 +1,20 @@
+{
+  "experiment": "EXP-REVAL-EXT-RQ2-CHILD",
+  "type": "extension (post-Gate-B, from CANDIDATE_SELECTION_AUDIT.md; user authorised justified additions 2026-10-30)",
+  "rationale": "Hierarchical vs flat strategies mixes unit size with parent expansion; a children-only control on identical children and vectors isolates the small-to-big expansion effect.",
+  "cohort": "C-RET (selection). Never C-INT.",
+  "pipeline": "pymupdf_layout -> hierarchical 200/40 children -> intfloat/e5-small-v2 dense ranking (shared vector cache with RQ2-v2/RQ4-v2) -> assembly.",
+  "arms": {
+    "hierarchical": "production assembly: deduplicated parents in rank order, +-200-word windowing for parents > 800 tokens, 1,600 est. tokens, <= 5 units",
+    "children_only": "the same ranked children assembled as flat units, 1,600 est. tokens, <= 5 units, no parent expansion"
+  },
+  "primary": "CEC@0.5, children_only vs hierarchical, single comparison, paper-cluster paired bootstrap B=10,000 seed 42",
+  "secondary": "CEC at tau 0.3 and 0.7, context tokens, units per context; nDCG@10 reported per arm but not compared (relevance units differ: children vs parents)",
+  "metric_note": "CEC is primary here regardless of the RQ2-v2 CEC fallback rule, because nDCG is not comparable across these arms. If the 30-case CEC check falls below 80% agreement, this result is reported with that caveat.",
+  "decision_rule": "Descriptive only; never adopted (it would remove parent expansion). It informs the wording of the RQ2 conclusion only.",
+  "caveat": "children_only contexts are smaller (<= 5 children of ~200 tokens), so the difference is the combined effect of expansion and the extra context it supplies, which is what small-to-big means in production.",
+  "timing": "Runs together with RQ2-v2, after the CEC labels and the 80% rule.",
+  "precision_rule": "Planned CI half-width as RQ2 (~0.035). If observed is larger: report and propose, do not expand.",
+  "script": "eval/phases/phase_2_chunking/scripts/rq2ext_children.py",
+  "output": "eval/phases/phase_2_chunking/artifacts/rq2_ext_children/"
+}

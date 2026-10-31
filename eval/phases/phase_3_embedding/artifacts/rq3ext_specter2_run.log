@@ -1,0 +1,12 @@
+There are adapters available but none are activated for the forward pass.
+MuPDF error: syntax error: unknown keyword: 'pagesize'
+
+MuPDF error: syntax error: unknown keyword: 'width'
+
+MuPDF error: syntax error: unknown keyword: '597.50787pt'
+
+MuPDF error: syntax error: unknown keyword: 'height'
+
+MuPDF error: syntax error: unknown keyword: '845.04684pt'
+
+{'papers': 150, 'questions': 249, 'decision': 'keep intfloat/e5-small-v2'}

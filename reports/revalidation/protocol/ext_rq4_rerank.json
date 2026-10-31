@@ -1,0 +1,19 @@
+{
+  "experiment": "EXP-REVAL-EXT-RQ4-RERANK",
+  "type": "extension (post-Gate-B, from CANDIDATE_SELECTION_AUDIT.md; user authorised justified additions 2026-10-30)",
+  "rationale": "Second-stage cross-encoder reranking is a different retrieval technique from first-stage fusion and was never tested (thesis lists it as future work, 6.3.2). Without it the RQ4 conclusion is limited to fusion choice.",
+  "cohort": "C-RET (selection). Never C-INT.",
+  "pipeline": "Identical to RQ4-v2: pymupdf_layout -> hierarchical 200/40 -> intfloat/e5-small-v2 (shared vector cache) -> ranking -> production context assembly (1,600 est. tokens, <= 5 parents, +-200-word windowing for parents > 800 tokens).",
+  "arms": {
+    "dense": "RQ4-v2 baseline arm (production dense branch)",
+    "rerank_minilm": "dense top-30 children re-scored by cross-encoder/ms-marco-MiniLM-L6-v2 (22.7M, Apache-2.0)",
+    "rerank_bge": "dense top-30 children re-scored by BAAI/bge-reranker-base (278M, MIT; licence re-checked on the model card at download, dropped if not MIT/Apache)"
+  },
+  "details": "Children beyond the top 30 keep dense order after the reranked block; input = (question, child text exactly as embedded), max_length 512, batch 32, CPU.",
+  "primary": "budgeted nDCG@10, each reranker vs dense, paper-cluster paired bootstrap B=10,000 seed 42, Holm m=2",
+  "secondary": "CEC at tau 0.3/0.5/0.7, context tokens, rerank latency P50/P95 (added per query), peak working set",
+  "decision_rule": "Adopt only if diff >= +0.02 and CI lower bound > 0 and Holm p < 0.05 AND P95 added rerank latency <= 1,000 ms per query on this CPU (interactive-chat usability bound, fixed before running). If both pass: lower P95 latency. Otherwise production keeps the RQ4-v2 decision.",
+  "precision_rule": "Planned CI half-width as RQ4 (0.016). If observed is larger: report and propose, do not expand.",
+  "script": "eval/phases/phase_6_hybrid_retrieval/scripts/rq4ext_rerank.py",
+  "output": "eval/phases/phase_6_hybrid_retrieval/artifacts/rq4_ext_rerank/"
+}

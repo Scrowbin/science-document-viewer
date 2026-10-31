@@ -35,11 +35,18 @@ def load_registry(registry_path: Path = REGISTRY_PATH) -> Dict[str, Any]:
 def audit_cohort(
     paper_ids: List[str],
     registry: Dict[str, Any],
-    question_ids: List[str] = None
+    question_ids: List[str] = None,
+    exclude_experiments: tuple = (),
 ) -> Dict[str, Any]:
     """
     Audit a list of paper IDs and optional question IDs against the registry.
     Returns detailed exposure breakdown, per-item audit logs, and pass/fail verdict.
+
+    exclude_experiments: experiment IDs whose events are ignored. Use it only to audit a
+    cohort against everything *except* the experiment that cohort belongs to (e.g.
+    reproducing the RQ5 pre-run audit with --exclude-experiment EXP-RQ5-MAIN-SAMPLED).
+    Until 2026-10-29 the RQ5 IDs were excluded unconditionally, which let completed RQ5
+    papers pass as unexposed for new experiments.
     """
     paper_index = registry.get("paper_index", {})
     registered_experiments = registry.get("registered_experiments", {})
@@ -73,7 +80,7 @@ def audit_cohort(
         # Historical events only (exclude current study registration)
         hist_events = [
             ev for ev in events
-            if ev.get("experiment_id") not in ("EXP-RQ5-MAIN-PLANNED", "EXP-RQ5-MAIN-SAMPLED")
+            if ev.get("experiment_id") not in exclude_experiments
         ]
 
         if not hist_events and record.get("is_unexposed_to_repository_experiments", False):
@@ -103,7 +110,7 @@ def audit_cohort(
         # Build question lookup map from registered historical experiments
         historical_experiments = {
             exp_id: exp_data for exp_id, exp_data in registered_experiments.items()
-            if exp_id not in ("EXP-RQ5-MAIN-PLANNED", "EXP-RQ5-MAIN-SAMPLED")
+            if exp_id not in exclude_experiments
         }
         q_exp_map = {}
         for exp_id, exp_data in historical_experiments.items():
@@ -125,7 +132,7 @@ def audit_cohort(
         "unexposed_paper_ids": unexposed_pids,
         "exposed_paper_ids": exposed_pids,
         "unknown_paper_ids": unknown_pids,
-        "exposures_by_experiment": {k: len(v) for k, v in exposure_by_experiment.items()},
+        "exposures_by_experiment": {k: len(set(v)) for k, v in exposure_by_experiment.items()},
         "questions_audited": len(question_ids) if question_ids else 0,
         "questions_exposed_count": len(q_exposed),
         "questions_exposed_details": q_exposed,
@@ -145,7 +152,7 @@ def run_self_test():
     # 3. Known Test paper evaluated in RQ4 Test
     known_test_paper = "1601.03313"  # In QASPER Test & RQ4 Test
     # 4. Known unexposed Train paper
-    known_unexposed_paper = "1601.00901" # Unexposed Train candidate (eligible for RQ5)
+    known_unexposed_paper = "1601.02166"  # Train paper with no exposure event (1601.00901 joined C-RET on 2026-10-30)
 
     res = audit_cohort([known_unexposed_paper], reg)
     assert res["verdict"] == "PASS_UNEXPOSED", f"Expected PASS for {known_unexposed_paper}"
@@ -159,6 +166,13 @@ def run_self_test():
     assert known_pilot_paper in res_fail["exposed_paper_ids"]
     assert known_test_paper in res_fail["exposed_paper_ids"]
 
+    # 5. Completed RQ5 papers must no longer pass as unexposed, unless RQ5 itself is excluded
+    known_rq5_paper = "1602.00812"  # Sampled in EXP-RQ5-MAIN-SAMPLED
+    res_rq5 = audit_cohort([known_rq5_paper], reg)
+    assert res_rq5["verdict"] == "FAIL_EXPOSURE_DETECTED", "RQ5 paper must be flagged as exposed"
+    res_rq5_excl = audit_cohort([known_rq5_paper], reg, exclude_experiments=("EXP-RQ5-MAIN-SAMPLED",))
+    assert res_rq5_excl["verdict"] == "PASS_UNEXPOSED", "Excluding RQ5 must reproduce its pre-run audit"
+
     print("[+] All self-test assertions PASSED successfully!")
 
 
@@ -168,6 +182,9 @@ def main():
     parser.add_argument("--manifest", type=str, help="Path to JSON manifest containing paper_arxiv_id or candidate_pool_paper_ids")
     parser.add_argument("--test", action="store_true", help="Run deterministic self-test")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format")
+    parser.add_argument("--exclude-experiment", action="append", default=[],
+                        help="Ignore exposure events of this experiment ID (repeatable); "
+                             "only for auditing a cohort against all other experiments")
 
     args = parser.parse_args()
 
@@ -213,7 +230,8 @@ def main():
         sys.exit(1)
 
     reg = load_registry()
-    result = audit_cohort(pids_to_check, reg, qids_to_check if qids_to_check else None)
+    result = audit_cohort(pids_to_check, reg, qids_to_check if qids_to_check else None,
+                          exclude_experiments=tuple(args.exclude_experiment))
 
     if args.json:
         print(json.dumps(result, indent=2))

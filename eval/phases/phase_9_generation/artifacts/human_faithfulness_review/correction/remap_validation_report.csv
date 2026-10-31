@@ -1,0 +1,61 @@
+review_id,question_id,blind_label_in_signed_sheet,model_by_original_mapping,matched_models,matched_checkpoint_item_index,match_method,identical_answer_collision,status,final_primary_label,assigned_model,attribution_changed
+REV-01,2b52d481b30185d2c6e7b403d37277f70337d6ca,Model_Alpha,llama3.2:1b,llama3.2:3b;llama3.2:1b,1;1,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:3b,n/a_identical_answer
+REV-01,2b52d481b30185d2c6e7b403d37277f70337d6ca,Model_Beta,llama3.2:3b,llama3.2:3b;llama3.2:1b,1;1,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:1b,n/a_identical_answer
+REV-01,2b52d481b30185d2c6e7b403d37277f70337d6ca,Model_Gamma,qwen2.5:0.5b,qwen2.5:0.5b,1,exact,True,VALID,UNSUPPORTED,qwen2.5:0.5b,False
+REV-02,387970ebc7ef99f302f318d047f708274c0e8f21,Model_Alpha,qwen2.5:0.5b,qwen2.5:0.5b,26,exact,False,VALID,CONTRADICTED,qwen2.5:0.5b,False
+REV-02,387970ebc7ef99f302f318d047f708274c0e8f21,Model_Beta,llama3.2:1b,llama3.2:1b,26,exact,False,VALID,CONTRADICTED,llama3.2:1b,False
+REV-02,387970ebc7ef99f302f318d047f708274c0e8f21,Model_Gamma,llama3.2:3b,llama3.2:3b,26,exact,False,VALID,SUPPORTED,llama3.2:3b,False
+REV-03,2fffff59e57b8dbcaefb437a6b3434fc137f813b,Model_Alpha,llama3.2:1b,llama3.2:1b,51,exact,False,VALID,SUPPORTED,llama3.2:1b,False
+REV-03,2fffff59e57b8dbcaefb437a6b3434fc137f813b,Model_Beta,llama3.2:3b,qwen2.5:0.5b,51,exact,False,VALID,MISSING_INFO - PARTIAL,qwen2.5:0.5b,True
+REV-03,2fffff59e57b8dbcaefb437a6b3434fc137f813b,Model_Gamma,qwen2.5:0.5b,llama3.2:3b,51,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:3b,True
+REV-04,e87f47a293e0b49ab8b15fc6633d9ca6dc9de071,Model_Alpha,qwen2.5:0.5b,llama3.2:3b;llama3.2:1b;qwen2.5:0.5b,76;76;76,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,SUPPORTED,llama3.2:3b,n/a_identical_answer
+REV-04,e87f47a293e0b49ab8b15fc6633d9ca6dc9de071,Model_Beta,llama3.2:3b,llama3.2:3b;llama3.2:1b;qwen2.5:0.5b,76;76;76,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,SUPPORTED,llama3.2:1b,n/a_identical_answer
+REV-04,e87f47a293e0b49ab8b15fc6633d9ca6dc9de071,Model_Gamma,llama3.2:1b,llama3.2:3b;llama3.2:1b;qwen2.5:0.5b,76;76;76,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,SUPPORTED,qwen2.5:0.5b,n/a_identical_answer
+REV-05,310e61b9dd4d75bc1bebbcb1dae578f55807cd04,Model_Alpha,llama3.2:1b,llama3.2:1b,101,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,False
+REV-05,310e61b9dd4d75bc1bebbcb1dae578f55807cd04,Model_Beta,qwen2.5:0.5b,llama3.2:3b,101,exact,False,VALID,MISSING_INFO - PARTIAL,llama3.2:3b,True
+REV-05,310e61b9dd4d75bc1bebbcb1dae578f55807cd04,Model_Gamma,llama3.2:3b,qwen2.5:0.5b,101,exact,False,VALID,MISSING_INFO - PARTIAL,qwen2.5:0.5b,True
+REV-06,d7d41a1b8bbb1baece89b28962d23ee4457b9c3a,Model_Alpha,llama3.2:3b,llama3.2:3b;llama3.2:1b,126;126,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,SUPPORTED,llama3.2:3b,n/a_identical_answer
+REV-06,d7d41a1b8bbb1baece89b28962d23ee4457b9c3a,Model_Beta,qwen2.5:0.5b,llama3.2:3b;llama3.2:1b,126;126,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,SUPPORTED,llama3.2:1b,n/a_identical_answer
+REV-06,d7d41a1b8bbb1baece89b28962d23ee4457b9c3a,Model_Gamma,llama3.2:1b,qwen2.5:0.5b,126,exact,True,VALID,SUPPORTED,qwen2.5:0.5b,True
+REV-07,0fce128b8aaa327ac0d58ec30cd2ecbea2019baa,Model_Alpha,llama3.2:1b,llama3.2:1b,151,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,False
+REV-07,0fce128b8aaa327ac0d58ec30cd2ecbea2019baa,Model_Beta,qwen2.5:0.5b,qwen2.5:0.5b,151,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,False
+REV-07,0fce128b8aaa327ac0d58ec30cd2ecbea2019baa,Model_Gamma,llama3.2:3b,llama3.2:3b,151,exact,False,VALID,SUPPORTED,llama3.2:3b,False
+REV-08,7ff48fe5b7bd6b56553caacc891ce3d7e0070440,Model_Alpha,llama3.2:3b,llama3.2:1b,176,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,True
+REV-08,7ff48fe5b7bd6b56553caacc891ce3d7e0070440,Model_Beta,qwen2.5:0.5b,qwen2.5:0.5b,176,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,False
+REV-08,7ff48fe5b7bd6b56553caacc891ce3d7e0070440,Model_Gamma,llama3.2:1b,llama3.2:3b,176,exact,False,VALID,SUPPORTED,llama3.2:3b,True
+REV-09,01d91d356568fca79e47873bd0541bd22ba66ec0,Model_Alpha,llama3.2:3b,llama3.2:3b;llama3.2:1b,201;201,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:3b,n/a_identical_answer
+REV-09,01d91d356568fca79e47873bd0541bd22ba66ec0,Model_Beta,llama3.2:1b,qwen2.5:0.5b,201,exact,True,VALID,UNSUPPORTED,qwen2.5:0.5b,True
+REV-09,01d91d356568fca79e47873bd0541bd22ba66ec0,Model_Gamma,qwen2.5:0.5b,llama3.2:3b;llama3.2:1b,201;201,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:1b,n/a_identical_answer
+REV-10,c554a453b6b99d8b59e4ef1511b1b506ff6e5aa4,Model_Alpha,llama3.2:3b,llama3.2:1b,226,exact,False,VALID,SUPPORTED,llama3.2:1b,True
+REV-10,c554a453b6b99d8b59e4ef1511b1b506ff6e5aa4,Model_Beta,llama3.2:1b,llama3.2:3b,226,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:3b,True
+REV-10,c554a453b6b99d8b59e4ef1511b1b506ff6e5aa4,Model_Gamma,qwen2.5:0.5b,qwen2.5:0.5b,226,exact,False,VALID,UNSUPPORTED,qwen2.5:0.5b,False
+REV-11,16f33de90b76975a99572e0684632d5aedbd957c,Model_Alpha,qwen2.5:0.5b,llama3.2:3b,251,exact,False,VALID,REFUSAL_VALID,llama3.2:3b,True
+REV-11,16f33de90b76975a99572e0684632d5aedbd957c,Model_Beta,llama3.2:1b,llama3.2:1b,251,exact,False,VALID,SUPPORTED,llama3.2:1b,False
+REV-11,16f33de90b76975a99572e0684632d5aedbd957c,Model_Gamma,llama3.2:3b,qwen2.5:0.5b,251,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,True
+REV-12,63850ac98a47ae49f0f49c1c1a6e45c6c447272c,Model_Alpha,qwen2.5:0.5b,qwen2.5:0.5b,276,exact,True,VALID,UNSUPPORTED,qwen2.5:0.5b,False
+REV-12,63850ac98a47ae49f0f49c1c1a6e45c6c447272c,Model_Beta,llama3.2:3b,llama3.2:3b;llama3.2:1b,276;276,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:3b,n/a_identical_answer
+REV-12,63850ac98a47ae49f0f49c1c1a6e45c6c447272c,Model_Gamma,llama3.2:1b,llama3.2:3b;llama3.2:1b,276;276,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:1b,n/a_identical_answer
+REV-13,48fb76ae9921c9d181f65afc63a42af8ba3bc519,Model_Alpha,llama3.2:3b,llama3.2:3b,301,exact,False,VALID,CONTRADICTED,llama3.2:3b,False
+REV-13,48fb76ae9921c9d181f65afc63a42af8ba3bc519,Model_Beta,qwen2.5:0.5b,llama3.2:1b,301,exact,False,VALID,UNSUPPORTED,llama3.2:1b,True
+REV-13,48fb76ae9921c9d181f65afc63a42af8ba3bc519,Model_Gamma,llama3.2:1b,qwen2.5:0.5b,301,exact,False,VALID,MISSING_INFO - PARTIAL,qwen2.5:0.5b,True
+REV-14,7d59374d9301a0c09ea5d023a22ceb6ce07fb490,Model_Alpha,qwen2.5:0.5b,llama3.2:1b,326,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,True
+REV-14,7d59374d9301a0c09ea5d023a22ceb6ce07fb490,Model_Beta,llama3.2:1b,qwen2.5:0.5b,326,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,True
+REV-14,7d59374d9301a0c09ea5d023a22ceb6ce07fb490,Model_Gamma,llama3.2:3b,llama3.2:3b,326,exact,False,VALID,SUPPORTED,llama3.2:3b,False
+REV-15,3f9ef59ac06db3f99b8b6f082308610eb2d3626a,Model_Alpha,llama3.2:1b,llama3.2:3b,351,exact,False,VALID,SUPPORTED,llama3.2:3b,True
+REV-15,3f9ef59ac06db3f99b8b6f082308610eb2d3626a,Model_Beta,llama3.2:3b,llama3.2:1b,351,exact,False,VALID,SUPPORTED,llama3.2:1b,True
+REV-15,3f9ef59ac06db3f99b8b6f082308610eb2d3626a,Model_Gamma,qwen2.5:0.5b,qwen2.5:0.5b,351,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,False
+REV-16,81dc39ee6cdacf90d5f0f62134bf390a29146c65,Model_Alpha,qwen2.5:0.5b,llama3.2:3b;llama3.2:1b,376;376,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:3b,n/a_identical_answer
+REV-16,81dc39ee6cdacf90d5f0f62134bf390a29146c65,Model_Beta,llama3.2:3b,qwen2.5:0.5b,376,exact,True,VALID,UNSUPPORTED,qwen2.5:0.5b,True
+REV-16,81dc39ee6cdacf90d5f0f62134bf390a29146c65,Model_Gamma,llama3.2:1b,llama3.2:3b;llama3.2:1b,376;376,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,n/a_identical_answer
+REV-17,2c88b46c7e3a632cfa10b7574276d84ecec7a0af,Model_Alpha,llama3.2:3b,llama3.2:1b,401,exact,False,VALID,UNSUPPORTED,llama3.2:1b,True
+REV-17,2c88b46c7e3a632cfa10b7574276d84ecec7a0af,Model_Beta,qwen2.5:0.5b,qwen2.5:0.5b,401,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,False
+REV-17,2c88b46c7e3a632cfa10b7574276d84ecec7a0af,Model_Gamma,llama3.2:1b,llama3.2:3b,401,exact,False,VALID,SUPPORTED,llama3.2:3b,True
+REV-18,792d7b579cbf7bfad8fe125b0d66c2059a174cf9,Model_Alpha,llama3.2:1b,qwen2.5:0.5b,426,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,True
+REV-18,792d7b579cbf7bfad8fe125b0d66c2059a174cf9,Model_Beta,llama3.2:3b,llama3.2:3b,426,exact,False,VALID,SUPPORTED,llama3.2:3b,False
+REV-18,792d7b579cbf7bfad8fe125b0d66c2059a174cf9,Model_Gamma,qwen2.5:0.5b,llama3.2:1b,426,exact,False,VALID,SUPPORTED,llama3.2:1b,True
+REV-19,81cee2fc6edd9b7bc65bbf6b4aa35782339e6cff,Model_Alpha,llama3.2:3b,qwen2.5:0.5b,451,exact,False,VALID,SUPPORTED,qwen2.5:0.5b,True
+REV-19,81cee2fc6edd9b7bc65bbf6b4aa35782339e6cff,Model_Beta,llama3.2:1b,llama3.2:1b,451,exact,False,VALID,MISSING_INFO - UNJUSTIFIED_REFUSAL,llama3.2:1b,False
+REV-19,81cee2fc6edd9b7bc65bbf6b4aa35782339e6cff,Model_Gamma,qwen2.5:0.5b,llama3.2:3b,451,exact,False,VALID,SUPPORTED,llama3.2:3b,True
+REV-20,6b91fe29175be8cd8f22abf27fb3460e43b9889a,Model_Alpha,llama3.2:1b,qwen2.5:0.5b,476,exact,True,VALID,UNSUPPORTED,qwen2.5:0.5b,True
+REV-20,6b91fe29175be8cd8f22abf27fb3460e43b9889a,Model_Beta,qwen2.5:0.5b,llama3.2:3b;llama3.2:1b,476;476,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:3b,n/a_identical_answer
+REV-20,6b91fe29175be8cd8f22abf27fb3460e43b9889a,Model_Gamma,llama3.2:3b,llama3.2:3b;llama3.2:1b,476;476,exact,True,VALID_IDENTICAL_ANSWERS_SAME_LABEL,REFUSAL_VALID,llama3.2:1b,n/a_identical_answer

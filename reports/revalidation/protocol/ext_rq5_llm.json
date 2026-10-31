@@ -1,0 +1,18 @@
+{
+  "experiment": "EXP-REVAL-EXT-RQ5-LLM",
+  "type": "extension (post-Gate-B, from CANDIDATE_SELECTION_AUDIT.md; user authorised justified additions 2026-10-30)",
+  "rationale": "RQ5 has no peer for the production model's size tier and confounds family with size (Qwen 0.5b only, Llama 1b/3b only).",
+  "role": "SELECTION-STAGE comparison on the previously evaluated RQ5 500-question manifest; not independent confirmation. C-INT never used.",
+  "models": {
+    "reference": "llama3.2:3b, re-run in the same session (stored RQ5 answers come from another machine and Ollama version)",
+    "candidates": ["phi4-mini (3.8B, MIT)", "qwen2.5:1.5b (Apache-2.0)"],
+    "not_added": "qwen2.5:3b (Qwen Research License); gemma2:2b (family slot filled by phi4-mini; Gemma terms are not an OSI licence)"
+  },
+  "conditions": "Identical to RQ5: build_prompt from evaluate_rq5_llm_generation.py, gold evidence context, temperature 0, num_predict 256, Ollama default context window, cold start per model (keep_alive 0 before), one request at a time, CPU-only.",
+  "metrics": "max-over-annotator Token F1 (primary), refusal (exact substring, as RQ5), lexical containment proxy, F1 by question type, Boolean accuracy (first yes/no token; refusal = wrong), latency P50/P95, tokens/s, Ollama-tree and Python peak working set.",
+  "primary": "Token F1, each candidate vs llama3.2:3b re-run, paper-cluster paired bootstrap B=10,000 seed 42, Holm m=2",
+  "decision_rule": "A candidate becomes an EXTRA RQ6 condition only if diff >= +0.03, CI lower bound > 0 and Holm p < 0.05. It never replaces the production default (no human faithfulness review). The RQ6 amendment is registered before RQ6.",
+  "precision_rule": "Planned CI half-width ~0.02 at 250 paper clusters (RQ5 observed 0.02). If observed is larger than 0.035: report and propose, do not expand.",
+  "script": "eval/phases/phase_9_generation/scripts/rq5ext_llm_candidates.py",
+  "output": "eval/phases/phase_9_generation/artifacts/rq5_ext_llm/"
+}

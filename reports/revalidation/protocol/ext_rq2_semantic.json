@@ -1,0 +1,22 @@
+{
+  "experiment": "EXP-REVAL-EXT-RQ2-SEMANTIC",
+  "type": "extension (post-Gate-B); added 2026-10-31 after a coverage review by the user, before any semantic result on the revalidation data was seen",
+  "rationale": "RQ2-v2 left semantic chunking out as 'covered historically' (CANDIDATE_SELECTION_AUDIT.md). That historical result (Delta -0.080, 47 QASPER Dev papers) used the old protocol: different cohort, unbudgeted scoring. Every other strategy was re-tested under the new protocol; semantic was not. The branch implementation also joins all sections before splitting; the teammate's rewrite (origin/main) keeps section boundaries and is the version the group would ship.",
+  "known_before_registration": "The historical negative result for the branch implementation (semantic_v1). No result for semantic_v2 on any data. No semantic result on C-RET.",
+  "cohort": "C-RET (QASPER v0.3 Train, 335 papers / 567 questions; selection). Never C-INT.",
+  "pipeline": "pymupdf_layout sections -> chunker -> intfloat/e5-small-v2 dense ranking (correct prefixes) -> production context assembly: 1,600 est. tokens, <= 5 units. Semantic arms are flat units (no parent expansion).",
+  "arms": {
+    "hierarchical": "production: chunk_hierarchical 200/40 children, parent expansion with +-200-word windowing; same children and cached e5 vectors as RQ2-v2",
+    "semantic_v1": "apps.documents.services.chunkers.chunk_semantic on branch feat/app-improvements (historical implementation), defaults: max_tokens 400, percentile_threshold 25, e5 sentence embeddings with 'passage: '",
+    "semantic_v2": "chunk_semantic from origin/main commit 49dcac6673e72ac16ac10243eae383c3fc670f10 (author: teammate), vendored byte-identical as eval/phases/phase_2_chunking/scripts/vendor/teammate_chunkers_49dcac6.py (sha256 206a7a57499a867db51315893d9d63ab0656531bc98aa82d6e8f489d5585adc6); defaults: max_tokens 400, min_tokens 60, percentile_threshold 25, buffer_size 1, e5 sentence embeddings. Production code is not changed."
+  },
+  "primary": "budgeted nDCG@10 (as RQ2-v2 after the pre-registered CEC fallback), family {semantic_v1 vs hierarchical, semantic_v2 vs hierarchical}, Holm m=2, paper-cluster paired bootstrap B=10,000 seed 42",
+  "secondary": "CEC@0.5 (caveat: CEC check agreement 0.667 < 0.80), CEC@0.3/0.7, context tokens, units per context, units per paper, chunking time per paper, peak memory",
+  "descriptive": "semantic_v2 vs semantic_v1 nDCG@10 (unadjusted)",
+  "metric_note": "As in RQ2-v2, nDCG@10 relevance units differ between hierarchical (parents) and flat arms, so cross-chunker nDCG is partly an artefact of unit size. This is stated with the result, exactly as in the RQ2-v2 report.",
+  "decision_rule": "SESOI 0.05 as RQ2-v2. A semantic arm enters combination stage 2 as one extra pipeline (pymupdf_layout|semantic_vX|e5|dense) only if it beats hierarchical by >= 0.05 budgeted nDCG@10 with CI lower bound > 0 and Holm-adjusted p < 0.05. Otherwise no semantic arm enters stage 2 and the RQ2 conclusion is unchanged. Production is changed only through the stage-2 rule, never directly by this extension.",
+  "precision_rule": "Planned CI half-width as RQ2-v2 (~0.035-0.04). If observed is larger: report and propose, do not expand.",
+  "timing": "Runs after combination stage 1 finishes and before stage 2 starts (CPU is not shared with a timed run).",
+  "script": "eval/phases/phase_2_chunking/scripts/rq2ext_semantic.py",
+  "output": "eval/phases/phase_2_chunking/artifacts/rq2_ext_semantic/"
+}

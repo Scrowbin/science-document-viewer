@@ -1,0 +1,16 @@
+{
+  "experiment": "EXP-REVAL-EXT-RQ3-SPECTER2",
+  "type": "extension (post-Gate-B, from CANDIDATE_SELECTION_AUDIT.md; user authorised justified additions 2026-10-30)",
+  "rationale": "The scientific-domain embedding family is absent from RQ3-v2; SPECTER2 was only tested under a superseded protocol and is not in the thesis table.",
+  "cohort": "C-RET-150 (selection). Never C-INT.",
+  "model": "allenai/specter2_base (110M, Apache-2.0) + adapters per the model card for ad-hoc search: queries allenai/specter2_adhoc_query, passages allenai/specter2 (proximity). [CLS] of last hidden state, L2-normalised, max_length 512.",
+  "pipeline": "Identical to RQ3-v2 (pymupdf_layout -> hierarchical children -> dense ranking -> production context assembly).",
+  "comparison": "SPECTER2 vs the e5-small-v2 rows produced by RQ3-v2 on the same papers and questions; single separate test (not added to the frozen Holm m=4 family).",
+  "primary": "budgeted nDCG@10, paper-cluster paired bootstrap B=10,000 seed 42",
+  "decision_rule": "The frozen RQ3 rule: switch only if diff >= +0.04, CI lower bound > 0 and P50 query latency <= 1.5x e5.",
+  "efficiency": "indexing chunks/s (batch 32), query latency P50/P95 (110 queries, 10 warm-up), peak working set (own process)",
+  "caveat": "SPECTER2 was trained for paper-level similarity; the ad-hoc query adapter targets paper search, not passage QA.",
+  "precision_rule": "Planned CI half-width as RQ3 (0.035). If observed is larger: report and propose, do not expand.",
+  "script": "eval/phases/phase_3_embedding/scripts/rq3ext_specter2.py",
+  "output": "eval/phases/phase_3_embedding/artifacts/rq3_ext_specter2/"
+}
