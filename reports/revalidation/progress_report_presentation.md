@@ -417,6 +417,8 @@ flowchart LR
   - numbered citations in answers;
   - follow-up questions that use chat history;
   - a fuller NFR-07: the current word-list guard is limited, so a safety instruction in the LLM prompt (refuse anything too risky) and a labelled out-of-scope test set will follow;
+  - **e5 in ONNX INT8:** check its results match the current e5 (parity) and measure indexing speed. It is the same model and the most likely real-world speed gain;
+  - **ModernBERT with a 512-token input cap:** re-measure its memory and speed. This decides whether "ModernBERT is too expensive" is true in general or only a configuration artefact (it currently accepts up to 8,192 tokens; our chunks are ≤ 400). Either answer goes in the thesis;
   - **drop the reference list from the index, and always give broad questions the abstract.** Found in the app: "What problem does this paper solve?" retrieved two bibliography passages and no abstract. Reference titles share words like "retrieval" and "language model" with almost any question, and they pass the 0.80 relevance cutoff. This probably also explains GROBID's coverage gain in RQ1. It will be measured once, old vs new, on the RQ6 questions.
 
 ---
@@ -451,4 +453,5 @@ flowchart LR
 - **2026-10-31, after stage 1:**
   - stage 1 results: production holds up; fusion helps only flat chunkers and weaker embedders; ModernBERT is the most accurate but expensive;
   - stage-2 shortlist and gates written;
-  - section 6 rewritten as slides; "Where we are" table and scope guard added to the pipeline diagram.
+  - section 6 rewritten as slides; "Where we are" table and scope guard added to the pipeline diagram;
+  - two post-RQ6 efficiency checks planned: e5 in ONNX INT8 (parity and speed), and ModernBERT with a 512-token cap (memory and speed).

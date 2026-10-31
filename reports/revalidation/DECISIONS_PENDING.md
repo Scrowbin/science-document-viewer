@@ -72,6 +72,18 @@ After you approve, I implement the changes, run the backend tests (≥ 51 plus n
 - **Also check:** how often the experiment questions retrieve reference passages at all. If rarely, there is a gap between the specific questions we tested and the broad questions real users ask. State it as a limitation.
 - **Not chosen:** sending the whole paper to the LLM. It is 8–15k tokens against Ollama's default 2–4k input limit, would take minutes per question on this CPU, and small models get worse with long inputs.
 
+### 6. Post-RQ6 efficiency checks (approved 2026-10-31; not selection, run after RQ6)
+1. **e5-small-v2 in ONNX INT8:**
+   - parity against the current PyTorch FP32 e5: cosine similarity of the vectors, and identical top-k / nDCG@10 on C-RET;
+   - indexing speed (chunks/s) and query latency on this laptop.
+
+   It is the same model, so it is the most likely real-world speed gain. Adopt only if parity holds.
+2. **ModernBERT-embed with `max_seq_length = 512`:**
+   - re-measure peak memory, indexing speed and query latency;
+   - confirm nDCG@10 is unchanged on C-RET-150 (our chunks are ≤ 400 tokens, so it should be).
+
+   In stage 1 it peaked at 13.8 GB (2.2 GB in RQ3-v2) and took ~8.5 h. This decides whether "ModernBERT is too expensive" is true in general or only a configuration artefact (it accepts up to 8,192 tokens). Either answer goes in the thesis.
+
 ## What happens next
 - After decisions 1–3: RQ2, then the production change, then RQ6 (one run on C-INT), then human review.
 - After that: the consolidated report with thesis recommendations. No chapter edits.
