@@ -1,7 +1,18 @@
 # Progress Report: Experimental Evaluation of the Local RAG Pipeline
 
 *Scientific Document Manager: a Zotero-style app with grounded Q&A over a single paper*
-**Last updated:** 2026-10-30. This file is updated after every experiment; see the changelog at the end.
+**Last updated:** 2026-10-31 (after combination stage 1). This file is updated after every experiment; see the changelog at the end.
+
+**Where we are:**
+
+| Part | Status |
+|---|---|
+| RQ1–RQ5 (component analysis) and their extensions | done |
+| Semantic chunking check (RQ2 extension, 2 versions) | running, ~2 h |
+| Combination stage 1: 120-combination retrieval grid | **done**: production holds up |
+| Combination stage 1 add-on: 40 semantic combinations | queued after the semantic check, ~4–5 h |
+| Combination stage 2: shortlist × 5 LLMs, end to end | ready; starts after the add-on |
+| RQ6: confirmation on C-INT + PeerQA | planned; runs once on the stage-2 winner |
 
 ---
 
@@ -18,7 +29,9 @@ flowchart LR
         D --> E[(Qdrant<br/>vector store)]
     end
     subgraph Answering["Answering (per question)"]
-        Q[Question] --> F[4. Retrieval<br/>dense / hybrid BM25]
+        Q[Question] --> S{Scope guard<br/>obscene or app-sensitive?}
+        S -- yes --> R
+        S -- no --> F[4. Retrieval<br/>dense / hybrid BM25]
         E --> F
         F --> G[Context assembly<br/>expand to parents, 1,600-token budget, max 5]
         G --> H{Relevance gate<br/>top dense score ≥ 0.80?}
@@ -35,6 +48,7 @@ flowchart LR
 - **Embedder:** `intfloat/e5-small-v2`.
 - **Retrieval:** dense (changed from RRF hybrid after RQ4).
 - **LLM:** `llama3.2:3b`.
+- **Guards:** the scope guard (NFR-07), then the 0.80 relevance gate. Both refuse with the same standard sentence.
 
 ---
 
@@ -250,36 +264,33 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 
 ---
 
-## 6. Combination test (in progress)
+## 6. Combination test
 
-**Stage 1: full retrieval grid (brute force, no LLM).** Data: C-RET-150 (150 QASPER Train papers / 249 questions, a subset of C-RET).
+### 6.1 Design: two stages
+```mermaid
+flowchart LR
+    G[Stage 1: retrieval grid<br/>120 + 40 semantic combinations<br/>no LLM, C-RET-150] -->|registered rule:<br/>top 2 per chunker + production| SL[Shortlist<br/>up to 9 pipelines]
+    SL --> S2[Stage 2: end to end<br/>pipelines × 5 LLMs<br/>120 questions]
+    S2 -->|adopt only if F1 +0.03,<br/>CI > 0, latency ≤ 1.5×| W[Winner = NEW system]
+    W --> RQ6[RQ6 on C-INT, run once]
+```
+
+**Stage 1 grid** (data: C-RET-150, 150 QASPER Train papers / 249 questions, a subset of C-RET):
 
 | Factor | Levels |
 |---|---|
 | Extractor | pymupdf_layout, pypdf |
-| Chunker | hierarchical, section_overlap, fixed_size |
+| Chunker | hierarchical, section_overlap, fixed_size (+ semantic v1/v2 in the add-on) |
 | Embedder | MiniLM, e5, arctic, bge, ModernBERT |
-| Retrieval | dense, rrf_fix, convex_fix, rrf (old production) |
+| Retrieval | dense, rrf_fix, convex_fix, rrf_prod (old production) |
 
-- **Size:** 2 × 3 × 5 × 4 = **120 combinations**.
-- **Outputs:** a ranking, main effects, and two-way interaction tables (e.g. does ModernBERT need different chunks?).
-- **Excluded with evidence:** broken pdfplumber, SPECTER2, rerankers, BM25-only, and the near-identical extractors.
-- **Semantic add-on (registered before the stage-1 results were analysed):**
-  - grid: pymupdf_layout × {semantic_v1, semantic_v2} × 5 embedders × 4 retrieval modes = **40 more combinations** on the same C-RET-150 questions;
+- **Size:** 2 × 3 × 5 × 4 = **120 combinations**, plus **40 semantic combinations** (pymupdf_layout only) in the add-on.
+- **Left out, with evidence from RQ1–RQ4:** the broken pdfplumber, SPECTER2, rerankers, BM25-only and the near-identical extractors.
+- **Semantic add-on details** (registered at 10:38, before stage 1's summary existed):
   - sentence split points always use e5, so the chunks are the same for every retrieval embedder (a stated limitation);
-  - the top 2 semantic combinations join the stage-2 shortlist, the same rule as for every other chunker;
   - pypdf × semantic is left out: pypdf is already a grid factor, and it would add about 5 h of CPU.
 
-**Stage 2: end to end with LLMs.**
-- **Pipelines:** the top 2 per chunker (hierarchical, section_overlap, fixed_size, semantic) plus production (≤ 9 pipelines).
-- **LLMs:** 3b, 1b, qwen0.5b, qwen1.5b, phi4-mini.
-- **Data:** 120 questions from C-RET-150 (QASPER Train): 120 of its 150 papers drawn with seed 42, one eligible question each. These are selection data; C-INT is not used.
-- **Cost savers:**
-  - identical prompts are generated once;
-  - successive halving stops pairs that are clearly worse after 40 questions.
-- **Rule:** a pair replaces production only with Token F1 +0.03, CI lower bound > 0, and latency ≤ 1.5× production's.
-
-**Stage 1 results (C-RET-150: 150 QASPER Train papers / 249 questions; 120 combinations, 0 failures):**
+### 6.2 Stage 1 results (done: 150 papers / 249 questions, 120 combinations, 0 failures)
 
 | Combination (extractor · chunker · embedder · retrieval) | nDCG@10 | CEC@0.5 | Context tokens |
 |---|---|---|---|
@@ -287,22 +298,72 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 | pymupdf_layout · fixed_size · arctic · convex_fix | 0.465 | 0.803 | 1,578 |
 | pymupdf_layout · hierarchical · modernbert · dense | 0.464 | 0.743 | 1,303 |
 | pymupdf_layout · fixed_size · modernbert · convex_fix | 0.464 | 0.819 | 1,587 |
+| pypdf · fixed_size · e5 · convex_fix | 0.463 | 0.787 | 1,578 |
 | **production: pymupdf_layout · hierarchical · e5 · dense** | **0.454** | **0.739** | **1,291** |
 
 - **Production holds up:**
-  - within hierarchical, the best challenger is +0.016 nDCG [−0.021, +0.052], not significant;
-  - on CEC only 1 of 119 combinations beats it after Holm (fixed_size · modernbert · rrf_fix, +0.092), and partly by using more context.
-- **The interaction the grid found:** hybrid fusion helps flat chunkers and weaker embedders (+0.02 to +0.05), but not e5 + hierarchical (−0.005). So RQ4's "hybrid adds nothing" holds for the production pair, not in general.
-- **Embedders:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM, with the same order under every chunker.
-- **The cost of ModernBERT:** 89 ms per query against 30 ms for e5, 1–2 chunks/s for indexing, and a 13.8 GB peak memory in this run (2.2 GB in RQ3; cause not yet tested).
-- **Shortlist for stage 2 (registered rule):** 6 combinations (top 2 per chunker) plus production, and the top 2 semantic combinations once the add-on finishes.
+  - within hierarchical (where nDCG is comparable), the best challenger is +0.016 [−0.021, +0.052], not significant;
+  - on CEC, only 1 of 119 combinations beats it after Holm (fixed_size · modernbert · rrf_fix, +0.092 [+0.038, +0.149]), partly because it uses ~300 more context tokens.
+- **The top of the ranking is flat:** 0.454–0.470, inside one comparison's uncertainty (about ±0.035).
+
+**Main effects** (mean nDCG@10 over all other factors):
+
+| Factor | Levels, best first |
+|---|---|
+| Retrieval | convex_fix 0.436 · rrf_fix 0.419 · dense 0.403 · rrf_prod 0.396 |
+| Chunker | fixed_size 0.429 · hierarchical 0.419 · section_overlap 0.391 (not comparable across chunkers) |
+| Embedder | ModernBERT 0.425 · e5 0.420 · arctic 0.419 · bge 0.409 · MiniLM 0.394 |
+| Extractor | pymupdf_layout 0.418 · pypdf 0.408 |
+
+### 6.3 What the grid found that one-at-a-time testing missed
+
+**Hybrid search depends on the chunker** (mean nDCG@10 over the 5 embedders, pymupdf_layout):
+
+| Chunker | dense | rrf_fix | convex_fix |
+|---|---|---|---|
+| hierarchical | 0.431 | 0.432 | 0.448 |
+| section_overlap | 0.381 | 0.406 | 0.429 |
+| fixed_size | 0.406 | 0.439 | 0.449 |
+
+- **Fusion adds +0.02 to +0.05 for flat chunkers and weaker embedders,** but nothing for the production pair (e5 + hierarchical: convex −0.005). RQ4's "hybrid adds nothing" is true for production, not in general.
+- **The old production fusion (`rrf_prod`) is the worst mode under every chunker,** which confirms the switch to dense.
+- **Embedders keep the same order under every chunker,** so no embedder needs a special chunker.
+
+### 6.4 Cost of each embedder (measured in the grid)
+
+| Embedder | Query P50 | Indexing | Peak memory |
+|---|---|---|---|
+| MiniLM | 17 ms | ≈ 23 chunks/s | 1.5 GB |
+| e5 (production) | 30 ms | ≈ 6 chunks/s | 1.8 GB |
+| arctic / bge | 28–30 ms | 6–11 chunks/s | 1.6 / 2.0 GB |
+| ModernBERT | 89 ms | 1–2 chunks/s | **13.8 GB** |
+
+- **ModernBERT is the most accurate on average but the most expensive:** 3× e5's query time and a third of its indexing speed.
+- **Its 13.8 GB peak (2.2 GB in RQ3) is unexplained so far.** One guess: badly extracted text gives very long inputs, which ModernBERT accepts up to 8,192 tokens while the others cut at 512. On this 13.7 GB laptop it is a real deployment risk.
+- Its 89 ms is an upper bound: other jobs overlapped part of its run.
+
+### 6.5 Shortlist for stage 2 (registered rule: top 2 per chunker by nDCG@10, plus production)
+1. pymupdf_layout · hierarchical · modernbert · convex_fix
+2. pymupdf_layout · hierarchical · modernbert · dense
+3. pymupdf_layout · section_overlap · modernbert · convex_fix
+4. pymupdf_layout · section_overlap · arctic · convex_fix
+5. pymupdf_layout · fixed_size · arctic · convex_fix
+6. pymupdf_layout · fixed_size · modernbert · convex_fix
+7. **pymupdf_layout · hierarchical · e5 · dense (production)**
+8–9. the top 2 semantic combinations, once the add-on finishes.
+
+- **Relevance-gate thresholds are recalibrated per embedder,** so every pipeline refuses as often as production does at 0.80 (2.4% of these questions): ModernBERT 0.26–0.31, arctic ≈ 0.55.
 - Full report: `eval/phases/phase_12_combination/artifacts/stage1/REPORT.md`.
 
-**Status (2026-10-31 11:30):**
-- **Stage 1:** done.
-- **Now running:** the semantic RQ2 extension (~2 h), then the semantic grid add-on (~4–5 h).
-- **Stage 2:** 120 questions are drawn from C-RET-150 (QASPER Train; seed 42, one per paper; 70 extractive, 33 abstractive, 17 yes/no) and frozen in `stage2/questions.json`, registry version 10, and the script is ready. It starts after the semantic add-on, which completes the shortlist.
-- **Models in stage 2:** llama3.2:1b and qwen2.5:1.5b were added at the group's request, making 5 LLMs.
+### 6.6 Stage 2 (next)
+- **Pipelines:** the shortlist above (up to 9).
+- **LLMs:** llama3.2:3b, llama3.2:1b, qwen2.5:0.5b, qwen2.5:1.5b, phi4-mini. llama3.2:1b and qwen2.5:1.5b were added at the group's request.
+- **Data:** 120 questions from C-RET-150 (QASPER Train): 120 of its 150 papers drawn with seed 42, one eligible question each (70 extractive, 33 abstractive, 17 yes/no). Frozen in `stage2/questions.json`, registry version 10. Selection data only; C-INT is not used.
+- **Cost savers:**
+  - identical prompts are generated once;
+  - successive halving drops pairs that are clearly worse after 40 questions.
+- **Rule:** a pair replaces production only with Token F1 +0.03, CI lower bound > 0, and end-to-end latency ≤ 1.5× production's.
+- **Status:** the script is ready. It starts after the semantic add-on, which completes the shortlist.
 
 **Teammate's chunker change:** a rewrite of the hierarchical chunker (it drops redundant tail chunks) is on the shared main branch. The group decided to keep the current chunker until RQ6 is done, then test the new one with a single paired comparison. That way none of the finished experiments needs re-running.
 
@@ -367,10 +428,27 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 - **Selection data:** the RQ5 set (250 QASPER Train papers / 500 questions) was evaluated in the original thesis, so its comparisons are selection-stage evidence only.
 - **Hardware:** all timings and memory figures are for this laptop.
 - **Pretraining contamination:** "never used in our experiments" does not mean the LLMs never saw these papers during pretraining.
+- **Combination test:**
+  - it chooses among 160 combinations, so the winner's score is optimistic (winner's curse); RQ6 on untouched papers corrects for this;
+  - semantic chunks are always split with e5, whatever the retrieval embedder;
+  - ModernBERT's memory peak in stage 1 (13.8 GB) is not yet explained.
 - **Question style (to be checked):** QASPER questions are mostly specific, while app users ask broad ones ("what problem does this paper solve?"). Broad questions can retrieve the bibliography, a failure the benchmarks may rarely show.
 
 ---
 
 ## Changelog
-- **2026-10-30:** first version. RQ1–RQ5 and their extensions are complete; the combination test is registered; RQ6 is planned.
-- **2026-10-31:** combination stage 1 progress; stage-2 questions frozen; RQ6 amendment (phi4-mini, PeerQA scoring, 102-answer review); ResearchQA assessed and not used; app-improvements section added. Later the same day: reference-list retrieval found in the app; post-RQ6 fix planned (drop references, abstract for broad questions). Data-flow chart and all tables now name the dataset, split and sampling step behind every number. Semantic chunking extension registered (2 versions; registry version 12); it runs after stage 1. Semantic add-on to the combination grid (40 combinations; versions 13–15); it runs after the extension, and stage 2 waits for it. Stage 1 finished: production holds up; shortlist and report written.
+- **2026-10-30:** first version. RQ1–RQ5 and their extensions complete; combination test registered; RQ6 planned.
+- **2026-10-31, morning:**
+  - combination stage 1 running; stage-2 questions frozen;
+  - RQ6 amendment: phi4-mini, PeerQA scoring, 102-answer human review;
+  - ResearchQA assessed and not used;
+  - app-improvements section added.
+- **2026-10-31, midday:**
+  - the data-flow chart and every table now name the dataset, split and sampling step behind each number;
+  - reference-list retrieval found in the app; post-RQ6 fix planned (drop references, give broad questions the abstract);
+  - semantic chunking added: an RQ2 extension (2 versions, registry version 12) and 40 combinations in the grid (versions 13–15);
+  - NFR-07 question scope guard added (blocks none of the evaluation questions).
+- **2026-10-31, after stage 1:**
+  - stage 1 results: production holds up; fusion helps only flat chunkers and weaker embedders; ModernBERT is the most accurate but expensive;
+  - stage-2 shortlist and gates written;
+  - section 6 rewritten as slides; "Where we are" table and scope guard added to the pipeline diagram.
