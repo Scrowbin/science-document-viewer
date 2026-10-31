@@ -368,7 +368,7 @@ flowchart LR
 
 | Claim | Evidence | When it can be made |
 |---|---|---|
-| **Retrieval quality ranking:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM; none beats e5 significantly | RQ3 and stage 1 agree (both on C-RET-150) | **Now**, worded as selection-stage evidence |
+| **Retrieval quality ranking:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM; none beats e5 significantly | RQ3 and stage 1, both on the same C-RET-150 papers and questions (stage 1 contains RQ3's comparison as one slice). Their agreement shows the two scripts are consistent, not an independent replication | **Now**, worded as selection-stage evidence |
 | **Retrieval speed and memory:** e5 30 ms per query, MiniLM 17 ms, ModernBERT 89 ms | Direct measurements on this laptop; they don't need confirming the way quality scores do | **Now** (ModernBERT's 13.8 GB as "observed in this configuration") |
 | **Hybrid search depends on the pipeline:** it helps flat chunkers and weaker embedders, not the production pair | Stage 1 interaction table (6.3) | **Now**, as selection-stage evidence |
 | **Which full system to use** (chunker + embedder + LLM) | Stage 2: the LLM takes 4–6 s per answer against 30–90 ms for retrieval, so the LLM decides the speed trade-off | **After stage 2** |
@@ -442,6 +442,7 @@ flowchart LR
 - **Pretraining contamination:** "never used in our experiments" does not mean the LLMs never saw these papers during pretraining.
 - **Combination test:**
   - it chooses among 160 combinations, so the winner's score is optimistic (winner's curse); RQ6 on untouched papers corrects for this;
+  - RQ3, stage 1 and stage 2 all use C-RET-150 (stage 2's 120 questions come from the same papers, and most of them helped pick the shortlist). Sharing data is allowed between selection steps, but their agreement is internal consistency, not replication, and the shortlisted pipelines have a small built-in advantage in stage 2. Unbiased performance comes only from RQ6 on C-INT;
   - semantic chunks are always split with e5, whatever the retrieval embedder;
   - ModernBERT's memory peak in stage 1 (13.8 GB) is not yet explained.
 - **Question style (to be checked):** QASPER questions are mostly specific, while app users ask broad ones ("what problem does this paper solve?"). Broad questions can retrieve the bibliography, a failure the benchmarks may rarely show.
