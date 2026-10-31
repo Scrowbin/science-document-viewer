@@ -550,7 +550,7 @@ export function HomePage() {
         {loadError && (
           <div className={styles.offlineBanner} role="alert">
             <FaCircleExclamation aria-hidden="true" />
-            <span>{loadError}. Showing no documents until the server is reachable.</span>
+            <span>{loadError.replace(/\.$/, '')}. Showing no documents until the server is reachable.</span>
             <button type="button" className={styles.offlineRetryBtn} onClick={() => { reloadDocuments(); refetchCollections(); }} disabled={isLoadingDocs}>
               {isLoadingDocs ? 'Retrying…' : 'Retry'}
             </button>
