@@ -189,7 +189,9 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 | pypdf | 0.982 | −0.003 | 48.2 | 598 MB | 0.659 |
 | pdfminer.six | 0.985 | +0.000 | 94.4 | 978 MB | 0.687 |
 | pdfplumber (layout mode) | 0.558 | −0.427 | 185.1 | 1,627 MB | 0.651 |
-| GROBID (add-on) | Δ −0.004 [−0.013, +0.004] | — | — | 4 GB container | **0.823** |
+| GROBID (add-on) | 0.981 | −0.004 [−0.013, +0.004] | 185.4* | 4 GB container | **0.823** |
+
+\* GROBID's time is one HTTP request to its Docker container per paper, not an in-process call like the others, so it is not a like-for-like speed comparison.
 
 **Findings:**
 - **Text recovery is a solved problem.** Every sensibly configured extractor recovers about 98.5% of the evidence. pdfplumber's loss comes from its two-column layout mode, not from the tool itself.
