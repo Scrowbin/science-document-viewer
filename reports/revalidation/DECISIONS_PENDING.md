@@ -72,6 +72,18 @@ After you approve, I implement the changes, run the backend tests (≥ 51 plus n
 - **Also check:** how often the experiment questions retrieve reference passages at all. If rarely, there is a gap between the specific questions we tested and the broad questions real users ask. State it as a limitation.
 - **Not chosen:** sending the whole paper to the LLM. It is 8–15k tokens against Ollama's default 2–4k input limit, would take minutes per question on this CPU, and small models get worse with long inputs.
 
+- **Update 2026-10-31 (decision: option A, after RQ6):** GROBID's downstream gain on C-RET-150 is significant: CEC@0.5 +0.084 [+0.040, +0.130] and nDCG@10 +0.059 [+0.023, +0.094]. That is larger than any combination in stage 1. It is not adopted now, for four reasons:
+  1. it was registered as an add-on "not eligible for adoption", and RQ1's primary metric (evidence recall) shows no difference;
+  2. QASPER's texts come from S2ORC, which parsed the PDFs with GROBID, so GROBID's paragraphs likely line up with the gold evidence and inflate CEC and nDCG (not yet measured);
+  3. part of the gain is probably the dropped reference list;
+  4. it needs a 4 GB Docker container on top of Ollama, and the app's GROBID path differs from the experiment's.
+- **Planned post-RQ6 test:** compare three extractions on **answer quality** (Token F1 + human review), not on CEC or nDCG:
+  - pymupdf_layout;
+  - pymupdf_layout + reference stripping;
+  - GROBID.
+
+  Register it before it runs. Report it as a post-evaluation finding.
+
 ### 6. Post-RQ6 efficiency checks (approved 2026-10-31; not selection, run after RQ6)
 1. **e5-small-v2 in ONNX INT8:**
    - parity against the current PyTorch FP32 e5: cosine similarity of the vectors, and identical top-k / nDCG@10 on C-RET;

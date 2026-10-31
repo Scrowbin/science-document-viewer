@@ -193,7 +193,7 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 
 **Findings:**
 - **Text recovery is a solved problem.** Every sensibly configured extractor recovers about 98.5% of the evidence. pdfplumber's loss comes from its two-column layout mode, not from the tool itself.
-- **Structure matters more than text.** Heading detection gives better sections and better retrieval: `pymupdf_layout` beats pypdf by 0.08 CEC. GROBID's even better downstream coverage (+0.084) is probably because it drops the reference list. This is a lead, to be tested after RQ6.
+- **Structure matters more than text.** Heading detection gives better sections and better retrieval: `pymupdf_layout` beats pypdf by 0.08 CEC. GROBID's even better downstream results (CEC +0.084, nDCG@10 +0.059, both significant) are the largest lead in the study. Two likely reasons: it drops the reference list, and QASPER's gold paragraphs were themselves parsed with GROBID (via S2ORC), so its text lines up with the answer key. It is tested after RQ6, on answer quality.
 - **Decision:** keep `pymupdf_layout`. It is also the fastest extractor that detects headings and has the smallest memory footprint.
 
 ### RQ2: Chunking
@@ -447,6 +447,7 @@ flowchart LR
   - numbered citations in answers;
   - follow-up questions that use chat history;
   - a fuller NFR-07: the current word-list guard is limited, so a safety instruction in the LLM prompt (refuse anything too risky) and a labelled out-of-scope test set will follow;
+  - **extraction on answer quality:** pymupdf_layout vs pymupdf_layout + reference stripping vs GROBID, scored on Token F1 and human review. GROBID's +0.059 nDCG@10 / +0.084 CEC (the largest lead in the study) may partly reflect that QASPER's gold paragraphs were themselves parsed with GROBID (via S2ORC), so answer quality is the fair test;
   - **e5 in ONNX INT8:** check its results match the current e5 (parity) and measure indexing speed. It is the same model and the most likely real-world speed gain;
   - **ModernBERT with a 512-token input cap:** re-measure its memory and speed. This decides whether "ModernBERT is too expensive" is true in general or only a configuration artefact (it currently accepts up to 8,192 tokens; our chunks are ≤ 400). Either answer goes in the thesis;
   - **drop the reference list from the index, and always give broad questions the abstract.** Found in the app: "What problem does this paper solve?" retrieved two bibliography passages and no abstract. Reference titles share words like "retrieval" and "language model" with almost any question, and they pass the 0.80 relevance cutoff. This probably also explains GROBID's coverage gain in RQ1. It will be measured once, old vs new, on the RQ6 questions.
