@@ -279,9 +279,29 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
   - successive halving stops pairs that are clearly worse after 40 questions.
 - **Rule:** a pair replaces production only with Token F1 +0.03, CI lower bound > 0, and latency ≤ 1.5× production's.
 
-**Status (2026-10-31 04:00):**
-- **Stage 1:** the full grid is running. 4 of 5 embedders are done; ModernBERT is about 20% done, expected to finish around 09:30–10:00.
-- **Stage 2:** 120 questions are drawn from C-RET-150 (QASPER Train; seed 42, one per paper; 70 extractive, 33 abstractive, 17 yes/no) and frozen in `stage2/questions.json`, registry version 10, and the script is ready. It starts once stage 1 has produced the shortlist.
+**Stage 1 results (C-RET-150: 150 QASPER Train papers / 249 questions; 120 combinations, 0 failures):**
+
+| Combination (extractor · chunker · embedder · retrieval) | nDCG@10 | CEC@0.5 | Context tokens |
+|---|---|---|---|
+| pymupdf_layout · hierarchical · modernbert · convex_fix | 0.470 | 0.755 | 1,276 |
+| pymupdf_layout · fixed_size · arctic · convex_fix | 0.465 | 0.803 | 1,578 |
+| pymupdf_layout · hierarchical · modernbert · dense | 0.464 | 0.743 | 1,303 |
+| pymupdf_layout · fixed_size · modernbert · convex_fix | 0.464 | 0.819 | 1,587 |
+| **production: pymupdf_layout · hierarchical · e5 · dense** | **0.454** | **0.739** | **1,291** |
+
+- **Production holds up:**
+  - within hierarchical, the best challenger is +0.016 nDCG [−0.021, +0.052], not significant;
+  - on CEC only 1 of 119 combinations beats it after Holm (fixed_size · modernbert · rrf_fix, +0.092), and partly by using more context.
+- **The interaction the grid found:** hybrid fusion helps flat chunkers and weaker embedders (+0.02 to +0.05), but not e5 + hierarchical (−0.005). So RQ4's "hybrid adds nothing" holds for the production pair, not in general.
+- **Embedders:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM, with the same order under every chunker.
+- **The cost of ModernBERT:** 89 ms per query against 30 ms for e5, 1–2 chunks/s for indexing, and a 13.8 GB peak memory in this run (2.2 GB in RQ3; cause not yet tested).
+- **Shortlist for stage 2 (registered rule):** 6 combinations (top 2 per chunker) plus production, and the top 2 semantic combinations once the add-on finishes.
+- Full report: `eval/phases/phase_12_combination/artifacts/stage1/REPORT.md`.
+
+**Status (2026-10-31 11:30):**
+- **Stage 1:** done.
+- **Now running:** the semantic RQ2 extension (~2 h), then the semantic grid add-on (~4–5 h).
+- **Stage 2:** 120 questions are drawn from C-RET-150 (QASPER Train; seed 42, one per paper; 70 extractive, 33 abstractive, 17 yes/no) and frozen in `stage2/questions.json`, registry version 10, and the script is ready. It starts after the semantic add-on, which completes the shortlist.
 - **Models in stage 2:** llama3.2:1b and qwen2.5:1.5b were added at the group's request, making 5 LLMs.
 
 **Teammate's chunker change:** a rewrite of the hierarchical chunker (it drops redundant tail chunks) is on the shared main branch. The group decided to keep the current chunker until RQ6 is done, then test the new one with a single paired comparison. That way none of the finished experiments needs re-running.
@@ -353,4 +373,4 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 
 ## Changelog
 - **2026-10-30:** first version. RQ1–RQ5 and their extensions are complete; the combination test is registered; RQ6 is planned.
-- **2026-10-31:** combination stage 1 progress; stage-2 questions frozen; RQ6 amendment (phi4-mini, PeerQA scoring, 102-answer review); ResearchQA assessed and not used; app-improvements section added. Later the same day: reference-list retrieval found in the app; post-RQ6 fix planned (drop references, abstract for broad questions). Data-flow chart and all tables now name the dataset, split and sampling step behind every number. Semantic chunking extension registered (2 versions; registry version 12); it runs after stage 1. Semantic add-on to the combination grid (40 combinations; versions 13–15); it runs after the extension, and stage 2 waits for it.
+- **2026-10-31:** combination stage 1 progress; stage-2 questions frozen; RQ6 amendment (phi4-mini, PeerQA scoring, 102-answer review); ResearchQA assessed and not used; app-improvements section added. Later the same day: reference-list retrieval found in the app; post-RQ6 fix planned (drop references, abstract for broad questions). Data-flow chart and all tables now name the dataset, split and sampling step behind every number. Semantic chunking extension registered (2 versions; registry version 12); it runs after stage 1. Semantic add-on to the combination grid (40 combinations; versions 13–15); it runs after the extension, and stage 2 waits for it. Stage 1 finished: production holds up; shortlist and report written.

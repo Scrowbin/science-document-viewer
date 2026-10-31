@@ -1,0 +1,3245 @@
+{
+ "experiment": "COMBO-STAGE1",
+ "cohort": "C-RET-150",
+ "papers": 150,
+ "questions": 249,
+ "combinations": 120,
+ "production": "pymupdf_layout|hierarchical|e5|dense",
+ "failures": {
+  "e5": [],
+  "minilm": [],
+  "arctic": [],
+  "bge": [],
+  "modernbert": []
+ },
+ "means": {
+  "pymupdf_layout|hierarchical|e5|dense": {
+   "ndcg10": 0.4537,
+   "cec_0.5": 0.739,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.6386,
+   "context_tokens": 1290.5823,
+   "n_units": 3.5221,
+   "gate_score": 0.8519
+  },
+  "pymupdf_layout|hierarchical|e5|rrf_fix": {
+   "ndcg10": 0.4398,
+   "cec_0.5": 0.7269,
+   "cec_0.3": 0.9116,
+   "cec_0.7": 0.6225,
+   "context_tokens": 1293.5341,
+   "n_units": 3.4418,
+   "gate_score": 0.8498
+  },
+  "pymupdf_layout|hierarchical|e5|convex_fix": {
+   "ndcg10": 0.4489,
+   "cec_0.5": 0.747,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.6386,
+   "context_tokens": 1293.0321,
+   "n_units": 3.4659,
+   "gate_score": 0.8506
+  },
+  "pymupdf_layout|hierarchical|e5|rrf_prod": {
+   "ndcg10": 0.4169,
+   "cec_0.5": 0.6948,
+   "cec_0.3": 0.9237,
+   "cec_0.7": 0.6064,
+   "context_tokens": 1307.7751,
+   "n_units": 3.4217,
+   "gate_score": 0.8476
+  },
+  "pymupdf_layout|hierarchical|minilm|dense": {
+   "ndcg10": 0.3834,
+   "cec_0.5": 0.6787,
+   "cec_0.3": 0.9197,
+   "cec_0.7": 0.5422,
+   "context_tokens": 1293.4699,
+   "n_units": 3.5703,
+   "gate_score": 0.4718
+  },
+  "pymupdf_layout|hierarchical|minilm|rrf_fix": {
+   "ndcg10": 0.419,
+   "cec_0.5": 0.7189,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1304.5181,
+   "n_units": 3.5341,
+   "gate_score": 0.4564
+  },
+  "pymupdf_layout|hierarchical|minilm|convex_fix": {
+   "ndcg10": 0.4203,
+   "cec_0.5": 0.7108,
+   "cec_0.3": 0.9197,
+   "cec_0.7": 0.5823,
+   "context_tokens": 1293.7349,
+   "n_units": 3.5341,
+   "gate_score": 0.4661
+  },
+  "pymupdf_layout|hierarchical|minilm|rrf_prod": {
+   "ndcg10": 0.3886,
+   "cec_0.5": 0.6948,
+   "cec_0.3": 0.9277,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1303.2289,
+   "n_units": 3.4056,
+   "gate_score": 0.4445
+  },
+  "pymupdf_layout|hierarchical|arctic|dense": {
+   "ndcg10": 0.4401,
+   "cec_0.5": 0.751,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.6225,
+   "context_tokens": 1294.3414,
+   "n_units": 3.3855,
+   "gate_score": 0.6729
+  },
+  "pymupdf_layout|hierarchical|arctic|rrf_fix": {
+   "ndcg10": 0.4285,
+   "cec_0.5": 0.7229,
+   "cec_0.3": 0.9157,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1288.7631,
+   "n_units": 3.3936,
+   "gate_score": 0.6676
+  },
+  "pymupdf_layout|hierarchical|arctic|convex_fix": {
+   "ndcg10": 0.457,
+   "cec_0.5": 0.755,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.6305,
+   "context_tokens": 1295.7631,
+   "n_units": 3.4177,
+   "gate_score": 0.6699
+  },
+  "pymupdf_layout|hierarchical|arctic|rrf_prod": {
+   "ndcg10": 0.4098,
+   "cec_0.5": 0.6988,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1305.5341,
+   "n_units": 3.3534,
+   "gate_score": 0.6643
+  },
+  "pymupdf_layout|hierarchical|bge|dense": {
+   "ndcg10": 0.4119,
+   "cec_0.5": 0.6988,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5944,
+   "context_tokens": 1305.0683,
+   "n_units": 3.4337,
+   "gate_score": 0.7139
+  },
+  "pymupdf_layout|hierarchical|bge|rrf_fix": {
+   "ndcg10": 0.4176,
+   "cec_0.5": 0.6948,
+   "cec_0.3": 0.9197,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1300.0562,
+   "n_units": 3.3976,
+   "gate_score": 0.7087
+  },
+  "pymupdf_layout|hierarchical|bge|convex_fix": {
+   "ndcg10": 0.4444,
+   "cec_0.5": 0.7269,
+   "cec_0.3": 0.9277,
+   "cec_0.7": 0.6345,
+   "context_tokens": 1288.7269,
+   "n_units": 3.4458,
+   "gate_score": 0.7103
+  },
+  "pymupdf_layout|hierarchical|bge|rrf_prod": {
+   "ndcg10": 0.3959,
+   "cec_0.5": 0.7028,
+   "cec_0.3": 0.9438,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1296.2209,
+   "n_units": 3.3695,
+   "gate_score": 0.7042
+  },
+  "pymupdf_layout|hierarchical|modernbert|dense": {
+   "ndcg10": 0.4641,
+   "cec_0.5": 0.743,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.6426,
+   "context_tokens": 1302.6908,
+   "n_units": 3.5542,
+   "gate_score": 0.5317
+  },
+  "pymupdf_layout|hierarchical|modernbert|rrf_fix": {
+   "ndcg10": 0.4524,
+   "cec_0.5": 0.7309,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.6185,
+   "context_tokens": 1288.0161,
+   "n_units": 3.498,
+   "gate_score": 0.5228
+  },
+  "pymupdf_layout|hierarchical|modernbert|convex_fix": {
+   "ndcg10": 0.4701,
+   "cec_0.5": 0.755,
+   "cec_0.3": 0.9558,
+   "cec_0.7": 0.6386,
+   "context_tokens": 1275.7952,
+   "n_units": 3.4699,
+   "gate_score": 0.5268
+  },
+  "pymupdf_layout|hierarchical|modernbert|rrf_prod": {
+   "ndcg10": 0.4208,
+   "cec_0.5": 0.7028,
+   "cec_0.3": 0.9277,
+   "cec_0.7": 0.5703,
+   "context_tokens": 1289.5422,
+   "n_units": 3.4257,
+   "gate_score": 0.5182
+  },
+  "pymupdf_layout|section_overlap|e5|dense": {
+   "ndcg10": 0.3964,
+   "cec_0.5": 0.7671,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.6305,
+   "context_tokens": 1231.988,
+   "n_units": 4.8715,
+   "gate_score": 0.8472
+  },
+  "pymupdf_layout|section_overlap|e5|rrf_fix": {
+   "ndcg10": 0.4031,
+   "cec_0.5": 0.7631,
+   "cec_0.3": 0.9197,
+   "cec_0.7": 0.6305,
+   "context_tokens": 1281.9558,
+   "n_units": 4.8474,
+   "gate_score": 0.8462
+  },
+  "pymupdf_layout|section_overlap|e5|convex_fix": {
+   "ndcg10": 0.4324,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9558,
+   "cec_0.7": 0.6747,
+   "context_tokens": 1271.1647,
+   "n_units": 4.8594,
+   "gate_score": 0.8471
+  },
+  "pymupdf_layout|section_overlap|e5|rrf_prod": {
+   "ndcg10": 0.3907,
+   "cec_0.5": 0.7791,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1311.4016,
+   "n_units": 4.8313,
+   "gate_score": 0.8459
+  },
+  "pymupdf_layout|section_overlap|minilm|dense": {
+   "ndcg10": 0.3223,
+   "cec_0.5": 0.6305,
+   "cec_0.3": 0.9036,
+   "cec_0.7": 0.502,
+   "context_tokens": 1208.9558,
+   "n_units": 4.9076,
+   "gate_score": 0.4376
+  },
+  "pymupdf_layout|section_overlap|minilm|rrf_fix": {
+   "ndcg10": 0.3802,
+   "cec_0.5": 0.7269,
+   "cec_0.3": 0.9157,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1260.9398,
+   "n_units": 4.8635,
+   "gate_score": 0.4321
+  },
+  "pymupdf_layout|section_overlap|minilm|convex_fix": {
+   "ndcg10": 0.3967,
+   "cec_0.5": 0.7189,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1228.1807,
+   "n_units": 4.8594,
+   "gate_score": 0.4369
+  },
+  "pymupdf_layout|section_overlap|minilm|rrf_prod": {
+   "ndcg10": 0.3532,
+   "cec_0.5": 0.7189,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.5462,
+   "context_tokens": 1300.5823,
+   "n_units": 4.8153,
+   "gate_score": 0.4273
+  },
+  "pymupdf_layout|section_overlap|arctic|dense": {
+   "ndcg10": 0.4035,
+   "cec_0.5": 0.739,
+   "cec_0.3": 0.9237,
+   "cec_0.7": 0.6305,
+   "context_tokens": 1278.0321,
+   "n_units": 4.8153,
+   "gate_score": 0.6641
+  },
+  "pymupdf_layout|section_overlap|arctic|rrf_fix": {
+   "ndcg10": 0.4124,
+   "cec_0.5": 0.747,
+   "cec_0.3": 0.9277,
+   "cec_0.7": 0.6185,
+   "context_tokens": 1288.0643,
+   "n_units": 4.7871,
+   "gate_score": 0.6617
+  },
+  "pymupdf_layout|section_overlap|arctic|convex_fix": {
+   "ndcg10": 0.4427,
+   "cec_0.5": 0.7751,
+   "cec_0.3": 0.9438,
+   "cec_0.7": 0.6426,
+   "context_tokens": 1288.0723,
+   "n_units": 4.7992,
+   "gate_score": 0.6639
+  },
+  "pymupdf_layout|section_overlap|arctic|rrf_prod": {
+   "ndcg10": 0.3691,
+   "cec_0.5": 0.755,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1326.9799,
+   "n_units": 4.7751,
+   "gate_score": 0.6607
+  },
+  "pymupdf_layout|section_overlap|bge|dense": {
+   "ndcg10": 0.3767,
+   "cec_0.5": 0.7349,
+   "cec_0.3": 0.9438,
+   "cec_0.7": 0.5823,
+   "context_tokens": 1264.2369,
+   "n_units": 4.8353,
+   "gate_score": 0.699
+  },
+  "pymupdf_layout|section_overlap|bge|rrf_fix": {
+   "ndcg10": 0.4114,
+   "cec_0.5": 0.7671,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1295.9237,
+   "n_units": 4.8153,
+   "gate_score": 0.6965
+  },
+  "pymupdf_layout|section_overlap|bge|convex_fix": {
+   "ndcg10": 0.4239,
+   "cec_0.5": 0.7871,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1286.1526,
+   "n_units": 4.8353,
+   "gate_score": 0.6985
+  },
+  "pymupdf_layout|section_overlap|bge|rrf_prod": {
+   "ndcg10": 0.3701,
+   "cec_0.5": 0.755,
+   "cec_0.3": 0.9558,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1311.1245,
+   "n_units": 4.7751,
+   "gate_score": 0.6957
+  },
+  "pymupdf_layout|section_overlap|modernbert|dense": {
+   "ndcg10": 0.4058,
+   "cec_0.5": 0.751,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1270.8956,
+   "n_units": 4.8233,
+   "gate_score": 0.5164
+  },
+  "pymupdf_layout|section_overlap|modernbert|rrf_fix": {
+   "ndcg10": 0.4248,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.6386,
+   "context_tokens": 1295.3936,
+   "n_units": 4.8313,
+   "gate_score": 0.512
+  },
+  "pymupdf_layout|section_overlap|modernbert|convex_fix": {
+   "ndcg10": 0.4483,
+   "cec_0.5": 0.8153,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.6787,
+   "context_tokens": 1286.2048,
+   "n_units": 4.8434,
+   "gate_score": 0.5156
+  },
+  "pymupdf_layout|section_overlap|modernbert|rrf_prod": {
+   "ndcg10": 0.379,
+   "cec_0.5": 0.7631,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.5823,
+   "context_tokens": 1320.9598,
+   "n_units": 4.7912,
+   "gate_score": 0.5118
+  },
+  "pymupdf_layout|fixed_size|e5|dense": {
+   "ndcg10": 0.3997,
+   "cec_0.5": 0.7671,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1575.747,
+   "n_units": 4.004,
+   "gate_score": 0.8364
+  },
+  "pymupdf_layout|fixed_size|e5|rrf_fix": {
+   "ndcg10": 0.4428,
+   "cec_0.5": 0.7831,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1576.4739,
+   "n_units": 4.004,
+   "gate_score": 0.8357
+  },
+  "pymupdf_layout|fixed_size|e5|convex_fix": {
+   "ndcg10": 0.453,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1582.739,
+   "n_units": 4.004,
+   "gate_score": 0.8362
+  },
+  "pymupdf_layout|fixed_size|e5|rrf_prod": {
+   "ndcg10": 0.4241,
+   "cec_0.5": 0.7831,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1588.3494,
+   "n_units": 4.0,
+   "gate_score": 0.8349
+  },
+  "pymupdf_layout|fixed_size|minilm|dense": {
+   "ndcg10": 0.374,
+   "cec_0.5": 0.747,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.5382,
+   "context_tokens": 1567.1325,
+   "n_units": 4.0,
+   "gate_score": 0.4053
+  },
+  "pymupdf_layout|fixed_size|minilm|rrf_fix": {
+   "ndcg10": 0.4215,
+   "cec_0.5": 0.7831,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1579.1446,
+   "n_units": 4.0,
+   "gate_score": 0.3992
+  },
+  "pymupdf_layout|fixed_size|minilm|convex_fix": {
+   "ndcg10": 0.4296,
+   "cec_0.5": 0.7992,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6064,
+   "context_tokens": 1575.1446,
+   "n_units": 4.0,
+   "gate_score": 0.4049
+  },
+  "pymupdf_layout|fixed_size|minilm|rrf_prod": {
+   "ndcg10": 0.4065,
+   "cec_0.5": 0.7871,
+   "cec_0.3": 0.9839,
+   "cec_0.7": 0.5703,
+   "context_tokens": 1587.4418,
+   "n_units": 4.0,
+   "gate_score": 0.3985
+  },
+  "pymupdf_layout|fixed_size|arctic|dense": {
+   "ndcg10": 0.4222,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1574.9839,
+   "n_units": 4.0,
+   "gate_score": 0.6576
+  },
+  "pymupdf_layout|fixed_size|arctic|rrf_fix": {
+   "ndcg10": 0.4523,
+   "cec_0.5": 0.7952,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6506,
+   "context_tokens": 1578.3293,
+   "n_units": 4.0,
+   "gate_score": 0.6561
+  },
+  "pymupdf_layout|fixed_size|arctic|convex_fix": {
+   "ndcg10": 0.4647,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.6627,
+   "context_tokens": 1578.3052,
+   "n_units": 4.0,
+   "gate_score": 0.6574
+  },
+  "pymupdf_layout|fixed_size|arctic|rrf_prod": {
+   "ndcg10": 0.4308,
+   "cec_0.5": 0.8072,
+   "cec_0.3": 0.9799,
+   "cec_0.7": 0.6225,
+   "context_tokens": 1587.3695,
+   "n_units": 4.0,
+   "gate_score": 0.6557
+  },
+  "pymupdf_layout|fixed_size|bge|dense": {
+   "ndcg10": 0.4069,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1578.3173,
+   "n_units": 4.0,
+   "gate_score": 0.6862
+  },
+  "pymupdf_layout|fixed_size|bge|rrf_fix": {
+   "ndcg10": 0.4253,
+   "cec_0.5": 0.7791,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1576.7992,
+   "n_units": 4.0,
+   "gate_score": 0.6838
+  },
+  "pymupdf_layout|fixed_size|bge|convex_fix": {
+   "ndcg10": 0.4341,
+   "cec_0.5": 0.8353,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.6225,
+   "context_tokens": 1584.0843,
+   "n_units": 4.0,
+   "gate_score": 0.686
+  },
+  "pymupdf_layout|fixed_size|bge|rrf_prod": {
+   "ndcg10": 0.4108,
+   "cec_0.5": 0.755,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1588.9719,
+   "n_units": 4.0,
+   "gate_score": 0.6833
+  },
+  "pymupdf_layout|fixed_size|modernbert|dense": {
+   "ndcg10": 0.4263,
+   "cec_0.5": 0.7631,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1581.6747,
+   "n_units": 4.0,
+   "gate_score": 0.4928
+  },
+  "pymupdf_layout|fixed_size|modernbert|rrf_fix": {
+   "ndcg10": 0.4505,
+   "cec_0.5": 0.8313,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6426,
+   "context_tokens": 1582.5301,
+   "n_units": 4.0,
+   "gate_score": 0.4903
+  },
+  "pymupdf_layout|fixed_size|modernbert|convex_fix": {
+   "ndcg10": 0.4636,
+   "cec_0.5": 0.8193,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.6506,
+   "context_tokens": 1586.743,
+   "n_units": 4.0,
+   "gate_score": 0.4926
+  },
+  "pymupdf_layout|fixed_size|modernbert|rrf_prod": {
+   "ndcg10": 0.4328,
+   "cec_0.5": 0.8273,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1587.6265,
+   "n_units": 4.0,
+   "gate_score": 0.4893
+  },
+  "pypdf|hierarchical|e5|dense": {
+   "ndcg10": 0.3958,
+   "cec_0.5": 0.6586,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5462,
+   "context_tokens": 1300.1767,
+   "n_units": 2.2249,
+   "gate_score": 0.847
+  },
+  "pypdf|hierarchical|e5|rrf_fix": {
+   "ndcg10": 0.4291,
+   "cec_0.5": 0.7309,
+   "cec_0.3": 0.9116,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1302.5542,
+   "n_units": 2.2088,
+   "gate_score": 0.8439
+  },
+  "pypdf|hierarchical|e5|convex_fix": {
+   "ndcg10": 0.4262,
+   "cec_0.5": 0.743,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1287.7831,
+   "n_units": 2.1727,
+   "gate_score": 0.8449
+  },
+  "pypdf|hierarchical|e5|rrf_prod": {
+   "ndcg10": 0.3834,
+   "cec_0.5": 0.6948,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5301,
+   "context_tokens": 1303.0723,
+   "n_units": 2.1888,
+   "gate_score": 0.8423
+  },
+  "pypdf|hierarchical|minilm|dense": {
+   "ndcg10": 0.3913,
+   "cec_0.5": 0.6627,
+   "cec_0.3": 0.9438,
+   "cec_0.7": 0.5341,
+   "context_tokens": 1303.4739,
+   "n_units": 2.3012,
+   "gate_score": 0.4503
+  },
+  "pypdf|hierarchical|minilm|rrf_fix": {
+   "ndcg10": 0.416,
+   "cec_0.5": 0.7189,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1301.3815,
+   "n_units": 2.2088,
+   "gate_score": 0.4323
+  },
+  "pypdf|hierarchical|minilm|convex_fix": {
+   "ndcg10": 0.4162,
+   "cec_0.5": 0.7229,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1317.743,
+   "n_units": 2.2289,
+   "gate_score": 0.4415
+  },
+  "pypdf|hierarchical|minilm|rrf_prod": {
+   "ndcg10": 0.3948,
+   "cec_0.5": 0.7189,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5462,
+   "context_tokens": 1295.6265,
+   "n_units": 2.2048,
+   "gate_score": 0.4249
+  },
+  "pypdf|hierarchical|arctic|dense": {
+   "ndcg10": 0.4016,
+   "cec_0.5": 0.6827,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1289.0602,
+   "n_units": 2.2088,
+   "gate_score": 0.671
+  },
+  "pypdf|hierarchical|arctic|rrf_fix": {
+   "ndcg10": 0.4033,
+   "cec_0.5": 0.6827,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1301.8474,
+   "n_units": 2.2289,
+   "gate_score": 0.6633
+  },
+  "pypdf|hierarchical|arctic|convex_fix": {
+   "ndcg10": 0.4242,
+   "cec_0.5": 0.7028,
+   "cec_0.3": 0.9277,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1295.2691,
+   "n_units": 2.2289,
+   "gate_score": 0.6678
+  },
+  "pypdf|hierarchical|arctic|rrf_prod": {
+   "ndcg10": 0.388,
+   "cec_0.5": 0.6787,
+   "cec_0.3": 0.9317,
+   "cec_0.7": 0.5301,
+   "context_tokens": 1304.0643,
+   "n_units": 2.2008,
+   "gate_score": 0.6622
+  },
+  "pypdf|hierarchical|bge|dense": {
+   "ndcg10": 0.4043,
+   "cec_0.5": 0.6908,
+   "cec_0.3": 0.9357,
+   "cec_0.7": 0.5141,
+   "context_tokens": 1289.0964,
+   "n_units": 2.245,
+   "gate_score": 0.708
+  },
+  "pypdf|hierarchical|bge|rrf_fix": {
+   "ndcg10": 0.4138,
+   "cec_0.5": 0.7108,
+   "cec_0.3": 0.9237,
+   "cec_0.7": 0.5582,
+   "context_tokens": 1312.0522,
+   "n_units": 2.245,
+   "gate_score": 0.6988
+  },
+  "pypdf|hierarchical|bge|convex_fix": {
+   "ndcg10": 0.4315,
+   "cec_0.5": 0.7309,
+   "cec_0.3": 0.9197,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1298.9116,
+   "n_units": 2.2209,
+   "gate_score": 0.7025
+  },
+  "pypdf|hierarchical|bge|rrf_prod": {
+   "ndcg10": 0.3862,
+   "cec_0.5": 0.6908,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.51,
+   "context_tokens": 1287.4699,
+   "n_units": 2.1727,
+   "gate_score": 0.6938
+  },
+  "pypdf|hierarchical|modernbert|dense": {
+   "ndcg10": 0.4213,
+   "cec_0.5": 0.6908,
+   "cec_0.3": 0.9398,
+   "cec_0.7": 0.5703,
+   "context_tokens": 1314.2851,
+   "n_units": 2.2369,
+   "gate_score": 0.5188
+  },
+  "pypdf|hierarchical|modernbert|rrf_fix": {
+   "ndcg10": 0.4137,
+   "cec_0.5": 0.7068,
+   "cec_0.3": 0.9237,
+   "cec_0.7": 0.5622,
+   "context_tokens": 1296.5261,
+   "n_units": 2.2129,
+   "gate_score": 0.505
+  },
+  "pypdf|hierarchical|modernbert|convex_fix": {
+   "ndcg10": 0.4394,
+   "cec_0.5": 0.7269,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1299.1847,
+   "n_units": 2.2008,
+   "gate_score": 0.5094
+  },
+  "pypdf|hierarchical|modernbert|rrf_prod": {
+   "ndcg10": 0.4079,
+   "cec_0.5": 0.7229,
+   "cec_0.3": 0.9438,
+   "cec_0.7": 0.5301,
+   "context_tokens": 1294.2811,
+   "n_units": 2.1847,
+   "gate_score": 0.5016
+  },
+  "pypdf|section_overlap|e5|dense": {
+   "ndcg10": 0.3834,
+   "cec_0.5": 0.7751,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.6345,
+   "context_tokens": 1410.9438,
+   "n_units": 4.7751,
+   "gate_score": 0.8409
+  },
+  "pypdf|section_overlap|e5|rrf_fix": {
+   "ndcg10": 0.3914,
+   "cec_0.5": 0.7952,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1409.5382,
+   "n_units": 4.6908,
+   "gate_score": 0.8399
+  },
+  "pypdf|section_overlap|e5|convex_fix": {
+   "ndcg10": 0.4172,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6546,
+   "context_tokens": 1421.2892,
+   "n_units": 4.7309,
+   "gate_score": 0.8407
+  },
+  "pypdf|section_overlap|e5|rrf_prod": {
+   "ndcg10": 0.3839,
+   "cec_0.5": 0.7912,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1427.0602,
+   "n_units": 4.6586,
+   "gate_score": 0.8392
+  },
+  "pypdf|section_overlap|minilm|dense": {
+   "ndcg10": 0.3554,
+   "cec_0.5": 0.7349,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5502,
+   "context_tokens": 1388.004,
+   "n_units": 4.7831,
+   "gate_score": 0.4188
+  },
+  "pypdf|section_overlap|minilm|rrf_fix": {
+   "ndcg10": 0.3777,
+   "cec_0.5": 0.7912,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.5622,
+   "context_tokens": 1404.8514,
+   "n_units": 4.7269,
+   "gate_score": 0.4128
+  },
+  "pypdf|section_overlap|minilm|convex_fix": {
+   "ndcg10": 0.3984,
+   "cec_0.5": 0.7912,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1404.5703,
+   "n_units": 4.7229,
+   "gate_score": 0.4185
+  },
+  "pypdf|section_overlap|minilm|rrf_prod": {
+   "ndcg10": 0.3653,
+   "cec_0.5": 0.759,
+   "cec_0.3": 0.9799,
+   "cec_0.7": 0.5663,
+   "context_tokens": 1409.6506,
+   "n_units": 4.6586,
+   "gate_score": 0.4086
+  },
+  "pypdf|section_overlap|arctic|dense": {
+   "ndcg10": 0.4029,
+   "cec_0.5": 0.747,
+   "cec_0.3": 0.9518,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1411.7912,
+   "n_units": 4.6627,
+   "gate_score": 0.6628
+  },
+  "pypdf|section_overlap|arctic|rrf_fix": {
+   "ndcg10": 0.3938,
+   "cec_0.5": 0.7671,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1409.8876,
+   "n_units": 4.6426,
+   "gate_score": 0.661
+  },
+  "pypdf|section_overlap|arctic|convex_fix": {
+   "ndcg10": 0.4245,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6787,
+   "context_tokens": 1418.9679,
+   "n_units": 4.6506,
+   "gate_score": 0.6625
+  },
+  "pypdf|section_overlap|arctic|rrf_prod": {
+   "ndcg10": 0.3784,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1408.996,
+   "n_units": 4.5462,
+   "gate_score": 0.6595
+  },
+  "pypdf|section_overlap|bge|dense": {
+   "ndcg10": 0.3716,
+   "cec_0.5": 0.7269,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5462,
+   "context_tokens": 1403.4779,
+   "n_units": 4.7028,
+   "gate_score": 0.6946
+  },
+  "pypdf|section_overlap|bge|rrf_fix": {
+   "ndcg10": 0.3752,
+   "cec_0.5": 0.7631,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.5542,
+   "context_tokens": 1402.8112,
+   "n_units": 4.6426,
+   "gate_score": 0.692
+  },
+  "pypdf|section_overlap|bge|convex_fix": {
+   "ndcg10": 0.4068,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1399.4859,
+   "n_units": 4.6386,
+   "gate_score": 0.6941
+  },
+  "pypdf|section_overlap|bge|rrf_prod": {
+   "ndcg10": 0.3611,
+   "cec_0.5": 0.739,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.5582,
+   "context_tokens": 1417.9598,
+   "n_units": 4.6064,
+   "gate_score": 0.6913
+  },
+  "pypdf|section_overlap|modernbert|dense": {
+   "ndcg10": 0.3764,
+   "cec_0.5": 0.7309,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1412.6586,
+   "n_units": 4.6948,
+   "gate_score": 0.5007
+  },
+  "pypdf|section_overlap|modernbert|rrf_fix": {
+   "ndcg10": 0.3728,
+   "cec_0.5": 0.7831,
+   "cec_0.3": 0.9639,
+   "cec_0.7": 0.5663,
+   "context_tokens": 1420.8956,
+   "n_units": 4.6787,
+   "gate_score": 0.4965
+  },
+  "pypdf|section_overlap|modernbert|convex_fix": {
+   "ndcg10": 0.4037,
+   "cec_0.5": 0.7791,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1414.502,
+   "n_units": 4.6667,
+   "gate_score": 0.4999
+  },
+  "pypdf|section_overlap|modernbert|rrf_prod": {
+   "ndcg10": 0.3562,
+   "cec_0.5": 0.7711,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5703,
+   "context_tokens": 1417.8474,
+   "n_units": 4.6024,
+   "gate_score": 0.4954
+  },
+  "pypdf|fixed_size|e5|dense": {
+   "ndcg10": 0.4179,
+   "cec_0.5": 0.751,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1564.2329,
+   "n_units": 4.0,
+   "gate_score": 0.835
+  },
+  "pypdf|fixed_size|e5|rrf_fix": {
+   "ndcg10": 0.4487,
+   "cec_0.5": 0.7831,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.6225,
+   "context_tokens": 1576.2651,
+   "n_units": 4.0,
+   "gate_score": 0.8341
+  },
+  "pypdf|fixed_size|e5|convex_fix": {
+   "ndcg10": 0.4632,
+   "cec_0.5": 0.7871,
+   "cec_0.3": 0.9558,
+   "cec_0.7": 0.6265,
+   "context_tokens": 1577.9398,
+   "n_units": 4.0,
+   "gate_score": 0.8349
+  },
+  "pypdf|fixed_size|e5|rrf_prod": {
+   "ndcg10": 0.4328,
+   "cec_0.5": 0.8273,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1584.7349,
+   "n_units": 4.0,
+   "gate_score": 0.8337
+  },
+  "pypdf|fixed_size|minilm|dense": {
+   "ndcg10": 0.3931,
+   "cec_0.5": 0.759,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.5823,
+   "context_tokens": 1572.9357,
+   "n_units": 4.004,
+   "gate_score": 0.404
+  },
+  "pypdf|fixed_size|minilm|rrf_fix": {
+   "ndcg10": 0.425,
+   "cec_0.5": 0.7751,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1581.1767,
+   "n_units": 4.004,
+   "gate_score": 0.3994
+  },
+  "pypdf|fixed_size|minilm|convex_fix": {
+   "ndcg10": 0.4301,
+   "cec_0.5": 0.8072,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6104,
+   "context_tokens": 1580.3133,
+   "n_units": 4.004,
+   "gate_score": 0.4035
+  },
+  "pypdf|fixed_size|minilm|rrf_prod": {
+   "ndcg10": 0.3954,
+   "cec_0.5": 0.7871,
+   "cec_0.3": 0.9839,
+   "cec_0.7": 0.5863,
+   "context_tokens": 1584.7309,
+   "n_units": 4.004,
+   "gate_score": 0.399
+  },
+  "pypdf|fixed_size|arctic|dense": {
+   "ndcg10": 0.4137,
+   "cec_0.5": 0.7751,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5823,
+   "context_tokens": 1572.4659,
+   "n_units": 4.0,
+   "gate_score": 0.6584
+  },
+  "pypdf|fixed_size|arctic|rrf_fix": {
+   "ndcg10": 0.433,
+   "cec_0.5": 0.7992,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1574.8755,
+   "n_units": 4.0,
+   "gate_score": 0.6566
+  },
+  "pypdf|fixed_size|arctic|convex_fix": {
+   "ndcg10": 0.4447,
+   "cec_0.5": 0.8193,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1577.494,
+   "n_units": 4.0,
+   "gate_score": 0.6583
+  },
+  "pypdf|fixed_size|arctic|rrf_prod": {
+   "ndcg10": 0.4159,
+   "cec_0.5": 0.8072,
+   "cec_0.3": 0.9759,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1584.9639,
+   "n_units": 4.0,
+   "gate_score": 0.6563
+  },
+  "pypdf|fixed_size|bge|dense": {
+   "ndcg10": 0.4093,
+   "cec_0.5": 0.7631,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.5783,
+   "context_tokens": 1578.1486,
+   "n_units": 4.0,
+   "gate_score": 0.6865
+  },
+  "pypdf|fixed_size|bge|rrf_fix": {
+   "ndcg10": 0.4431,
+   "cec_0.5": 0.8032,
+   "cec_0.3": 0.9478,
+   "cec_0.7": 0.5984,
+   "context_tokens": 1578.8072,
+   "n_units": 4.0,
+   "gate_score": 0.6845
+  },
+  "pypdf|fixed_size|bge|convex_fix": {
+   "ndcg10": 0.4538,
+   "cec_0.5": 0.8072,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6145,
+   "context_tokens": 1583.8313,
+   "n_units": 4.0,
+   "gate_score": 0.686
+  },
+  "pypdf|fixed_size|bge|rrf_prod": {
+   "ndcg10": 0.4183,
+   "cec_0.5": 0.8112,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.5904,
+   "context_tokens": 1588.0964,
+   "n_units": 4.0,
+   "gate_score": 0.6835
+  },
+  "pypdf|fixed_size|modernbert|dense": {
+   "ndcg10": 0.45,
+   "cec_0.5": 0.7992,
+   "cec_0.3": 0.9598,
+   "cec_0.7": 0.6064,
+   "context_tokens": 1581.3534,
+   "n_units": 4.0,
+   "gate_score": 0.4925
+  },
+  "pypdf|fixed_size|modernbert|rrf_fix": {
+   "ndcg10": 0.4379,
+   "cec_0.5": 0.8072,
+   "cec_0.3": 0.9558,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1583.9197,
+   "n_units": 4.0,
+   "gate_score": 0.4897
+  },
+  "pypdf|fixed_size|modernbert|convex_fix": {
+   "ndcg10": 0.4567,
+   "cec_0.5": 0.8273,
+   "cec_0.3": 0.9679,
+   "cec_0.7": 0.6265,
+   "context_tokens": 1585.3373,
+   "n_units": 4.0,
+   "gate_score": 0.4921
+  },
+  "pypdf|fixed_size|modernbert|rrf_prod": {
+   "ndcg10": 0.4179,
+   "cec_0.5": 0.8273,
+   "cec_0.3": 0.9719,
+   "cec_0.7": 0.6024,
+   "context_tokens": 1589.0924,
+   "n_units": 4.0,
+   "gate_score": 0.4897
+  }
+ },
+ "main_effects": {
+  "ndcg10": {
+   "extractor": {
+    "pymupdf_layout": 0.4183,
+    "pypdf": 0.4081
+   },
+   "chunker": {
+    "fixed_size": 0.4293,
+    "hierarchical": 0.4193,
+    "section_overlap": 0.391
+   },
+   "embedder": {
+    "arctic": 0.419,
+    "bge": 0.4085,
+    "e5": 0.4198,
+    "minilm": 0.3939,
+    "modernbert": 0.4247
+   },
+   "retrieval": {
+    "convex_fix": 0.4355,
+    "dense": 0.4025,
+    "rrf_fix": 0.4185,
+    "rrf_prod": 0.3962
+   }
+  },
+  "cec_0.5": {
+   "extractor": {
+    "pymupdf_layout": 0.754,
+    "pypdf": 0.757
+   },
+   "chunker": {
+    "fixed_size": 0.7926,
+    "hierarchical": 0.7115,
+    "section_overlap": 0.7624
+   },
+   "embedder": {
+    "arctic": 0.7565,
+    "bge": 0.752,
+    "e5": 0.761,
+    "minilm": 0.7393,
+    "modernbert": 0.7686
+   },
+   "retrieval": {
+    "convex_fix": 0.7759,
+    "dense": 0.7333,
+    "rrf_fix": 0.7586,
+    "rrf_prod": 0.7541
+   }
+  }
+ },
+ "two_way_cec_0.5": {
+  "extractor x chunker": {
+   "pymupdf_layout x fixed_size": 0.789,
+   "pymupdf_layout x hierarchical": 0.7197,
+   "pymupdf_layout x section_overlap": 0.7534,
+   "pypdf x fixed_size": 0.7962,
+   "pypdf x hierarchical": 0.7034,
+   "pypdf x section_overlap": 0.7713
+  },
+  "extractor x embedder": {
+   "pymupdf_layout x arctic": 0.76,
+   "pymupdf_layout x bge": 0.7507,
+   "pymupdf_layout x e5": 0.7604,
+   "pymupdf_layout x minilm": 0.7262,
+   "pymupdf_layout x modernbert": 0.7728,
+   "pypdf x arctic": 0.753,
+   "pypdf x bge": 0.7533,
+   "pypdf x e5": 0.7617,
+   "pypdf x minilm": 0.7523,
+   "pypdf x modernbert": 0.7644
+  },
+  "extractor x retrieval": {
+   "pymupdf_layout x convex_fix": 0.7748,
+   "pymupdf_layout x dense": 0.7368,
+   "pymupdf_layout x rrf_fix": 0.7561,
+   "pymupdf_layout x rrf_prod": 0.7483,
+   "pypdf x convex_fix": 0.777,
+   "pypdf x dense": 0.7299,
+   "pypdf x rrf_fix": 0.7612,
+   "pypdf x rrf_prod": 0.7598
+  },
+  "chunker x embedder": {
+   "fixed_size x arctic": 0.7972,
+   "fixed_size x bge": 0.7907,
+   "fixed_size x e5": 0.7816,
+   "fixed_size x minilm": 0.7806,
+   "fixed_size x modernbert": 0.8128,
+   "hierarchical x arctic": 0.7093,
+   "hierarchical x bge": 0.7058,
+   "hierarchical x e5": 0.7169,
+   "hierarchical x minilm": 0.7033,
+   "hierarchical x modernbert": 0.7224,
+   "section_overlap x arctic": 0.7631,
+   "section_overlap x bge": 0.7595,
+   "section_overlap x e5": 0.7846,
+   "section_overlap x minilm": 0.7339,
+   "section_overlap x modernbert": 0.7706
+  },
+  "chunker x retrieval": {
+   "fixed_size x convex_fix": 0.8076,
+   "fixed_size x dense": 0.7667,
+   "fixed_size x rrf_fix": 0.794,
+   "fixed_size x rrf_prod": 0.802,
+   "hierarchical x convex_fix": 0.7321,
+   "hierarchical x dense": 0.6996,
+   "hierarchical x rrf_fix": 0.7145,
+   "hierarchical x rrf_prod": 0.7,
+   "section_overlap x convex_fix": 0.788,
+   "section_overlap x dense": 0.7337,
+   "section_overlap x rrf_fix": 0.7675,
+   "section_overlap x rrf_prod": 0.7602
+  },
+  "embedder x retrieval": {
+   "arctic x convex_fix": 0.7764,
+   "arctic x dense": 0.7443,
+   "arctic x rrf_fix": 0.7523,
+   "arctic x rrf_prod": 0.753,
+   "bge x convex_fix": 0.7818,
+   "bge x dense": 0.7309,
+   "bge x rrf_fix": 0.753,
+   "bge x rrf_prod": 0.7423,
+   "e5 x convex_fix": 0.7758,
+   "e5 x dense": 0.743,
+   "e5 x rrf_fix": 0.7637,
+   "e5 x rrf_prod": 0.7617,
+   "minilm x convex_fix": 0.7584,
+   "minilm x dense": 0.7021,
+   "minilm x rrf_fix": 0.7523,
+   "minilm x rrf_prod": 0.7443,
+   "modernbert x convex_fix": 0.7872,
+   "modernbert x dense": 0.7463,
+   "modernbert x rrf_fix": 0.7717,
+   "modernbert x rrf_prod": 0.7691
+  }
+ },
+ "vs_production_ndcg10_hierarchical_only": [
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0139,
+   "ci95": [
+    -0.0485,
+    0.021
+   ],
+   "p_raw": 0.4404,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0048,
+   "ci95": [
+    -0.0346,
+    0.0243
+   ],
+   "p_raw": 0.7683,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0368,
+   "ci95": [
+    -0.0762,
+    0.0015
+   ],
+   "p_raw": 0.0598,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0703,
+   "ci95": [
+    -0.1194,
+    -0.0227
+   ],
+   "p_raw": 0.003,
+   "p_holm": 0.117
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0347,
+   "ci95": [
+    -0.0821,
+    0.011
+   ],
+   "p_raw": 0.1404,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0334,
+   "ci95": [
+    -0.0777,
+    0.0096
+   ],
+   "p_raw": 0.1334,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0651,
+   "ci95": [
+    -0.1104,
+    -0.021
+   ],
+   "p_raw": 0.0044,
+   "p_holm": 0.1672
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0136,
+   "ci95": [
+    -0.0558,
+    0.0272
+   ],
+   "p_raw": 0.5377,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0252,
+   "ci95": [
+    -0.0638,
+    0.0121
+   ],
+   "p_raw": 0.1922,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": 0.0033,
+   "ci95": [
+    -0.0344,
+    0.0395
+   ],
+   "p_raw": 0.8597,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0439,
+   "ci95": [
+    -0.0879,
+    -0.0013
+   ],
+   "p_raw": 0.0424,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0418,
+   "ci95": [
+    -0.0838,
+    -0.002
+   ],
+   "p_raw": 0.0412,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0362,
+   "ci95": [
+    -0.0747,
+    0.0027
+   ],
+   "p_raw": 0.0678,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0093,
+   "ci95": [
+    -0.0474,
+    0.0289
+   ],
+   "p_raw": 0.6519,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0578,
+   "ci95": [
+    -0.1025,
+    -0.0139
+   ],
+   "p_raw": 0.0096,
+   "p_holm": 0.3456
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": 0.0104,
+   "ci95": [
+    -0.0239,
+    0.0436
+   ],
+   "p_raw": 0.5367,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0013,
+   "ci95": [
+    -0.0411,
+    0.0371
+   ],
+   "p_raw": 0.9637,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": 0.0164,
+   "ci95": [
+    -0.0207,
+    0.0522
+   ],
+   "p_raw": 0.362,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0329,
+   "ci95": [
+    -0.0762,
+    0.0098
+   ],
+   "p_raw": 0.1314,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0579,
+   "ci95": [
+    -0.1082,
+    -0.0105
+   ],
+   "p_raw": 0.0176,
+   "p_holm": 0.616
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0246,
+   "ci95": [
+    -0.0725,
+    0.0229
+   ],
+   "p_raw": 0.3162,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0275,
+   "ci95": [
+    -0.0751,
+    0.02
+   ],
+   "p_raw": 0.2624,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0703,
+   "ci95": [
+    -0.1241,
+    -0.0172
+   ],
+   "p_raw": 0.0082,
+   "p_holm": 0.3034
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0624,
+   "ci95": [
+    -0.1175,
+    -0.0107
+   ],
+   "p_raw": 0.018,
+   "p_holm": 0.616
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0377,
+   "ci95": [
+    -0.0887,
+    0.0118
+   ],
+   "p_raw": 0.141,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0375,
+   "ci95": [
+    -0.0908,
+    0.0139
+   ],
+   "p_raw": 0.1632,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0589,
+   "ci95": [
+    -0.1154,
+    -0.0032
+   ],
+   "p_raw": 0.035,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0521,
+   "ci95": [
+    -0.1107,
+    0.0038
+   ],
+   "p_raw": 0.0714,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0505,
+   "ci95": [
+    -0.1071,
+    0.0031
+   ],
+   "p_raw": 0.068,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0295,
+   "ci95": [
+    -0.0826,
+    0.023
+   ],
+   "p_raw": 0.277,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0657,
+   "ci95": [
+    -0.1225,
+    -0.0098
+   ],
+   "p_raw": 0.022,
+   "p_holm": 0.704
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0494,
+   "ci95": [
+    -0.1052,
+    0.0086
+   ],
+   "p_raw": 0.0904,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0399,
+   "ci95": [
+    -0.094,
+    0.0134
+   ],
+   "p_raw": 0.1414,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0222,
+   "ci95": [
+    -0.0758,
+    0.032
+   ],
+   "p_raw": 0.4202,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0675,
+   "ci95": [
+    -0.1241,
+    -0.0112
+   ],
+   "p_raw": 0.021,
+   "p_holm": 0.693
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0324,
+   "ci95": [
+    -0.0883,
+    0.0213
+   ],
+   "p_raw": 0.2352,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.04,
+   "ci95": [
+    -0.0927,
+    0.0107
+   ],
+   "p_raw": 0.1174,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0143,
+   "ci95": [
+    -0.0644,
+    0.0351
+   ],
+   "p_raw": 0.5933,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "ndcg10",
+   "diff": -0.0458,
+   "ci95": [
+    -0.1017,
+    0.0097
+   ],
+   "p_raw": 0.1088,
+   "p_holm": 1.0
+  }
+ ],
+ "vs_production_cec_0.5": [
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.012,
+   "ci95": [
+    -0.0622,
+    0.0363
+   ],
+   "p_raw": 0.6809,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.008,
+   "ci95": [
+    -0.0332,
+    0.0485
+   ],
+   "p_raw": 0.7461,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0442,
+   "ci95": [
+    -0.0972,
+    0.0081
+   ],
+   "p_raw": 0.1102,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0602,
+   "ci95": [
+    -0.1154,
+    -0.0043
+   ],
+   "p_raw": 0.0368,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0201,
+   "ci95": [
+    -0.0816,
+    0.0412
+   ],
+   "p_raw": 0.5585,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0281,
+   "ci95": [
+    -0.0794,
+    0.0223
+   ],
+   "p_raw": 0.3098,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0442,
+   "ci95": [
+    -0.0979,
+    0.0111
+   ],
+   "p_raw": 0.1302,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.012,
+   "ci95": [
+    -0.0377,
+    0.0623
+   ],
+   "p_raw": 0.7047,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0161,
+   "ci95": [
+    -0.0602,
+    0.0295
+   ],
+   "p_raw": 0.5425,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0161,
+   "ci95": [
+    -0.0277,
+    0.0586
+   ],
+   "p_raw": 0.5147,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0402,
+   "ci95": [
+    -0.0898,
+    0.0118
+   ],
+   "p_raw": 0.1532,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0402,
+   "ci95": [
+    -0.0894,
+    0.0085
+   ],
+   "p_raw": 0.1266,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0442,
+   "ci95": [
+    -0.0958,
+    0.0084
+   ],
+   "p_raw": 0.1146,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.012,
+   "ci95": [
+    -0.0581,
+    0.0356
+   ],
+   "p_raw": 0.6695,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0361,
+   "ci95": [
+    -0.0886,
+    0.0173
+   ],
+   "p_raw": 0.21,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.004,
+   "ci95": [
+    -0.0455,
+    0.0537
+   ],
+   "p_raw": 0.9397,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.008,
+   "ci95": [
+    -0.0595,
+    0.0413
+   ],
+   "p_raw": 0.8293,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0161,
+   "ci95": [
+    -0.0361,
+    0.0677
+   ],
+   "p_raw": 0.5847,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|hierarchical|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0361,
+   "ci95": [
+    -0.0847,
+    0.0123
+   ],
+   "p_raw": 0.1736,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0281,
+   "ci95": [
+    -0.0266,
+    0.0816
+   ],
+   "p_raw": 0.3558,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0241,
+   "ci95": [
+    -0.0288,
+    0.0769
+   ],
+   "p_raw": 0.413,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.0127,
+    0.1161
+   ],
+   "p_raw": 0.0162,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0402,
+   "ci95": [
+    -0.0186,
+    0.0964
+   ],
+   "p_raw": 0.1964,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.1084,
+   "ci95": [
+    -0.1736,
+    -0.0445
+   ],
+   "p_raw": 0.0014,
+   "p_holm": 0.1624
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.012,
+   "ci95": [
+    -0.0691,
+    0.0439
+   ],
+   "p_raw": 0.7233,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0201,
+   "ci95": [
+    -0.0769,
+    0.037
+   ],
+   "p_raw": 0.5439,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0201,
+   "ci95": [
+    -0.0817,
+    0.0426
+   ],
+   "p_raw": 0.5753,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0,
+   "ci95": [
+    -0.0577,
+    0.0602
+   ],
+   "p_raw": 1.0,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.008,
+   "ci95": [
+    -0.0465,
+    0.0633
+   ],
+   "p_raw": 0.8471,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0361,
+   "ci95": [
+    -0.016,
+    0.0916
+   ],
+   "p_raw": 0.2138,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0161,
+   "ci95": [
+    -0.0385,
+    0.0724
+   ],
+   "p_raw": 0.6217,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.004,
+   "ci95": [
+    -0.0675,
+    0.0581
+   ],
+   "p_raw": 0.9713,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0281,
+   "ci95": [
+    -0.0298,
+    0.0866
+   ],
+   "p_raw": 0.3686,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0482,
+   "ci95": [
+    -0.0122,
+    0.1111
+   ],
+   "p_raw": 0.1312,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0161,
+   "ci95": [
+    -0.0465,
+    0.0808
+   ],
+   "p_raw": 0.6511,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.012,
+   "ci95": [
+    -0.0494,
+    0.0769
+   ],
+   "p_raw": 0.7655,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.0303,
+    0.0972
+   ],
+   "p_raw": 0.348,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0763,
+   "ci95": [
+    0.0165,
+    0.1391
+   ],
+   "p_raw": 0.0138,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|section_overlap|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0241,
+   "ci95": [
+    -0.0385,
+    0.0909
+   ],
+   "p_raw": 0.5141,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0281,
+   "ci95": [
+    -0.0341,
+    0.0909
+   ],
+   "p_raw": 0.4088,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0442,
+   "ci95": [
+    -0.0121,
+    0.1034
+   ],
+   "p_raw": 0.1534,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.0234,
+    0.0898
+   ],
+   "p_raw": 0.2856,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0442,
+   "ci95": [
+    -0.0146,
+    0.1037
+   ],
+   "p_raw": 0.1588,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.008,
+   "ci95": [
+    -0.0547,
+    0.0729
+   ],
+   "p_raw": 0.8593,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0442,
+   "ci95": [
+    -0.0131,
+    0.1038
+   ],
+   "p_raw": 0.1512,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0602,
+   "ci95": [
+    0.0037,
+    0.1208
+   ],
+   "p_raw": 0.0488,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0482,
+   "ci95": [
+    -0.0163,
+    0.1162
+   ],
+   "p_raw": 0.1592,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.0232,
+    0.0876
+   ],
+   "p_raw": 0.2998,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0562,
+   "ci95": [
+    0.0038,
+    0.1128
+   ],
+   "p_raw": 0.0492,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.0084,
+    0.1202
+   ],
+   "p_raw": 0.0292,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0683,
+   "ci95": [
+    0.0105,
+    0.1308
+   ],
+   "p_raw": 0.0246,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.0278,
+    0.0912
+   ],
+   "p_raw": 0.3258,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0402,
+   "ci95": [
+    -0.0161,
+    0.0992
+   ],
+   "p_raw": 0.1868,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0964,
+   "ci95": [
+    0.0405,
+    0.156
+   ],
+   "p_raw": 0.0008,
+   "p_holm": 0.0944
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0161,
+   "ci95": [
+    -0.0447,
+    0.0795
+   ],
+   "p_raw": 0.6635,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0241,
+   "ci95": [
+    -0.0366,
+    0.0863
+   ],
+   "p_raw": 0.477,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0924,
+   "ci95": [
+    0.0383,
+    0.1491
+   ],
+   "p_raw": 0.0004,
+   "p_holm": 0.0476
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0803,
+   "ci95": [
+    0.025,
+    0.1373
+   ],
+   "p_raw": 0.005,
+   "p_holm": 0.56
+  },
+  {
+   "comparison": "pymupdf_layout|fixed_size|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0884,
+   "ci95": [
+    0.034,
+    0.1464
+   ],
+   "p_raw": 0.0012,
+   "p_holm": 0.1404
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0803,
+   "ci95": [
+    -0.1385,
+    -0.0243
+   ],
+   "p_raw": 0.0072,
+   "p_holm": 0.792
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.008,
+   "ci95": [
+    -0.0602,
+    0.0447
+   ],
+   "p_raw": 0.8283,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.004,
+   "ci95": [
+    -0.0449,
+    0.0563
+   ],
+   "p_raw": 0.9303,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0442,
+   "ci95": [
+    -0.0996,
+    0.0124
+   ],
+   "p_raw": 0.1446,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0763,
+   "ci95": [
+    -0.1349,
+    -0.0177
+   ],
+   "p_raw": 0.011,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0201,
+   "ci95": [
+    -0.0741,
+    0.0338
+   ],
+   "p_raw": 0.5169,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0161,
+   "ci95": [
+    -0.0731,
+    0.0407
+   ],
+   "p_raw": 0.6381,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0201,
+   "ci95": [
+    -0.0766,
+    0.0364
+   ],
+   "p_raw": 0.5343,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0562,
+   "ci95": [
+    -0.1111,
+    -0.0038
+   ],
+   "p_raw": 0.0488,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0562,
+   "ci95": [
+    -0.1124,
+    0.0
+   ],
+   "p_raw": 0.058,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0361,
+   "ci95": [
+    -0.0913,
+    0.0196
+   ],
+   "p_raw": 0.218,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0602,
+   "ci95": [
+    -0.1213,
+    0.0
+   ],
+   "p_raw": 0.066,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0482,
+   "ci95": [
+    -0.1048,
+    0.0089
+   ],
+   "p_raw": 0.125,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0281,
+   "ci95": [
+    -0.0846,
+    0.0289
+   ],
+   "p_raw": 0.3652,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.008,
+   "ci95": [
+    -0.0586,
+    0.0455
+   ],
+   "p_raw": 0.8445,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0482,
+   "ci95": [
+    -0.1082,
+    0.0129
+   ],
+   "p_raw": 0.1468,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0482,
+   "ci95": [
+    -0.1098,
+    0.0123
+   ],
+   "p_raw": 0.1376,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0321,
+   "ci95": [
+    -0.0891,
+    0.0233
+   ],
+   "p_raw": 0.3136,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.012,
+   "ci95": [
+    -0.0664,
+    0.0429
+   ],
+   "p_raw": 0.7271,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|hierarchical|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.0161,
+   "ci95": [
+    -0.0803,
+    0.0484
+   ],
+   "p_raw": 0.6801,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0361,
+   "ci95": [
+    -0.0119,
+    0.0852
+   ],
+   "p_raw": 0.1692,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0562,
+   "ci95": [
+    -0.0041,
+    0.1189
+   ],
+   "p_raw": 0.0816,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.0124,
+    0.1179
+   ],
+   "p_raw": 0.018,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0522,
+   "ci95": [
+    -0.0041,
+    0.1142
+   ],
+   "p_raw": 0.0892,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.004,
+   "ci95": [
+    -0.0641,
+    0.0588
+   ],
+   "p_raw": 0.9377,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0522,
+   "ci95": [
+    -0.0041,
+    0.1111
+   ],
+   "p_raw": 0.0868,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0522,
+   "ci95": [
+    -0.0041,
+    0.113
+   ],
+   "p_raw": 0.0876,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0201,
+   "ci95": [
+    -0.0435,
+    0.0871
+   ],
+   "p_raw": 0.5895,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.008,
+   "ci95": [
+    -0.0472,
+    0.0664
+   ],
+   "p_raw": 0.8451,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0281,
+   "ci95": [
+    -0.0279,
+    0.084
+   ],
+   "p_raw": 0.359,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.012,
+    0.1186
+   ],
+   "p_raw": 0.019,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.0244,
+    0.0898
+   ],
+   "p_raw": 0.296,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.012,
+   "ci95": [
+    -0.0711,
+    0.0478
+   ],
+   "p_raw": 0.7557,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0241,
+   "ci95": [
+    -0.0327,
+    0.0823
+   ],
+   "p_raw": 0.4288,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.0117,
+    0.1193
+   ],
+   "p_raw": 0.0228,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0,
+   "ci95": [
+    -0.0563,
+    0.0574
+   ],
+   "p_raw": 1.0,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": -0.008,
+   "ci95": [
+    -0.062,
+    0.0453
+   ],
+   "p_raw": 0.8401,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0442,
+   "ci95": [
+    -0.0163,
+    0.1048
+   ],
+   "p_raw": 0.1664,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0402,
+   "ci95": [
+    -0.0161,
+    0.0964
+   ],
+   "p_raw": 0.179,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|section_overlap|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0321,
+   "ci95": [
+    -0.027,
+    0.0931
+   ],
+   "p_raw": 0.3156,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|e5|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.012,
+   "ci95": [
+    -0.0405,
+    0.0633
+   ],
+   "p_raw": 0.7003,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|e5|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0442,
+   "ci95": [
+    -0.0083,
+    0.0989
+   ],
+   "p_raw": 0.118,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|e5|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0482,
+   "ci95": [
+    -0.0042,
+    0.1047
+   ],
+   "p_raw": 0.092,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|e5|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0884,
+   "ci95": [
+    0.0314,
+    0.1452
+   ],
+   "p_raw": 0.0032,
+   "p_holm": 0.368
+  },
+  {
+   "comparison": "pypdf|fixed_size|minilm|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0201,
+   "ci95": [
+    -0.0405,
+    0.0823
+   ],
+   "p_raw": 0.5525,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|minilm|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0361,
+   "ci95": [
+    -0.021,
+    0.0934
+   ],
+   "p_raw": 0.2514,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|minilm|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0683,
+   "ci95": [
+    0.0117,
+    0.1271
+   ],
+   "p_raw": 0.0236,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|minilm|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0482,
+   "ci95": [
+    -0.0149,
+    0.1102
+   ],
+   "p_raw": 0.1478,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|arctic|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0361,
+   "ci95": [
+    -0.0214,
+    0.0952
+   ],
+   "p_raw": 0.26,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|arctic|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0602,
+   "ci95": [
+    0.0,
+    0.1225
+   ],
+   "p_raw": 0.0526,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|arctic|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0803,
+   "ci95": [
+    0.0234,
+    0.1398
+   ],
+   "p_raw": 0.0062,
+   "p_holm": 0.6882
+  },
+  {
+   "comparison": "pypdf|fixed_size|arctic|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0683,
+   "ci95": [
+    0.0083,
+    0.1315
+   ],
+   "p_raw": 0.029,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|bge|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0241,
+   "ci95": [
+    -0.0363,
+    0.083
+   ],
+   "p_raw": 0.4578,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|bge|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0643,
+   "ci95": [
+    0.0082,
+    0.1216
+   ],
+   "p_raw": 0.0284,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|bge|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0683,
+   "ci95": [
+    0.0153,
+    0.1255
+   ],
+   "p_raw": 0.0118,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|bge|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0723,
+   "ci95": [
+    0.0204,
+    0.1275
+   ],
+   "p_raw": 0.0078,
+   "p_holm": 0.8502
+  },
+  {
+   "comparison": "pypdf|fixed_size|modernbert|dense - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0602,
+   "ci95": [
+    0.008,
+    0.1131
+   ],
+   "p_raw": 0.0276,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|modernbert|rrf_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0683,
+   "ci95": [
+    0.0083,
+    0.1296
+   ],
+   "p_raw": 0.0272,
+   "p_holm": 1.0
+  },
+  {
+   "comparison": "pypdf|fixed_size|modernbert|convex_fix - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0884,
+   "ci95": [
+    0.0288,
+    0.1498
+   ],
+   "p_raw": 0.0032,
+   "p_holm": 0.368
+  },
+  {
+   "comparison": "pypdf|fixed_size|modernbert|rrf_prod - pymupdf_layout|hierarchical|e5|dense",
+   "metric": "cec_0.5",
+   "diff": 0.0884,
+   "ci95": [
+    0.0287,
+    0.1506
+   ],
+   "p_raw": 0.0042,
+   "p_holm": 0.4746
+  }
+ ],
+ "shortlist": [
+  "pymupdf_layout|hierarchical|modernbert|convex_fix",
+  "pymupdf_layout|hierarchical|modernbert|dense",
+  "pymupdf_layout|section_overlap|modernbert|convex_fix",
+  "pymupdf_layout|section_overlap|arctic|convex_fix",
+  "pymupdf_layout|fixed_size|arctic|convex_fix",
+  "pymupdf_layout|fixed_size|modernbert|convex_fix",
+  "pymupdf_layout|hierarchical|e5|dense"
+ ],
+ "gate_thresholds": {
+  "pymupdf_layout|hierarchical|modernbert|convex_fix": 0.3035,
+  "pymupdf_layout|hierarchical|modernbert|dense": 0.30715,
+  "pymupdf_layout|section_overlap|modernbert|convex_fix": 0.29335,
+  "pymupdf_layout|section_overlap|arctic|convex_fix": 0.5454,
+  "pymupdf_layout|fixed_size|arctic|convex_fix": 0.55808,
+  "pymupdf_layout|fixed_size|modernbert|convex_fix": 0.2615,
+  "pymupdf_layout|hierarchical|e5|dense": 0.8
+ },
+ "production_gate_refusal_rate": 0.0241,
+ "efficiency": {
+  "e5": {
+   "index": {
+    "pymupdf_layout|hierarchical": {
+     "units": 9783,
+     "embed_s": 0.0,
+     "embedded_uncached": 0,
+     "chunks_per_s": null
+    },
+    "pymupdf_layout|section_overlap": {
+     "units": 5853,
+     "embed_s": 0.0,
+     "embedded_uncached": 0,
+     "chunks_per_s": null
+    },
+    "pymupdf_layout|fixed_size": {
+     "units": 3349,
+     "embed_s": 0.0,
+     "embedded_uncached": 0,
+     "chunks_per_s": null
+    },
+    "pypdf|hierarchical": {
+     "units": 8552,
+     "embed_s": 0.0,
+     "embedded_uncached": 0,
+     "chunks_per_s": null
+    },
+    "pypdf|section_overlap": {
+     "units": 5113,
+     "embed_s": 845.6028663000106,
+     "embedded_uncached": 5007,
+     "chunks_per_s": 5.92
+    },
+    "pypdf|fixed_size": {
+     "units": 3180,
+     "embed_s": 553.5145223000873,
+     "embedded_uncached": 3111,
+     "chunks_per_s": 5.62
+    }
+   },
+   "query_latency_ms": {
+    "p50": 30.09,
+    "p95": 45.88,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 948.9,
+    "python_working_set_peak_mb": 1818.8
+   }
+  },
+  "minilm": {
+   "index": {
+    "pymupdf_layout|hierarchical": {
+     "units": 9783,
+     "embed_s": 418.5098690999803,
+     "embedded_uncached": 9566,
+     "chunks_per_s": 22.86
+    },
+    "pymupdf_layout|section_overlap": {
+     "units": 5853,
+     "embed_s": 248.90998180003953,
+     "embedded_uncached": 5724,
+     "chunks_per_s": 23.0
+    },
+    "pymupdf_layout|fixed_size": {
+     "units": 3349,
+     "embed_s": 142.80527330001496,
+     "embedded_uncached": 3274,
+     "chunks_per_s": 22.93
+    },
+    "pypdf|hierarchical": {
+     "units": 8552,
+     "embed_s": 361.61636670000735,
+     "embedded_uncached": 8365,
+     "chunks_per_s": 23.13
+    },
+    "pypdf|section_overlap": {
+     "units": 5113,
+     "embed_s": 210.87240789999487,
+     "embedded_uncached": 5007,
+     "chunks_per_s": 23.74
+    },
+    "pypdf|fixed_size": {
+     "units": 3180,
+     "embed_s": 133.63239699998667,
+     "embedded_uncached": 3111,
+     "chunks_per_s": 23.28
+    }
+   },
+   "query_latency_ms": {
+    "p50": 17.22,
+    "p95": 23.51,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 950.5,
+    "python_working_set_peak_mb": 1533.4
+   }
+  },
+  "arctic": {
+   "index": {
+    "pymupdf_layout|hierarchical": {
+     "units": 9783,
+     "embed_s": 965.3429922999785,
+     "embedded_uncached": 9566,
+     "chunks_per_s": 9.91
+    },
+    "pymupdf_layout|section_overlap": {
+     "units": 5853,
+     "embed_s": 892.6897498999824,
+     "embedded_uncached": 5724,
+     "chunks_per_s": 6.41
+    },
+    "pymupdf_layout|fixed_size": {
+     "units": 3349,
+     "embed_s": 583.8939572999807,
+     "embedded_uncached": 3274,
+     "chunks_per_s": 5.61
+    },
+    "pypdf|hierarchical": {
+     "units": 8552,
+     "embed_s": 949.6021301000219,
+     "embedded_uncached": 8365,
+     "chunks_per_s": 8.81
+    },
+    "pypdf|section_overlap": {
+     "units": 5113,
+     "embed_s": 836.5731292000273,
+     "embedded_uncached": 5007,
+     "chunks_per_s": 5.99
+    },
+    "pypdf|fixed_size": {
+     "units": 3180,
+     "embed_s": 551.5132117999965,
+     "embedded_uncached": 3111,
+     "chunks_per_s": 5.64
+    }
+   },
+   "query_latency_ms": {
+    "p50": 29.51,
+    "p95": 34.29,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 952.8,
+    "python_working_set_peak_mb": 1597.7
+   }
+  },
+  "bge": {
+   "index": {
+    "pymupdf_layout|hierarchical": {
+     "units": 9783,
+     "embed_s": 835.3069012999695,
+     "embedded_uncached": 9566,
+     "chunks_per_s": 11.45
+    },
+    "pymupdf_layout|section_overlap": {
+     "units": 5853,
+     "embed_s": 779.672129100014,
+     "embedded_uncached": 5724,
+     "chunks_per_s": 7.34
+    },
+    "pymupdf_layout|fixed_size": {
+     "units": 3349,
+     "embed_s": 510.8503866999599,
+     "embedded_uncached": 3274,
+     "chunks_per_s": 6.41
+    },
+    "pypdf|hierarchical": {
+     "units": 8552,
+     "embed_s": 837.5473559000529,
+     "embedded_uncached": 8365,
+     "chunks_per_s": 9.99
+    },
+    "pypdf|section_overlap": {
+     "units": 5113,
+     "embed_s": 745.0663718000142,
+     "embedded_uncached": 5007,
+     "chunks_per_s": 6.72
+    },
+    "pypdf|fixed_size": {
+     "units": 3180,
+     "embed_s": 489.79649150007026,
+     "embedded_uncached": 3111,
+     "chunks_per_s": 6.35
+    }
+   },
+   "query_latency_ms": {
+    "p50": 27.49,
+    "p95": 32.58,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 952.5,
+    "python_working_set_peak_mb": 2001.3
+   }
+  },
+  "modernbert": {
+   "index": {
+    "pymupdf_layout|hierarchical": {
+     "units": 9783,
+     "embed_s": 4682.503461799992,
+     "embedded_uncached": 9566,
+     "chunks_per_s": 2.04
+    },
+    "pymupdf_layout|section_overlap": {
+     "units": 5853,
+     "embed_s": 4944.285508199857,
+     "embedded_uncached": 5724,
+     "chunks_per_s": 1.16
+    },
+    "pymupdf_layout|fixed_size": {
+     "units": 3349,
+     "embed_s": 3112.017558099891,
+     "embedded_uncached": 3274,
+     "chunks_per_s": 1.05
+    },
+    "pypdf|hierarchical": {
+     "units": 8552,
+     "embed_s": 8051.325439500084,
+     "embedded_uncached": 8365,
+     "chunks_per_s": 1.04
+    },
+    "pypdf|section_overlap": {
+     "units": 5113,
+     "embed_s": 4644.716304199916,
+     "embedded_uncached": 5007,
+     "chunks_per_s": 1.08
+    },
+    "pypdf|fixed_size": {
+     "units": 3180,
+     "embed_s": 5186.90244589989,
+     "embedded_uncached": 3111,
+     "chunks_per_s": 0.6
+    }
+   },
+   "query_latency_ms": {
+    "p50": 89.05,
+    "p95": 109.05,
+    "n": 100
+   },
+   "memory": {
+    "python_working_set_baseline_mb": 951.9,
+    "python_working_set_peak_mb": 13844.8
+   }
+  }
+ },
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42,
+  "unit": "paper"
+ }
+}

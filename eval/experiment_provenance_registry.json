@@ -7771,7 +7771,27 @@
       "papers_reference": "same paper IDs as the referenced cohort; no new papers exposed",
       "protocol": "reports/revalidation/protocol/combo_test.json",
       "registered_utc": "2026-10-30T14:06:04+00:00",
-      "events": []
+      "events": [
+        {
+          "event": "STAGE1_COMPLETED",
+          "utc": "2026-10-31T02:33:00+00:00",
+          "papers": 150,
+          "questions": 249,
+          "combinations": 120,
+          "failures": 0,
+          "decision": "shortlist (7, registered rule): hierarchical modernbert convex_fix/dense; section_overlap modernbert/arctic convex_fix; fixed_size arctic/modernbert convex_fix; production. No combination beats production on hierarchical nDCG@10; 1/119 on CEC@0.5 (fixed_size modernbert rrf_fix +0.092, Holm p 0.048)",
+          "outputs": {
+            "embedder_arctic.json": "3c634b670a97930a1bb2a5d3e91d7fafd80af99e4b9f4a7d15d6ce1e55325733",
+            "embedder_bge.json": "4d90cd98c0aeb5379771acd8614ebc7b849a0c11191f072e59ff44169ff99461",
+            "embedder_e5.json": "b3257e8a51d665afbb0e8f2421dbcc1311297244ddc79f38612d8efba59602e4",
+            "embedder_minilm.json": "2607c79f219a2edda172836be67bd5490b3c216ecfff0c3d7ddb87a8ca763733",
+            "embedder_modernbert.json": "461a0ec1b9b5e0c3e34351981ae3fb63d0944862b56a7e1cb63ded5f8549aca9",
+            "per_query.jsonl": "2ad1b4e628d8c4a820b5a2ccf938582a50ab47a6691673edf47af9624dde77de",
+            "REPORT.md": "c44156e2d19e6e991ff0b45637d36beffc4e5c260797b1e9b4a1f4761f2dbd5c",
+            "summary.json": "eab96ff08c31e71895b4289f0808342b44969fd662b0d124588a688948487d03"
+          }
+        }
+      ]
     },
     "EXP-REVAL-EXT-RQ2-SEMANTIC": {
       "experiment_id": "EXP-REVAL-EXT-RQ2-SEMANTIC",
