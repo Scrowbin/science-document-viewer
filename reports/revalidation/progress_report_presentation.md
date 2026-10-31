@@ -86,6 +86,26 @@ flowchart LR
 - **The combination test** answers the professor's point: stage-wise winners are not automatically the best *pipeline*. It brute-forces the combinations and picks the final system. Interpreting it relies on RQ1–RQ5.
 - **RQ6** is needed because picking the best of many combinations is partly luck (the "winner's curse"). The winner is tested once on papers no selection step has seen.
 
+### From the midterm report to now
+
+| | **Midterm report** (development study) | **Now** (revalidation) |
+|---|---|---|
+| **Done** | RQ1–RQ3 only; RQ4–RQ6 were plans | RQ1–RQ5 + extensions, combination test, RQ6 next |
+| **Data** | QASPER **Dev** (47 papers / 127 q for RQ1–RQ2; 207 Dev + Train papers for RQ3), reused across experiments | Untouched QASPER **Train** papers (C-RET 335, C-INT 100) + PeerQA |
+| **Text** | RQ1–RQ2 from PDFs; RQ3 from QASPER's ready-made text | Real PDFs through the app's extractor, everywhere |
+| **Pipeline** | Research reimplementations; RQ3 used a different chunk size from RQ2 | The production code (chunker, context assembly, 1,600-token budget) |
+| **Statistics** | Descriptive only: no tests, no confidence intervals | Paper-cluster bootstrap, Holm correction, pre-set minimum effects |
+| **Decision rules** | Chosen after seeing results | Registered and hashed before each run |
+| **Answers (LLM)** | Not evaluated | RQ5 on gold evidence + human review; stage 2 and RQ6 end to end |
+| **Combinations** | One component at a time | Brute-force grid (160 combinations) + end-to-end stage 2 |
+
+**What changed in the conclusions:**
+- **Extraction:** `pymupdf_layout` was kept in both. Now we know why: text recovery is equal across extractors, and headings are what help.
+- **Chunking:** hierarchical was kept in both. Its large lead in the midterm (0.688 vs 0.540–0.580 nDCG@10) shrinks to a statistical tie on CEC under the budgeted, real-pipeline test.
+- **Embedding:** e5-small-v2 was kept in both. ModernBERT's midterm lead (+0.035) is not significant.
+- **Retrieval:** the midterm app used RRF hybrid without testing it. The revalidation found dense alone is as good or better for the production pipeline, so **production switched to dense**.
+- **LLM:** llama3.2:3b was assumed at the midterm; it is now measured and kept. phi4-mini was added as a candidate.
+
 ### Data flow: selection vs confirmation
 ```mermaid
 flowchart LR
