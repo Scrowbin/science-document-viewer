@@ -35,6 +35,7 @@ from qdrant_client.http import models as qmodels
 from rank_bm25 import BM25Okapi
 
 from .chunking_utils import chunk_document, estimate_tokens
+from .question_guard import screen_question
 
 logger = logging.getLogger(__name__)
 
@@ -1275,9 +1276,22 @@ def query_document(
             "model": "Local RAG Engine",
         }
 
+    REFUSAL_MESSAGE = "The document does not contain sufficient relevant information to answer this question."
+
+    # NFR-07: obscene or app-sensitive questions are refused before retrieval (terms the paper itself uses pass)
+    guard_reason = screen_question(question, (d.page_content for d in rag.documents))
+    if guard_reason:
+        logger.info("Question refused by scope guard for doc %s (reason=%s).", doc_id, guard_reason)
+        return {
+            "answer": REFUSAL_MESSAGE,
+            "sources": [],
+            "model": "Grounded Hybrid RAG (Local)",
+            "refused": True,
+            "refusal_reason": guard_reason,
+        }
+
     top_chunks = rag.hybrid_search(question, top_k=5)
 
-    REFUSAL_MESSAGE = "The document does not contain sufficient relevant information to answer this question."
 
     min_similarity = getattr(settings, "RAG_MIN_SIMILARITY_SCORE", 0.80)
     top_dense_score = max(
