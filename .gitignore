@@ -36,13 +36,14 @@ sample_papers/
 scratch/
 
 # AI Agent Instruction, Prompt & Handover Docs
-AGENTS.md
 EVALUATION.MD
 EVALUATION.md
 evaluation.md
 *AGENT*.md
 *agent*.md
 eval/*AGENT*.md
+# AGENTS.md is the tracked agent guide
+!/AGENTS.md
 eval/*agent*.md
 eval/AGENT_SESSION_PROMPTS_AND_HANDOVER.md
 

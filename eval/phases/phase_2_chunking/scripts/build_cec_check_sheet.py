@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Builds the 30-case human check of Context Evidence Coverage (CEC) on the RQ2 Dev papers (diagnostic data).
+Builds the 30-case human check of Context Evidence Coverage (CEC) on the the chunking experiment Dev papers (diagnostic data).
 
-For the 47 RQ2 Dev papers / 127 questions: production chunking (fixed_size, section_overlap, hierarchical) of
+For the 47 the chunking experiment Dev papers / 127 questions: production chunking (fixed_size, section_overlap, hierarchical) of
 pymupdf_layout sections, dense e5-small-v2 ranking, production context assembly (1,600 tokens, <= 5 units).
 CEC (tau = 0.50) is computed per (question, strategy). 30 cases are drawn with seed 42: for each strategy,
 5 covered and 5 not covered. The annotator sees the question, the reference answer(s), the gold evidence and
 the context, but not the strategy or the CEC value.
 
 Pre-registered decision (fixed before judgments are seen): if human YES/NO agrees with CEC on < 80% of the
-cases (UNSURE counted as disagreement), budgeted nDCG@10 becomes RQ2's primary metric and CEC is secondary.
+cases (UNSURE counted as disagreement), budgeted nDCG@10 becomes the chunking experiment's primary metric and CEC is secondary.
 
 Outputs (eval/phases/phase_2_chunking/artifacts/cec_human_check/):
   CEC_CHECK_SHEET.md          sheet for the annotator

@@ -1144,6 +1144,209 @@ class DocumentLifecycleThesisTestCase(TransactionTestCase):
         self.assertGreater(len(results), 0)
 
 
+class SharedAccessPermissionTestCase(TestCase):
+    """Regression tests for share-level permissions on custom document actions (audit 2026-10-29)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.owner = User.objects.create_user(username='owner', email='owner@univ.edu', password='password123')
+        self.viewer = User.objects.create_user(username='viewer', email='viewer@univ.edu', password='password123')
+        self.commenter = User.objects.create_user(username='commenter', email='commenter@univ.edu', password='password123')
+        self.editor = User.objects.create_user(username='editor', email='editor@univ.edu', password='password123')
+        self.outsider = User.objects.create_user(username='outsider', email='outsider@univ.edu', password='password123')
+        self.doc = Document.objects.create(owner=self.owner, title='Shared Paper')
+        for user, perm in ((self.viewer, 'VIEW'), (self.commenter, 'COMMENT'), (self.editor, 'EDIT')):
+            DocumentShare.objects.create(document=self.doc, shared_with_user=user, permission=perm)
+
+    def _as(self, user):
+        self.client.force_authenticate(user=user)
+        return self.client
+
+    def test_shared_users_can_chat_and_summarize_outsider_cannot(self):
+        from unittest.mock import patch
+        fake = {'answer': 'ok', 'sources': [], 'model': 'test'}
+        with patch('apps.documents.views.query_document', return_value=fake), \
+             patch('apps.documents.views.summarize_document', return_value=fake):
+            for user in (self.owner, self.viewer, self.commenter, self.editor):
+                resp = self._as(user).post(f'/api/v1/documents/{self.doc.id}/chat/', {'question': 'What?'}, format='json')
+                self.assertEqual(resp.status_code, status.HTTP_200_OK, user.username)
+                resp = self._as(user).post(f'/api/v1/documents/{self.doc.id}/summarize/', {}, format='json')
+                self.assertEqual(resp.status_code, status.HTTP_200_OK, user.username)
+            resp = self._as(self.outsider).post(f'/api/v1/documents/{self.doc.id}/chat/', {'question': 'What?'}, format='json')
+            self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_annotation_requires_comment_permission(self):
+        payload = {'page_number': 1, 'type': 'highlight', 'color': '#ffeb3b', 'rects': [], 'selected_text': 'x'}
+        url = f'/api/v1/documents/{self.doc.id}/annotations/'
+        self.assertEqual(self._as(self.viewer).get(url).status_code, status.HTTP_200_OK)
+        self.assertEqual(self._as(self.viewer).post(url, payload, format='json').status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.commenter).post(url, payload, format='json').status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self._as(self.editor).post(url, payload, format='json').status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self._as(self.outsider).post(url, payload, format='json').status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Annotation.objects.filter(document=self.doc).count(), 2)
+
+    def test_shared_users_cannot_delete_trash_reindex_or_duplicate(self):
+        for user in (self.viewer, self.commenter, self.editor):
+            c = self._as(user)
+            self.assertEqual(c.delete(f'/api/v1/documents/{self.doc.id}/').status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.post(f'/api/v1/documents/{self.doc.id}/toggle-trash/').status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.post(f'/api/v1/documents/{self.doc.id}/duplicate/').status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.post(f'/api/v1/documents/{self.doc.id}/reindex/').status_code, status.HTTP_403_FORBIDDEN)
+        self.doc.refresh_from_db()
+        self.assertFalse(self.doc.in_trash)
+        self.assertEqual(Document.objects.count(), 1)
+
+    def test_toggle_read_requires_edit_permission(self):
+        url = f'/api/v1/documents/{self.doc.id}/toggle-read/'
+        self.assertEqual(self._as(self.viewer).post(url).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.commenter).post(url).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.editor).post(url).status_code, status.HTTP_200_OK)
+
+    def test_note_requires_access_to_document(self):
+        payload = {'document': self.doc.id, 'title': 't', 'content': 'c'}
+        self.assertEqual(self._as(self.outsider).post('/api/v1/notes/', payload).status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.viewer).post('/api/v1/notes/', payload).status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Note.objects.filter(document=self.doc).count(), 1)
+        # Moving an existing note onto an inaccessible document is rejected too.
+        private = Document.objects.create(owner=self.outsider, title='Private')
+        note = Note.objects.get(document=self.doc)
+        resp = self._as(self.viewer).patch(f'/api/v1/notes/{note.id}/', {'document': private.id})
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_related_link_requires_edit_and_access_to_target(self):
+        private = Document.objects.create(owner=self.outsider, title='Private')
+        own = Document.objects.create(owner=self.owner, title='Own Other')
+        url = f'/api/v1/documents/{self.doc.id}/related/'
+        resp = self._as(self.owner).post(url, {'related_document_id': private.id}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        resp = self._as(self.owner).post(url, {'related_document_id': own.id}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        resp = self._as(self.viewer).post(url, {'related_document_id': own.id}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.viewer).get(url).status_code, status.HTTP_200_OK)
+
+
+class DuplicateFileIndependenceTestCase(TestCase):
+    """Deleting a duplicate or its original must not remove the other's PDF (audit 2026-10-29)."""
+
+    def setUp(self):
+        import tempfile
+        from django.test import override_settings
+        self._media = tempfile.TemporaryDirectory()
+        self._override = override_settings(MEDIA_ROOT=self._media.name)
+        self._override.enable()
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='dup', email='dup@univ.edu', password='password123')
+        self.client.force_authenticate(user=self.user)
+        self.doc = Document.objects.create(owner=self.user, title='Original')
+        self.doc.file.save('original.pdf', SimpleUploadedFile('original.pdf', b'%PDF-1.4 original'), save=True)
+
+    def tearDown(self):
+        self._override.disable()
+        self._media.cleanup()
+        super().tearDown()
+
+    def _delete(self, doc_id):
+        from unittest.mock import patch
+        with patch('apps.documents.views.delete_document_qdrant_data'), \
+             patch('apps.documents.views.evict_rag_instance'):
+            return self.client.delete(f'/api/v1/documents/{doc_id}/')
+
+    def test_duplicate_gets_its_own_file(self):
+        import os
+        resp = self.client.post(f'/api/v1/documents/{self.doc.id}/duplicate/')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        clone = Document.objects.get(id=resp.data['id'])
+        self.assertNotEqual(clone.file.name, self.doc.file.name)
+        self.assertEqual(self._delete(clone.id).status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(os.path.exists(self.doc.file.path))
+        with open(self.doc.file.path, 'rb') as f:
+            self.assertEqual(f.read(), b'%PDF-1.4 original')
+
+    def test_deleting_original_keeps_duplicate_file(self):
+        import os
+        resp = self.client.post(f'/api/v1/documents/{self.doc.id}/duplicate/')
+        clone = Document.objects.get(id=resp.data['id'])
+        self.assertEqual(self._delete(self.doc.id).status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(os.path.exists(clone.file.path))
+
+    def test_legacy_shared_file_is_kept_while_still_referenced(self):
+        import os
+        legacy = Document.objects.create(owner=self.user, title='Legacy copy', file=self.doc.file.name)
+        self.assertEqual(self._delete(legacy.id).status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(os.path.exists(self.doc.file.path))
+
+
+class RetrievalModeTestCase(TestCase):
+    """RAG_RETRIEVAL_MODE: 'dense' (default) vs 'rrf_legacy'; Ollama temperature 0."""
+
+    def _rag(self):
+        import numpy as np
+        from langchain_core.documents import Document as LCDocument
+        from .services.rag_service import DocumentRAG
+        texts = [
+            "general overview of the method",          # 0: best dense score, no query words
+            "quantum entanglement experiment details",  # 1: second dense score, only BM25 match
+            "related work and background",              # 2
+            "acknowledgements and funding",             # 3
+        ]
+        docs = [LCDocument(page_content=t, metadata={"chunk_id": f"c{i}", "page": 1}) for i, t in enumerate(texts)]
+        return DocumentRAG(document_id=999, documents=docs, embeddings=np.zeros((4, 3), dtype=np.float32))
+
+    def _stub(self):
+        from unittest.mock import MagicMock
+        stub = MagicMock()
+        dense = [(0.9, {"chunk_id": "c0"}), (0.5, {"chunk_id": "c1"}), (0.3, {"chunk_id": "c2"}), (0.1, {"chunk_id": "c3"})]
+        stub.search_dense.side_effect = lambda collection_name, query, top_k, filter_document_id=None: dense[:top_k]
+        return stub
+
+    def _ids(self, results):
+        return [d.metadata["chunk_id"] for d, _ in results]
+
+    def test_default_mode_is_dense(self):
+        from django.conf import settings
+        self.assertEqual(settings.RAG_RETRIEVAL_MODE, "dense")
+
+    def test_dense_mode_ignores_bm25(self):
+        from unittest.mock import patch
+        rag, stub = self._rag(), self._stub()
+        with patch("apps.documents.services.rag_service.RagService.get_instance", return_value=stub):
+            res = rag.hybrid_search("quantum entanglement", top_k=4, mode="dense")
+        self.assertEqual(self._ids(res), ["c0", "c1", "c2", "c3"])
+        self.assertAlmostEqual(res[0][1], 0.9)
+        self.assertEqual(stub.search_dense.call_args.kwargs["top_k"], 4)  # every child, as in the dense retrieval experiment
+
+    def test_rrf_legacy_mode_keeps_previous_fusion(self):
+        from unittest.mock import patch
+        rag, stub = self._rag(), self._stub()
+        with patch("apps.documents.services.rag_service.RagService.get_instance", return_value=stub):
+            res = rag.hybrid_search("quantum entanglement", top_k=4, mode="rrf_legacy")
+        self.assertEqual(self._ids(res)[0], "c1")  # BM25 match lifted above the best dense hit
+        self.assertAlmostEqual(res[0][1], 1 / 62 + 1 / 61)
+
+    def test_mode_from_settings(self):
+        from unittest.mock import patch
+        from django.test import override_settings
+        rag, stub = self._rag(), self._stub()
+        with override_settings(RAG_RETRIEVAL_MODE="rrf_legacy"), \
+                patch("apps.documents.services.rag_service.RagService.get_instance", return_value=stub):
+            res = rag.hybrid_search("quantum entanglement", top_k=4)
+        self.assertEqual(self._ids(res)[0], "c1")
+
+    def test_unknown_mode_rejected(self):
+        with self.assertRaises(ValueError):
+            self._rag().hybrid_search("x", mode="bm25")
+
+    def test_ollama_called_with_temperature_zero(self):
+        from unittest.mock import patch, MagicMock
+        from .services.rag_service import _generate_with_ollama
+        resp = MagicMock(status_code=200)
+        resp.json.return_value = {"response": "ok"}
+        with patch("apps.documents.services.rag_service.requests.post", return_value=resp) as post:
+            self.assertEqual(_generate_with_ollama("p", "llama3.2:3b", "http://x"), "ok")
+        self.assertEqual(post.call_args.kwargs["json"]["options"], {"temperature": 0.0, "num_ctx": 4096})
+
+
 class QuestionScopeGuardTestCase(TestCase):
     """NFR-07: obscene and app-sensitive questions are refused before retrieval; paper questions pass."""
 
@@ -1184,3 +1387,36 @@ class QuestionScopeGuardTestCase(TestCase):
         self.assertEqual(res["refusal_reason"], "app_sensitive")
         self.assertEqual(res["sources"], [])
         self.assertIn("does not contain sufficient relevant information", res["answer"])
+
+
+class ContextFillTestCase(TestCase):
+    """RAG_CONTEXT_FILL (assembly_fill_amendment.json): skip a parent that doesn't fit instead of stopping."""
+
+    def _run(self, fill):
+        import numpy as np
+        from unittest.mock import MagicMock, patch
+        from django.test import override_settings
+        from langchain_core.documents import Document as LCDocument
+        from .services.rag_service import DocumentRAG
+        sizes = {"p1": 600, "p2": 700, "p3": 300}  # budget 1,000: p2 doesn't fit after p1, p3 does
+        docs = [LCDocument(page_content=f"child of {p}", metadata={
+            "chunk_id": f"c{i}", "parent_id": p, "parent_text": f"parent {p} text", "parent_tokens": n,
+            "strategy": "hierarchical", "page": 1}) for i, (p, n) in enumerate(sizes.items())]
+        rag = DocumentRAG(document_id=998, documents=docs, embeddings=np.zeros((3, 3), dtype=np.float32))
+        stub = MagicMock()
+        dense = [(0.9, {"chunk_id": "c0"}), (0.8, {"chunk_id": "c1"}), (0.7, {"chunk_id": "c2"})]
+        stub.search_dense.side_effect = lambda collection_name, query, top_k, filter_document_id=None: dense[:top_k]
+        with override_settings(RAG_CONTEXT_BUDGET=1000, RAG_CONTEXT_FILL=fill), \
+                patch("apps.documents.services.rag_service.RagService.get_instance", return_value=stub):
+            res = rag.hybrid_search("q", top_k=5, mode="dense")
+        return [d.metadata["parent_id"] for d, _ in res]
+
+    def test_default_is_stop(self):
+        from django.conf import settings
+        self.assertFalse(settings.RAG_CONTEXT_FILL)
+
+    def test_stop_assembly_unchanged(self):
+        self.assertEqual(self._run(False), ["p1"])
+
+    def test_fill_skips_and_continues(self):
+        self.assertEqual(self._run(True), ["p1", "p3"])

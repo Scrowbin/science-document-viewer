@@ -1,0 +1,30 @@
+{
+  "experiment": "EXP-REVAL-COMBO (amendment: fill-budget context assembly)",
+  "type": "amendment to combo_test.json, decided on selection data (C-RET) before stage 2 and before C-INT is opened; user decision 2026-10-31 (\"do the assembly fix first\")",
+  "finding_that_motivated_it": "Descriptive analysis of RQ2-v2 per-question data (C-RET, 567 q): production hierarchical assembly stops at the first parent that does not fit the 1,600-token budget. 48% of contexts end with < 5 units and < 1,400 tokens; their CEC@0.5 is 0.690 against 0.770 for the rest. No answer-quality result for the change exists.",
+  "change": {
+    "name": "fill",
+    "rule": "Hierarchical assembly as production (rank order, deduplicated parents, +-200-word windowing for parents > 800 tokens, <= 5 units, 1,600 est. tokens), except that a parent that does not fit the remaining budget is skipped and assembly continues down the ranking, instead of stopping. The first parent is always included, as today.",
+    "unchanged": "chunks, embeddings, ranking, windowing, budget, unit cap, gate rule (max dense score of the matched children of the parents in the context), prompt",
+    "production_switch": "settings.RAG_CONTEXT_FILL (default False). It is set True only if stage 2 selects a pipeline that uses fill, before the RQ6 config is frozen."
+  },
+  "step_1_retrieval_check": {
+    "role": "descriptive only (confirms the change does what it should; not a decision)",
+    "data": "C-RET (QASPER v0.3 Train, 335 papers / 567 questions); pymupdf_layout, hierarchical 200/40, e5-small-v2 dense (cached vectors)",
+    "measures": "context tokens, units, early-stop rate, CEC@0.3/0.5/0.7, budgeted nDCG@10; fill - stop paired paper-cluster bootstrap B=10,000 seed 42",
+    "script": "eval/phases/phase_2_chunking/scripts/assembly_fill_check.py",
+    "output": "eval/phases/phase_2_chunking/artifacts/assembly_fill_check/"
+  },
+  "step_2_stage2": {
+    "role": "decision",
+    "change_to_stage2": "One extra pipeline, pymupdf_layout|hierarchical|e5|dense+fill (gate 0.80, the e5 rule), added to the combined shortlist. All other pipelines keep production assembly.",
+    "rule": "unchanged stage-2 rule: a pair replaces the production pair only with Token F1 >= +0.03, CI lower bound > 0, Holm p < 0.05, end-to-end P50 <= 1.5x production; several pass -> highest F1",
+    "note": "the fill pipeline goes through the same successive halving as every other pipeline"
+  },
+  "if_selected": "Production sets RAG_CONTEXT_FILL=True before the RQ6 config is frozen; RQ6 then confirms the shipped system on C-INT.",
+  "known_before_registration": "Only the descriptive RQ2-v2 finding above. No result with fill on any data.",
+  "code": {
+    "eval": "backend/scripts/eval_common/assembly_fill.py (assemble_fill; reval_pipeline.assemble is not modified)",
+    "production": "backend/apps/documents/services/rag_service.py, DocumentRAG.hybrid_search, behind RAG_CONTEXT_FILL"
+  }
+}

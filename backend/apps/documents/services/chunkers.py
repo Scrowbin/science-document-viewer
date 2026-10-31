@@ -1,5 +1,5 @@
 """
-Academic Document Chunking Strategies (RQ2 Controlled Ablation).
+Academic Document Chunking Strategies (evaluated in the chunking experiment).
 Provides unified chunking implementations across:
   1. fixed_size: Strict N-token sliding window across full document, ignoring headings, zero overlap.
   2. fixed_size_overlap: Sliding window with N max_tokens and K overlap tokens, ignoring headings.

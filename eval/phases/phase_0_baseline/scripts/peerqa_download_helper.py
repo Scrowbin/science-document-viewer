@@ -3,7 +3,7 @@
 Human-in-the-loop helper for the PeerQA OpenReview PDFs (OpenReview requires a human challenge for
 automated access, so the download itself is done by the user in their own browser).
 
-For each row of reports/revalidation/peerqa_manual_download_list.tsv that is not yet saved:
+For each row of eval/phases/phase_0_baseline/artifacts/peerqa_manual_download_list.tsv that is not yet saved:
   1. opens the URL in the default browser;
   2. waits until a new, finished .pdf appears in the Downloads folder (the user completes any challenge
      and the download);
@@ -25,7 +25,7 @@ import webbrowser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
-LIST = ROOT / "reports" / "revalidation" / "peerqa_manual_download_list.tsv"
+LIST = ROOT / "eval" / "phases" / "phase_0_baseline" / "artifacts" / "peerqa_manual_download_list.tsv"
 DEST = ROOT / "eval" / "pdfs" / "peerqa"
 
 

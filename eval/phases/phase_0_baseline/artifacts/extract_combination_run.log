@@ -1,0 +1,7 @@
+[dev] pymupdf_layout: 275 papers
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+[test] pymupdf_layout: 406 papers
+MuPDF error: syntax error: could not parse color space (129 0 R)
+
+MuPDF error: syntax error: could not parse color space (399 0 R)
+

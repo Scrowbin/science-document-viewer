@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-COMBO stage 1: full retrieval grid on C-RET-150 (registered: reports/revalidation/protocol/combo_test.json).
+COMBO stage 1: full retrieval grid on the 150-paper QASPER subset (registered: protocol combo_test.json (archived)).
 
 Grid: extractor {pymupdf_layout, pypdf} x chunker {hierarchical, section_overlap, fixed_size}
       x embedder {MiniLM, e5-small-v2, arctic-embed-s, bge-small, modernbert-embed} x retrieval {dense, rrf_fix,
       convex_fix, rrf_prod(= production rrf_legacy)} = 120 combinations. No LLM.
-Pipeline per combination (same harness as RQ1-RQ4): sections -> chunker -> embedder (model prefixes) -> ranking ->
+Pipeline per combination (same harness as the component experiments): sections -> chunker -> embedder (model prefixes) -> ranking ->
 production context assembly (1,600 est. tokens, <= 5 units, +-200-word windowing for parents > 800 tokens).
-  pymupdf_layout sections: extract_sections_from_pdf (production, as RQ2-RQ4)
-  pypdf sections: the RQ1-v2 extraction cache (headings or page fallback, as RQ1-v2 downstream)
+  pymupdf_layout sections: extract_sections_from_pdf (production, as in the component experiments)
+  pypdf sections: the extraction experiment extraction cache (headings or page fallback, as extraction experiment downstream)
 Per question and combination: budgeted nDCG@10, CEC@0.3/0.5/0.7, context tokens, units, and the gate score
 (production rule: max dense cosine of the matched children whose units entered the context; children outside the
 dense top-50 count as 0 in rrf modes, as in DocumentRAG.hybrid_search).
@@ -63,7 +63,7 @@ def worker(short, limit, out_dir):
     from eval_common import reval_runner as rr
     rp.setup_django()
     import numpy as np
-    import rq1v2_extractors as rq1  # frozen script; only its cache helpers are used
+    import evaluate_extraction as rq1  # frozen script; only its cache helpers are used
     from apps.documents.services.chunking_utils import extract_sections_from_pdf
 
     model = EMBEDDERS[short]

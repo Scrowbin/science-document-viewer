@@ -1,10 +1,10 @@
 """
-Shared definitions for the 2026-10 revalidation study (RQ1-RQ6).
+Shared definitions for the 2026-10 component experiments and the combination experiment.
 
 Fixed before any new scoring (see reports/revalidation/RESEARCH_VALIDITY_MATRIX.md):
   - Evidence of a question = text evidence paragraphs of ANY answerable annotator (FLOAT SELECTED removed).
   - Evidence found in a text  = >= 80% of the paragraph's content words occur in the text (version check,
-                                RQ1 evidence recall).
+                                the extraction experiment evidence recall).
   - Context assembly          = production rule of DocumentRAG.hybrid_search: take ranked units in order,
                                 stop before a unit that would exceed the budget (the first unit is always
                                 taken), at most `max_units` units; tokens = estimate_tokens (words x 1.33).

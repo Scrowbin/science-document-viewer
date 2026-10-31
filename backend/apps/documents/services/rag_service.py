@@ -39,6 +39,8 @@ from .question_guard import screen_question
 
 logger = logging.getLogger(__name__)
 
+RETRIEVAL_MODES = ("dense", "rrf_legacy")
+
 # Model dimension mapping
 MODEL_DIMENSIONS: Dict[str, int] = {
     "intfloat/e5-small-v2": 384,
@@ -840,12 +842,21 @@ class DocumentRAG:
             [formatted_text], normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False
         )[0]
 
-    def hybrid_search(self, query: str, top_k: int = 5) -> List[Tuple[Document, float]]:
+    def hybrid_search(self, query: str, top_k: int = 5, mode: Optional[str] = None) -> List[Tuple[Document, float]]:
+        """
+        mode (default settings.RAG_RETRIEVAL_MODE):
+          'dense'      : all children ranked by dense similarity (no BM25)
+          'rrf_legacy' : top-50 dense + top-50 whitespace BM25, RRF k=60 (behaviour before dense became the default)
+        """
         if not self.documents:
             return []
 
+        mode = mode or getattr(settings, "RAG_RETRIEVAL_MODE", "dense")
+        if mode not in RETRIEVAL_MODES:
+            raise ValueError(f"Unknown RAG_RETRIEVAL_MODE {mode!r}; expected one of {RETRIEVAL_MODES}")
+
         num_docs = len(self.documents)
-        retrieve_k = min(50, num_docs)
+        retrieve_k = num_docs if mode == "dense" else min(50, num_docs)
 
         # 1. Dense retrieval via Qdrant (query_points filtered to document)
         rag_service = RagService.get_instance()
@@ -906,23 +917,28 @@ class DocumentRAG:
             for idx in dense_top:
                 dense_scores_by_idx[idx] = float(dense_scores[idx])
 
-        # 2. Sparse retrieval (BM25)
-        bm25_scores = self.bm25.get_scores(query.lower().split())
-        bm25_top = list(np.argsort(bm25_scores)[::-1][:retrieve_k])
+        if mode == "dense":
+            # Dense order over all children; the returned score is the dense similarity
+            ranked_indices = [int(i) for i in dense_top]
+            rrf_scores: Dict[int, float] = {i: dense_scores_by_idx.get(i, 0.0) for i in ranked_indices}
+        else:
+            # 2. Sparse retrieval (BM25)
+            bm25_scores = self.bm25.get_scores(query.lower().split())
+            bm25_top = list(np.argsort(bm25_scores)[::-1][:retrieve_k])
 
-        # 3. Reciprocal Rank Fusion (RRF)
-        rrf_scores: Dict[int, float] = {}
-        k_const = 60
+            # 3. Reciprocal Rank Fusion (RRF)
+            rrf_scores = {}
+            k_const = 60
 
-        for rank, idx in enumerate(dense_top):
-            rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
+            for rank, idx in enumerate(dense_top):
+                rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
 
-        for rank, idx in enumerate(bm25_top):
-            rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
+            for rank, idx in enumerate(bm25_top):
+                rrf_scores[int(idx)] = rrf_scores.get(int(idx), 0.0) + 1.0 / (k_const + rank + 1)
 
-        ranked_indices = sorted(
-            rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
-        )
+            ranked_indices = sorted(
+                rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
+            )
 
         # If hierarchical: Expand child hits to unique parent sections, windowing over-long parents
         if self.is_hierarchical:
@@ -954,6 +970,8 @@ class DocumentRAG:
                     used_tokens = p_tokens
 
                 if accum_tokens + used_tokens > token_budget and parent_results:
+                    if getattr(settings, "RAG_CONTEXT_FILL", False):
+                        continue  # fill: skip a parent that doesn't fit and keep going down the ranking
                     break
 
                 meta = dict(child_doc.metadata)
@@ -969,6 +987,8 @@ class DocumentRAG:
                 parent_doc = Document(page_content=context_text, metadata=meta)
                 parent_results.append((parent_doc, float(rrf_scores[idx])))
                 accum_tokens += used_tokens
+                if len(parent_results) >= top_k:
+                    break
 
             return parent_results[:top_k]
 
@@ -1250,7 +1270,13 @@ def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Opti
         read_timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
         resp = requests.post(
             f"{ollama_url}/api/generate",
-            json={"model": model_name, "prompt": prompt, "stream": False},
+            json={
+                "model": model_name,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": getattr(settings, "OLLAMA_TEMPERATURE", 0.0),
+                            "num_ctx": getattr(settings, "OLLAMA_NUM_CTX", 4096)},
+            },
             timeout=(3.0, read_timeout),
         )
         if resp.status_code == 200:
@@ -1260,6 +1286,22 @@ def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Opti
     except Exception as e:
         logger.info(f"Ollama offline/failed: {e}")
     return None
+
+
+def build_answer_prompt(question: str, doc_title: str, docs: List[Document], refusal_message: str) -> str:
+    """Grounded Q&A prompt used by query_document (also used by the combination experiment)."""
+    context_str = "\n\n".join(
+        f"--- Snippet (Page {doc.metadata.get('page', 1)}, Section: {doc.metadata.get('section', 'Main')}) ---\n{doc.page_content}"
+        for doc in docs
+    )
+    return (
+        f'You are a precise academic research assistant reading "{doc_title or "the document"}".\n'
+        f"Use ONLY the provided context below to answer the user's question clearly and accurately.\n"
+        f"Respond in the same language as the user's question (e.g. if the question is in Vietnamese, answer in Vietnamese using the English context as the factual ground).\n"
+        f"If the answer is not contained in the context, state clearly: '{refusal_message}'\n"
+        f"Do NOT extrapolate, speculate, or fabricate details beyond the provided context.\n\n"
+        f"Context:\n{context_str}\n\nQuestion: {question}\n\nAnswer:"
+    )
 
 
 def query_document(
@@ -1291,7 +1333,6 @@ def query_document(
         }
 
     top_chunks = rag.hybrid_search(question, top_k=5)
-
 
     min_similarity = getattr(settings, "RAG_MIN_SIMILARITY_SCORE", 0.80)
     top_dense_score = max(
@@ -1341,19 +1382,7 @@ def query_document(
     ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
     model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
 
-    context_str = "\n\n".join(
-        f"--- Snippet (Page {doc.metadata.get('page', 1)}, Section: {doc.metadata.get('section', 'Main')}) ---\n{doc.page_content}"
-        for doc, _ in top_chunks
-    )
-
-    prompt = (
-        f'You are a precise academic research assistant reading "{doc_title or "the document"}".\n'
-        f"Use ONLY the provided context below to answer the user's question clearly and accurately.\n"
-        f"Respond in the same language as the user's question (e.g. if the question is in Vietnamese, answer in Vietnamese using the English context as the factual ground).\n"
-        f"If the answer is not contained in the context, state clearly: '{REFUSAL_MESSAGE}'\n"
-        f"Do NOT extrapolate, speculate, or fabricate details beyond the provided context.\n\n"
-        f"Context:\n{context_str}\n\nQuestion: {question}\n\nAnswer:"
-    )
+    prompt = build_answer_prompt(question, doc_title, [doc for doc, _ in top_chunks], REFUSAL_MESSAGE)
 
     answer = _generate_with_ollama(prompt, model_name, ollama_url)
     if answer:

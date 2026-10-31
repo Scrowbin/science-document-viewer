@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Chunk invariance fingerprint: SHA-256 of every unit's retrieval-relevant fields (text, child_text, parent_text,
-char offsets, parent_id) for the 3 production chunkers on C-RET (pymupdf_layout sections).
+char offsets, parent_id) for the 3 production chunkers on the QASPER component set (pymupdf_layout sections).
 Used to prove that app changes (e.g. citation location metadata) leave retrieval text unchanged.
 
 Usage: python chunk_invariance_fingerprint.py --label before|after

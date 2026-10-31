@@ -1,0 +1,26 @@
+[25/335] 619s
+[50/335] 1206s
+MuPDF error: syntax error: unknown keyword: 'pagesize'
+
+MuPDF error: syntax error: unknown keyword: 'width'
+
+MuPDF error: syntax error: unknown keyword: '597.50787pt'
+
+MuPDF error: syntax error: unknown keyword: 'height'
+
+MuPDF error: syntax error: unknown keyword: '845.04684pt'
+
+[75/335] 1786s
+[100/335] 2211s
+[125/335] 2775s
+[150/335] 3471s
+[175/335] 4169s
+[200/335] 4690s
+MuPDF error: syntax error: could not parse color space (1634 0 R)
+
+[225/335] 5301s
+[250/335] 5847s
+[275/335] 6393s
+[300/335] 6923s
+[325/335] 7474s
+{'papers': 335, 'questions': 567, 'decision': 'keep hierarchical; no semantic arm enters stage 2'}

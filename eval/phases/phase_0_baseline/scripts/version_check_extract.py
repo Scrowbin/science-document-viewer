@@ -2,7 +2,7 @@
 """
 Version check + extraction cache for the revalidation study (Phase B1).
 
-For every downloaded PDF, runs each RQ1 extractor in its own subprocess (one subprocess per extractor,
+For every downloaded PDF, runs each the extraction experiment extractor in its own subprocess (one subprocess per extractor,
 so memory is attributable), caches the extracted blocks, and records per-paper latency. Then, for each
 paper, computes the share of its evidence paragraphs found in each extractor's text
 (eval_common.revalidation.evidence_match_rate: >= 80% content-word containment or verbatim).
@@ -11,7 +11,7 @@ Version rule (pre-registered): QASPER evidence comes from one paper version. If 
 matches < 70% of the evidence under EVERY extractor, the v1 PDF is extracted too and the version with
 the higher best-extractor match rate is kept. A paper is KEPT if ANY extractor reaches >= 70% on the
 kept version (so the filter does not favour one extractor). Per-extractor match rates are stored but are
-not analysed before Gate B (they overlap with the RQ1 primary metric).
+not analysed before Gate B (they overlap with the the extraction experiment primary metric).
 
 Outputs:
   eval/data/revalidation_cache/extract/<set>/<version>/<extractor>.jsonl   (git-ignored cache)

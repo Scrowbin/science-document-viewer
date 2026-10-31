@@ -1,0 +1,82 @@
+{
+ "experiment": "ASSEMBLY-FILL-CHECK",
+ "cohort": "C-RET",
+ "role": "SELECTION, descriptive (stage 2 decides)",
+ "papers": 335,
+ "questions": 567,
+ "failures": [],
+ "means": {
+  "stop": {
+   "ndcg10": 0.445,
+   "cec_0.5": 0.7319,
+   "cec_0.3": 0.9224,
+   "cec_0.7": 0.6155,
+   "context_tokens": 1317.776,
+   "n_units": 3.4444,
+   "early_stop": 0.478,
+   "gate_score": 0.8499
+  },
+  "fill": {
+   "ndcg10": 0.4578,
+   "cec_0.5": 0.769,
+   "cec_0.3": 0.9418,
+   "cec_0.7": 0.6473,
+   "context_tokens": 1469.1111,
+   "n_units": 4.7196,
+   "early_stop": 0.0247,
+   "gate_score": 0.8499
+  }
+ },
+ "fill_minus_stop": {
+  "cec_0.5": {
+   "comparison": "fill - stop",
+   "metric": "cec_0.5",
+   "diff": 0.037,
+   "ci95": [
+    0.0216,
+    0.0543
+   ],
+   "p_raw": 0.0002
+  },
+  "ndcg10": {
+   "comparison": "fill - stop",
+   "metric": "ndcg10",
+   "diff": 0.0128,
+   "ci95": [
+    0.0082,
+    0.0179
+   ],
+   "p_raw": 0.0002
+  },
+  "context_tokens": {
+   "comparison": "fill - stop",
+   "metric": "context_tokens",
+   "diff": 151.3351,
+   "ci95": [
+    136.396,
+    166.0963
+   ],
+   "p_raw": 0.0002
+  },
+  "n_units": {
+   "comparison": "fill - stop",
+   "metric": "n_units",
+   "diff": 1.2751,
+   "ci95": [
+    1.1798,
+    1.3673
+   ],
+   "p_raw": 0.0002
+  }
+ },
+ "questions_with_identical_context": 138,
+ "memory": {
+  "python_working_set_baseline_mb": 437.5,
+  "python_working_set_peak_mb": 777.2
+ },
+ "elapsed_s": 479.5,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

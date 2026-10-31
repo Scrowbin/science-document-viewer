@@ -156,4 +156,12 @@ QDRANT_PREFER_GRPC = os.getenv('QDRANT_PREFER_GRPC', 'false').lower() == 'true'
 QDRANT_GRPC_PORT = int(os.getenv('QDRANT_GRPC_PORT', '6334'))
 QDRANT_STORAGE_PATH = os.path.join(BASE_DIR, os.getenv('QDRANT_STORAGE_PATH', 'media/qdrant_db'))
 RAG_MIN_SIMILARITY_SCORE = float(os.getenv('RAG_MIN_SIMILARITY_SCORE', '0.80'))
+# 'dense' (default; best on QASPER in the retrieval experiment) | 'rrf_legacy' (previous dense + whitespace-BM25 RRF k=60)
+RAG_RETRIEVAL_MODE = os.getenv('RAG_RETRIEVAL_MODE', 'dense')
+OLLAMA_TEMPERATURE = float(os.getenv('OLLAMA_TEMPERATURE', '0'))
+# Ollama context window, set explicitly (Ollama 0.40.13 default is 4096; real prompts peak ~2,300 tokens)
+OLLAMA_NUM_CTX = int(os.getenv('OLLAMA_NUM_CTX', '4096'))
+# Fill-budget context assembly: skip a parent that doesn't fit instead of stopping
+# (off by default; see the chunking experiment notes in eval/README.md)
+RAG_CONTEXT_FILL = os.getenv('RAG_CONTEXT_FILL', 'false').lower() in ('1', 'true', 'yes')
 

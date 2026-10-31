@@ -1,6 +1,6 @@
 """
 Shared runner utilities for the revalidation experiments: cohort loading, PDF paths, memory sampling,
-paired bootstrap families and output writing. Statistics follow reports/revalidation/protocol/common.json.
+paired bootstrap families and output writing. Statistics follow protocol common.json (archived).
 """
 
 import json

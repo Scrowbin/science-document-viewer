@@ -6,9 +6,9 @@
     "${workspaceFolder}/eval",
     "${workspaceFolder}/eval/phases/phase_0_baseline/scripts",
     "${workspaceFolder}/eval/phases/phase_3_embedding/scripts",
-    "${workspaceFolder}/eval/phases/phase_4_indexing/scripts",
-    "${workspaceFolder}/eval/phases/phase_5_query_processing/scripts",
-    "${workspaceFolder}/eval/phases/phase_6_hybrid_retrieval/scripts"
+    "${workspaceFolder}/eval/phases/phase_6_hybrid_retrieval/scripts",
+    "${workspaceFolder}/eval/phases/phase_9_generation/scripts",
+    "${workspaceFolder}/eval/phases/phase_12_combination/scripts"
   ],
   "python.autoComplete.extraPaths": [
     "${workspaceFolder}/backend",
@@ -16,9 +16,9 @@
     "${workspaceFolder}/eval",
     "${workspaceFolder}/eval/phases/phase_0_baseline/scripts",
     "${workspaceFolder}/eval/phases/phase_3_embedding/scripts",
-    "${workspaceFolder}/eval/phases/phase_4_indexing/scripts",
-    "${workspaceFolder}/eval/phases/phase_5_query_processing/scripts",
-    "${workspaceFolder}/eval/phases/phase_6_hybrid_retrieval/scripts"
+    "${workspaceFolder}/eval/phases/phase_6_hybrid_retrieval/scripts",
+    "${workspaceFolder}/eval/phases/phase_9_generation/scripts",
+    "${workspaceFolder}/eval/phases/phase_12_combination/scripts"
   ],
   "python.analysis.diagnosticSeverityOverrides": {
     "reportMissingTypeStubs": "none",

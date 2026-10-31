@@ -1,0 +1,271 @@
+16 configurations, 3 questions, 1 papers -> C:\DACNTT\eval\phases\phase_12_combination\artifacts\combinations\smoke_3
+[retrieval E5] 1/1 papers
+[retrieval MBERT] 1/1 papers
+{
+ "retrieval": [
+  {
+   "retrieval_pipeline": "HIER_E5_DENSE",
+   "n_questions": 3,
+   "ndcg10": 0.465,
+   "mrr10": 0.5,
+   "cec_0.5": 1.0,
+   "context_tokens": 1488.7,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.4,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.465,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "HIER_E5_HYBRID",
+   "n_questions": 3,
+   "ndcg10": 0.3755,
+   "mrr10": 0.4444,
+   "cec_0.5": 1.0,
+   "context_tokens": 1343.7,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.696,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.3755,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "HIER_MBERT_DENSE",
+   "n_questions": 3,
+   "ndcg10": 0.3096,
+   "mrr10": 0.2778,
+   "cec_0.5": 1.0,
+   "context_tokens": 1234.3,
+   "n_units": 4.33,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.323,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.3096,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "HIER_MBERT_HYBRID",
+   "n_questions": 3,
+   "ndcg10": 0.3755,
+   "mrr10": 0.4167,
+   "cec_0.5": 1.0,
+   "context_tokens": 1428.7,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.623,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.3755,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "FIXED_E5_DENSE",
+   "n_questions": 3,
+   "ndcg10": 0.4708,
+   "mrr10": 0.6667,
+   "cec_0.5": 1.0,
+   "context_tokens": 1596.0,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.184,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.4708,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "FIXED_E5_HYBRID",
+   "n_questions": 3,
+   "ndcg10": 0.4708,
+   "mrr10": 0.6667,
+   "cec_0.5": 1.0,
+   "context_tokens": 1596.0,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.792,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.4708,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "FIXED_MBERT_DENSE",
+   "n_questions": 3,
+   "ndcg10": 0.4287,
+   "mrr10": 0.5,
+   "cec_0.5": 1.0,
+   "context_tokens": 1596.0,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.204,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.4287,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  },
+  {
+   "retrieval_pipeline": "FIXED_MBERT_HYBRID",
+   "n_questions": 3,
+   "ndcg10": 0.4598,
+   "mrr10": 0.6667,
+   "cec_0.5": 1.0,
+   "context_tokens": 1596.0,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.377,
+   "ndcg10_train": null,
+   "ndcg10_dev": 0.4598,
+   "ndcg10_test": null,
+   "cec_0.5_train": null,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": null
+  }
+ ],
+ "generation": [
+  {
+   "config": "HIER_E5_DENSE_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2863,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_E5_DENSE_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.307,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_E5_HYBRID_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2642,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_E5_HYBRID_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.3798,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "HIER_MBERT_DENSE_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2642,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_MBERT_DENSE_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.2918,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_MBERT_HYBRID_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2642,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "HIER_MBERT_HYBRID_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.3308,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "FIXED_E5_DENSE_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.0234,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "FIXED_E5_DENSE_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.4315,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "FIXED_E5_HYBRID_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2876,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "FIXED_E5_HYBRID_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.3745,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "FIXED_MBERT_DENSE_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2642,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "FIXED_MBERT_DENSE_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.3586,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "FIXED_MBERT_HYBRID_LLAMA3B",
+   "n_questions": 3,
+   "token_f1": 0.2642,
+   "refusal_rate": 0.3333
+  },
+  {
+   "config": "FIXED_MBERT_HYBRID_QWEN15B",
+   "n_questions": 3,
+   "token_f1": 0.3407,
+   "refusal_rate": 0.0
+  }
+ ],
+ "resources": {
+  "retrieval_E5": {
+   "python_peak_mb": 928.7,
+   "ollama_peak_mb": 2662.6,
+   "system_min_available_mb": 499.6,
+   "pagefile_growth_max_mb": 0.0
+  },
+  "retrieval_MBERT": {
+   "python_peak_mb": 1513.9,
+   "ollama_peak_mb": 2662.6,
+   "system_min_available_mb": 183.0,
+   "pagefile_growth_max_mb": 139.8
+  },
+  "generation_LLAMA3B": {
+   "python_peak_mb": 877.6,
+   "ollama_peak_mb": 4778.2,
+   "system_min_available_mb": 250.2,
+   "pagefile_growth_max_mb": 431.7
+  },
+  "generation_QWEN15B": {
+   "python_peak_mb": 601.4,
+   "ollama_peak_mb": 1833.6,
+   "system_min_available_mb": 3467.8,
+   "pagefile_growth_max_mb": 0.0
+  }
+ },
+ "elapsed_s": {
+  "retrieval": 63.7,
+  "generation": 842.5
+ }
+}

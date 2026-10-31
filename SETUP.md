@@ -80,7 +80,10 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.2:3b
-EMBEDDING_MODEL=all-MiniLM-L6-v2
+EMBEDDING_MODEL=intfloat/e5-small-v2
+CHUNKING_STRATEGY=hierarchical
+RAG_RETRIEVAL_MODE=dense      # or rrf_legacy (previous dense + BM25 fusion)
+OLLAMA_TEMPERATURE=0
 QDRANT_STORAGE_PATH=media/qdrant_db
 ```
 
@@ -95,7 +98,7 @@ python manage.py createsuperuser
 
 ### Step 2.5: Verify & Run Backend Server
 ```bash
-# Run automated test suites (19 tests)
+# Run automated test suites (57 tests; a few need network access and sample_documents/attention.pdf)
 python manage.py test apps.documents.tests apps.users.tests
 
 # Start Django development server
@@ -116,6 +119,12 @@ ollama pull llama3.2:3b
 # Verify Ollama server responds
 curl http://localhost:11434/v1/models
 ```
+
+**Memory note.** Ollama keeps a prompt cache in RAM that grows with every new question (measured: `llama3.2:3b` uses about 2.5 GB after loading and about 8.8 GB after 500 different prompts). Check it with:
+```bash
+python manage.py ollama_status          # resident models + Ollama process memory (read-only)
+```
+If memory runs short, restart Ollama or let the model unload (`keep_alive`, 5 minutes by default) between sessions. The app does not unload models itself, because that would change generation behaviour.
 
 ---
 
@@ -157,8 +166,8 @@ To ensure language servers, linters, and imports resolve cleanly:
 
 1. **Always open the root directory (`DACNTT`)** in your editor.
 2. The repository includes:
-   - [`.vscode/settings.json`](file:///c:/DACNTT/.vscode/settings.json): Designates `backend` as an `extraPath` and automatically binds `backend/venv`.
-   - [`pyrightconfig.json`](file:///c:/DACNTT/pyrightconfig.json): Configures root and backend search paths for Pyright/Pylance.
+   - [`.vscode/settings.json`](.vscode/settings.json): Designates `backend` as an `extraPath` and automatically binds `backend/venv`.
+   - [`pyrightconfig.json`](pyrightconfig.json): Configures root and backend search paths for Pyright/Pylance.
 3. In VS Code, press `Ctrl + Shift + P` -> **"Python: Select Interpreter"** -> choose `backend/venv/Scripts/python.exe`.
 
 ---

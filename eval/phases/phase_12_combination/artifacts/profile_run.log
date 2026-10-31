@@ -1,0 +1,330 @@
+16 configurations, 25 questions, 10 papers -> C:\DACNTT\eval\phases\phase_12_combination\artifacts\combinations\profile
+2026-10-31 21:02:42,142 [INFO] Loading SentenceTransformer model from intfloat/e5-small-v2.
+[retrieval E5] 10/10 papers
+2026-10-31 21:03:27,924 [INFO] Loading SentenceTransformer model from nomic-ai/modernbert-embed-base.
+[retrieval MBERT] 10/10 papers
+[generation LLAMA3B] 100/200
+[generation LLAMA3B] 200/200
+[generation QWEN15B] 100/200
+[generation QWEN15B] 200/200
+{
+ "retrieval": [
+  {
+   "retrieval_pipeline": "HIER_E5_DENSE",
+   "n_questions": 25,
+   "ndcg10": 0.48,
+   "mrr10": 0.49,
+   "cec_0.5": 0.84,
+   "context_tokens": 1346.9,
+   "n_units": 3.56,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.174,
+   "ndcg10_train": 0.4985,
+   "ndcg10_dev": 0.5,
+   "ndcg10_test": 0.4562,
+   "cec_0.5_train": 0.75,
+   "cec_0.5_dev": 0.5,
+   "cec_0.5_test": 1.0
+  },
+  {
+   "retrieval_pipeline": "HIER_E5_HYBRID",
+   "n_questions": 25,
+   "ndcg10": 0.5111,
+   "mrr10": 0.58,
+   "cec_0.5": 0.72,
+   "context_tokens": 1274.5,
+   "n_units": 3.48,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.565,
+   "ndcg10_train": 0.4678,
+   "ndcg10_dev": 0.5,
+   "ndcg10_test": 0.5602,
+   "cec_0.5_train": 0.6667,
+   "cec_0.5_dev": 0.5,
+   "cec_0.5_test": 0.8182
+  },
+  {
+   "retrieval_pipeline": "HIER_MBERT_DENSE",
+   "n_questions": 25,
+   "ndcg10": 0.5454,
+   "mrr10": 0.5767,
+   "cec_0.5": 0.8,
+   "context_tokens": 1358.5,
+   "n_units": 3.56,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.21,
+   "ndcg10_train": 0.5205,
+   "ndcg10_dev": 1.0,
+   "ndcg10_test": 0.4898,
+   "cec_0.5_train": 0.75,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": 0.8182
+  },
+  {
+   "retrieval_pipeline": "HIER_MBERT_HYBRID",
+   "n_questions": 25,
+   "ndcg10": 0.5708,
+   "mrr10": 0.608,
+   "cec_0.5": 0.8,
+   "context_tokens": 1338.8,
+   "n_units": 3.48,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.462,
+   "ndcg10_train": 0.5288,
+   "ndcg10_dev": 0.6934,
+   "ndcg10_test": 0.5942,
+   "cec_0.5_train": 0.75,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": 0.8182
+  },
+  {
+   "retrieval_pipeline": "FIXED_E5_DENSE",
+   "n_questions": 25,
+   "ndcg10": 0.3887,
+   "mrr10": 0.4267,
+   "cec_0.5": 0.88,
+   "context_tokens": 1587.5,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.197,
+   "ndcg10_train": 0.3781,
+   "ndcg10_dev": 0.6309,
+   "ndcg10_test": 0.3562,
+   "cec_0.5_train": 0.9167,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": 0.8182
+  },
+  {
+   "retrieval_pipeline": "FIXED_E5_HYBRID",
+   "n_questions": 25,
+   "ndcg10": 0.4332,
+   "mrr10": 0.4767,
+   "cec_0.5": 0.96,
+   "context_tokens": 1581.6,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.45,
+   "ndcg10_train": 0.4096,
+   "ndcg10_dev": 0.5,
+   "ndcg10_test": 0.4468,
+   "cec_0.5_train": 1.0,
+   "cec_0.5_dev": 0.5,
+   "cec_0.5_test": 1.0
+  },
+  {
+   "retrieval_pipeline": "FIXED_MBERT_DENSE",
+   "n_questions": 25,
+   "ndcg10": 0.4187,
+   "mrr10": 0.4767,
+   "cec_0.5": 0.88,
+   "context_tokens": 1583.4,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.185,
+   "ndcg10_train": 0.3644,
+   "ndcg10_dev": 0.8155,
+   "ndcg10_test": 0.4057,
+   "cec_0.5_train": 0.8333,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": 0.9091
+  },
+  {
+   "retrieval_pipeline": "FIXED_MBERT_HYBRID",
+   "n_questions": 25,
+   "ndcg10": 0.4336,
+   "mrr10": 0.5033,
+   "cec_0.5": 0.88,
+   "context_tokens": 1596.0,
+   "n_units": 4.0,
+   "gate_refusal_rate": 0.0,
+   "retrieve_ms_p50": 0.37,
+   "ndcg10_train": 0.3482,
+   "ndcg10_dev": 0.7153,
+   "ndcg10_test": 0.4755,
+   "cec_0.5_train": 0.8333,
+   "cec_0.5_dev": 1.0,
+   "cec_0.5_test": 0.9091
+  }
+ ],
+ "generation": [
+  {
+   "config": "HIER_E5_DENSE_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.2249,
+   "refusal_rate": 0.16
+  },
+  {
+   "config": "HIER_E5_DENSE_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.3058,
+   "refusal_rate": 0.04
+  },
+  {
+   "config": "HIER_E5_HYBRID_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.157,
+   "refusal_rate": 0.16
+  },
+  {
+   "config": "HIER_E5_HYBRID_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.2662,
+   "refusal_rate": 0.04
+  },
+  {
+   "config": "HIER_MBERT_DENSE_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.2089,
+   "refusal_rate": 0.2
+  },
+  {
+   "config": "HIER_MBERT_DENSE_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.3269,
+   "refusal_rate": 0.04
+  },
+  {
+   "config": "HIER_MBERT_HYBRID_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.1993,
+   "refusal_rate": 0.24
+  },
+  {
+   "config": "HIER_MBERT_HYBRID_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.298,
+   "refusal_rate": 0.08
+  },
+  {
+   "config": "FIXED_E5_DENSE_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.1848,
+   "refusal_rate": 0.28
+  },
+  {
+   "config": "FIXED_E5_DENSE_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.2381,
+   "refusal_rate": 0.04
+  },
+  {
+   "config": "FIXED_E5_HYBRID_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.1722,
+   "refusal_rate": 0.36
+  },
+  {
+   "config": "FIXED_E5_HYBRID_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.2672,
+   "refusal_rate": 0.04
+  },
+  {
+   "config": "FIXED_MBERT_DENSE_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.1543,
+   "refusal_rate": 0.4
+  },
+  {
+   "config": "FIXED_MBERT_DENSE_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.2611,
+   "refusal_rate": 0.0
+  },
+  {
+   "config": "FIXED_MBERT_HYBRID_LLAMA3B",
+   "n_questions": 25,
+   "token_f1": 0.2119,
+   "refusal_rate": 0.32
+  },
+  {
+   "config": "FIXED_MBERT_HYBRID_QWEN15B",
+   "n_questions": 25,
+   "token_f1": 0.3055,
+   "refusal_rate": 0.0
+  }
+ ],
+ "resources": {
+  "retrieval_E5": {
+   "python_peak_mb": 1173.2,
+   "ollama_peak_mb": 17.0,
+   "system_min_available_mb": 5381.2,
+   "pagefile_growth_max_mb": 0.0
+  },
+  "retrieval_MBERT": {
+   "python_peak_mb": 2082.1,
+   "ollama_peak_mb": 17.2,
+   "system_min_available_mb": 4722.9,
+   "pagefile_growth_max_mb": 5.8
+  },
+  "generation_LLAMA3B": {
+   "python_peak_mb": 941.4,
+   "ollama_peak_mb": 6089.6,
+   "system_min_available_mb": 17.1,
+   "pagefile_growth_max_mb": 3264.2
+  },
+  "generation_QWEN15B": {
+   "python_peak_mb": 32.4,
+   "ollama_peak_mb": 6849.1,
+   "system_min_available_mb": 1359.3,
+   "pagefile_growth_max_mb": 0.0
+  }
+ },
+ "elapsed_s": {
+  "retrieval": 600.2,
+  "generation": 7619.6
+ },
+ "profile_timings": {
+  "model_load_s": {
+   "E5": 0.27,
+   "MBERT": 1.62
+  },
+  "llm_load_s": {
+   "LLAMA3B": 7.36,
+   "QWEN15B": 6.8
+  },
+  "extract_s_per_paper": 0.4201,
+  "index_s_per_uncached_chunk": {
+   "E5": 0.1008,
+   "MBERT": 0.5483
+  },
+  "chunks_per_paper": {
+   "HIER": 122.5,
+   "FIXED": 31.9
+  },
+  "retrieve_ms_per_query": {
+   "HIER_E5_DENSE": 0.2303,
+   "HIER_E5_HYBRID": 3.6828,
+   "FIXED_E5_DENSE": 0.2761,
+   "FIXED_E5_HYBRID": 2.9727,
+   "HIER_MBERT_DENSE": 0.2887,
+   "HIER_MBERT_HYBRID": 0.5184,
+   "FIXED_MBERT_DENSE": 0.2168,
+   "FIXED_MBERT_HYBRID": 0.4267
+  },
+  "generate_s_per_answer": {
+   "LLAMA3B": 27.856,
+   "QWEN15B": 14.0623
+  }
+ },
+ "full_run_estimate": {
+  "papers": 1142,
+  "questions": 3122,
+  "papers_to_index_E5_HIER": 802,
+  "papers_to_index_E5_FIXED": 802,
+  "papers_to_index_MBERT_HIER": 984,
+  "papers_to_index_MBERT_FIXED": 984,
+  "seconds_by_stage": {
+   "extraction": 959,
+   "indexing_E5_HIER": 9907,
+   "indexing_E5_FIXED": 2580,
+   "indexing_MBERT_HIER": 66097,
+   "indexing_MBERT_FIXED": 17212,
+   "retrieval": 27,
+   "generation_LLAMA3B": 65250,
+   "generation_QWEN15B": 32939
+  },
+  "total_hours": 54.2,
+  "note": "generation time assumes no prompt reuse and the profile's mean time per answer; gate refusals (~2.4%) skip generation"
+ }
+}

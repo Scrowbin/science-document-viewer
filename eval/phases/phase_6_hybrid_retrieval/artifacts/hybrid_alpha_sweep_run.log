@@ -1,0 +1,85 @@
+25/150 papers
+MuPDF error: syntax error: unknown keyword: 'pagesize'
+
+MuPDF error: syntax error: unknown keyword: 'width'
+
+MuPDF error: syntax error: unknown keyword: '597.50787pt'
+
+MuPDF error: syntax error: unknown keyword: 'height'
+
+MuPDF error: syntax error: unknown keyword: '845.04684pt'
+
+50/150 papers
+75/150 papers
+100/150 papers
+125/150 papers
+150/150 papers
+{
+ "mean_over_4_pipelines": {
+  "ndcg10": {
+   "0.0": 0.3653,
+   "0.3": 0.4132,
+   "0.4": 0.4264,
+   "0.5": 0.4409,
+   "0.6": 0.4508,
+   "0.7": 0.4589,
+   "0.8": 0.4599,
+   "0.9": 0.4466,
+   "1.0": 0.4359
+  },
+  "cec_0.5": {
+   "0.0": 0.7188,
+   "0.3": 0.7571,
+   "0.4": 0.7671,
+   "0.5": 0.7791,
+   "0.6": 0.7731,
+   "0.7": 0.7731,
+   "0.8": 0.7761,
+   "0.9": 0.7641,
+   "1.0": 0.753
+  }
+ },
+ "endpoint_check": {
+  "hierarchical|e5": {
+   "alpha1_vs_dense_ndcg10": [
+    0.4537,
+    0.4537
+   ],
+   "alpha0_vs_bm25_ndcg10": [
+    0.3554,
+    0.3554
+   ]
+  },
+  "hierarchical|modernbert": {
+   "alpha1_vs_dense_ndcg10": [
+    0.4641,
+    0.4641
+   ],
+   "alpha0_vs_bm25_ndcg10": [
+    0.3554,
+    0.3554
+   ]
+  },
+  "fixed_size|e5": {
+   "alpha1_vs_dense_ndcg10": [
+    0.3997,
+    0.3997
+   ],
+   "alpha0_vs_bm25_ndcg10": [
+    0.3752,
+    0.3752
+   ]
+  },
+  "fixed_size|modernbert": {
+   "alpha1_vs_dense_ndcg10": [
+    0.4263,
+    0.4263
+   ],
+   "alpha0_vs_bm25_ndcg10": [
+    0.3752,
+    0.3752
+   ]
+  }
+ },
+ "models_loaded": []
+}

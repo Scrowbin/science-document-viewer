@@ -4,23 +4,25 @@ An advanced scientific document management system inspired by **Zotero**, design
 
 ---
 
-## 0. Research Questions (RQ) & Scope
+## 0. Evaluation Overview & Scope
 
-This project implements and evaluates a Scientific Document Management platform with a locally hosted RAG assistant designed for academic literature. The thesis ([`DU_AN_CNTT_TOAN_VAN.md`](DU_AN_CNTT_TOAN_VAN.md)) evaluates each RAG component in isolation on the QASPER benchmark:
+The project implements a Scientific Document Manager with a locally hosted RAG assistant and evaluates the main RAG components on the QASPER benchmark of NLP/ML papers. Each component is evaluated on its own, with the other components held at the production setting:
 
-| RQ | Question | Status | Main result |
-| :--- | :--- | :--- | :--- |
-| **RQ1** | Which local PDF extractor suits scientific papers? (47 Dev papers) | Done | Top four extractors are statistically tied on downstream nDCG@10; `pymupdf_layout` chosen because it alone recovers headings (Heading F1 48.01%). |
-| **RQ2** | Which chunking strategy retrieves best under a 1,600-token budget? (47 papers) | Done | `hierarchical` (Small-to-Big) scores highest (nDCG@10 0.6880), partly because it is scored on whole parent sections. |
-| **RQ3** | Which open-source embedding model (≤335M params) is best on desktop CPU? (207 papers, 10 dense models + BM25) | Done | `modernbert-embed-base` most accurate (0.5872); `intfloat/e5-small-v2` best balance (0.5522, 30 ms) and used in production. |
-| **RQ4** | Does hybrid retrieval beat dense-only? (QASPER Test, 408 papers) | Done | Convex α=0.7 +0.0152 nDCG@10 (p_adj 0.014); production RRF k=60 not significantly different from dense. |
-| **RQ5** | How do `qwen2.5:0.5b`, `llama3.2:1b`, `llama3.2:3b` compare given gold evidence? (500 questions + 60-answer audit) | Done | `llama3.2:3b` beats 1b on Token F1; qwen has higher F1 but more unsupported answers in the human audit (7/20 vs 1/20). |
-| **RQ6** | End-to-end combinations (3 embedding models × 3 LLMs on retrieved context) | **Not executed (future work)** | — |
+| Component experiment | Methods compared | Outcome |
+| :--- | :--- | :--- |
+| Document extraction | PyMuPDF (layout / plain), pypdf, pdfminer.six, pdfplumber; GROBID separately | PyMuPDF Layout kept: same evidence recovery as the best, the only one with heading detection, fast |
+| Text chunking | hierarchical (small-to-big), fixed size, section overlap; semantic chunking and children-only separately | hierarchical leads on nDCG@10; fixed size kept as the simple alternative |
+| Embedding model | e5-small-v2, MiniLM, arctic-embed-s, bge-small, ModernBERT-embed; SPECTER2 separately | ModernBERT most accurate, e5-small-v2 nearly as good at about a quarter of the latency |
+| Retrieval strategy | dense, BM25, RRF and convex hybrids; cross-encoder rerankers separately | dense and hybrid-convex tie on QASPER; hybrid helps on PeerQA |
+| Answer generation | llama3.2 (1B, 3B), qwen2.5 (0.5B, 1.5B), phi4-mini, given gold evidence | complementary strengths: higher Token F1 (qwen2.5:1.5b) vs fewer unsupported answers (llama3.2:3b) |
+| Combination | 2 chunkers × 2 embedders × 2 retrieval modes × 2 LLMs = 16 pipelines | pending (design and runner ready) |
 
-### Research Limitations & Assumptions:
-1. **Language Boundary**: English-only scientific literature (QASPER: NLP/ML arXiv papers).
-2. **Component-level evaluation**: Results of RQ1–RQ5 do not add up to an end-to-end quality figure; RQ5 uses gold evidence instead of retrieved context.
-3. **Hardware Constraints**: Commodity desktop deployment (AMD Ryzen 5 5600, 16 GB RAM, CPU only, local Ollama).
+Methods, data, results and limitations are documented in [`eval/README.md`](eval/README.md). The thesis is [`DU_AN_CNTT_TOAN_VAN.md`](DU_AN_CNTT_TOAN_VAN.md).
+
+### Scope & limitations
+1. **Language:** English-only scientific literature (QASPER: NLP/ML arXiv papers).
+2. **Component-level evaluation:** component results do not add up to an end-to-end quality figure; the generation experiment uses gold evidence, not retrieved context. The combination experiment measures complete pipelines.
+3. **Hardware:** commodity desktop (CPU only, about 16 GB RAM, local Ollama).
 
 ---
 
@@ -41,13 +43,13 @@ This project implements and evaluates a Scientific Document Management platform 
   - User identity managed via JWT authentication (`djangorestframework-simplejwt`) with token rotation and blacklist logout.
   - Document-level and folder-level sharing inheritance with 3 permission tiers enforced by the API: `VIEW` (read, chat, summarize), `COMMENT` (+ annotations), `EDIT` (+ metadata edits); delete, trash, duplicate, reindex and share management are owner-only. There is no sharing UI yet (REST API only).
 - 🤖 **Embedded Local RAG AI Assistant**:
-  - **Layout-Aware PDF Ingestion (RQ1)**: `PyMuPDF` (`fitz`) section extraction with typographic heading detection and coordinate sorting.
-  - **Hierarchical Chunking (RQ2)**: Small-to-Big children (~200 estimated tokens, overlap 40) linked to parent sections stored in a vectorless companion collection (`chunking_utils.py`, `CHUNKING_STRATEGY=hierarchical`).
-  - **Dense Embeddings (RQ3)**: Champion model `intfloat/e5-small-v2` (384-dimensional dense vectors with asymmetric prefix support) & `SentenceTransformer`.
-  - **Hybrid Retrieval (RQ4)**: Reciprocal Rank Fusion (RRF $k=60$) combining dense cosine similarity and sparse `BM25Okapi`.
+  - **Layout-Aware PDF Ingestion**: `PyMuPDF` (`fitz`) section extraction with typographic heading detection and coordinate sorting.
+  - **Hierarchical Chunking**: Small-to-Big children (~200 estimated tokens, overlap 40) linked to parent sections stored in a vectorless companion collection (`chunking_utils.py`, `CHUNKING_STRATEGY=hierarchical`).
+  - **Dense Embeddings**: Champion model `intfloat/e5-small-v2` (384-dimensional dense vectors with asymmetric prefix support) & `SentenceTransformer`.
+  - **Retrieval**: dense cosine search by default (`RAG_RETRIEVAL_MODE=dense`); the older hybrid mode (dense + `BM25Okapi` with Reciprocal Rank Fusion, $k=60$) remains selectable as `rrf_legacy`.
   - **Local Vector Store**: `Qdrant Embedded` (`media/qdrant_db/`) with document-scoped payload filtering.
   - **Refusal threshold**: if the best dense cosine score among the selected contexts is below `RAG_MIN_SIMILARITY_SCORE = 0.80`, the assistant refuses without calling the LLM.
-  - **Local LLM (RQ5)**: `Ollama` running `llama3.2:3b` over local REST endpoints with grounded academic prompts; if Ollama is unreachable, the API returns the top retrieved snippets instead.
+  - **Local LLM**: `Ollama` running `llama3.2:3b` over local REST endpoints with grounded academic prompts; if Ollama is unreachable, the API returns the top retrieved snippets instead.
   - **Interactive Citations**: Answers cite `[Page X]` badges; clicking a badge smoothly scrolls the PDF viewer directly to the source page.
 
 ---
@@ -66,7 +68,7 @@ flowchart TB
     subgraph BackendLayer ["2. Backend Core API (Django 5 REST Framework)"]
         BE_API["Document, Collection & Annotation ViewSets\nSimpleJWT Auth with Blacklist Logout\nGoogle Drive Permission Matrix (VIEW / COMMENT / EDIT)"]
         BE_DOI["Crossref DOI Metadata Service"]
-        BE_RAG["Embedded RAG Engine (rag_service.py)\nPyMuPDF sections + hierarchical chunks + intfloat/e5-small-v2\nHybrid dense + BM25 (RRF k=60)"]
+        BE_RAG["Embedded RAG Engine (rag_service.py)\nPyMuPDF sections + hierarchical chunks + intfloat/e5-small-v2\nDense retrieval (RRF hybrid optional)"]
     end
 
     subgraph DataLayer ["3. Data & Storage Layer"]
@@ -101,8 +103,9 @@ flowchart TB
 | **Phase 3** | **Frontend UI & PDF Viewer** | 🟢 **100% Done** | React 19 3-column Zotero UI, PDF.js integration, in-canvas annotations, DOI preview modal, collection tree CRUD, and unified runner. |
 | **Phase 3.5 - 3.8** | **Full Monorepo Audit & Refactoring** | 🟢 **100% Done** | Security fixes, JWT token blacklist logout, Axios refresh queue, N+1 query optimization, magic byte upload validation (`%PDF-`). |
 | **Phase 4.1** | **Midterm Scope Audit & Alignment** | 🟢 **100% Done** | Scope reduction, dropped non-essential features, locked RAG stack (PyMuPDF, Qdrant, Ollama `llama3.2:3b`). |
-| **Phase 4.2** | **Local RAG Pipeline Implementation** | 🟢 **100% Done** | Hierarchical indexing, hybrid RRF retrieval, `/chat/` and `/summarize/` endpoints, `<AiChatPanel>` with page citations. |
-| **Phase 5** | **Empirical Evaluation (RQ1–RQ5) & Thesis** | 🟢 **Done** (RQ6 future work) | Benchmarks in `eval/`, thesis in `DU_AN_CNTT_TOAN_VAN.md`, audit in [`reports/audit/`](reports/audit/). Backend: 51 tests passing. |
+| **Phase 4.2** | **Local RAG Pipeline Implementation** | 🟢 **100% Done** | Hierarchical indexing, dense retrieval (RRF hybrid optional), `/chat/` and `/summarize/` endpoints, `<AiChatPanel>` with page citations. |
+| **Phase 5** | **Component Evaluation & Thesis** | 🟢 **Done** | Component experiments in `eval/phases/`, documented in [`eval/README.md`](eval/README.md); thesis in `DU_AN_CNTT_TOAN_VAN.md`. |
+| **Phase 6** | **Combination Experiment (16 pipelines)** | 🟡 **In progress** | Runner `eval/phases/phase_12_combination/scripts/run_combinations.py`; results pending. |
 
 ---
 

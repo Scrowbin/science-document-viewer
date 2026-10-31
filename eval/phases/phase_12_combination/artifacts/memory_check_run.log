@@ -1,0 +1,12 @@
+{"answers": 25, "median_s": 30.6, "max_s": 48.1, "python_peak_mb": 534.8, "ollama_peak_mb": 6853.6, "system_min_available_mb": 773.7, "pagefile_growth_max_mb": 44.7}
+{"answers": 50, "median_s": 31.8, "max_s": 50.2, "python_peak_mb": 528.8, "ollama_peak_mb": 4530.1, "system_min_available_mb": 308.4, "pagefile_growth_max_mb": 2.3}
+{"answers": 75, "median_s": 32.3, "max_s": 62.1, "python_peak_mb": 39.6, "ollama_peak_mb": 5172.5, "system_min_available_mb": 120.1, "pagefile_growth_max_mb": 9.2}
+{"answers": 100, "median_s": 35.3, "max_s": 61.2, "python_peak_mb": 28.7, "ollama_peak_mb": 5918.9, "system_min_available_mb": 72.7, "pagefile_growth_max_mb": 0.0}
+{
+ "llm": "llama3.2:3b",
+ "answers": 100,
+ "unload_every": 25,
+ "failures": 1,
+ "median_s": 31.9,
+ "mean_s": 31.7
+}

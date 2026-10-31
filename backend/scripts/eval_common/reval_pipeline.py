@@ -1,5 +1,5 @@
 """
-Retrieval pipeline harness for the 2026-10 revalidation study (RQ1-RQ4, RQ6 retrieval stage).
+Retrieval pipeline harness for the 2026-10 component experiments and the combination experiment.
 
 Calls the production code wherever it exists, so evaluated behaviour equals application behaviour:
   sections   : apps.documents.services.chunking_utils.extract_sections_from_pdf   (pymupdf_layout)

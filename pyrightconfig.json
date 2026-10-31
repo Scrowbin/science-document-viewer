@@ -15,9 +15,9 @@
     "eval",
     "eval/phases/phase_0_baseline/scripts",
     "eval/phases/phase_3_embedding/scripts",
-    "eval/phases/phase_4_indexing/scripts",
-    "eval/phases/phase_5_query_processing/scripts",
-    "eval/phases/phase_6_hybrid_retrieval/scripts"
+    "eval/phases/phase_6_hybrid_retrieval/scripts",
+    "eval/phases/phase_9_generation/scripts",
+    "eval/phases/phase_12_combination/scripts"
   ],
   "typeCheckingMode": "basic",
   "reportMissingTypeStubs": false,

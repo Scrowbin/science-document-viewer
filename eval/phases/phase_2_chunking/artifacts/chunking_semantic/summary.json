@@ -1,0 +1,173 @@
+{
+ "experiment": "EXT-RQ2-SEMANTIC",
+ "cohort": "C-RET",
+ "role": "SELECTION EXTENSION",
+ "papers": 335,
+ "questions": 567,
+ "failures": [],
+ "vendored_chunker": {
+  "file": "eval\\phases\\phase_2_chunking\\scripts\\vendor\\teammate_chunkers_49dcac6.py",
+  "sha256": "206a7a57499a867db51315893d9d63ab0656531bc98aa82d6e8f489d5585adc6",
+  "source": "origin/main commit 49dcac6673e72ac16ac10243eae383c3fc670f10"
+ },
+ "means": {
+  "hierarchical": {
+   "ndcg10": 0.445,
+   "cec_0.5": 0.7319,
+   "cec_0.3": 0.9224,
+   "cec_0.7": 0.6155,
+   "context_tokens": 1317.776,
+   "n_units": 3.4444
+  },
+  "semantic_v1": {
+   "ndcg10": 0.3577,
+   "cec_0.5": 0.7108,
+   "cec_0.3": 0.9295,
+   "cec_0.7": 0.5432,
+   "context_tokens": 1098.4092,
+   "n_units": 4.9418
+  },
+  "semantic_v2": {
+   "ndcg10": 0.3532,
+   "cec_0.5": 0.6896,
+   "cec_0.3": 0.8801,
+   "cec_0.7": 0.5132,
+   "context_tokens": 833.7284,
+   "n_units": 4.9947
+  }
+ },
+ "primary_ndcg10": [
+  {
+   "comparison": "semantic_v1 - hierarchical",
+   "metric": "ndcg10",
+   "diff": -0.0872,
+   "ci95": [
+    -0.1177,
+    -0.0579
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0004
+  },
+  {
+   "comparison": "semantic_v2 - hierarchical",
+   "metric": "ndcg10",
+   "diff": -0.0918,
+   "ci95": [
+    -0.119,
+    -0.0656
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0004
+  }
+ ],
+ "secondary_cec_0.5": [
+  {
+   "comparison": "semantic_v1 - hierarchical",
+   "metric": "cec_0.5",
+   "diff": -0.0212,
+   "ci95": [
+    -0.0615,
+    0.0182
+   ],
+   "p_raw": 0.3196,
+   "p_holm": 0.3196
+  },
+  {
+   "comparison": "semantic_v2 - hierarchical",
+   "metric": "cec_0.5",
+   "diff": -0.0423,
+   "ci95": [
+    -0.08,
+    -0.0054
+   ],
+   "p_raw": 0.0262,
+   "p_holm": 0.0524
+  }
+ ],
+ "sensitivity_cec_0.3": [
+  {
+   "comparison": "semantic_v1 - hierarchical",
+   "metric": "cec_0.3",
+   "diff": 0.0071,
+   "ci95": [
+    -0.0195,
+    0.0327
+   ],
+   "p_raw": 0.6505,
+   "p_holm": 0.6505
+  },
+  {
+   "comparison": "semantic_v2 - hierarchical",
+   "metric": "cec_0.3",
+   "diff": -0.0423,
+   "ci95": [
+    -0.0701,
+    -0.015
+   ],
+   "p_raw": 0.0044,
+   "p_holm": 0.0088
+  }
+ ],
+ "sensitivity_cec_0.7": [
+  {
+   "comparison": "semantic_v1 - hierarchical",
+   "metric": "cec_0.7",
+   "diff": -0.0723,
+   "ci95": [
+    -0.1172,
+    -0.0281
+   ],
+   "p_raw": 0.0026,
+   "p_holm": 0.0026
+  },
+  {
+   "comparison": "semantic_v2 - hierarchical",
+   "metric": "cec_0.7",
+   "diff": -0.1023,
+   "ci95": [
+    -0.1468,
+    -0.0593
+   ],
+   "p_raw": 0.0002,
+   "p_holm": 0.0004
+  }
+ ],
+ "descriptive_v2_vs_v1_ndcg10": {
+  "comparison": "semantic_v2 - semantic_v1",
+  "metric": "ndcg10",
+  "diff": -0.0046,
+  "ci95": [
+   -0.0307,
+   0.0214
+  ],
+  "p_raw": 0.7273
+ },
+ "decision_rule": "a semantic arm enters combination stage 2 (as pymupdf_layout|semantic_vX|e5|dense) only if it beats hierarchical by >= 0.05 budgeted nDCG@10 with CI lower bound > 0 (Holm-adjusted p < 0.05); production keeps hierarchical unless stage 2 selects it",
+ "decision": "keep hierarchical; no semantic arm enters stage 2",
+ "index": {
+  "hierarchical": {
+   "units": 22211,
+   "units_per_paper": 66.3,
+   "chunking_s_per_paper": 0.01
+  },
+  "semantic_v1": {
+   "units": 16514,
+   "units_per_paper": 49.3,
+   "chunking_s_per_paper": 5.9
+  },
+  "semantic_v2": {
+   "units": 21070,
+   "units_per_paper": 62.9,
+   "chunking_s_per_paper": 5.84
+  }
+ },
+ "memory": {
+  "python_working_set_baseline_mb": 437.8,
+  "python_working_set_peak_mb": 1239.9
+ },
+ "elapsed_s": 7740.8,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}

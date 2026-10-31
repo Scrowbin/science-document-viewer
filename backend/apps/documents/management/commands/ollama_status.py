@@ -4,7 +4,7 @@ ollama.exe / ollama process tree (server + model runners).
 
 Why: Ollama 0.40 starts its llama-server runner without --cache-ram, so llama.cpp's default
 host prompt cache (up to 8 GiB) applies and runner memory grows with every distinct prompt
-(revalidation RQ5-M: llama3.2:3b ~2.5 GB after load, ~8.8 GB after 500 prompts).
+(generation memory profile: llama3.2:3b ~2.5 GB after load, ~8.8 GB after 500 prompts).
 This command only reports; it never unloads a model, because unloading resets the prompt cache
 and can change later outputs.
 

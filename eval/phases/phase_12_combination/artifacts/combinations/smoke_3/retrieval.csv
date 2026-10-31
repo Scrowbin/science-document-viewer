@@ -1,0 +1,9 @@
+retrieval_pipeline,n_questions,ndcg10,mrr10,cec_0.5,context_tokens,n_units,gate_refusal_rate,retrieve_ms_p50,ndcg10_train,ndcg10_dev,ndcg10_test,cec_0.5_train,cec_0.5_dev,cec_0.5_test
+HIER_E5_DENSE,3,0.465,0.5,1.0,1488.7,4.0,0.0,0.4,,0.465,,,1.0,
+HIER_E5_HYBRID,3,0.3755,0.4444,1.0,1343.7,4.0,0.0,0.696,,0.3755,,,1.0,
+HIER_MBERT_DENSE,3,0.3096,0.2778,1.0,1234.3,4.33,0.0,0.323,,0.3096,,,1.0,
+HIER_MBERT_HYBRID,3,0.3755,0.4167,1.0,1428.7,4.0,0.0,0.623,,0.3755,,,1.0,
+FIXED_E5_DENSE,3,0.4708,0.6667,1.0,1596.0,4.0,0.0,0.184,,0.4708,,,1.0,
+FIXED_E5_HYBRID,3,0.4708,0.6667,1.0,1596.0,4.0,0.0,0.792,,0.4708,,,1.0,
+FIXED_MBERT_DENSE,3,0.4287,0.5,1.0,1596.0,4.0,0.0,0.204,,0.4287,,,1.0,
+FIXED_MBERT_HYBRID,3,0.4598,0.6667,1.0,1596.0,4.0,0.0,0.377,,0.4598,,,1.0,

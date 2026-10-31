@@ -118,7 +118,7 @@ This graduation thesis addresses these challenges through two interconnected del
     - 3.3.3. Đánh giá mô hình biểu diễn vector - Embedding (RQ3)
     - 3.3.4. Đánh giá phương pháp truy xuất kết hợp - Hybrid Search (RQ4)
     - 3.3.5. Đánh giá mô hình ngôn ngữ lớn cục bộ (RQ5) và Cơ sở lựa chọn ba mô hình ứng viên
-    - 3.3.6. Đánh giá cấu hình RAG kết hợp toàn trình (RQ6 - Định hướng tiếp theo)
+    - 3.3.6. Thực nghiệm kết hợp toàn trình: 16 cấu hình đường ống RAG
   - 3.4. Tổng hợp các chỉ số đánh giá
   - 3.5. Kiểm soát thực nghiệm và khả năng tái lập
   - 3.6. Phạm vi thực hiện và giới hạn nghiên cứu
@@ -291,7 +291,7 @@ Nghiên cứu, phân tích, thiết kế và phát triển một hệ thống �
 
 - **Đối tượng nghiên cứu:** 
   - Tài liệu nghiên cứu khoa học toàn văn định dạng PDF, tập trung chủ yếu vào các bài báo tiếng Anh có cấu trúc học thuật chuẩn mực (hai cột, có tiêu đề đề mục IMRaD, công thức toán học và tài liệu tham khảo).
-  - Ngữ liệu QASPER (*Question Answering on Scientific Papers*, Dasigi et al., NAACL 2021) phiên bản chuẩn v0.3 gồm 1.585 bài báo và 5.049 câu hỏi nghiên cứu thực tế kèm bằng chứng nguyên văn do chuyên gia gán nhãn thủ công.
+  - Ngữ liệu QASPER (*Question Answering on Scientific Papers*, Dasigi et al., 2021) phiên bản chuẩn v0.3 gồm 1.585 bài báo và 5.049 câu hỏi nghiên cứu thực tế kèm bằng chứng nguyên văn do chuyên gia gán nhãn thủ công.
 - **Phạm vi hệ thống:**
   - Quy mô triển khai: Phục vụ cá nhân nhà nghiên cứu hoặc nhóm nghiên cứu quy mô nhỏ (SYS-006).
   - Giới hạn phần cứng: Máy trạm cá nhân thông thường cấu hình tham chiếu AMD Ryzen 5 5600 6 nhân / 12 luồng, 16 GB RAM, không sử dụng GPU rời; toàn bộ tiến trình suy luận AI diễn ra nội bộ qua Ollama và thư viện SentenceTransformers (FastEmbed chỉ là phương án dự phòng cho các mô hình không thuộc họ e5).
@@ -348,7 +348,7 @@ Thay vì chỉ dựa vào tri thức đóng băng trong quá trình tiền huấ
 2. **Giai đoạn Truy vấn và Sinh lời đáp (Query & Generation Phase):** Khi người dùng đặt câu hỏi, câu hỏi được chuyển đổi thành vector nhúng. Hệ thống tìm kiếm các phân đoạn tài liệu có độ tương đồng ngữ nghĩa cao nhất, lắp ráp chúng vào một mẫu lời nhắc có cấu trúc (*prompt context*), và chuyển cho mô hình LLM để sinh câu trả lời chính xác có dẫn chứng nguồn gốc.
 
 ### 2.2.2. Hiện tượng "Lost in the Middle" và Ràng buộc Ngân sách Ngữ cảnh
-Nghiên cứu của Liu et al. (2023) đã chỉ ra rằng hiệu năng nắm bắt thông tin của các mô hình ngôn ngữ lớn suy giảm rõ rệt khi đoạn văn bản quan trọng nằm ở giữa một ngữ cảnh quá dài, trong khi khả năng ghi nhớ đạt đỉnh ở phần đầu và phần cuối ngữ cảnh. Hơn nữa, việc nạp ngữ cảnh vượt mức cho phép không chỉ gây lãng phí bộ nhớ mà còn làm tăng nguy cơ phân tâm (*distraction*), khiến LLM tạo ra các câu trả lời thiếu chính xác.
+Nghiên cứu của Liu et al. (2024) đã chỉ ra rằng hiệu năng nắm bắt thông tin của các mô hình ngôn ngữ lớn suy giảm rõ rệt khi đoạn văn bản quan trọng nằm ở giữa một ngữ cảnh quá dài, trong khi khả năng ghi nhớ đạt đỉnh ở phần đầu và phần cuối ngữ cảnh. Hơn nữa, việc nạp ngữ cảnh vượt mức cho phép không chỉ gây lãng phí bộ nhớ mà còn làm tăng nguy cơ phân tâm (*distraction*), khiến LLM tạo ra các câu trả lời thiếu chính xác.
 
 Do đó, việc thiết lập một **Ngân sách Ngữ cảnh (Context Token Budget)** nghiêm ngặt (chẳng hạn 1.600 tokens) và kiểm soát số lượng đoạn văn bản tối đa ($k \le 5$) là điều kiện tiên quyết để bảo đảm chất lượng câu trả lời học thuật.
 
@@ -448,7 +448,7 @@ Những nhận định trên là cơ sở lý thuyết trực tiếp định hì
 ## 3.2. Dữ liệu và môi trường thực nghiệm
 
 ### 3.2.1. Bộ dữ liệu thực nghiệm QASPER
-Nghiên cứu sử dụng ngữ liệu chuẩn quốc tế **QASPER** (*Question Answering on Scientific Papers*, Dasigi et al., NAACL 2021) do Viện Trí tuệ Nhân tạo Allen phát hành:
+Nghiên cứu sử dụng ngữ liệu chuẩn quốc tế **QASPER** (*Question Answering on Scientific Papers*, Dasigi et al., 2021) do Viện Trí tuệ Nhân tạo Allen phát hành:
 - Gồm toàn bộ các bài báo khoa học toàn văn định dạng PDF được trích xuất từ kho lưu trữ mở arXiv, kèm theo các câu hỏi nghiên cứu thực tế do chính các chuyên gia đọc toàn văn bài báo đặt ra.
 - Mỗi câu hỏi được gán nhãn thủ công với các đoạn văn bản trích dẫn nguyên văn (*ground-truth evidence passages*) chỉ rõ ranh giới đoạn văn mang bằng chứng trực tiếp trả lời câu hỏi.
 - Phân bố toàn thể của ngữ liệu gồm 1.585 bài báo và 5.049 câu hỏi, được chia thành 3 phân hoạch chuẩn:
@@ -567,43 +567,57 @@ Việc lựa chọn đúng ba mô hình `qwen2.5:0.5b`, `llama3.2:1b` và `llama
      + `CONTRADICTED`: Phát biểu mâu thuẫn hoặc xuyên tạc sự thật được nêu trong ngữ cảnh (Intrinsic Hallucination).
      + `MISSING_INFO`: Phân rã thành `UNJUSTIFIED_REFUSAL` (từ chối dù ngữ cảnh có câu trả lời), `PARTIAL` (trả lời đúng một phần nhưng thiếu ý chính), và `REFUSAL_VALID` (từ chối an toàn hợp lệ).
 
-### 3.3.6. Đánh giá cấu hình RAG kết hợp toàn trình (RQ6 – Định hướng tiếp theo)
+### 3.3.6. Thực nghiệm kết hợp toàn trình: 16 cấu hình đường ống RAG
 
-> **Trạng thái:** RQ6 là thiết kế thực nghiệm cho giai đoạn tiếp theo và **chưa được thực thi** trong phạm vi đồ án này. Không có kết quả RQ6 nào được báo cáo ở Chương 5.
+> **Trạng thái:** Thiết kế và mã nguồn thực nghiệm đã hoàn tất (`eval/phases/phase_12_combination/scripts/run_combinations.py`). **Kết quả đang chờ** lần chạy đầy đủ; chưa có số liệu kết hợp nào được báo cáo.
 
-#### 1. Mục tiêu và Kế hoạch thực nghiệm (Objectives & Experimental Plan)
-*Mục tiêu:* Đo lường chất lượng sinh câu trả lời tự động toàn trình (End-to-End Generation) từ khâu bóc tách PDF, phân đoạn phân cấp, truy xuất lai đa giai đoạn đến văn bản sinh ra cuối cùng của mô hình ngôn ngữ lớn trên môi trường máy trạm để bàn CPU.
+#### 1. Mục tiêu
+Các thực nghiệm thành phần (Mục 3.3.1–3.3.5) đánh giá từng thành phần riêng lẻ, giữ các thành phần còn lại ở cấu hình sản phẩm. Thực nghiệm kết hợp đánh giá các phương pháp đã chọn khi ghép thành một đường ống hoàn chỉnh, **trên cùng một tập dữ liệu và cùng một thiết lập**. Mục đích là quan sát cách các thành phần tác động lẫn nhau, không mặc định rằng ghép các phương pháp tốt nhất của từng thành phần sẽ cho đường ống tốt nhất.
 
-*Nguyên tắc giới hạn tổ hợp thực nghiệm:* Nếu tiến hành thử nghiệm toàn bộ không gian tổ hợp bao gồm 11 cấu hình truy xuất của RQ3 (10 mô hình dense và BM25), 4 chiến lược truy xuất (RQ4) và 3 mô hình ngôn ngữ lớn (RQ5), hệ thống sẽ đối mặt với sự bùng nổ tổ hợp ($11 \times 4 \times 3 = 132$ cấu hình toàn trình). Trên môi trường máy trạm CPU với hàng trăm câu hỏi kiểm thử, tổng thời gian suy luận sẽ kéo dài hàng trăm giờ, gây quá tải tính toán nghiêm trọng. Do đó, tuân thủ nguyên tắc thiết kế thực nghiệm có kiểm soát (Section 3.3.6 trong đề cương ban đầu), số lượng cấu hình được giới hạn chặt chẽ bằng cách **lựa chọn các phương án tiêu biểu đại diện cho từng bậc thang hiệu năng – tài nguyên trên đường biên Pareto**.
+#### 2. Thiết kế 2 × 2 × 2 × 2 = 16 cấu hình
+Bộ trích xuất được cố định (xem mục 3). Với mỗi thành phần còn lại, hai phương pháp triển vọng nhất được chọn dựa trên kết quả thực nghiệm thành phần, cơ sở lý thuyết và chi phí tính toán:
 
-#### 2. Ba mô hình biểu diễn vector đại diện cho thực nghiệm kết hợp (Three Representative Embedding Models)
+| Thành phần | Phương pháp 1 | Phương pháp 2 | Lý do lựa chọn |
+| :--- | :--- | :--- | :--- |
+| Phân mảnh (chunking) | `hierarchical` (con 200 / chồng lấp 40, mở rộng sang đoạn cha) | `fixed_size` (400) | `hierarchical` dẫn đầu thực nghiệm phân mảnh (nDCG@10 0,445 so với 0,386; 335 bài báo, e5 + dense), phù hợp lý thuyết "small-to-big". `fixed_size` là mốc đơn giản, có độ bao phủ bằng chứng trong ngữ cảnh (CEC@0,5) cao hơn do lấp đầy ngân sách ngữ cảnh nhiều hơn (khoảng 1.580 so với 1.290 token). Hai kết quả đến từ các thiết lập khác nhau nên không so sánh trực tiếp. |
+| Mô hình nhúng | `intfloat/e5-small-v2` | `nomic-ai/modernbert-embed-base` | ModernBERT cho nDCG@10 cao nhất (0,464 so với 0,454 của e5; 150 bài báo) và có cửa sổ ngữ cảnh dài, nhưng chậm hơn khoảng 4 lần (64 so với 17 ms/truy vấn) và tốn bộ nhớ hơn. Hai mô hình đại diện cho đánh đổi chất lượng – chi phí. |
+| Truy xuất | dense | hybrid (kết hợp lồi: 0,7 × dense + 0,3 × BM25, chuẩn hóa min-max) | Trên QASPER hai phương pháp gần như bằng nhau (0,445 so với 0,444), còn trên PeerQA hybrid cao hơn khoảng 0,04. Theo lý thuyết, BM25 hữu ích khi câu hỏi dùng chung từ ngữ với văn bản; câu hỏi QASPER được viết từ phần tóm tắt nên ít trùng từ với bằng chứng. Giữ cả hai giúp kiểm tra tương tác này trong đường ống hoàn chỉnh. |
+| Mô hình sinh | `llama3.2:3b` | `qwen2.5:1.5b` | `qwen2.5:1.5b` được đưa vào vì kết quả sinh với bằng chứng chuẩn (Token F1 0,240, nhanh hơn). `llama3.2:3b` là mô hình mặc định của hệ thống và ít khẳng định không có căn cứ nhất trong lần đánh giá thủ công trước (so với `llama3.2:1b` và `qwen2.5:0.5b`). Đây là hai nguồn bằng chứng bổ sung cho nhau, không phải một bảng xếp hạng so sánh trực tiếp. |
 
-Dựa trên kết quả đo đạc thực nghiệm toàn diện tại RQ3 trên tập dữ liệu hợp nhất 207 bài báo khoa học, ba mô hình biểu diễn vector được chọn làm đại diện cho 3 phân khúc đặc trưng để đưa vào thực nghiệm kết hợp toàn trình:
+Tám đường ống truy xuất (2 phân mảnh × 2 mô hình nhúng × 2 phương pháp truy xuất) được ghép với hai mô hình sinh, tạo thành 16 cấu hình. Các tham số còn lại giữ như thực nghiệm thành phần: ngân sách ngữ cảnh 1.600 token, tối đa 5 đơn vị, nhiệt độ sinh 0.
 
-| Phân khúc / Vai trò | Mô hình Đại diện | Quy mô & Số chiều | nDCG@10 (RQ3) | Độ trễ P50 (ms) | Thông lượng (chunks/s) | Peak RAM (MB) |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Mốc đối chứng Hiệu năng cao (Efficiency Baseline)** | **`all-MiniLM-L6-v2`** | 22.7M (384-d) | 0,5026 | **19,30** | **19,0** | **593,1** |
-| **Ứng viên Cân bằng Tối ưu (Balanced Champion / System Choice)** | **`intfloat/e5-small-v2`** | 33.4M (384-d) | 0,5522 | **30,26** | **6,5** | **659,8** |
-| **Ứng viên Đỉnh cao Chất lượng (Quality Ceiling Champion)** | **`modernbert-embed-base`** | 149.0M (768-d) | **0,5872** | **103,39** | **1,8** | **1.161,7** |
+#### 3. Quyết định cố định bộ trích xuất PyMuPDF Layout
+Trong cả 16 cấu hình, bộ trích xuất được cố định là **PyMuPDF Layout**. Đây là một **quyết định về phạm vi thực hiện**, không phải kết luận rằng PyMuPDF Layout vượt trội trong mọi trường hợp. Quyết định dựa trên ba cân nhắc:
 
-#### 3. Cơ sở khoa học lựa chọn 3 mô hình đại diện này (Why These 3 Models Were Selected)
+1. **Phù hợp theo kết quả thực nghiệm.** Trong thực nghiệm trích xuất (335 bài báo), PyMuPDF Layout khôi phục bằng chứng ngang các bộ trích xuất tốt nhất (độ phủ bằng chứng 0,985), là bộ trích xuất duy nhất trong nhóm thư viện Python có phát hiện tiêu đề mục (Heading F1 0,466), xử lý nhanh (khoảng 12 ms/trang) và cho kết quả truy xuất phía sau tốt nhất trong nhóm (nDCG@10 0,454 so với 0,421 của PyMuPDF thường; 150 bài báo).
 
-1. **`all-MiniLM-L6-v2` — Đại diện Phân khúc Tốc độ cao / Mốc đối chứng (Efficiency Baseline):**
-   - *Đặc tính kỹ thuật:* Là mô hình nhúng dày có tốc độ xử lý nhanh nhất trong toàn bộ benchmark (độ trễ P50 chỉ 19,30 ms, thông lượng nạp tài liệu đạt tới 19,0 chunks/giây — nhanh gấp khoảng 2,9 lần E5-Small và 10,6 lần ModernBERT, mức tiêu thụ bộ nhớ thấp nhất chỉ 593,1 MB RAM).
-   - *Cơ sở lựa chọn vào cấu hình kết hợp:* Đóng vai trò là mốc đối chứng cận dưới về tài nguyên tính toán (Lower-Resource Anchor). Việc đưa MiniLM vào bài đo toàn trình cho phép trả lời câu hỏi thực tiễn quan trọng: *Liệu sự cải thiện về chất lượng xếp hạng ngữ nghĩa của các mô hình lớn hơn có thực sự tạo ra sự khác biệt có ý nghĩa thống kê đối với chất lượng câu trả lời sinh ra cuối cùng của LLM hay không, hay một bộ nhúng cực nhẹ như MiniLM là đã đủ cho tác vụ hỏi đáp khoa học?*
+2. **Ràng buộc kỹ thuật thực tế.** GROBID đã được xem xét và đánh giá riêng nhưng không được đưa vào tập ứng viên cuối cùng. GROBID là phần mềm mã nguồn mở và có thể chạy cục bộ, không phụ thuộc API bên ngoài. Tuy nhiên, việc tích hợp đòi hỏi:
+   - triển khai và vận hành thêm một dịch vụ riêng (container Docker);
+   - môi trường Java và bộ nhớ đáng kể (container chạm giới hạn 4 GB trong lần đánh giá);
+   - chi phí tích hợp và bảo trì thêm cho ứng dụng.
 
-2. **`intfloat/e5-small-v2` — Đại diện Phân khúc Cân bằng Tối ưu / Cấu hình Mặc định Hệ thống (Balanced Champion & Production Choice):**
-   - *Đặc tính kỹ thuật:* Đạt điểm chất lượng truy xuất vượt trội có ý nghĩa thống kê so với baseline ($\text{nDCG@10} = 0,5522$, $\Delta = +0,0497^*, p = 0,0010^*$), trong khi độ trễ mã hóa duy trì ở mức tương tác rất nhanh (P50 = 30,26 ms), thông lượng ổn định (6,5 chunks/giây) và bộ nhớ RAM rất nhẹ (659,8 MB).
-   - *Cơ sở lựa chọn vào cấu hình kết hợp:* Đây là mô hình tối ưu nhất trên đường biên Pareto cho môi trường máy trạm để bàn không có GPU, đồng thời là mô hình nhúng mặc định đang vận hành trong kiến trúc ứng dụng phần mềm (Chương 4) và đã được kiểm chứng qua RQ4. Việc đưa E5-Small-v2 vào thử nghiệm kết hợp toàn trình là bắt buộc để đánh giá chính xác hiệu năng thực tế của cấu hình sản phẩm đang phục vụ người dùng.
+   Với tài nguyên tính toán hạn chế của một đồ án đại học, chi phí này được xem là không tương xứng với lợi ích kỳ vọng so với phương án cục bộ hiện có.
 
-3. **`modernbert-embed-base` — Đại diện Phân khúc Đỉnh cao Chất lượng (Quality Ceiling Champion):**
-   - *Đặc tính kỹ thuật:* Xác lập kỷ lục chất lượng truy xuất cao nhất trong toàn bộ nghiên cứu ($\text{nDCG@10} = 0,5872$, $\Delta = +0,0846^*, p = 0,0010^*$, $\text{nDCG@4} = 0,4937$), tích hợp kiến trúc ModernBERT tiên tiến với cơ chế mã hóa vị trí RoPE và hỗ trợ cửa sổ ngữ cảnh gốc lên đến 8.192 tokens.
-   - *Cơ sở lựa chọn vào cấu hình kết hợp:* Đóng vai trò là cận trên về độ chính xác truy xuất (Accuracy Ceiling). Mô hình đòi hỏi chi phí tính toán cao hơn đáng kể (độ trễ P50 tăng lên 103,39 ms — gấp 3,4 lần E5-Small, thông lượng giảm còn 1,8 chunks/giây, RAM 1.161,7 MB). Việc đưa ModernBERT vào đối đầu toàn trình nhằm xác định xem liệu việc đánh đổi gấp hơn 3 lần thời gian xử lý và tài nguyên bộ nhớ có mang lại giá trị gia tăng tương xứng về độ chính xác và độ trung thực học thuật (Faithfulness) của LLM ở đầu ra hay không.
+3. **Đặc điểm của tập dữ liệu và cách đánh giá.** Văn bản toàn văn của QASPER được tạo từ quy trình xử lý PDF dựa trên GROBID. Trong đánh giá, GROBID khôi phục lượng bằng chứng tương đương PyMuPDF Layout (0,981 so với 0,985), nhưng cho kết quả truy xuất phía sau cao hơn (CEC@0,5: 0,823 so với 0,739; nDCG@10: 0,513 so với 0,454; 150 bài báo). Mã đánh giá cho thấy hai khả năng giải thích, hiện **chỉ là giả thuyết, chưa được kiểm chứng**:
+   - phép so khớp bằng chứng và độ liên quan có một nhánh so khớp nguyên văn, có thể có lợi cho văn bản được tạo theo cùng cách với văn bản của QASPER;
+   - văn bản GROBID không chứa danh mục tài liệu tham khảo (0/349 bài so với 304/349 bài ở PyMuPDF Layout), nên có ít đoạn gây nhiễu cho truy xuất hơn.
 
-#### 4. Ma trận Cấu hình Kết hợp Toàn trình và Chỉ số Đo lường (Combination Matrix & Metrics)
-Ba mô hình biểu diễn vector đại diện trên được kết hợp đối sánh chéo với ba mô hình ngôn ngữ lớn cục bộ (`qwen2.5:0.5b`, `llama3.2:1b`, `llama3.2:3b`) đã được tuyển chọn ở RQ5 dưới cùng một quy trình tiền xử lý cố định (`pymupdf_layout` và phân đoạn phân cấp `hierarchical` Small-to-Big):
-- **Chỉ số sinh lời đáp:** Answer Token F1 (đo lường độ trùng khớp từ tố với câu trả lời chuyên gia) và Human Claim-Level Faithfulness (% các khẳng định sự thật được bảo chứng bởi ngữ cảnh).
-- **Chỉ số hệ thống:** End-to-End Latency P50/P95 (tổng thời gian từ khi người dùng đặt câu hỏi đến khi nhận lời đáp hoàn chỉnh, tính bằng giây) và Peak Memory RSS của toàn bộ ngăn xếp tiến trình (Python benchmark worker + daemon Ollama).
+   Một phân tích chẩn đoán nhỏ (tắt nhánh so khớp nguyên văn; loại bỏ danh mục tham khảo khỏi văn bản PyMuPDF Layout) được để dành, chỉ thực hiện nếu cần cho lập luận của luận văn. Kết quả GROBID vì vậy không được diễn giải là GROBID kém hơn, mà là một hướng nghiên cứu tiếp theo.
+
+#### 4. Dữ liệu
+Thực nghiệm kết hợp dùng một tập đánh giá QASPER riêng, gồm mọi bài báo có PDF phiên bản mới nhất sử dụng được (phần tập Train đã tải trước đó, cùng các bài Dev và Test được tải bổ sung) và mọi câu hỏi có câu trả lời kèm bằng chứng dạng văn bản. Các trường hợp bị loại (không có PDF, câu hỏi không trả lời được, bằng chứng chỉ là hình/bảng) được ghi lại cùng số lượng trong `eval/phases/phase_0_baseline/artifacts/combination_set.json`. Phần tập Train chỉ gồm các bài đã tải trước đó (463/888 bài), nên tập này không phải là một phân hoạch đầy đủ hay một mẫu đại diện của QASPER. Không có kiểm tra phiên bản PDF so với văn bản được chú thích; một số PDF có thể là phiên bản mới hơn, đây là một giới hạn của dữ liệu.
+
+Nhiều bài báo trong tập này cũng đã được dùng để chọn phương pháp ở các thực nghiệm thành phần. Vì vậy, đây là một **so sánh toàn trình mang tính khám phá trên tập đánh giá đã tổng hợp**: nó cho biết cấu hình nào hoạt động tốt nhất trên tập này và các thành phần tác động lẫn nhau ra sao, nhưng không chứng minh khả năng tổng quát hóa sang các bài báo chưa từng thấy.
+
+#### 5. Chỉ số và cách diễn giải
+Kết quả được báo cáo theo từng tầng, không gộp thành một điểm tổng hợp:
+- **Truy xuất:** nDCG@10 và MRR@10 trên ngữ cảnh đã ghép (tối đa 5 đơn vị);
+- **Ghép ngữ cảnh:** CEC@0,5 (bằng chứng có nằm trong ngữ cảnh đưa vào mô hình hay không);
+- **Sinh câu trả lời:** Token F1 và tỷ lệ từ chối trả lời (Token F1 không phải độ chính xác về sự thật);
+- **Độ tin cậy:** một đánh giá thủ công nhỏ (15 câu hỏi × 2 mô hình sinh, cùng một đường ống truy xuất, một người đánh giá), chỉ mang tính mô tả;
+- **Chi phí:** độ trễ, thời gian lập chỉ mục và bộ nhớ đỉnh.
+
+Cấu hình tốt nhất ở mỗi tầng được so sánh với cấu hình ghép từ các phương pháp tốt nhất của từng thực nghiệm thành phần (`hierarchical` + ModernBERT + dense, với cả hai mô hình sinh). Lựa chọn cuối cùng cho hệ thống dựa trên thảo luận kết hợp chất lượng, độ tin cậy và chi phí trên kết quả toàn trình, không chỉ dựa trên thứ hạng của từng thành phần.
 
 ---
 
@@ -1261,7 +1275,7 @@ Mọi số liệu được báo cáo trong chương này đều được truy xu
 
 ### 5.1.2. Phân tích khám phá đặc trưng dữ liệu toàn phần (Full-Scale Benchmark EDA)
 
-Để xây dựng một hệ thống RAG chuyên sâu cho tài liệu khoa học, việc nắm bắt các đặc trưng hình thái, cấu trúc ngữ nghĩa và phân bố văn bản là điều kiện tiên quyết. Ngữ liệu QASPER (*Question Answering on Scientific Papers*, Dasigi et al., NAACL 2021) phiên bản chuẩn v0.3 được lựa chọn làm ngữ liệu nghiên cứu chuẩn vì đây là bộ dữ liệu hiếm hoi cung cấp câu hỏi nghiên cứu thực tế kèm theo bằng chứng là các đoạn văn bản nguyên văn (*ground-truth evidence passages*) được gán nhãn thủ công bởi các chuyên gia đọc toàn văn bài báo.
+Để xây dựng một hệ thống RAG chuyên sâu cho tài liệu khoa học, việc nắm bắt các đặc trưng hình thái, cấu trúc ngữ nghĩa và phân bố văn bản là điều kiện tiên quyết. Ngữ liệu QASPER (*Question Answering on Scientific Papers*, Dasigi et al., 2021) phiên bản chuẩn v0.3 được lựa chọn làm ngữ liệu nghiên cứu chuẩn vì đây là bộ dữ liệu hiếm hoi cung cấp câu hỏi nghiên cứu thực tế kèm theo bằng chứng là các đoạn văn bản nguyên văn (*ground-truth evidence passages*) được gán nhãn thủ công bởi các chuyên gia đọc toàn văn bài báo.
 
 **Phân định phạm vi tập dữ liệu EDA:** 
 
@@ -1497,6 +1511,10 @@ Bảng 5.2 trình bày chi tiết kết quả thực nghiệm của 8 chiến l�
 4. **Sự thất bại của phân đoạn ngữ nghĩa (`semantic chunking`):**
 
    Chiến lược `semantic` ghi nhận sự suy giảm có ý nghĩa thống kê so với mốc đối chứng ($\text{nDCG@10} = 0,4856$, $\Delta = -0,0798, p = 0,0050^*$). Trong văn bản học thuật, sự chuyển đổi điểm nhìn giữa các câu trong cùng một đoạn văn thường tạo ra bước nhảy khoảng cách vector giả, dẫn đến việc văn bản bị băm vụn không đồng đều (độ dài trung bình chỉ 184,9 tokens/chunk, sinh ra tới 1.907 chunks). Sự phân mảnh này làm phá vỡ tính mạch lạc của các luận điểm chứng minh khoa học.
+
+   *Đối chiếu với nghiên cứu liên quan:* Sự khác biệt quan sát được giữa các chiến lược phân mảnh phù hợp với nhận định rộng hơn rằng phân đoạn phức tạp hơn không nhất thiết cải thiện hiệu năng RAG. Qu và cộng sự (Qu et al., 2025) đã so sánh phân đoạn kích thước cố định với hai cách phân đoạn ngữ nghĩa (đặt điểm ngắt theo khoảng cách ngữ nghĩa giữa các câu liên tiếp, và gom cụm các câu tương đồng) trên ba tác vụ: truy xuất tài liệu, truy xuất bằng chứng và sinh câu trả lời. Kết quả của họ cho thấy phân đoạn ngữ nghĩa không vượt trội một cách nhất quán so với phân đoạn kích thước cố định; hiệu năng thay đổi theo tập dữ liệu và tác vụ. Chẳng hạn, trên QASPER, F1@5 cho truy xuất tài liệu đạt 90,99 với phân đoạn cố định so với 89,27 và 90,77 với hai cách phân đoạn ngữ nghĩa, và chênh lệch ở truy xuất bằng chứng (8,66; 8,16; 8,50) cũng nhỏ. Các tác giả nhận thấy các phương pháp phân đoạn khác nhau thường truy xuất được cùng các câu bằng chứng, làm giảm lợi ích của việc gom nhóm theo ngữ nghĩa; ưu thế của phân đoạn ngữ nghĩa chỉ rõ hơn trên các tài liệu ghép nhân tạo có độ đa dạng chủ đề cao. Điều này gợi ý rằng hiệu quả của phân mảnh phụ thuộc không chỉ vào chiến lược phân đoạn mà còn vào đặc điểm tài liệu và khả năng của mô hình nhúng trong việc tìm ra bằng chứng liên quan.
+
+   Kết quả của đồ án **phù hợp với** nhận định chung này, chứ không phải là sự kiểm chứng trực tiếp nghiên cứu của Qu et al. (2025): thiết lập thực nghiệm khác nhau (đồ án so sánh `fixed_size`, `section_overlap`, `hierarchical` và một biến thể phân đoạn ngữ nghĩa trong đường ống RAG riêng, với giới hạn ngữ cảnh 1.600 token và tối đa 5 đơn vị). Đặc biệt, phân mảnh phân cấp (`hierarchical`) dựa trên cấu trúc cha – con của tài liệu và không phải là phân đoạn ngữ nghĩa; nghiên cứu của Qu et al. không dự đoán kết quả so sánh giữa `hierarchical` và `fixed_size`.
 
 5. **Vị trí của `section_overlap` trong nhóm phẳng và lý do thay đổi cấu hình sản phẩm:**
 
@@ -2131,65 +2149,65 @@ Phát triển tính năng tìm kiếm ngữ nghĩa toàn bộ kho tài liệu c�
 
 ---
 
-[1] P. Dasigi, K. Lo, I. Beltagy, A. Cohan, N. A. Smith, and M. Gardner, "A Dataset of Information-Seeking Questions and Answers Anchored in Research Papers," in *Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL-HLT)*, 2021, pp. 4599–4610.
+Artifex Software. (2024). *PyMuPDF documentation*. https://pymupdf.readthedocs.io/
 
-[2] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. Küttler, M. Lewis, W. Yih, T. Rocktäschel, S. Riedel, and D. Kiela, "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks," in *Advances in Neural Information Processing Systems (NeurIPS)*, vol. 33, 2020, pp. 9459–9474.
+Chen, T., Kornblith, S., Norouzi, M., & Hinton, G. (2020). A simple framework for contrastive learning of visual representations. In *Proceedings of the 37th International Conference on Machine Learning* (Vol. 119, pp. 1597–1607). PMLR.
 
-[3] S. Robertson and H. Zaragoza, "The Probabilistic Relevance Framework: BM25 and Beyond," *Foundations and Trends in Information Retrieval*, vol. 3, no. 4, pp. 333–389, 2009.
+Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In *Proceedings of the 32nd International ACM SIGIR Conference on Research and Development in Information Retrieval* (pp. 758–759). ACM. https://doi.org/10.1145/1571941.1572114
 
-[4] N. Reimers and I. Gurevych, "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks," in *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP)*, 2019, pp. 3982–3992.
+Crossref. (2024). *Crossref REST API documentation*. https://api.crossref.org/
 
-[5] L. Wang, N. Yang, F. Huang, B. Jiao, L. Yang, D. Jiang, R. Majumder, and F. Wei, "Text Embeddings by Weakly-Supervised Contrastive Pre-training," *arXiv preprint arXiv:2212.03533*, 2022.
+Dasigi, P., Lo, K., Beltagy, I., Cohan, A., Smith, N. A., & Gardner, M. (2021). A dataset of information-seeking questions and answers anchored in research papers. In *Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies* (pp. 4599–4610). Association for Computational Linguistics. https://doi.org/10.18653/v1/2021.naacl-main.365
 
-[6] S. Xiao, Z. Liu, P. Zhang, and N. Muennighoff, "C-Pack: Packaged Resources to Advance General Chinese Embedding," *arXiv preprint arXiv:2309.07597*, 2023.
+Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. In *Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies* (pp. 4171–4186). Association for Computational Linguistics. https://doi.org/10.18653/v1/N19-1423
 
-[7] G. V. Cormack, C. L. Clarke, and S. Büttcher, "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods," in *Proceedings of the 32nd International ACM SIGIR Conference on Research and Development in Information Retrieval (SIGIR)*, 2009, pp. 758–759.
+Efron, B., & Tibshirani, R. J. (1993). *An introduction to the bootstrap*. Chapman & Hall/CRC.
 
-[8] N. F. Liu, K. Lin, J. Hewitt, A. Paranjape, M. Bevilacqua, F. Petroni, and P. Liang, "Lost in the Middle: How Language Models Use Long Contexts," *Transactions of the Association for Computational Linguistics*, vol. 12, pp. 157–173, 2024.
+Holm, S. (1979). A simple sequentially rejective multiple test procedure. *Scandinavian Journal of Statistics, 6*(2), 65–70.
 
-[9] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, "Attention Is All You Need," in *Advances in Neural Information Processing Systems (NeurIPS)*, vol. 30, 2017, pp. 5998–6008.
+Järvelin, K., & Kekäläinen, J. (2002). Cumulated gain-based evaluation of IR techniques. *ACM Transactions on Information Systems, 20*(4), 422–446. https://doi.org/10.1145/582415.582418
 
-[10] S. Holm, "A Simple Sequentially Rejective Multiple Test Procedure," *Scandinavian Journal of Statistics*, vol. 6, no. 2, pp. 65–70, 1979.
+Karpukhin, V., Oğuz, B., Min, S., Lewis, P., Wu, L., Edunov, S., Chen, D., & Yih, W. (2020). Dense passage retrieval for open-domain question answering. In *Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing* (pp. 6769–6781). Association for Computational Linguistics. https://doi.org/10.18653/v1/2020.emnlp-main.550
 
-[11] B. Efron and R. J. Tibshirani, *An Introduction to the Bootstrap*. CRC Press, 1994.
+Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., Küttler, H., Lewis, M., Yih, W., Rocktäschel, T., Riedel, S., & Kiela, D. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. *Advances in Neural Information Processing Systems, 33*, 9459–9474.
 
-[12] K. Järvelin and J. Kekäläinen, "Cumulated Gain-Based Evaluation of IR Techniques," *ACM Transactions on Information Systems (TOIS)*, vol. 20, no. 4, pp. 422–446, 2002.
+Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2024). Lost in the middle: How language models use long contexts. *Transactions of the Association for Computational Linguistics, 12*, 157–173. https://doi.org/10.1162/tacl_a_00638
 
-[13] G. Salton, A. Wong, and C. S. Yang, "A Vector Space Model for Automatic Indexing," *Communications of the ACM*, vol. 18, no. 11, pp. 613–620, 1975.
+LlamaIndex. (n.d.). *Recursive retriever + node references* [Documentation]. Retrieved October 31, 2026, from https://developers.llamaindex.ai/python/framework/integrations/retrievers/recursive_retriever_nodes/
 
-[14] A. van den Oord, Y. Li, and O. Vinyals, "Representation Learning with Contrastive Predictive Coding," *arXiv preprint arXiv:1807.03748*, 2018.
+Manning, C. D., Raghavan, P., & Schütze, H. (2008). *Introduction to information retrieval*. Cambridge University Press.
 
-[15] Y. Su, S. Wang, Y. Song, et al., "RoBERTa-Dense: Dense Passage Retrieval for Open-Domain Question Answering," in *ACL*, 2021.
+Merrick, L., Xu, D., Nuti, G., & Campos, D. (2024). *Arctic-Embed: Scalable, efficient, and accurate text embedding models* (arXiv:2405.05374). arXiv. https://doi.org/10.48550/arXiv.2405.05374
 
-[16] B. Warner, A. Chaffin, B. Clavié, et al., "ModernBERT: Bringing Modern Design to Encoder-Only Models," *arXiv preprint arXiv:2412.13663*, 2024.
+Meta AI. (2024, September 25). *Llama 3.2: Revolutionizing edge AI and vision with open, customizable models*. https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/
 
-[17] Snowflake Inc., "Snowflake Arctic-Embed: Enterprise-Grade Embedding Models," *Snowflake Technology Report*, 2024.
+Mixedbread AI. (2024). *mxbai-embed-large-v1* [Model card]. Hugging Face. https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1
 
-[18] Mixedbread AI, "mxbai-embed-large: State of the art open-source embeddings," *Mixedbread Technical Report*, 2024.
+Mozilla. (2024). *PDF.js: A general-purpose, web standards-based platform for parsing and rendering PDFs*. https://mozilla.github.io/pdf.js/
 
-[19] J. Devlin, M. W. Chang, K. Lee, and K. Toutanova, "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding," in *NAACL-HLT*, 2019, pp. 4171–4186.
+Priem, J., Piwowar, H., & Orr, R. (2022). *OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts* (arXiv:2205.01833). arXiv. https://doi.org/10.48550/arXiv.2205.01833
 
-[20] Meta AI, "Llama 3.2: Lightweight, Multilingual Models Optimized for Edge Devices," *Meta AI Technical Blog*, 2024.
+Qdrant. (2024). *Qdrant documentation*. https://qdrant.tech/documentation/
 
-[21] J. Su, M. Ahmed, Y. Lu, S. Pan, W. Bo, and Y. Liu, "RoFormer: Enhanced Transformer with Rotary Position Embedding," *Neurocomputing*, vol. 568, p. 127063, 2024.
+Qu, R., Tu, R., & Bao, F. S. (2025). Is semantic chunking worth the computational cost? In *Findings of the Association for Computational Linguistics: NAACL 2025* (pp. 2155–2177). Association for Computational Linguistics. https://doi.org/10.18653/v1/2025.findings-naacl.114
 
-[22] Qdrant Team, "Qdrant - Vector Search Engine and Vector Database," *Qdrant Documentation & Architecture Whitepaper*, 2024. [Online]. Available: https://qdrant.tech/documentation/
+Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-networks. In *Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing* (pp. 3982–3992). Association for Computational Linguistics. https://doi.org/10.18653/v1/D19-1410
 
-[23] Artifex Software, "PyMuPDF: High Performance Python Bindings for MuPDF," *PyMuPDF Documentation*, 2024. [Online]. Available: https://pymupdf.readthedocs.io/
+Robertson, S., & Zaragoza, H. (2009). The probabilistic relevance framework: BM25 and beyond. *Foundations and Trends in Information Retrieval, 3*(4), 333–389. https://doi.org/10.1561/1500000019
 
-[24] Mozilla Corporation, "PDF.js: A General-Purpose, Web Standards-Based Platform for Parsing and Rendering PDFs," 2024. [Online]. Available: https://mozilla.github.io/pdf.js/
+Salton, G., Wong, A., & Yang, C. S. (1975). A vector space model for automatic indexing. *Communications of the ACM, 18*(11), 613–620. https://doi.org/10.1145/361219.361220
 
-[25] Crossref, "Crossref REST API Documentation for Scholarly Metadata Retrieval," 2024. [Online]. Available: https://api.crossref.org/
+Su, J., Ahmed, M., Lu, Y., Pan, S., Bo, W., & Liu, Y. (2024). RoFormer: Enhanced transformer with rotary position embedding. *Neurocomputing, 568*, Article 127063. https://doi.org/10.1016/j.neucom.2023.127063
 
-[26] J. Priem, H. Piwowar, and R. Orr, "OpenAlex: A Fully-Open Index of Scholarly Works, Authors, Venues, Institutions, and Concepts," *arXiv preprint arXiv:2205.01833*, 2022.
+van den Oord, A., Li, Y., & Vinyals, O. (2018). *Representation learning with contrastive predictive coding* (arXiv:1807.03748). arXiv. https://doi.org/10.48550/arXiv.1807.03748
 
-[27] D. W. Oard and F. Fallik, "Hierarchical Chunking in Legal and Academic Retrieval-Augmented Generation," in *Proceedings of the International Conference on Artificial Intelligence and Law (ICAIL)*, 2023.
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., & Polosukhin, I. (2017). Attention is all you need. *Advances in Neural Information Processing Systems, 30*, 5998–6008.
 
-[28] H. Zhang, Y. Gong, Y. Shen, et al., "Small-to-Big: Multi-Scale Retrieval for Complex Documents," in *Proceedings of EMNLP*, 2023.
+Wang, L., Yang, N., Huang, X., Jiao, B., Yang, L., Jiang, D., Majumder, R., & Wei, F. (2022). *Text embeddings by weakly-supervised contrastive pre-training* (arXiv:2212.03533). arXiv. https://doi.org/10.48550/arXiv.2212.03533
 
-[29] T. Chen, S. Kornblith, M. Norouzi, and G. Hinton, "A Simple Framework for Contrastive Learning of Visual Representations," in *ICML*, 2020, pp. 1597–1607.
+Warner, B., Chaffin, A., Clavié, B., Weller, O., Hallström, O., Taghadouini, S., Gallagher, A., Biswas, R., Ladhak, F., Aarsen, T., Cooper, N., Adams, G., Howard, J., & Poli, I. (2024). *Smarter, better, faster, longer: A modern bidirectional encoder for fast, memory efficient, and long context finetuning and inference* (arXiv:2412.13663). arXiv. https://doi.org/10.48550/arXiv.2412.13663
 
-[30] C. D. Manning, P. Raghavan, and H. Schütze, *Introduction to Information Retrieval*. Cambridge University Press, 2008.
+Xiao, S., Liu, Z., Zhang, P., Muennighoff, N., Lian, D., & Nie, J.-Y. (2024). C-Pack: Packed resources for general Chinese embeddings. In *Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval*. ACM. https://doi.org/10.1145/3626772.3657878
 
 ---
 

@@ -91,7 +91,7 @@ def main():
 def register_manual():
     """
     OpenReview requires a human challenge for automated access, so its PDFs are saved by hand in a browser
-    (list: reports/revalidation/peerqa_manual_download_list.csv). This records them without any network call.
+    (list: eval/phases/phase_0_baseline/artifacts/peerqa_manual_download_list.tsv). This records them without any network call.
     """
     manifest = json.load(open(MANIFEST, encoding="utf-8"))
     added = 0
