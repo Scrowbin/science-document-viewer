@@ -243,10 +243,10 @@ Source: `reports/revalidation/presentation/eda_cohorts.json`.
 |---|---|---|---|---|---|
 | ModernBERT-embed (149M) | 0.464 | +0.010 [−0.024, +0.044] | 64.5 ms | 3.0 chunks/s | 2,176 MB |
 | **e5-small-v2** (33M, production) | 0.454 | — | 17.3 ms | 17.3 chunks/s | 1,310 MB |
-| arctic-embed-s | 0.440 | −0.014 (n.s.) | — | — | — |
-| bge-small | 0.412 | −0.042 (Holm p 0.12) | — | — | — |
-| MiniLM-L6 | 0.383 | **−0.070** (Holm p 0.012) | — | — | — |
-| SPECTER2, scientific domain (extension) | 0.281 | **−0.173** [−0.219, −0.128] | 48.9 ms | 4.9 | 1,963 MB |
+| arctic-embed-s | 0.440 | −0.014 (n.s.) | 17.5 ms | 16.2 chunks/s | 1,311 MB |
+| bge-small | 0.412 | −0.042 (Holm p 0.12) | 17.8 ms | 16.6 chunks/s | 1,306 MB |
+| MiniLM-L6 | 0.383 | **−0.070** (Holm p 0.012) | 9.4 ms | 44.4 chunks/s | 1,132 MB |
+| SPECTER2, scientific domain (extension) | 0.281 | **−0.173** [−0.219, −0.128] | 48.9 ms | 4.9 chunks/s | 1,963 MB |
 
 **Findings:**
 - **Keep e5.** ModernBERT is not detectably better and is 3.7× slower.
@@ -361,6 +361,8 @@ flowchart LR
 
 ### 6.4 Cost of each embedder (measured in the grid)
 
+*Measured during the long grid run, while other work (app builds, smoke tests) sometimes shared the CPU, so these are upper bounds. RQ3-v2's figures (section 5) were measured with nothing else running and are the ones to quote: e5 17 ms, MiniLM 9 ms, ModernBERT 64 ms per query.*
+
 | Embedder | Query P50 | Indexing | Peak memory |
 |---|---|---|---|
 | MiniLM | 17 ms | ≈ 23 chunks/s | 1.5 GB |
@@ -400,7 +402,7 @@ flowchart LR
 | Claim | Evidence | When it can be made |
 |---|---|---|
 | **Retrieval quality ranking:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM; none beats e5 significantly | RQ3 and stage 1, both on the same C-RET-150 papers and questions (stage 1 contains RQ3's comparison as one slice). Their agreement shows the two scripts are consistent, not an independent replication | **Now**, worded as selection-stage evidence |
-| **Retrieval speed and memory:** e5 30 ms per query, MiniLM 17 ms, ModernBERT 89 ms | Direct measurements on this laptop; they don't need confirming the way quality scores do | **Now** (ModernBERT's 13.8 GB as "observed in this configuration") |
+| **Retrieval speed and memory:** e5 17 ms per query, MiniLM 9 ms, ModernBERT 64 ms (RQ3-v2, measured with nothing else running) | Direct measurements on this laptop; they don't need confirming the way quality scores do. Stage 1's figures are higher (e5 30 ms) because other work shared the CPU | **Now** (ModernBERT's 13.8 GB as "observed in this configuration") |
 | **Hybrid search depends on the pipeline:** it helps flat chunkers and weaker embedders, not the production pair | Stage 1 interaction table (6.3) | **Now**, as selection-stage evidence |
 | **Which full system to use** (chunker + embedder + LLM) | Stage 2: the LLM takes 4–6 s per answer against 30–90 ms for retrieval, so the LLM decides the speed trade-off | **After stage 2** |
 | **How good the chosen system really is** | Picking the best of 160 combinations inflates its score (winner's curse), so the headline numbers must come from untouched papers | **After RQ6** (C-INT). RQ6 confirms the final system; it does not re-compare embedders |
