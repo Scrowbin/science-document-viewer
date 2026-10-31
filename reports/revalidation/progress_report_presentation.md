@@ -365,6 +365,17 @@ flowchart LR
 - **Rule:** a pair replaces production only with Token F1 +0.03, CI lower bound > 0, and end-to-end latency ≤ 1.5× production's.
 - **Status:** the script is ready. It starts after the semantic add-on, which completes the shortlist.
 
+### 6.7 What we can claim now, and what has to wait
+
+| Claim | Evidence | When it can be made |
+|---|---|---|
+| **Retrieval quality ranking:** ModernBERT ≥ e5 ≈ arctic > bge > MiniLM; none beats e5 significantly | RQ3 and stage 1 agree (both on C-RET-150) | **Now**, worded as selection-stage evidence |
+| **Retrieval speed and memory:** e5 30 ms per query, MiniLM 17 ms, ModernBERT 89 ms | Direct measurements on this laptop; they don't need confirming the way quality scores do | **Now** (ModernBERT's 13.8 GB as "observed in this configuration") |
+| **Hybrid search depends on the pipeline:** it helps flat chunkers and weaker embedders, not the production pair | Stage 1 interaction table (6.3) | **Now**, as selection-stage evidence |
+| **Which full system to use** (chunker + embedder + LLM) | Stage 2: the LLM takes 4–6 s per answer against 30–90 ms for retrieval, so the LLM decides the speed trade-off | **After stage 2** |
+| **How good the chosen system really is** | Picking the best of 160 combinations inflates its score (winner's curse), so the headline numbers must come from untouched papers | **After RQ6** (C-INT). RQ6 confirms the final system; it does not re-compare embedders |
+| **Whether ModernBERT is expensive by nature, and whether e5 can run faster** | ModernBERT with a 512-token cap; e5 in ONNX INT8 | **After the post-RQ6 checks**. These can only add a footnote to "e5 is the best trade-off" |
+
 **Teammate's chunker change:** a rewrite of the hierarchical chunker (it drops redundant tail chunks) is on the shared main branch. The group decided to keep the current chunker until RQ6 is done, then test the new one with a single paired comparison. That way none of the finished experiments needs re-running.
 
 ---
