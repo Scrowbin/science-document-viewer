@@ -88,23 +88,22 @@ flowchart LR
 
 ### Data flow: selection vs confirmation
 ```mermaid
-flowchart TB
-    T[QASPER v0.3 <b>Train</b> split<br/>888 papers] --> X1[minus 111 papers used by the original thesis RQ3<br/>minus 250 papers used by the original thesis RQ5]
-    T --> M
-    X1 --> U[527 Train papers with no earlier use]
-    U --> E[463 with ≥ 1 retrieval-eligible question<br/>arXiv PDF downloaded]
-    E --> K[435 kept by the PDF version check<br/>28 dropped: evidence not found in the PDF]
-    K --> CINT[C-INT: 100 papers / 200 q<br/>seed 42, exactly 2 q per paper<br/>CONFIRMATION, locked until RQ6]
-    K --> CRET[C-RET: the other 335 papers / 567 q<br/>SELECTION]
-    CRET --> C150[C-RET-150: 150 papers / 249 q<br/>seed-42 subset of C-RET]
-    CRET --> RQ14[RQ1, RQ2, RQ4]
-    C150 --> RQ3[RQ3 + combination stage 1]
-    C150 --> S2[Combination stage 2: 120 papers / 120 q<br/>seed 42, 1 q per paper]
-    M[RQ5 set: 250 Train papers / 500 q<br/>drawn and evaluated in the original thesis RQ5<br/>so it is NOT untouched] --> RQ5[RQ5 generator tests]
-    CINT --> RQ6[RQ6, run once]
-    P0[PeerQA v1.0, UKP Lab<br/>208 papers / 579 q, single release, no splits] --> P[PeerQA-PDF: 107 papers / 288 q<br/>answerable, has evidence, PDF version-checked<br/>external, descriptive only]
-    P --> RQ6
-    P --> RQ14
+flowchart LR
+    T["QASPER Train<br/>888 papers"] -->|"− 361 used in<br/>original RQ3/RQ5"| U["527 unused"]
+    U -->|"usable question<br/>+ PDF check"| K["435 papers"]
+    K --> CRET["C-RET · selection<br/>335 p / 567 q"]
+    K --> CINT["C-INT · confirmation<br/>100 p / 200 q"]
+    CRET --> C150["C-RET-150<br/>150 p / 249 q"]
+    T --> M["RQ5 set · used before<br/>250 p / 500 q"]
+    P["PeerQA-PDF · external<br/>107 p / 288 q"]
+    CRET --> A["RQ1 · RQ2 · RQ4"]
+    C150 --> B["RQ3 · Combination<br/>stage 1 + stage 2 (120 q)"]
+    M --> C["RQ5"]
+    CINT --> D["RQ6 · run once"]
+    P --> D
+    P -.-> A
+    classDef conf fill:#fde68a,stroke:#b45309
+    class CINT,D conf
 ```
 
 **How each set was made:**
