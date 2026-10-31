@@ -101,7 +101,7 @@ flowchart LR
     M --> C["RQ5"]
     CINT --> D["RQ6 · run once"]
     P --> D
-    P -.-> A
+    P -.->|"RQ1, RQ4 only<br/>(descriptive)"| A
     classDef conf fill:#fde68a,stroke:#b45309
     class CINT,D conf
 ```
