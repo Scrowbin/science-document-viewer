@@ -1,0 +1,39 @@
+{
+  "per_model": {
+    "phi4-mini": {
+      "n": 20,
+      "counts": {
+        "SUPPORTED": 10,
+        "REFUSAL_VALID": 4,
+        "MISSING_INFO - PARTIAL": 0,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 4,
+        "UNSUPPORTED": 2,
+        "CONTRADICTED": 0
+      },
+      "supported_rate": 0.5,
+      "unsupported_or_contradicted_rate": 0.1,
+      "unjustified_refusal_rate": 0.2,
+      "partial_rate": 0.0,
+      "sample_mean_token_f1": 0.2408,
+      "sample_refusals_by_detector": 8
+    },
+    "qwen2.5:1.5b": {
+      "n": 20,
+      "counts": {
+        "SUPPORTED": 7,
+        "REFUSAL_VALID": 3,
+        "MISSING_INFO - PARTIAL": 0,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 5,
+        "UNSUPPORTED": 2,
+        "CONTRADICTED": 3
+      },
+      "supported_rate": 0.35,
+      "unsupported_or_contradicted_rate": 0.25,
+      "unjustified_refusal_rate": 0.25,
+      "partial_rate": 0.0,
+      "sample_mean_token_f1": 0.18747,
+      "sample_refusals_by_detector": 8
+    }
+  },
+  "source": "annotation_template_40a.csv (round 2, single reviewer; 7 labels aligned with round-1 decisions, see reviewer_notes)"
+}

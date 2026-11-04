@@ -46,7 +46,7 @@ QASPER [1] contains NLP/ML papers with questions written by readers who saw only
 | Retrieval strategy, reranking | QASPER component set | 335 | 567 | |
 | Retrieval: cross-domain | PeerQA PDF / PeerQA text | 107 / 73 | 288 / 148 | |
 | Generation | QASPER generation set | 250 | 500 | **gold evidence given as context**, not retrieved context |
-| Generation: human check | from the generation set | 20 | 20 × 3 models = 60 answers | single reviewer |
+| Generation: human check | from the generation set | 20 | round 1: 20 × 3 models = 60 answers; round 2: 20 × 2 models = 40 answers | single reviewer |
 | Earlier combination grid (background) | QASPER 150-paper subset | 150 | 249 | 2 extractors × 3 chunkers × 5 embedders × 4 retrieval modes |
 | **Combination (16 configurations)** | QASPER combination set | 1,142 | 3,122 | all splits; see Section 7.2 |
 
@@ -288,7 +288,7 @@ Memory is the peak over a 500-prompt session. In a separate warm-model profile (
 
   Token F1 and refusal rate therefore measure different things; neither alone ranks the models.
 - **Yes/no questions are hard for every model:** boolean accuracy is 25% for llama3.2:3b (`generation_reanalysis/summary.json`). The answers often do not start with an explicit yes/no that the scorer can read.
-- **qwen2.5:1.5b and phi4-mini have no human check.**
+- **Round 2 human check (qwen2.5:1.5b, phi4-mini).** Same 20 questions and existing answers, blinded as Model_Delta/Model_Epsilon (`scripts/generate_human_review_package_extra.py`, decoded by `scripts/summarize_human_review_extra.py`; files in `artifacts/human_faithfulness_review/extra_models/`). Seven round-2 labels were aligned with round-1 decisions on the same questions (identical answers or refusals get the same label); the reviewer's original file is kept as `annotation_template_40a.reviewer_original.csv`. Unsupported or contradicted answers: qwen2.5:1.5b 5/20 (3 contradicted), phi4-mini 2/20; each refused 8/20 (qwen2.5:1.5b 5 unjustified, phi4-mini 4). So the model with the highest Token F1 is not the one with the fewest unsupported answers; with 20 questions and one reviewer, differences of one or two answers should not be read as a ranking.
 
 **Selection for the combination:** llama3.2:3b (production; most reliable in the human check) and qwen2.5:1.5b (highest Token F1, fast, less memory). These are complementary pieces of evidence, not a ranking: neither model is claimed to beat the other.
 

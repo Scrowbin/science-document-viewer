@@ -1,0 +1,373 @@
+{
+  "seed": 42,
+  "models": [
+    "qwen2.5:1.5b",
+    "phi4-mini"
+  ],
+  "labels": [
+    "Model_Delta",
+    "Model_Epsilon"
+  ],
+  "mapping": [
+    {
+      "review_item_id": "REV-01",
+      "question_id": "2b52d481b30185d2c6e7b403d37277f70337d6ca",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.1333
+    },
+    {
+      "review_item_id": "REV-01",
+      "question_id": "2b52d481b30185d2c6e7b403d37277f70337d6ca",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.1176
+    },
+    {
+      "review_item_id": "REV-02",
+      "question_id": "387970ebc7ef99f302f318d047f708274c0e8f21",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "boolean",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-02",
+      "question_id": "387970ebc7ef99f302f318d047f708274c0e8f21",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "boolean",
+      "is_refusal": false,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-03",
+      "question_id": "2fffff59e57b8dbcaefb437a6b3434fc137f813b",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.08
+    },
+    {
+      "review_item_id": "REV-03",
+      "question_id": "2fffff59e57b8dbcaefb437a6b3434fc137f813b",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.08
+    },
+    {
+      "review_item_id": "REV-04",
+      "question_id": "e87f47a293e0b49ab8b15fc6633d9ca6dc9de071",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.7826
+    },
+    {
+      "review_item_id": "REV-04",
+      "question_id": "e87f47a293e0b49ab8b15fc6633d9ca6dc9de071",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.7826
+    },
+    {
+      "review_item_id": "REV-05",
+      "question_id": "310e61b9dd4d75bc1bebbcb1dae578f55807cd04",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-05",
+      "question_id": "310e61b9dd4d75bc1bebbcb1dae578f55807cd04",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.1379
+    },
+    {
+      "review_item_id": "REV-06",
+      "question_id": "d7d41a1b8bbb1baece89b28962d23ee4457b9c3a",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.4
+    },
+    {
+      "review_item_id": "REV-06",
+      "question_id": "d7d41a1b8bbb1baece89b28962d23ee4457b9c3a",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-07",
+      "question_id": "0fce128b8aaa327ac0d58ec30cd2ecbea2019baa",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.56
+    },
+    {
+      "review_item_id": "REV-07",
+      "question_id": "0fce128b8aaa327ac0d58ec30cd2ecbea2019baa",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.4516
+    },
+    {
+      "review_item_id": "REV-08",
+      "question_id": "7ff48fe5b7bd6b56553caacc891ce3d7e0070440",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "boolean",
+      "is_refusal": false,
+      "token_f1": 0.2222
+    },
+    {
+      "review_item_id": "REV-08",
+      "question_id": "7ff48fe5b7bd6b56553caacc891ce3d7e0070440",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "boolean",
+      "is_refusal": false,
+      "token_f1": 0.2222
+    },
+    {
+      "review_item_id": "REV-09",
+      "question_id": "01d91d356568fca79e47873bd0541bd22ba66ec0",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-09",
+      "question_id": "01d91d356568fca79e47873bd0541bd22ba66ec0",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-10",
+      "question_id": "c554a453b6b99d8b59e4ef1511b1b506ff6e5aa4",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.1258
+    },
+    {
+      "review_item_id": "REV-10",
+      "question_id": "c554a453b6b99d8b59e4ef1511b1b506ff6e5aa4",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "abstractive",
+      "is_refusal": false,
+      "token_f1": 0.6148
+    },
+    {
+      "review_item_id": "REV-11",
+      "question_id": "16f33de90b76975a99572e0684632d5aedbd957c",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-11",
+      "question_id": "16f33de90b76975a99572e0684632d5aedbd957c",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-12",
+      "question_id": "63850ac98a47ae49f0f49c1c1a6e45c6c447272c",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "abstractive",
+      "is_refusal": false,
+      "token_f1": 0.0727
+    },
+    {
+      "review_item_id": "REV-12",
+      "question_id": "63850ac98a47ae49f0f49c1c1a6e45c6c447272c",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.093
+    },
+    {
+      "review_item_id": "REV-13",
+      "question_id": "48fb76ae9921c9d181f65afc63a42af8ba3bc519",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.3774
+    },
+    {
+      "review_item_id": "REV-13",
+      "question_id": "48fb76ae9921c9d181f65afc63a42af8ba3bc519",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-14",
+      "question_id": "7d59374d9301a0c09ea5d023a22ceb6ce07fb490",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-14",
+      "question_id": "7d59374d9301a0c09ea5d023a22ceb6ce07fb490",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-15",
+      "question_id": "3f9ef59ac06db3f99b8b6f082308610eb2d3626a",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.4528
+    },
+    {
+      "review_item_id": "REV-15",
+      "question_id": "3f9ef59ac06db3f99b8b6f082308610eb2d3626a",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.7333
+    },
+    {
+      "review_item_id": "REV-16",
+      "question_id": "81dc39ee6cdacf90d5f0f62134bf390a29146c65",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0645
+    },
+    {
+      "review_item_id": "REV-16",
+      "question_id": "81dc39ee6cdacf90d5f0f62134bf390a29146c65",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": true,
+      "token_f1": 0.0645
+    },
+    {
+      "review_item_id": "REV-17",
+      "question_id": "2c88b46c7e3a632cfa10b7574276d84ecec7a0af",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.4
+    },
+    {
+      "review_item_id": "REV-17",
+      "question_id": "2c88b46c7e3a632cfa10b7574276d84ecec7a0af",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.5714
+    },
+    {
+      "review_item_id": "REV-18",
+      "question_id": "792d7b579cbf7bfad8fe125b0d66c2059a174cf9",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.2857
+    },
+    {
+      "review_item_id": "REV-18",
+      "question_id": "792d7b579cbf7bfad8fe125b0d66c2059a174cf9",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "extractive",
+      "is_refusal": false,
+      "token_f1": 0.0471
+    },
+    {
+      "review_item_id": "REV-19",
+      "question_id": "81cee2fc6edd9b7bc65bbf6b4aa35782339e6cff",
+      "blind_label": "Model_Delta",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "abstractive",
+      "is_refusal": false,
+      "token_f1": 0.3846
+    },
+    {
+      "review_item_id": "REV-19",
+      "question_id": "81cee2fc6edd9b7bc65bbf6b4aa35782339e6cff",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "phi4-mini",
+      "question_type": "abstractive",
+      "is_refusal": false,
+      "token_f1": 0.3077
+    },
+    {
+      "review_item_id": "REV-20",
+      "question_id": "6b91fe29175be8cd8f22abf27fb3460e43b9889a",
+      "blind_label": "Model_Delta",
+      "actual_model": "phi4-mini",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    },
+    {
+      "review_item_id": "REV-20",
+      "question_id": "6b91fe29175be8cd8f22abf27fb3460e43b9889a",
+      "blind_label": "Model_Epsilon",
+      "actual_model": "qwen2.5:1.5b",
+      "question_type": "abstractive",
+      "is_refusal": true,
+      "token_f1": 0.0
+    }
+  ]
+}
