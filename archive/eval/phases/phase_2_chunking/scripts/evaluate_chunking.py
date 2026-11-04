@@ -3,13 +3,18 @@
 chunking experiment: chunking strategies under the production context budget (pre-registered:
 protocol rq1_rq4.json (archived) "chunking experiment").
 
-Cohort the QASPER component set (selection). pymupdf_layout sections -> {fixed_size, section_overlap, hierarchical} ->
+Supports two cohorts:
+  C-RET      QASPER component set (default). Output: artifacts/chunking/
+  PEERQA-PDF PeerQA PDF cohort. Output: artifacts/chunking_peerqa/
+
+pymupdf_layout sections -> {fixed_size, section_overlap, hierarchical} ->
 e5-small-v2 dense ranking -> production context assembly (1,600 est. tokens, <= 5 units, windowing).
 Primary: CEC@0.5. Family: hierarchical vs fixed_size, hierarchical vs section_overlap (Holm m=2), SESOI 0.05.
 Descriptive extra: the same strategies with the production rrf_prod ranking.
 
-Usage: python evaluate_chunking.py [--limit N]
-Output: eval/phases/phase_2_chunking/artifacts/chunking/
+Usage: python evaluate_chunking.py [--cohort {C-RET,PEERQA-PDF}] [--limit N]
+Output: eval/phases/phase_2_chunking/artifacts/chunking/   (C-RET)
+        eval/phases/phase_2_chunking/artifacts/chunking_peerqa/  (PEERQA-PDF)
 """
 
 import argparse
@@ -28,15 +33,22 @@ from apps.documents.services.chunking_utils import extract_sections_from_pdf  # 
 
 E5 = "intfloat/e5-small-v2"
 STRATEGIES = ["fixed_size", "section_overlap", "hierarchical"]
-OUT = ROOT / "eval" / "phases" / "phase_2_chunking" / "artifacts" / "chunking"
+ARTIFACTS = ROOT / "eval" / "phases" / "phase_2_chunking" / "artifacts"
+COHORT_OUT_MAP = {"C-RET": "chunking", "PEERQA-PDF": "chunking_peerqa"}
 METRICS = ["cec_0.5", "cec_0.3", "cec_0.7", "ndcg10", "context_tokens", "n_units"]
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--cohort", default="C-RET", choices=["C-RET", "PEERQA-PDF"],
+                    help="Evaluation cohort (default: C-RET = QASPER component set)")
     args = ap.parse_args()
-    cohort = rr.load_cohort("C-RET")
+
+    out_dir = ARTIFACTS / COHORT_OUT_MAP[args.cohort]
+    cache_prefix = args.cohort.lower().replace("-", "_")
+
+    cohort = rr.load_cohort(args.cohort)
     groups = rr.group_items(cohort)
     papers = sorted(groups)[: args.limit] if args.limit else sorted(groups)
     rows, index_stats, failures, lat = [], {s: {"units": 0, "embed_s": 0.0} for s in STRATEGIES}, [], []
@@ -45,11 +57,11 @@ def main():
         for n, pid in enumerate(papers, 1):
             items = groups[pid]
             try:
-                sections = extract_sections_from_pdf(str(rr.pdf_path("C-RET", pid, items[0]["pdf_version"])))
+                sections = extract_sections_from_pdf(str(rr.pdf_path(args.cohort, pid, items[0]["pdf_version"])))
             except Exception as e:
                 failures.append({"paper_id": pid, "error": f"{type(e).__name__}: {e}"[:200]})
                 continue
-            qv = rp.cached_embed(E5, [it["question"] for it in items], True, f"cret_{pid}")
+            qv = rp.cached_embed(E5, [it["question"] for it in items], True, f"{cache_prefix}_{pid}")
             per_q = [{"paper_id": pid, "question_id": it["question_id"]} for it in items]
             for st in STRATEGIES:
                 units = rp.build_units(sections, st, pid)
@@ -58,7 +70,7 @@ def main():
                     continue
                 texts = [u["text"] for u in units]
                 te = time.perf_counter()
-                um = rp.cached_embed(E5, texts, False, f"cret_{pid}_{st}")
+                um = rp.cached_embed(E5, texts, False, f"{cache_prefix}_{pid}_{st}")
                 index_stats[st]["embed_s"] += time.perf_counter() - te
                 index_stats[st]["units"] += len(units)
                 cand = rp.candidate_units_for_relevance(units, st)
@@ -77,7 +89,7 @@ def main():
     pairs = [("hierarchical|dense", "fixed_size|dense"), ("hierarchical|dense", "section_overlap|dense")]
     primary = rr.family(rows, pairs, "cec_0.5")
     summary = {
-        "experiment": "RQ2-v2", "cohort": "C-RET", "role": "SELECTION",
+        "experiment": "RQ2-v2", "cohort": args.cohort, "role": "SELECTION",
         "papers": len({r["paper_id"] for r in rows}), "questions": len(rows), "failures": failures,
         "means": rr.arm_means(rows, arms, METRICS),
         "primary_family_cec_0.5": primary,
@@ -91,7 +103,7 @@ def main():
     }
     flat_win = [r for r in primary if r["diff"] <= -0.05 and r["ci95"][1] < 0]
     summary["decision"] = ("switch to " + flat_win[0]["comparison"].split(" - ")[1].split("|")[0]) if flat_win else "keep hierarchical"
-    rr.write_outputs(OUT if not args.limit else OUT / f"smoke_{args.limit}", rows, summary)
+    rr.write_outputs(out_dir if not args.limit else out_dir / f"smoke_{args.limit}", rows, summary)
     print({k: summary[k] for k in ("papers", "questions", "decision")})
 
 

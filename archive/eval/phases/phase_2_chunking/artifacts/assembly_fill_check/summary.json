@@ -1,0 +1,1423 @@
+{
+ "experiment": "ASSEMBLY-FILL-CHECK",
+ "cohort": "C-RET",
+ "role": "SELECTION, descriptive (stage 2 decides)",
+ "papers": 0,
+ "questions": 0,
+ "failures": [
+  {
+   "paper_id": "1601.00901",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1601.00901.pdf"
+  },
+  {
+   "paper_id": "1601.01705",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1601.01705.pdf"
+  },
+  {
+   "paper_id": "1601.02543",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1601.02543.pdf"
+  },
+  {
+   "paper_id": "1601.04012",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1601.04012.pdf"
+  },
+  {
+   "paper_id": "1602.01208",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1602.01208.pdf"
+  },
+  {
+   "paper_id": "1602.03661",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1602.03661.pdf"
+  },
+  {
+   "paper_id": "1602.07618",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1602.07618.pdf"
+  },
+  {
+   "paper_id": "1604.00117",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1604.00117.pdf"
+  },
+  {
+   "paper_id": "1604.00125",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1604.00125.pdf"
+  },
+  {
+   "paper_id": "1604.06076",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1604.06076.pdf"
+  },
+  {
+   "paper_id": "1604.07236",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1604.07236.pdf"
+  },
+  {
+   "paper_id": "1606.01404",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1606.01404.pdf"
+  },
+  {
+   "paper_id": "1606.06361",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1606.06361v1.pdf"
+  },
+  {
+   "paper_id": "1606.07298",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1606.07298.pdf"
+  },
+  {
+   "paper_id": "1607.00424",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1607.00424.pdf"
+  },
+  {
+   "paper_id": "1607.01759",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1607.01759.pdf"
+  },
+  {
+   "paper_id": "1608.03902",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1608.03902.pdf"
+  },
+  {
+   "paper_id": "1608.04917",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1608.04917.pdf"
+  },
+  {
+   "paper_id": "1608.06378",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1608.06378.pdf"
+  },
+  {
+   "paper_id": "1608.08738",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1608.08738.pdf"
+  },
+  {
+   "paper_id": "1609.00081",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1609.00081.pdf"
+  },
+  {
+   "paper_id": "1609.01962",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1609.01962.pdf"
+  },
+  {
+   "paper_id": "1609.06791",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1609.06791.pdf"
+  },
+  {
+   "paper_id": "1610.03112",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1610.03112.pdf"
+  },
+  {
+   "paper_id": "1610.05243",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1610.05243.pdf"
+  },
+  {
+   "paper_id": "1610.09516",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1610.09516.pdf"
+  },
+  {
+   "paper_id": "1611.02550",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1611.02550.pdf"
+  },
+  {
+   "paper_id": "1612.04675",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1612.04675v1.pdf"
+  },
+  {
+   "paper_id": "1612.05270",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1612.05270.pdf"
+  },
+  {
+   "paper_id": "1701.02025",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1701.02025.pdf"
+  },
+  {
+   "paper_id": "1701.03051",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1701.03051.pdf"
+  },
+  {
+   "paper_id": "1701.09123",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1701.09123.pdf"
+  },
+  {
+   "paper_id": "1702.02363",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1702.02363.pdf"
+  },
+  {
+   "paper_id": "1703.08098",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1703.08098.pdf"
+  },
+  {
+   "paper_id": "1703.08885",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1703.08885.pdf"
+  },
+  {
+   "paper_id": "1703.09684",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1703.09684.pdf"
+  },
+  {
+   "paper_id": "1704.02385",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.02385.pdf"
+  },
+  {
+   "paper_id": "1704.02686",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.02686.pdf"
+  },
+  {
+   "paper_id": "1704.04521",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.04521.pdf"
+  },
+  {
+   "paper_id": "1704.05907",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.05907.pdf"
+  },
+  {
+   "paper_id": "1704.06125",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.06125.pdf"
+  },
+  {
+   "paper_id": "1704.08424",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1704.08424.pdf"
+  },
+  {
+   "paper_id": "1705.00861",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1705.00861.pdf"
+  },
+  {
+   "paper_id": "1705.02394",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1705.02394.pdf"
+  },
+  {
+   "paper_id": "1705.03487",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1705.03487.pdf"
+  },
+  {
+   "paper_id": "1705.07830",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1705.07830.pdf"
+  },
+  {
+   "paper_id": "1705.10586",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1705.10586.pdf"
+  },
+  {
+   "paper_id": "1706.01723",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1706.01723.pdf"
+  },
+  {
+   "paper_id": "1706.04115",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1706.04115.pdf"
+  },
+  {
+   "paper_id": "1706.04815",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1706.04815.pdf"
+  },
+  {
+   "paper_id": "1706.07206",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1706.07206.pdf"
+  },
+  {
+   "paper_id": "1707.03904",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1707.03904.pdf"
+  },
+  {
+   "paper_id": "1707.04913",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1707.04913.pdf"
+  },
+  {
+   "paper_id": "1707.05853",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1707.05853.pdf"
+  },
+  {
+   "paper_id": "1707.06878",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1707.06878.pdf"
+  },
+  {
+   "paper_id": "1707.07554",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1707.07554.pdf"
+  },
+  {
+   "paper_id": "1708.00077",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.00077.pdf"
+  },
+  {
+   "paper_id": "1708.00111",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.00111.pdf"
+  },
+  {
+   "paper_id": "1708.00214",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.00214.pdf"
+  },
+  {
+   "paper_id": "1708.00481",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.00481.pdf"
+  },
+  {
+   "paper_id": "1708.01776",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.01776.pdf"
+  },
+  {
+   "paper_id": "1708.04120",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.04120.pdf"
+  },
+  {
+   "paper_id": "1708.04557",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.04557.pdf"
+  },
+  {
+   "paper_id": "1708.05592",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.05592.pdf"
+  },
+  {
+   "paper_id": "1708.06022",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.06022.pdf"
+  },
+  {
+   "paper_id": "1708.07241",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.07241.pdf"
+  },
+  {
+   "paper_id": "1708.08615",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.08615.pdf"
+  },
+  {
+   "paper_id": "1708.09609",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1708.09609.pdf"
+  },
+  {
+   "paper_id": "1709.00947",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.00947.pdf"
+  },
+  {
+   "paper_id": "1709.05411",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.05411.pdf"
+  },
+  {
+   "paper_id": "1709.05413",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.05413.pdf"
+  },
+  {
+   "paper_id": "1709.05563",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.05563.pdf"
+  },
+  {
+   "paper_id": "1709.06671",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.06671.pdf"
+  },
+  {
+   "paper_id": "1709.08858",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.08858.pdf"
+  },
+  {
+   "paper_id": "1709.09119",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1709.09119.pdf"
+  },
+  {
+   "paper_id": "1710.01507",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1710.01507.pdf"
+  },
+  {
+   "paper_id": "1710.02772",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1710.02772.pdf"
+  },
+  {
+   "paper_id": "1710.08396",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1710.08396.pdf"
+  },
+  {
+   "paper_id": "1710.09340",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1710.09340.pdf"
+  },
+  {
+   "paper_id": "1710.09753",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1710.09753.pdf"
+  },
+  {
+   "paper_id": "1711.00106",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.00106.pdf"
+  },
+  {
+   "paper_id": "1711.03438",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.03438.pdf"
+  },
+  {
+   "paper_id": "1711.05345",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.05345.pdf"
+  },
+  {
+   "paper_id": "1711.06288",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.06288.pdf"
+  },
+  {
+   "paper_id": "1711.06351",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.06351.pdf"
+  },
+  {
+   "paper_id": "1711.10124",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.10124.pdf"
+  },
+  {
+   "paper_id": "1711.11221",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1711.11221.pdf"
+  },
+  {
+   "paper_id": "1712.03547",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1712.03547.pdf"
+  },
+  {
+   "paper_id": "1712.03556",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1712.03556.pdf"
+  },
+  {
+   "paper_id": "1801.02243",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1801.02243.pdf"
+  },
+  {
+   "paper_id": "1801.07537",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1801.07537.pdf"
+  },
+  {
+   "paper_id": "1802.00273",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1802.00273.pdf"
+  },
+  {
+   "paper_id": "1802.00923",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1802.00923.pdf"
+  },
+  {
+   "paper_id": "1802.05574",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1802.05574.pdf"
+  },
+  {
+   "paper_id": "1804.00520",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.00520.pdf"
+  },
+  {
+   "paper_id": "1804.02233",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.02233.pdf"
+  },
+  {
+   "paper_id": "1804.05868",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.05868.pdf"
+  },
+  {
+   "paper_id": "1804.08050",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.08050.pdf"
+  },
+  {
+   "paper_id": "1804.08782",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.08782.pdf"
+  },
+  {
+   "paper_id": "1804.09301",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.09301.pdf"
+  },
+  {
+   "paper_id": "1804.11297",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1804.11297.pdf"
+  },
+  {
+   "paper_id": "1805.00460",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1805.00460.pdf"
+  },
+  {
+   "paper_id": "1805.03122",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1805.03122.pdf"
+  },
+  {
+   "paper_id": "1805.04033",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1805.04033.pdf"
+  },
+  {
+   "paper_id": "1805.07513",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1805.07513.pdf"
+  },
+  {
+   "paper_id": "1805.12032",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1805.12032.pdf"
+  },
+  {
+   "paper_id": "1806.01733",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1806.01733.pdf"
+  },
+  {
+   "paper_id": "1806.02847",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1806.02847.pdf"
+  },
+  {
+   "paper_id": "1806.02908",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1806.02908.pdf"
+  },
+  {
+   "paper_id": "1806.03191",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1806.03191.pdf"
+  },
+  {
+   "paper_id": "1807.05154",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1807.05154.pdf"
+  },
+  {
+   "paper_id": "1807.08447",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1807.08447.pdf"
+  },
+  {
+   "paper_id": "1807.11714",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1807.11714.pdf"
+  },
+  {
+   "paper_id": "1808.02022",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.02022.pdf"
+  },
+  {
+   "paper_id": "1808.04314",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.04314.pdf"
+  },
+  {
+   "paper_id": "1808.05902",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.05902.pdf"
+  },
+  {
+   "paper_id": "1808.06834",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.06834.pdf"
+  },
+  {
+   "paper_id": "1808.07625",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.07625.pdf"
+  },
+  {
+   "paper_id": "1808.08850",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.08850.pdf"
+  },
+  {
+   "paper_id": "1808.09633",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1808.09633.pdf"
+  },
+  {
+   "paper_id": "1809.01341",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.01341.pdf"
+  },
+  {
+   "paper_id": "1809.01500",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.01500.pdf"
+  },
+  {
+   "paper_id": "1809.02494",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.02494.pdf"
+  },
+  {
+   "paper_id": "1809.04686",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.04686.pdf"
+  },
+  {
+   "paper_id": "1809.08298",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.08298.pdf"
+  },
+  {
+   "paper_id": "1809.08652",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1809.08652.pdf"
+  },
+  {
+   "paper_id": "1810.01570",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.01570.pdf"
+  },
+  {
+   "paper_id": "1810.02100",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.02100.pdf"
+  },
+  {
+   "paper_id": "1810.03459",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.03459.pdf"
+  },
+  {
+   "paper_id": "1810.10254",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.10254.pdf"
+  },
+  {
+   "paper_id": "1810.10797",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.10797.pdf"
+  },
+  {
+   "paper_id": "1810.11118",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.11118.pdf"
+  },
+  {
+   "paper_id": "1810.13024",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1810.13024.pdf"
+  },
+  {
+   "paper_id": "1811.00266",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.00266.pdf"
+  },
+  {
+   "paper_id": "1811.00625",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.00625.pdf"
+  },
+  {
+   "paper_id": "1811.01001",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.01001.pdf"
+  },
+  {
+   "paper_id": "1811.01088",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.01088.pdf"
+  },
+  {
+   "paper_id": "1811.01399",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.01399.pdf"
+  },
+  {
+   "paper_id": "1811.01734",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.01734.pdf"
+  },
+  {
+   "paper_id": "1811.04604",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.04604.pdf"
+  },
+  {
+   "paper_id": "1811.05085",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.05085.pdf"
+  },
+  {
+   "paper_id": "1811.07684",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.07684.pdf"
+  },
+  {
+   "paper_id": "1811.09529",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.09529.pdf"
+  },
+  {
+   "paper_id": "1811.11136",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.11136.pdf"
+  },
+  {
+   "paper_id": "1811.11365",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1811.11365.pdf"
+  },
+  {
+   "paper_id": "1812.01704",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.01704.pdf"
+  },
+  {
+   "paper_id": "1812.03593",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.03593.pdf"
+  },
+  {
+   "paper_id": "1812.06038",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.06038.pdf"
+  },
+  {
+   "paper_id": "1812.06876",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.06876.pdf"
+  },
+  {
+   "paper_id": "1812.08879",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.08879.pdf"
+  },
+  {
+   "paper_id": "1812.10860",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1812.10860.pdf"
+  },
+  {
+   "paper_id": "1901.00439",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.00439.pdf"
+  },
+  {
+   "paper_id": "1901.01911",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.01911.pdf"
+  },
+  {
+   "paper_id": "1901.02222",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.02222.pdf"
+  },
+  {
+   "paper_id": "1901.03859",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.03859.pdf"
+  },
+  {
+   "paper_id": "1901.03866",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.03866.pdf"
+  },
+  {
+   "paper_id": "1901.04085",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.04085.pdf"
+  },
+  {
+   "paper_id": "1901.05280",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.05280.pdf"
+  },
+  {
+   "paper_id": "1901.10746",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.10746.pdf"
+  },
+  {
+   "paper_id": "1901.10826",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1901.10826.pdf"
+  },
+  {
+   "paper_id": "1902.00821",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1902.00821v1.pdf"
+  },
+  {
+   "paper_id": "1902.07285",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1902.07285.pdf"
+  },
+  {
+   "paper_id": "1902.10525",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1902.10525.pdf"
+  },
+  {
+   "paper_id": "1902.11049",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1902.11049.pdf"
+  },
+  {
+   "paper_id": "1903.00058",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1903.00058.pdf"
+  },
+  {
+   "paper_id": "1903.08237",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1903.08237.pdf"
+  },
+  {
+   "paper_id": "1904.01608",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1904.01608.pdf"
+  },
+  {
+   "paper_id": "1904.02815",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1904.02815.pdf"
+  },
+  {
+   "paper_id": "1904.05527",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1904.05527.pdf"
+  },
+  {
+   "paper_id": "1904.06941",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1904.06941.pdf"
+  },
+  {
+   "paper_id": "1904.09708",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1904.09708.pdf"
+  },
+  {
+   "paper_id": "1905.07464",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1905.07464.pdf"
+  },
+  {
+   "paper_id": "1905.09866",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1905.09866v1.pdf"
+  },
+  {
+   "paper_id": "1905.10247",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1905.10247.pdf"
+  },
+  {
+   "paper_id": "1905.10702",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1905.10702.pdf"
+  },
+  {
+   "paper_id": "1905.13497",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1905.13497.pdf"
+  },
+  {
+   "paper_id": "1906.01183",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.01183v1.pdf"
+  },
+  {
+   "paper_id": "1906.01512",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.01512.pdf"
+  },
+  {
+   "paper_id": "1906.01946",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.01946.pdf"
+  },
+  {
+   "paper_id": "1906.02715",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.02715.pdf"
+  },
+  {
+   "paper_id": "1906.05012",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.05012.pdf"
+  },
+  {
+   "paper_id": "1906.05474",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.05474.pdf"
+  },
+  {
+   "paper_id": "1906.05963",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.05963.pdf"
+  },
+  {
+   "paper_id": "1906.06442",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.06442.pdf"
+  },
+  {
+   "paper_id": "1906.08286",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.08286.pdf"
+  },
+  {
+   "paper_id": "1906.09774",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1906.09774.pdf"
+  },
+  {
+   "paper_id": "1907.00455",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.00455.pdf"
+  },
+  {
+   "paper_id": "1907.04152",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.04152.pdf"
+  },
+  {
+   "paper_id": "1907.04380",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.04380.pdf"
+  },
+  {
+   "paper_id": "1907.05403",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.05403.pdf"
+  },
+  {
+   "paper_id": "1907.05664",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.05664.pdf"
+  },
+  {
+   "paper_id": "1907.06458",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.06458.pdf"
+  },
+  {
+   "paper_id": "1907.10738",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.10738.pdf"
+  },
+  {
+   "paper_id": "1907.11499",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.11499.pdf"
+  },
+  {
+   "paper_id": "1907.12108",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1907.12108.pdf"
+  },
+  {
+   "paper_id": "1908.00153",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.00153.pdf"
+  },
+  {
+   "paper_id": "1908.06006",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.06006.pdf"
+  },
+  {
+   "paper_id": "1908.06083",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.06083.pdf"
+  },
+  {
+   "paper_id": "1908.06151",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.06151.pdf"
+  },
+  {
+   "paper_id": "1908.06556",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.06556.pdf"
+  },
+  {
+   "paper_id": "1908.06725",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.06725.pdf"
+  },
+  {
+   "paper_id": "1908.07218",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.07218.pdf"
+  },
+  {
+   "paper_id": "1908.07816",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.07816.pdf"
+  },
+  {
+   "paper_id": "1908.07822",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.07822v1.pdf"
+  },
+  {
+   "paper_id": "1908.08566",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.08566.pdf"
+  },
+  {
+   "paper_id": "1908.09951",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.09951.pdf"
+  },
+  {
+   "paper_id": "1908.11279",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1908.11279.pdf"
+  },
+  {
+   "paper_id": "1909.00161",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00161.pdf"
+  },
+  {
+   "paper_id": "1909.00183",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00183.pdf"
+  },
+  {
+   "paper_id": "1909.00252",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00252.pdf"
+  },
+  {
+   "paper_id": "1909.00324",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00324.pdf"
+  },
+  {
+   "paper_id": "1909.00338",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00338.pdf"
+  },
+  {
+   "paper_id": "1909.00361",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00361.pdf"
+  },
+  {
+   "paper_id": "1909.00574",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00574.pdf"
+  },
+  {
+   "paper_id": "1909.00997",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.00997.pdf"
+  },
+  {
+   "paper_id": "1909.01093",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.01093.pdf"
+  },
+  {
+   "paper_id": "1909.01247",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.01247.pdf"
+  },
+  {
+   "paper_id": "1909.01492",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.01492.pdf"
+  },
+  {
+   "paper_id": "1909.01515",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.01515.pdf"
+  },
+  {
+   "paper_id": "1909.01958",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.01958v1.pdf"
+  },
+  {
+   "paper_id": "1909.02635",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.02635.pdf"
+  },
+  {
+   "paper_id": "1909.03242",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.03242.pdf"
+  },
+  {
+   "paper_id": "1909.03464",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.03464.pdf"
+  },
+  {
+   "paper_id": "1909.03526",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.03526.pdf"
+  },
+  {
+   "paper_id": "1909.04625",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.04625.pdf"
+  },
+  {
+   "paper_id": "1909.05016",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.05016.pdf"
+  },
+  {
+   "paper_id": "1909.05358",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.05358.pdf"
+  },
+  {
+   "paper_id": "1909.05360",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.05360.pdf"
+  },
+  {
+   "paper_id": "1909.05478",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.05478.pdf"
+  },
+  {
+   "paper_id": "1909.06522",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.06522.pdf"
+  },
+  {
+   "paper_id": "1909.07734",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.07734.pdf"
+  },
+  {
+   "paper_id": "1909.07863",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.07863.pdf"
+  },
+  {
+   "paper_id": "1909.08103",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.08103.pdf"
+  },
+  {
+   "paper_id": "1909.08306",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.08306.pdf"
+  },
+  {
+   "paper_id": "1909.09018",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.09018.pdf"
+  },
+  {
+   "paper_id": "1909.09270",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.09270.pdf"
+  },
+  {
+   "paper_id": "1909.09484",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.09484.pdf"
+  },
+  {
+   "paper_id": "1909.09779",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.09779.pdf"
+  },
+  {
+   "paper_id": "1909.11467",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.11467.pdf"
+  },
+  {
+   "paper_id": "1909.11833",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.11833.pdf"
+  },
+  {
+   "paper_id": "1909.11879",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.11879.pdf"
+  },
+  {
+   "paper_id": "1909.12231",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.12231.pdf"
+  },
+  {
+   "paper_id": "1909.12673",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.12673.pdf"
+  },
+  {
+   "paper_id": "1909.13717",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1909.13717.pdf"
+  },
+  {
+   "paper_id": "1910.00194",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.00194.pdf"
+  },
+  {
+   "paper_id": "1910.02339",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.02339.pdf"
+  },
+  {
+   "paper_id": "1910.03771",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.03771v1.pdf"
+  },
+  {
+   "paper_id": "1910.04006",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.04006.pdf"
+  },
+  {
+   "paper_id": "1910.04519",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.04519.pdf"
+  },
+  {
+   "paper_id": "1910.05752",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.05752.pdf"
+  },
+  {
+   "paper_id": "1910.06701",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.06701.pdf"
+  },
+  {
+   "paper_id": "1910.07134",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.07134.pdf"
+  },
+  {
+   "paper_id": "1910.08210",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.08210.pdf"
+  },
+  {
+   "paper_id": "1910.08987",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.08987.pdf"
+  },
+  {
+   "paper_id": "1910.09295",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.09295.pdf"
+  },
+  {
+   "paper_id": "1910.10288",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.10288.pdf"
+  },
+  {
+   "paper_id": "1910.11204",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.11204.pdf"
+  },
+  {
+   "paper_id": "1910.11235",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.11235v1.pdf"
+  },
+  {
+   "paper_id": "1910.11949",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.11949.pdf"
+  },
+  {
+   "paper_id": "1910.12354",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.12354.pdf"
+  },
+  {
+   "paper_id": "1910.13215",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.13215.pdf"
+  },
+  {
+   "paper_id": "1910.13890",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.13890.pdf"
+  },
+  {
+   "paper_id": "1910.14254",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1910.14254.pdf"
+  },
+  {
+   "paper_id": "1911.00133",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.00133.pdf"
+  },
+  {
+   "paper_id": "1911.00473",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.00473.pdf"
+  },
+  {
+   "paper_id": "1911.02086",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.02086.pdf"
+  },
+  {
+   "paper_id": "1911.03058",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03058.pdf"
+  },
+  {
+   "paper_id": "1911.03154",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03154.pdf"
+  },
+  {
+   "paper_id": "1911.03350",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03350.pdf"
+  },
+  {
+   "paper_id": "1911.03514",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03514.pdf"
+  },
+  {
+   "paper_id": "1911.03597",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03597.pdf"
+  },
+  {
+   "paper_id": "1911.03842",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03842v1.pdf"
+  },
+  {
+   "paper_id": "1911.03894",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.03894v1.pdf"
+  },
+  {
+   "paper_id": "1911.04952",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.04952.pdf"
+  },
+  {
+   "paper_id": "1911.06192",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.06192.pdf"
+  },
+  {
+   "paper_id": "1911.06747",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.06747.pdf"
+  },
+  {
+   "paper_id": "1911.09483",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.09483.pdf"
+  },
+  {
+   "paper_id": "1911.11951",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.11951.pdf"
+  },
+  {
+   "paper_id": "1911.12579",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.12579.pdf"
+  },
+  {
+   "paper_id": "1911.13087",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1911.13087.pdf"
+  },
+  {
+   "paper_id": "1912.00159",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.00159.pdf"
+  },
+  {
+   "paper_id": "1912.00864",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.00864.pdf"
+  },
+  {
+   "paper_id": "1912.00955",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.00955.pdf"
+  },
+  {
+   "paper_id": "1912.01220",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.01220.pdf"
+  },
+  {
+   "paper_id": "1912.01679",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.01679.pdf"
+  },
+  {
+   "paper_id": "1912.02761",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.02761.pdf"
+  },
+  {
+   "paper_id": "1912.03184",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.03184.pdf"
+  },
+  {
+   "paper_id": "1912.03234",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.03234.pdf"
+  },
+  {
+   "paper_id": "1912.03457",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.03457.pdf"
+  },
+  {
+   "paper_id": "1912.06813",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.06813.pdf"
+  },
+  {
+   "paper_id": "1912.06927",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.06927.pdf"
+  },
+  {
+   "paper_id": "1912.10167",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.10167.pdf"
+  },
+  {
+   "paper_id": "1912.10806",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/1912.10806.pdf"
+  },
+  {
+   "paper_id": "2001.00137",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.00137.pdf"
+  },
+  {
+   "paper_id": "2001.00582",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.00582.pdf"
+  },
+  {
+   "paper_id": "2001.02943",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.02943.pdf"
+  },
+  {
+   "paper_id": "2001.03632",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.03632.pdf"
+  },
+  {
+   "paper_id": "2001.05672",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.05672.pdf"
+  },
+  {
+   "paper_id": "2001.06354",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.06354.pdf"
+  },
+  {
+   "paper_id": "2001.06785",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.06785.pdf"
+  },
+  {
+   "paper_id": "2001.07263",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.07263.pdf"
+  },
+  {
+   "paper_id": "2001.07615",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.07615.pdf"
+  },
+  {
+   "paper_id": "2001.08845",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.08845.pdf"
+  },
+  {
+   "paper_id": "2001.09899",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.09899.pdf"
+  },
+  {
+   "paper_id": "2001.10179",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2001.10179.pdf"
+  },
+  {
+   "paper_id": "2002.00876",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.00876.pdf"
+  },
+  {
+   "paper_id": "2002.01030",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.01030.pdf"
+  },
+  {
+   "paper_id": "2002.02758",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.02758.pdf"
+  },
+  {
+   "paper_id": "2002.02800",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.02800.pdf"
+  },
+  {
+   "paper_id": "2002.03438",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.03438.pdf"
+  },
+  {
+   "paper_id": "2002.05058",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.05058.pdf"
+  },
+  {
+   "paper_id": "2002.05104",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.05104.pdf"
+  },
+  {
+   "paper_id": "2002.08126",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.08126.pdf"
+  },
+  {
+   "paper_id": "2002.09637",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.09637.pdf"
+  },
+  {
+   "paper_id": "2002.10361",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.10361.pdf"
+  },
+  {
+   "paper_id": "2002.12328",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2002.12328.pdf"
+  },
+  {
+   "paper_id": "2003.01006",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.01006.pdf"
+  },
+  {
+   "paper_id": "2003.01769",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.01769.pdf"
+  },
+  {
+   "paper_id": "2003.02639",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.02639.pdf"
+  },
+  {
+   "paper_id": "2003.04967",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.04967.pdf"
+  },
+  {
+   "paper_id": "2003.08132",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.08132.pdf"
+  },
+  {
+   "paper_id": "2003.08529",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.08529.pdf"
+  },
+  {
+   "paper_id": "2003.08897",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.08897.pdf"
+  },
+  {
+   "paper_id": "2003.09586",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.09586.pdf"
+  },
+  {
+   "paper_id": "2003.10816",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2003.10816.pdf"
+  },
+  {
+   "paper_id": "2004.00139",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.00139.pdf"
+  },
+  {
+   "paper_id": "2004.01878",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.01878.pdf"
+  },
+  {
+   "paper_id": "2004.01894",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.01894.pdf"
+  },
+  {
+   "paper_id": "2004.02393",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.02393.pdf"
+  },
+  {
+   "paper_id": "2004.03061",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.03061.pdf"
+  },
+  {
+   "paper_id": "2004.03329",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.03329v1.pdf"
+  },
+  {
+   "paper_id": "2004.04228",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.04228.pdf"
+  },
+  {
+   "paper_id": "2004.04315",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.04315.pdf"
+  },
+  {
+   "paper_id": "2004.04435",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.04435.pdf"
+  },
+  {
+   "paper_id": "2004.04696",
+   "error": "FileNotFoundError: PDF file not found at: /home/oracle/code/science-document-viewer/eval/pdfs/train_reservoir/2004.04696.pdf"
+  }
+ ],
+ "means": {
+  "stop": {
+   "ndcg10": NaN,
+   "cec_0.5": NaN,
+   "cec_0.3": NaN,
+   "cec_0.7": NaN,
+   "context_tokens": NaN,
+   "n_units": NaN,
+   "early_stop": NaN,
+   "gate_score": NaN
+  },
+  "fill": {
+   "ndcg10": NaN,
+   "cec_0.5": NaN,
+   "cec_0.3": NaN,
+   "cec_0.7": NaN,
+   "context_tokens": NaN,
+   "n_units": NaN,
+   "early_stop": NaN,
+   "gate_score": NaN
+  }
+ },
+ "fill_minus_stop": {
+  "cec_0.5": {
+   "comparison": "fill - stop",
+   "metric": "cec_0.5",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0
+  },
+  "ndcg10": {
+   "comparison": "fill - stop",
+   "metric": "ndcg10",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0
+  },
+  "context_tokens": {
+   "comparison": "fill - stop",
+   "metric": "context_tokens",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0
+  },
+  "n_units": {
+   "comparison": "fill - stop",
+   "metric": "n_units",
+   "diff": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "p_raw": 1.0
+  }
+ },
+ "questions_with_identical_context": 0,
+ "memory": {
+  "python_working_set_baseline_mb": 1073.3,
+  "python_working_set_peak_mb": 1073.3
+ },
+ "elapsed_s": 0.0,
+ "bootstrap": {
+  "B": 10000,
+  "seed": 42
+ }
+}
