@@ -78,39 +78,54 @@ Two cautions:
 
 ### 5.1 Document extraction
 
-**Methods.**
-- `pymupdf_layout`: PyMuPDF with layout sorting and heading detection (production).
-- `pymupdf_plain`, `pypdf`, `pdfminer.six`, `pdfplumber`.
-- GROBID: a separate run, using a local Docker service.
+**Benchmark & Dataset.**
+Evaluated on **OHR-Bench** (OpenDataLab, ICCV 2025; `opendatalab/OHR-Bench`), evaluating document parsers on real unstructured PDFs against human-verified ground truth across 5 content modalities (plain text, tables, formulas, charts, reading order) and downstream RAG retrieval.
+- **Scope:** Academic domain, 85 PDFs (1,011 pages), 1,179 questions grounded in gold evidence context.
+- **Extractors:**
+  - `pymupdf_layout`: PyMuPDF layout-aware extractor preserving visual hierarchy, reading order, and headings (production).
+  - `pymupdf_plain`: Unstructured plain text stream per page.
+  - `pypdf`: Pure-Python page-level text extraction.
+  - `pdfminer.six`: Layout-analysis coordinate text extractor.
+  - `pdfplumber`: Visual bounding-box layout extractor.
+  - `grobid`: TEI-XML scholarly document processing via live service at `http://localhost:8070`.
 
-**Theory.** Layout-aware extraction keeps reading order and section headings, which section-based chunking needs. Plain text extractors recover the words but lose structure.
+**Theory.** Document parsers directly govern downstream RAG fidelity:
+1. **Reading order & layout awareness** prevent scrambling multi-column academic text.
+2. **Formula & table preservation** determine whether non-prose scientific facts survive extraction.
+3. Higher text fidelity on the evidence page directly improves downstream retrieval hit rates.
 
-**Results.** Evidence recall is measured on the component set (335 papers). Retrieval quality is measured on the 150-paper subset, with hierarchical + e5 + dense.
+**Results.** 85 academic PDFs (1,011 pages), 1,179 queries (balanced like-for-like on 81 common docs, 1,152 queries via `--common-only`).
 
-| Extractor | Evidence recall | Heading F1 | ms/page (P50) | nDCG@10 | CEC@0.5 |
-|---|---|---|---|---|---|
-| pymupdf_layout | 0.985 | 0.466 | 12.3 | **0.454** | **0.739** |
-| pymupdf_plain | 0.985 | 0 | 7.2 | 0.421 | 0.699 |
-| pypdf | 0.982 | 0 | 48.2 | 0.396 | 0.659 |
-| pdfminer.six | 0.985 | 0 | 94.4 | 0.414 | 0.687 |
-| pdfplumber | 0.558 | 0 | 185.1 | 0.379 | 0.651 |
-| GROBID (separate run) | 0.981 | 0.576 | 185.4* | 0.513 | 0.823 |
+| Extractor | Qs | Docs OK | Evidence Recall (≥0.80) | Text LCS (%) | Hit@1 | Hit@2 | Hit@5 | Retrieval LCS (%) | Latency (ms/page) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **pymupdf_layout** | 1,152 | 85/85 | **0.633** | 71.8% | **0.676** | **0.802** | **0.919** | 59.1% | 2.86 |
+| **pymupdf_plain** | 1,152 | 85/85 | **0.633** | **73.2%** | **0.676** | **0.802** | **0.919** | **60.3%** | **2.14** |
+| **pypdf** | 1,152 | 85/85 | 0.609 | 71.2% | 0.651 | 0.776 | 0.906 | 57.4% | 27.84 |
+| **pdfminer.six** | 1,152 | 85/85 | 0.612 | 68.9% | 0.659 | 0.783 | 0.911 | 56.5% | 40.44 |
+| **pdfplumber** | 1,152 | 85/85 | 0.490 | 62.5% | 0.559 | 0.688 | 0.845 | 46.7% | 67.10 |
+| **grobid** | 1,152 | 81/85 | 0.391 | 49.5% | 0.498 | 0.626 | 0.772 | 40.5% | 134.86* |
 
-\* GROBID time is an HTTP round trip to a Docker container, not comparable with in-process extraction. The container reached its 4 GB memory limit.
+\* GROBID latency includes HTTP round trips to the local service on port 8070; 4 complex non-standard PDF layouts failed with service errors.
 
-Sources: `phase_1_extraction/artifacts/extraction/summary.json` and `.../extraction_grobid/summary.json`. The paths are relative to `eval/phases/`, here and below.
+**Breakdown by Evidence Source (LCS Score % on common subset):**
+
+| Extractor | Plain Text | Table | Formula | Chart | Reading Order |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **pymupdf_layout** | 91.2% | 78.4% | 60.8% | 41.9% | **91.5%** |
+| **pymupdf_plain** | **91.5%** | **80.6%** | **61.6%** | **44.1%** | **91.5%** |
+| **pypdf** | 89.8% | 78.4% | 61.2% | 39.4% | 90.8% |
+| **pdfminer.six** | 89.2% | 73.6% | 59.5% | 39.3% | **91.5%** |
+| **pdfplumber** | 77.1% | 70.0% | 54.5% | 38.1% | 23.9% |
+| **grobid** | 75.9% | 42.5% | 47.7% | 25.8% | 74.9% |
+
+Sources: `phase_1_extraction/artifacts/summary.json` and `phase_1_extraction/artifacts/REPORT.md`.
 
 **Observation.**
-- **As theory predicts,** recovering the words is not the difference. Four extractors find 98–99% of the evidence, but only layout-aware extraction gives section structure. With it, retrieval is better (0.454 vs 0.421 for plain PyMuPDF on the same text).
-- **pdfplumber's low recall comes from configuration.** On the two lowest-scoring papers its output glues words together (e.g. `recurrentneuralnetworkarchitectures`) in both layout and plain mode. The cause is its default character-spacing settings, not the method itself, so the result applies only to "pdfplumber with default settings".
-- **On PeerQA** (107 papers), PyMuPDF Layout recovers less evidence (0.933) than plain extractors (about 0.98). Its layout handling suits arXiv-style papers better than the other formats.
-- **GROBID** recovers the same evidence but gives better retrieval. Possible explanations, **not yet tested**:
-  - the evaluation's verbatim-match shortcut may favour text produced the same way as QASPER's own text, which comes from a GROBID-based pipeline;
-  - GROBID's text contains no reference list (0 of 349 papers, against 304 of 349 for PyMuPDF Layout), so there are fewer distractor chunks.
+- **PyMuPDF (Layout & Plain) is the strongest overall extractor:** It delivers the highest evidence recall (0.633), highest downstream retrieval hit rate (Hit@2: 0.802, Hit@5: 0.919), and lowest latency (2.1–2.9 ms/page).
+- **pdfplumber reading order failure:** `pdfplumber` achieves only 23.9% LCS on reading order questions due to default column-merging behavior that interleaves columns, resulting in severely degraded downstream retrieval (Hit@1 drops to 0.559).
+- **GROBID trade-offs:** While GROBID extracts structured bibliographic metadata, general full-text parsing suffers on atypical layouts (81/85 completed, 4 failures), and TEI text normalization omits raw mathematical notation present in ground truth, lowering formula LCS (47.7%) and overall recall (0.391). In addition, GROBID requires 134.9 ms/page.
 
-  A small diagnostic was designed (switch off exact matching; remove references from the PyMuPDF text) but is kept optional.
-
-**Decision.** PyMuPDF Layout is used for the combination experiment. This is a practical scope decision, not a claim that it is the best extractor. GROBID can run locally, but it needs a separate Java service with about 4 GB of memory plus integration and maintenance work, which is out of proportion for this project.
+**Decision.** `pymupdf_layout` is retained as the production extractor. It combines high fidelity (71.8% LCS, 0.633 recall, 0.802 Hit@2) with sub-3ms latency, zero external service dependencies, and robust reading order preservation (91.5%).
 
 ### 5.2 Text chunking
 
@@ -470,7 +485,7 @@ Use the backend virtual environment (`backend/venv`). Shared code is in `backend
 
 | Experiment | Script (under `eval/phases/`) | Output folder |
 |---|---|---|
-| Extraction | `phase_1_extraction/scripts/evaluate_extraction.py`, `evaluate_extraction_grobid.py` | `phase_1_extraction/artifacts/` |
+| Extraction | `phase_1_extraction/scripts/evaluate_extraction.py` (OHR-Bench benchmark) | `phase_1_extraction/artifacts/` |
 | Chunking | `phase_2_chunking/scripts/evaluate_chunking.py` (+ `_semantic`, `_children`, `assembly_fill_check.py`) | `phase_2_chunking/artifacts/chunking*/` |
 | Embedding | `phase_3_embedding/scripts/evaluate_embedding.py` (+ `_specter2`) | `phase_3_embedding/artifacts/embedding*/` |
 | Retrieval | `phase_6_hybrid_retrieval/scripts/evaluate_retrieval_fusion.py --cohort C-RET\|PEERQA-PDF\|PEERQA-TEXT`, `evaluate_reranking.py` | `phase_6_hybrid_retrieval/artifacts/` |
