@@ -9,7 +9,7 @@ import {
 import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
 import { resolveFileUrl } from './pdfAssets';
 import { usePdfDocument, type PdfSource } from './usePdfDocument';
-import { useZoom } from './useZoom';
+import { useZoom, type ZoomMode } from './useZoom';
 import { useAnnotations, type AnnotationId } from './useAnnotations';
 import { useFind } from './useFind';
 import { PdfPages } from './PdfPages';
@@ -78,6 +78,33 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
   }));
   return <PdfViewerInner key={doc.id} doc={doc} layout={layout} setLayout={setLayout} />;
 };
+
+// ─── Per-document view memory (page + zoom survive tab switches) ────────────
+
+interface SavedView {
+  pageIndex: number;
+  zoom: number;
+  mode: ZoomMode;
+}
+
+const MAX_SAVED_VIEWS = 50;
+/** Session memory only (module level, so it survives the viewer unmounting on tab switches). */
+const savedViews = new Map<string, SavedView>();
+
+function saveView(docId: string, view: SavedView) {
+  savedViews.delete(docId);
+  savedViews.set(docId, view);
+  if (savedViews.size > MAX_SAVED_VIEWS) {
+    const oldest = savedViews.keys().next().value;
+    if (oldest !== undefined) savedViews.delete(oldest);
+  }
+}
+
+/** A short, dismissible message in the bar above the pages. */
+interface ViewerNotice {
+  id: number;
+  text: string;
+}
 
 // ─── Inner viewer ────────────────────────────────────────────────────────────
 
@@ -160,8 +187,33 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     currentPageRef.current = currentPageIndex;
   }, [currentPageIndex]);
 
-  const zoom = useZoom({ scrollAreaRef, getPageEl, sizes: ready?.sizes ?? null, currentPageIndex });
+  // Restore the page/zoom this document was left at (e.g. when switching back to its tab).
+  const [initialView] = useState<SavedView | null>(() => savedViews.get(doc.id) ?? null);
+  const zoom = useZoom({
+    scrollAreaRef,
+    getPageEl,
+    sizes: ready?.sizes ?? null,
+    currentPageIndex,
+    initial: initialView ? { zoom: initialView.zoom, mode: initialView.mode } : undefined,
+  });
   const { scale } = zoom;
+
+  const viewRef = useRef<SavedView | null>(null);
+  useEffect(() => {
+    if (ready) viewRef.current = { pageIndex: currentPageIndex, zoom: zoom.zoom, mode: zoom.mode };
+  });
+  const docIdForView = doc.id;
+  useEffect(() => () => {
+    if (viewRef.current) saveView(docIdForView, viewRef.current);
+  }, [docIdForView]);
+
+  // Short notices (e.g. a citation that points outside this PDF).
+  const [notice, setNotice] = useState<ViewerNotice | null>(null);
+  const noticeSeq = useRef(0);
+  const showNotice = useCallback((text: string) => {
+    noticeSeq.current += 1;
+    setNotice({ id: noticeSeq.current, text });
+  }, []);
 
   // Rendered text layers (spans) per page, used to measure find/citation highlights.
   const [textLayers, setTextLayers] = useState<Map<number, TextLayerInfo>>(() => new Map());
@@ -223,6 +275,20 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     [ready, scrollToPage],
   );
 
+  // Once pages are laid out, go back to the page this document was left at (once).
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (!ready || restoredRef.current) return;
+    restoredRef.current = true;
+    const target = initialView?.pageIndex ?? 0;
+    if (target <= 0 || target >= ready.pages.length) return;
+    const frame = requestAnimationFrame(() => {
+      setCurrentPageIndex(target);
+      scrollToPage(target);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [ready, initialView, scrollToPage]);
+
   // Internal PDF links (references, figures, sections) and named actions.
   const [linkService] = useState(() => new ViewerLinkService());
   useEffect(() => {
@@ -239,7 +305,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
 
   const goToPage = useCallback(
     (pageNumber: number) => {
-      if (!numPages) return;
+      if (!numPages || !Number.isFinite(pageNumber)) return;
       const idx = Math.min(numPages - 1, Math.max(0, pageNumber - 1));
       setCurrentPageIndex(idx);
       scrollToPage(idx);
@@ -250,7 +316,22 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   // ─── Tools, annotations, popups ────────────────────────────────────────────
   const [tool, setTool] = useState<Tool>('select');
   const [selectedColor, setSelectedColor] = useState<string>(DEFAULT_HIGHLIGHT_COLOR);
-  const { annotations, create, update, remove, removeMany } = useAnnotations(doc.id);
+  const {
+    annotations,
+    create,
+    update,
+    remove,
+    removeMany,
+    error: annotationError,
+    dismissError: dismissAnnotationError,
+  } = useAnnotations(doc.id);
+
+  // Sync errors stay visible for a while, then clear themselves.
+  useEffect(() => {
+    if (!annotationError) return;
+    const t = window.setTimeout(dismissAnnotationError, 10_000);
+    return () => window.clearTimeout(t);
+  }, [annotationError, dismissAnnotationError]);
   const [activeAnnotationId, setActiveAnnotationId] = useState<AnnotationId | null>(null);
   const [clipboardNote, setClipboardNote] = useState<Pick<Annotation, 'type' | 'color' | 'comment' | 'selected_text'> | null>(null);
   const [selectionPopup, setSelectionPopup] = useState<SelectionPopupState | null>(null);
@@ -490,6 +571,10 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       cleanup();
       setDraggingNoteId(null);
       if (pos.moved) {
+        // Hand the position back to React: it renders the new position, and the old one again
+        // if the server rejects the move (a direct DOM write would otherwise stick).
+        pinEl.style.left = `${start.x * k}px`;
+        pinEl.style.top = `${start.y * k}px`;
         update(id, { rects: [{ x1: pos.x, y1: pos.y, x2: pos.x + PIN_SIZE, y2: pos.y + PIN_SIZE, space: 'pdf' }] });
       }
     };
@@ -624,10 +709,31 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const [citation, setCitation] = useState<CitationState | null>(null);
   const citationSeq = useRef(0);
 
+  /** A citation clicked while the PDF was still loading; replayed once it is ready. */
+  const pendingJumpRef = useRef<{ pageNum: number; src?: ChatSource } | null>(null);
+
   const jumpToPage = useCallback(
     (pageNum: number, src?: ChatSource) => {
-      if (!ready) return;
-      const clampIdx = (p: number) => Math.min(ready.pages.length - 1, Math.max(0, p - 1));
+      if (!ready) {
+        pendingJumpRef.current = { pageNum, src };
+        return;
+      }
+      const total = ready.pages.length;
+      const clampIdx = (p: number) => Math.min(total - 1, Math.max(0, p - 1));
+      const inRange = (p: unknown): p is number => typeof p === 'number' && Number.isInteger(p) && p >= 1 && p <= total;
+      const hasLocation = (src?.locations ?? []).some((l) => inRange(l.page) && Array.isArray(l.rects) && l.rects.length > 0);
+      const requested = src?.page ?? pageNum;
+      if (!hasLocation && !inRange(requested)) {
+        // Never jump to a page the citation did not name.
+        setCitation(null);
+        showNotice(
+          Number.isFinite(requested)
+            ? `The cited page ${requested} is not in this PDF (it has ${total} page${total === 1 ? '' : 's'}). The index may be out of date; re-indexing the document can fix this.`
+            : 'This source has no valid page number.',
+        );
+        return;
+      }
+      setNotice(null);
 
       if (!src) {
         goToPage(pageNum);
@@ -639,7 +745,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
 
       // 1) Exact geometry from the backend.
       const locations = (src.locations ?? [])
-        .filter((l) => Number.isFinite(l.page) && l.page >= 1 && l.page <= ready.pages.length && Array.isArray(l.rects) && l.rects.length)
+        .filter((l) => inRange(l.page) && Array.isArray(l.rects) && l.rects.length)
         .map((l) => ({ pageIndex: l.page - 1, rects: l.rects, width: l.width, height: l.height }));
       if (locations.length > 0) {
         const first = locations[0];
@@ -652,14 +758,14 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       }
 
       // 2) Text matching in the rendered text (older indexes without locations).
-      const primary = clampIdx(src.page || pageNum);
+      const primary = clampIdx(inRange(src.page) ? src.page : pageNum);
       setCitation({ ...base, pageIndex: primary, status: 'searching' });
       setCurrentPageIndex(primary);
       scrollToPage(primary);
 
       const passage = src.text || src.snippet || '';
-      const rangeStart = src.page_start ? clampIdx(src.page_start) : primary;
-      const rangeEnd = src.page_end ? clampIdx(src.page_end) : primary;
+      const rangeStart = inRange(src.page_start) ? clampIdx(src.page_start) : primary;
+      const rangeEnd = inRange(src.page_end) ? clampIdx(src.page_end) : primary;
       const span: number[] = [];
       for (let i = Math.min(rangeStart, rangeEnd); i <= Math.max(rangeStart, rangeEnd) && span.length < 12; i++) span.push(i);
       const attempts = span.length === 1 && span[0] === primary ? [span] : [span, [primary]];
@@ -689,8 +795,17 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
         if (citationSeq.current === id) setCitation((prev) => (prev && prev.id === id ? { ...prev, status: 'not-found' } : prev));
       });
     },
-    [ready, goToPage, scrollToPage],
+    [ready, goToPage, scrollToPage, showNotice],
   );
+
+  // Replay a citation click that arrived while the PDF was loading.
+  useEffect(() => {
+    if (!ready || !pendingJumpRef.current) return;
+    const pending = pendingJumpRef.current;
+    pendingJumpRef.current = null;
+    const frame = requestAnimationFrame(() => jumpToPage(pending.pageNum, pending.src));
+    return () => cancelAnimationFrame(frame);
+  }, [ready, jumpToPage]);
 
   /** Citation rects per page (page space). */
   const citationRects = useMemo(() => {
@@ -1052,11 +1167,31 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
             />
           )}
 
+          {annotationError && (
+            <div className={`${styles.citationNotice} ${styles.viewerNoticeError}`} role="alert" key={`anno-err-${annotationError.id}`}>
+              <FaTriangleExclamation className={styles.viewerNoticeErrorIcon} />
+              <span>{annotationError.message}</span>
+              <button type="button" className={styles.citationNoticeClose} onClick={dismissAnnotationError} aria-label="Dismiss" title="Dismiss">
+                <FaXmark />
+              </button>
+            </div>
+          )}
+          {notice && (
+            <div className={styles.citationNotice} role="status" key={`notice-${notice.id}`}>
+              <FaTriangleExclamation className={styles.citationNoticeIcon} />
+              <span>{notice.text}</span>
+              <button type="button" className={styles.citationNoticeClose} onClick={() => setNotice(null)} aria-label="Dismiss" title="Dismiss">
+                <FaXmark />
+              </button>
+            </div>
+          )}
           {citation?.status === 'not-found' && (
             <div className={styles.citationNotice} role="status">
               <FaTriangleExclamation className={styles.citationNoticeIcon} />
-              <span>Couldn't locate this passage on the page (page {citation.pageIndex + 1}).</span>
-              <button type="button" className={styles.citationNoticeClose} onClick={() => setCitation(null)} aria-label="Dismiss">
+              <span>
+                Showing page {citation.pageIndex + 1}, but the exact cited passage couldn't be highlighted on it.
+              </span>
+              <button type="button" className={styles.citationNoticeClose} onClick={() => setCitation(null)} aria-label="Dismiss" title="Dismiss">
                 <FaXmark />
               </button>
             </div>

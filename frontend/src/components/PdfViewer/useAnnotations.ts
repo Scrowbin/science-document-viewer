@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Annotation, Rect } from '../../types';
+import axios from 'axios';
 import { annotationsApi } from '../../api/annotationsApi';
 
 export type AnnotationId = string | number;
 export type AnnotationPatch = Partial<Pick<Annotation, 'comment' | 'color' | 'rects' | 'selected_text'>>;
 export type NewAnnotation = Pick<Annotation, 'page_number' | 'type' | 'color' | 'rects'> &
   Partial<Pick<Annotation, 'selected_text' | 'comment'>>;
+
+/** A user-visible sync failure (the optimistic change has already been rolled back). */
+export interface AnnotationError {
+  id: number;
+  message: string;
+}
 
 const TEMP_PREFIX = 'tmp-';
 
@@ -41,15 +48,47 @@ export function toPdfRects(rects: Rect[] | undefined): Rect[] {
     }));
 }
 
+/** Deleting something the server no longer has is a success, not a failure. */
+function deleteOnServer(serverId: AnnotationId): Promise<void> {
+  return annotationsApi.deleteAnnotation(serverId).catch((err: unknown) => {
+    if (axios.isAxiosError(err) && err.response?.status === 404) return;
+    throw err;
+  });
+}
+
+const kindLabel = (a: Pick<Annotation, 'type'>) => (a.type === 'note' ? 'note' : 'highlight');
+
 /**
- * Document annotations with optimistic local updates.
+ * Document annotations with optimistic local updates that are rolled back when the server
+ * rejects them (FR-10: annotations live in the server database, not only in the browser).
  *
  * New annotations keep a collision-free local id (`tmp-<uuid>`). Updates and deletes on it are
  * chained on the create request and sent with the server id once the create call returns.
  */
 export function useAnnotations(docId: string) {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [error, setError] = useState<AnnotationError | null>(null);
   const pendingCreates = useRef(new Map<string, Promise<AnnotationId | null>>());
+  /** tempId -> server id, once the create call has returned. */
+  const serverIds = useRef(new Map<string, AnnotationId>());
+  const errorSeq = useRef(0);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  const report = useCallback((message: string, err: unknown) => {
+    console.warn(message, err);
+    if (!mounted.current) return;
+    errorSeq.current += 1;
+    setError({ id: errorSeq.current, message });
+  }, []);
+
+  const dismissError = useCallback(() => setError(null), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,20 +96,45 @@ export function useAnnotations(docId: string) {
       .getDocumentAnnotations(docId)
       .then((data) => {
         if (cancelled) return;
-        setAnnotations(data.map((a) => ({ ...a, rects: toPdfRects(a.rects) })));
+        const fetched = data.map((a) => ({ ...a, rects: toPdfRects(a.rects) }));
+        const fetchedIds = new Set(fetched.map((a) => String(a.id)));
+        // Keep annotations created locally before the list arrived (unless the list already has them).
+        setAnnotations((prev) => [
+          ...fetched,
+          ...prev.filter((a) => {
+            if (typeof a.id !== 'string' || !isTemporaryId(a.id)) return false;
+            const sid = serverIds.current.get(a.id);
+            return sid === undefined || !fetchedIds.has(String(sid));
+          }),
+        ]);
       })
-      .catch((err) => console.warn('Could not fetch annotations:', err));
+      .catch((err) => {
+        if (!cancelled) report("Couldn't load this document's highlights and notes. Reopen the document to try again.", err);
+      });
     return () => {
       cancelled = true;
     };
-  }, [docId]);
+  }, [docId, report]);
 
   /** Runs `op` with the server id, waiting for a pending create if needed. */
   const withServerId = useCallback((id: AnnotationId, op: (serverId: AnnotationId) => Promise<unknown>) => {
     if (!isTemporaryId(id)) return op(id);
     const pending = typeof id === 'string' ? pendingCreates.current.get(id) : undefined;
-    if (!pending) return Promise.resolve(); // local-only annotation (create failed or legacy)
+    if (!pending) return Promise.resolve(); // local-only legacy annotation
     return pending.then((serverId) => (serverId === null ? undefined : op(serverId)));
+  }, []);
+
+  /** Puts removed annotations back at their previous positions (rollback of a failed delete). */
+  const restore = useCallback((removed: Array<{ anno: Annotation; index: number }>) => {
+    if (removed.length === 0) return;
+    setAnnotations((prev) => {
+      const next = [...prev];
+      for (const { anno, index } of [...removed].sort((a, b) => a.index - b.index)) {
+        if (next.some((a) => a.id === anno.id)) continue;
+        next.splice(Math.min(index, next.length), 0, anno);
+      }
+      return next;
+    });
   }, []);
 
   const create = useCallback(
@@ -99,7 +163,8 @@ export function useAnnotations(docId: string) {
         })
         .then((created) => {
           // The local id stays stable (selection, drag and queued operations keep working);
-          // the server id is resolved through `pendingCreates`.
+          // the server id is resolved through `pendingCreates` / `serverIds`.
+          if (created.id !== undefined) serverIds.current.set(tempId, created.id);
           setAnnotations((prev) =>
             prev.map((a) =>
               a.id === tempId
@@ -110,48 +175,74 @@ export function useAnnotations(docId: string) {
           return created.id ?? null;
         })
         .catch((err) => {
-          console.warn('Could not save annotation to the server; keeping it locally:', err);
+          // Not saved: remove it rather than show something that disappears after a reload.
+          setAnnotations((prev) => prev.filter((a) => a.id !== tempId));
+          report(`Couldn't save the ${kindLabel(input)} to the server, so it was removed. Please try again.`, err);
           return null;
         });
       pendingCreates.current.set(tempId, request);
       return tempId;
     },
-    [docId],
+    [docId, report],
   );
 
   const update = useCallback(
     (id: AnnotationId, patch: AnnotationPatch) => {
       const normalized: AnnotationPatch = patch.rects ? { ...patch, rects: toPdfRects(patch.rects) } : patch;
-      setAnnotations((prev) => prev.map((a) => (a.id === id ? { ...a, ...normalized } : a)));
-      withServerId(id, (serverId) => annotationsApi.updateAnnotation(serverId, normalized)).catch((err) =>
-        console.warn('Could not sync annotation update:', err),
+      const box: { before?: Annotation } = {};
+      setAnnotations((prev) =>
+        prev.map((a) => {
+          if (a.id !== id) return a;
+          box.before = a;
+          return { ...a, ...normalized };
+        }),
       );
+      withServerId(id, (serverId) => annotationsApi.updateAnnotation(serverId, normalized)).catch((err) => {
+        const previous = box.before;
+        if (previous) {
+          const restoreFields: AnnotationPatch = {};
+          for (const k of Object.keys(normalized) as Array<keyof AnnotationPatch>) {
+            (restoreFields as Record<string, unknown>)[k] = previous[k];
+          }
+          setAnnotations((prev) => prev.map((a) => (a.id === id ? { ...a, ...restoreFields } : a)));
+        }
+        report(`Couldn't save the change to this ${previous ? kindLabel(previous) : 'annotation'}; it was undone.`, err);
+      });
     },
-    [withServerId],
-  );
-
-  const remove = useCallback(
-    (id: AnnotationId) => {
-      setAnnotations((prev) => prev.filter((a) => a.id !== id));
-      withServerId(id, (serverId) => annotationsApi.deleteAnnotation(serverId)).catch((err) =>
-        console.warn('Could not delete annotation on the server:', err),
-      );
-    },
-    [withServerId],
+    [withServerId, report],
   );
 
   const removeMany = useCallback(
     (ids: AnnotationId[]) => {
+      if (ids.length === 0) return;
       const set = new Set(ids);
-      setAnnotations((prev) => prev.filter((a) => a.id === undefined || !set.has(a.id)));
-      for (const id of ids) {
-        withServerId(id, (serverId) => annotationsApi.deleteAnnotation(serverId)).catch((err) =>
-          console.warn('Could not delete annotation on the server:', err),
+      const box: { removed: Array<{ anno: Annotation; index: number }> } = { removed: [] };
+      setAnnotations((prev) => {
+        box.removed = [];
+        prev.forEach((a, index) => {
+          if (a.id !== undefined && set.has(a.id)) box.removed.push({ anno: a, index });
+        });
+        return prev.filter((a) => a.id === undefined || !set.has(a.id));
+      });
+      void Promise.allSettled(
+        ids.map((id) => withServerId(id, deleteOnServer)),
+      ).then((results) => {
+        const failedIds = new Set(ids.filter((_, i) => results[i].status === 'rejected'));
+        if (failedIds.size === 0) return;
+        restore(box.removed.filter((r) => r.anno.id !== undefined && failedIds.has(r.anno.id)));
+        const firstErr = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')?.reason;
+        report(
+          failedIds.size === 1
+            ? "Couldn't delete the annotation on the server; it was restored."
+            : `Couldn't delete ${failedIds.size} annotations on the server; they were restored.`,
+          firstErr,
         );
-      }
+      });
     },
-    [withServerId],
+    [withServerId, restore, report],
   );
 
-  return { annotations, create, update, remove, removeMany };
+  const remove = useCallback((id: AnnotationId) => removeMany([id]), [removeMany]);
+
+  return { annotations, create, update, remove, removeMany, error, dismissError };
 }

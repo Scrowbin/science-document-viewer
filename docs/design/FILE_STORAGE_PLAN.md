@@ -1,6 +1,6 @@
 # File Storage Plan: Production-Style PDF Storage
 
-**Status:** planned follow-up, **not started**. It runs after RQ6 (the confirmatory end-to-end evaluation), because it changes the upload and ingestion path the experiments rely on.
+**Status:** step 1 done (2026-11-06): `/media/` is no longer served; PDFs are streamed by the permission-checked endpoint `GET /api/v1/documents/{id}/file/` (VIEW or higher) and the viewer sends the JWT. The MinIO/presigned-URL part below is **not started** and stays optional for the local proof of concept; it becomes relevant only if the deferred deployment plan (`DEPLOYMENT_PLAN.md`) is carried out.
 **Recorded:** 2026-10-31.
 **Origin:** the user asked how a real website would save the PDFs. This is the agreed sketch for this project.
 
@@ -83,6 +83,6 @@ flowchart LR
 | Tests (isolated storage), soft delete, backup and restore notes | 1 day |
 
 ## 5. Constraints and notes
-- **Not before RQ6.** RQ6 ingests PDFs through `rag_service.ingest_document` reading local files from `eval/pdfs/`, so it doesn't depend on `media/`. Even so, changing the app's ingestion path during the evaluation window is avoided.
+- **Not before the combination experiment.** It ingests PDFs through `rag_service.ingest_document` reading local files from `eval/pdfs/`, so it doesn't depend on `media/`. Even so, changing the app's ingestion path during the evaluation window is avoided.
 - **Prefer the smallest step if time is short:** steps 1–4 of the table close the security hole (public, guessable PDF URLs) and give dedup and hashes. Celery and ClamAV are optional for a thesis demo.
-- **Teammate's branch:** `origin/main` (hyperded) moved `backend/scripts/` and rewrote `chunkers.py`. Rebase this work on the merged main after RQ6.
+- **Teammate's branch:** `origin/main` (hyperded) moved `backend/scripts/` and rewrote `chunkers.py`. Rebase this work on the merged main after the combination experiment.

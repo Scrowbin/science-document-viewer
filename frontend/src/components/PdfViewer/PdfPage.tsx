@@ -204,6 +204,11 @@ export const PdfPage: React.FC<PdfPageProps> = ({
     return () => {
       cancelled = true;
       task.cancel();
+      // Free the backing store now if this canvas never made it into the page.
+      if (!canvas.isConnected) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
     };
   }, [page, pageIndex, shouldRender, renderScale, dpr]);
 

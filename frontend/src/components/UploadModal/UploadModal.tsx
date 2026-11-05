@@ -2,6 +2,8 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import styles from './UploadModal.module.css';
 import type { LookupDoiResult } from '../../api/documentsApi';
 import { FaFilePdf, FaXmark, FaSpinner, FaCheck, FaCircleExclamation } from 'react-icons/fa6';
+import { useFocusTrap } from '../common/useFocusTrap';
+import { DATE_FORMAT_HINT, dateInputValue, isValidDateInput } from '../../utils/format';
 
 export interface UploadModalProps {
   isOpen: boolean;
@@ -52,6 +54,12 @@ function UploadModalContent({
   const dialogRef = useRef<HTMLDivElement>(null);
 
   const formDisabled = isExtracting || isUploading;
+  const dateValue = dateInputValue(metadata?.date);
+  const dateInvalid = !isValidDateInput(dateValue);
+  const canSubmit = !formDisabled && Boolean(metadata?.title?.trim()) && !dateInvalid;
+
+  // Declared before the initial-focus effect so it records the element to return focus to.
+  useFocusTrap(dialogRef, { onEscape: () => requestClose() });
 
   useEffect(() => {
     if (!isExtracting) titleInputRef.current?.focus();
@@ -69,29 +77,12 @@ function UploadModalContent({
     onClose();
   };
 
-  // Keep the latest close handler reachable from the window listener.
-  const requestCloseRef = useRef(requestClose);
-  useEffect(() => {
-    requestCloseRef.current = requestClose;
-  });
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        requestCloseRef.current();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
   const commitAuthors = () => {
     onMetadataChange('authors', parseAuthors(authorsText));
   };
 
   const handleConfirm = () => {
-    if (formDisabled || !metadata?.title?.trim()) return;
+    if (!canSubmit) return;
     onConfirm({ authors: parseAuthors(authorsText) });
   };
 
@@ -201,11 +192,18 @@ function UploadModalContent({
                 id={`${idPrefix}-date`}
                 type="text"
                 className={styles.textInput}
-                value={metadata?.date || ''}
+                value={dateValue}
                 onChange={(e) => change('date', e.target.value)}
                 placeholder="e.g. 2024-05-12 or 2024"
                 disabled={formDisabled}
+                aria-invalid={dateInvalid}
+                aria-describedby={dateInvalid ? `${idPrefix}-date-error` : undefined}
               />
+              {dateInvalid && (
+                <span id={`${idPrefix}-date-error`} className={styles.fieldError} role="alert">
+                  {DATE_FORMAT_HINT}
+                </span>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -266,7 +264,7 @@ function UploadModalContent({
             type="submit"
             form={`${idPrefix}-form`}
             className={styles.btnPrimary}
-            disabled={formDisabled || !metadata?.title?.trim()}
+            disabled={!canSubmit}
           >
             {isUploading ? <FaSpinner className={styles.spinnerIcon} aria-hidden="true" /> : <FaCheck aria-hidden="true" />}
             <span>{isUploading ? 'Importing…' : 'Confirm & Import to Library'}</span>

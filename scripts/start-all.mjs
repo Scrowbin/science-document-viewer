@@ -127,7 +127,12 @@ async function startAll() {
   log('Backend', C.cyan, `Using Python: ${pythonPath}`);
   log('Backend', C.cyan, 'Starting Django API server on http://127.0.0.1:8000 ...');
 
-  const backendProc = spawn(pythonPath, ['manage.py', 'runserver', '8000'], {
+  // `npm start`: no autoreloader (a reload restarts the process and drops the in-memory indexing
+  // queue, caches and loaded models). `npm run dev` or `--reload`: reload on Python file changes.
+  const reload = process.env.npm_lifecycle_event === 'dev' || process.argv.includes('--reload');
+  const runserverArgs = ['manage.py', 'runserver', '8000', ...(reload ? [] : ['--noreload'])];
+  log('Backend', C.cyan, reload ? 'Auto-reload on (dev mode)' : 'Auto-reload off (use `npm run dev` to enable)');
+  const backendProc = spawn(pythonPath, runserverArgs, {
     cwd: BACKEND_DIR,
     shell: false,
   });

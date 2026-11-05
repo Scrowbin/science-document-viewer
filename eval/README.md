@@ -403,6 +403,18 @@ The run works in two phases, so the embedder and the LLM are never in memory tog
 
 The summaries are `retrieval.csv` (8 rows) and `generation.csv` (16 rows), with main metrics also reported per split: Train papers were used to select the methods and check α; Dev papers were used in the first-round experiments (extractor, chunker and retrieval comparisons); Test papers were never used to choose a method, although the first-round retrieval experiment already evaluated dense vs hybrid on them, in `phase_12_combination/artifacts/combinations/`. Retrieval is evaluated once per retrieval pipeline. The 16-row view repeats those numbers for both LLMs; that does not mean 16 retrieval evaluations were done.
 
+**After the run** (both scripts were tested on a copy of the `profile/` output; nothing is reported from that test):
+```powershell
+# thesis tables (Vietnamese, Bảng 5.7–5.14) -> artifacts/combinations/thesis_tables.md
+# figures -> reports/thesis_figures/fig5_12_combo_retrieval.png, fig5_13_combo_generation.png
+backend/venv/Scripts/python.exe eval/phases/phase_12_combination/scripts/report_combinations.py
+# blinded human check: 15 questions x 2 LLMs on the pipeline with the highest CEC@0.5 (ties: nDCG@10)
+backend/venv/Scripts/python.exe eval/phases/phase_12_combination/scripts/human_check_combinations.py package
+# after labelling artifacts/combinations/human_check/annotation_template_30a.csv
+backend/venv/Scripts/python.exe eval/phases/phase_12_combination/scripts/human_check_combinations.py summarize
+```
+The thesis §5.8 has placeholders marked **[Chờ kết quả]** for each table.
+
 ### 7.3a Setup checks (done before the run)
 
 Checked on 20 papers of the grid subset with the runner's own code (cached embeddings, 37 questions × 8 retrieval pipelines):

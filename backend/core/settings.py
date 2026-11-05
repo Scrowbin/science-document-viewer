@@ -1,6 +1,9 @@
 """Django settings for Scientific Document Manager project."""
 
 import os
+import sys
+
+from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -11,8 +14,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-production')
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1')
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1')  # off unless .env turns it on
+SECRET_KEY = os.getenv('SECRET_KEY', '')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('SECRET_KEY must be set in backend/.env when DEBUG is off.')
+    SECRET_KEY = 'django-insecure-dev-only-key'
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')]
 
@@ -123,11 +130,19 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,
+    # Scoped rate limits (ScopedRateThrottle on login/register, chat/summarize, PDF metadata extraction)
+    'DEFAULT_THROTTLE_RATES': {
+        'auth': os.getenv('THROTTLE_AUTH', '20/min'),
+        'chat': os.getenv('THROTTLE_CHAT', '30/min'),
+        'extract': os.getenv('THROTTLE_EXTRACT', '20/min'),
+    },
 }
+if 'test' in sys.argv:  # the test suite logs in and asks many times per minute
+    REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {k: '10000/min' for k in REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']}
 
 # SimpleJWT Configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # FR-01
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -135,13 +150,16 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # In development, permit dev servers
+CORS_ALLOW_ALL_ORIGINS = False  # only the listed dev origins, even with DEBUG on
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
     if origin.strip()
 ]
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = False  # the API uses Bearer tokens, not cookies
+if DEBUG:
+    # Vite moves to 5174, 5175, ... when 5173 is busy: accept any port, but only on this machine
+    CORS_ALLOWED_ORIGIN_REGEXES = [r'^http://(localhost|127\.0\.0\.1):\d+$']
 
 # Local Embedded RAG & LLM Configuration
 LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'ollama')

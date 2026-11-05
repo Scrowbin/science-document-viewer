@@ -11,14 +11,27 @@ export interface KeyboardShortcutOptions {
   hasExplicitSelection: boolean;
 }
 
-/** Elements where Delete/Backspace and other keys belong to the element itself. */
-function isEditableOrInteractive(target: EventTarget | null): boolean {
+const NON_TEXT_INPUT_TYPES = new Set(['checkbox', 'radio', 'button', 'submit', 'reset', 'color', 'range', 'file']);
+
+/** True while the user is typing: text inputs, textareas, selects and editable content. */
+function isTextEditing(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
   const tag = target.tagName;
+  if (tag === 'INPUT') return !NON_TEXT_INPUT_TYPES.has((target as HTMLInputElement).type);
+  return tag === 'TEXTAREA' || tag === 'SELECT';
+}
+
+/** Elements where Delete/Backspace and other keys belong to the element itself. */
+function isEditableOrInteractive(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (isTextEditing(target)) return true;
+  const tag = target.tagName;
   // Row-selection checkboxes in the document table do not consume Delete/Backspace.
   if (tag === 'INPUT' && (target as HTMLInputElement).type === 'checkbox') return false;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON';
+  if (tag === 'INPUT' || tag === 'BUTTON') return true;
+  // Custom widgets (sidebar items, menus) own their keys too.
+  return target.closest('[role="button"], [role="menu"], [role="menuitem"], [role="tab"], [role="dialog"]') !== null;
 }
 
 /** True while a modal dialog is open; global shortcuts are suspended then. */
@@ -54,6 +67,9 @@ export function useKeyboardShortcuts(options: KeyboardShortcutOptions) {
         opts.onFocusSearch();
         return;
       }
+
+      // Every other shortcut stays out of the way while the user is typing.
+      if (isTextEditing(e.target)) return;
 
       // Ctrl/Cmd + N (Add a PDF). Browsers may reserve this; best effort.
       if (modifier && !e.shiftKey && !e.altKey && (e.key === 'n' || e.key === 'N')) {

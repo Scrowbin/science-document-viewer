@@ -82,7 +82,7 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
 
       // Wrong credentials on login/register are reported by the caller, not treated as an expired session
@@ -95,20 +95,29 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Every retry below happens at most once per request (prevents refresh loops).
+      originalRequest._retry = true;
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-            }
-            return apiClient(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
+        }).then((token) => {
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          return apiClient(originalRequest);
+        });
       }
 
-      originalRequest._retry = true;
+      // The request was sent with an access token that has since been replaced (another request
+      // already refreshed it): retry with the current token instead of rotating the refresh token again.
+      const currentAccess = localStorage.getItem('scidocs_auth_token') || sessionStorage.getItem('scidocs_auth_token');
+      const sentAuth = originalRequest.headers?.Authorization;
+      if (currentAccess && typeof sentAuth === 'string' && sentAuth !== `Bearer ${currentAccess}`) {
+        originalRequest.headers.Authorization = `Bearer ${currentAccess}`;
+        return apiClient(originalRequest);
+      }
+
       isRefreshing = true;
 
       try {

@@ -437,3 +437,18 @@
   height: 0;
   overflow: visible;
 }
+
+.viewerLinkBtn {
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--accent-blue);
+  background-color: var(--accent-blue-subtle);
+  border: 1px solid var(--accent-blue-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.viewerLinkBtn:hover {
+  background-color: var(--accent-blue);
+  color: var(--text-on-accent);
+}

@@ -286,3 +286,10 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.fieldError {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--status-danger);
+}

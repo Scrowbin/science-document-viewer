@@ -19,7 +19,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .apps import _should_run_startup_recovery, recover_stuck_documents
-from .models import Document, DocumentShare
+from .models import Annotation, Document, DocumentShare
 from .services import webhook_service
 from .services.pdf_metadata_service import apply_pdf_metadata_to_document, is_raw_title
 
@@ -300,6 +300,14 @@ class HierarchicalChunksTests(_MediaTestCase):
         ids_by_parent = {p["parent_id"]: set(p["child_ids"]) for p in parents}
         for chunk in data["chunks"]:
             self.assertIn(chunk["chunk_id"], ids_by_parent[chunk["parent_id"]])
+            self.assertNotIn("parent_text", chunk)  # sent once per parent instead
+        self.assertTrue(all(p["parent_text"] for p in parents))
+
+        # Sections are cached per file version: a second request does not re-extract.
+        with patch("apps.documents.views.extract_sections_from_pdf", return_value=sections) as extract:
+            resp = self.client.get(f"/api/v1/documents/{doc.id}/chunks/?strategy=section_overlap")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        extract.assert_not_called()
 
     def test_existing_strategies_still_work_and_unknown_rejected(self):
         doc = Document.objects.create(owner=self.owner, title="T", extra="Some abstract text " * 30)
@@ -433,17 +441,27 @@ class StartupRecoveryTests(TestCase):
         self.assertFalse(_should_run_startup_recovery(runserver, {}))  # autoreloader parent
         self.assertTrue(_should_run_startup_recovery(runserver, {"RUN_MAIN": "true"}))
         self.assertTrue(_should_run_startup_recovery(runserver + ["--noreload"], {}))
+        # Evaluation scripts / pytest call django.setup() and must never start ingestion.
+        self.assertFalse(_should_run_startup_recovery(["eval/phases/phase_12_combination/scripts/run.py"], {}))
+        self.assertFalse(_should_run_startup_recovery(["pytest"], {}))
+        self.assertTrue(_should_run_startup_recovery(["/usr/bin/gunicorn", "core.wsgi"], {}))
+        self.assertTrue(_should_run_startup_recovery(["serve.py"], {"RAG_STARTUP_RECOVERY": "1"}))
+        self.assertFalse(_should_run_startup_recovery(runserver + ["--noreload"], {"RAG_STARTUP_RECOVERY": "0"}))
 
     def test_stuck_documents_reset_and_enqueued(self):
         owner = User.objects.create_user(username="recover_owner", email="recover_owner@univ.edu", password="pw123456")
         stuck = Document.objects.create(owner=owner, title="Stuck", rag_status="INDEXING", file="documents/stuck.pdf")
         stuck_no_file = Document.objects.create(owner=owner, title="Stuck no file", rag_status="INDEXING")
         done = Document.objects.create(owner=owner, title="Done", rag_status="INDEXED", file="documents/done.pdf")
+        queued = Document.objects.create(owner=owner, title="Queued", rag_status="PENDING", file="documents/queued.pdf")
+        queued_no_file = Document.objects.create(owner=owner, title="Metadata only", rag_status="PENDING")
         with patch("apps.documents.services.webhook_service.trigger_rag_ingestion") as trigger:
-            self.assertEqual(recover_stuck_documents(), 1)
-        trigger.assert_called_once()
-        self.assertEqual(trigger.call_args.kwargs["document_id"], stuck.id)
-        for doc, expected in ((stuck, "PENDING"), (stuck_no_file, "PENDING"), (done, "INDEXED")):
+            self.assertEqual(recover_stuck_documents(), 2)
+        self.assertEqual(
+            sorted(c.kwargs["document_id"] for c in trigger.call_args_list), sorted([stuck.id, queued.id])
+        )
+        for doc, expected in ((stuck, "PENDING"), (stuck_no_file, "PENDING"), (done, "INDEXED"),
+                              (queued, "PENDING"), (queued_no_file, "PENDING")):
             doc.refresh_from_db()
             self.assertEqual(doc.rag_status, expected)
 
@@ -507,10 +525,16 @@ class BulkDocumentActionTests(_MediaTestCase):
         ids = [d.id for d in self.mine] + [self.foreign.id, self.shared_edit.id, self.shared_view.id]
         resp = self._bulk({"action": "move", "ids": ids, "collection_id": self.child.id})
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(sorted(resp.data["succeeded"]), sorted([d.id for d in self.mine] + [self.shared_edit.id]))
+        # Changing a document's collection is owner-only (it could expose the document
+        # through the target collection's shares), so the EDIT share is refused too.
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted(d.id for d in self.mine))
         self.assertEqual(
             self._failed_reasons(resp),
-            {self.foreign.id: "not_found", self.shared_view.id: "permission_denied"},
+            {
+                self.foreign.id: "not_found",
+                self.shared_edit.id: "permission_denied",
+                self.shared_view.id: "permission_denied",
+            },
         )
         for d in self.mine:
             d.refresh_from_db()
@@ -602,3 +626,391 @@ class BulkDocumentActionTests(_MediaTestCase):
         self.assertEqual(parent["document_count"], 0)
         self.assertEqual(parent["children"][0]["id"], self.child.id)
         self.assertEqual(parent["children"][0]["document_count"], 2)
+
+
+# ---------------------------------------------------------------------------
+# Regression tests for the backend bug-fix / security / performance pass (2026-11)
+# ---------------------------------------------------------------------------
+
+class _SharedFixture(_MediaTestCase):
+    """Owner + viewer/commenter/editor shares on one document, plus an outsider."""
+
+    def setUp(self):
+        super().setUp()
+        from ..collections_app.models import Collection, CollectionShare
+        self.Collection = Collection
+        self.CollectionShare = CollectionShare
+        self.viewer = User.objects.create_user(username="fx_viewer", email="fx_viewer@univ.edu", password="pw123456")
+        self.commenter = User.objects.create_user(username="fx_commenter", email="fx_commenter@univ.edu", password="pw123456")
+        self.editor = User.objects.create_user(username="fx_editor", email="fx_editor@univ.edu", password="pw123456")
+        self.outsider = User.objects.create_user(username="fx_outsider", email="fx_outsider@univ.edu", password="pw123456")
+        self.doc = self._doc_with_file(title="Shared paper")
+        for user, perm in ((self.viewer, "VIEW"), (self.commenter, "COMMENT"), (self.editor, "EDIT")):
+            DocumentShare.objects.create(document=self.doc, shared_with_user=user, permission=perm)
+
+    def _as(self, user):
+        self.client.force_authenticate(user=user)
+        return self.client
+
+
+class CollectionPermissionTests(_SharedFixture):
+    def setUp(self):
+        super().setUp()
+        self.col = self.Collection.objects.create(owner=self.owner, name="Owned")
+        for user, perm in ((self.viewer, "VIEW"), (self.editor, "EDIT")):
+            self.CollectionShare.objects.create(collection=self.col, shared_with_user=user, permission=perm)
+        self.url = f"/api/v1/collections/{self.col.id}/"
+
+    def test_shared_users_cannot_rename_move_or_delete(self):
+        other = self.Collection.objects.create(owner=self.editor, name="Editor collection")
+        for user in (self.viewer, self.editor):
+            c = self._as(user)
+            self.assertEqual(c.get(self.url).status_code, status.HTTP_200_OK)
+            self.assertEqual(c.patch(self.url, {"name": "Hacked"}, format="json").status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.put(self.url, {"name": "Hacked"}, format="json").status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.delete(self.url).status_code, status.HTTP_403_FORBIDDEN)
+            self.assertEqual(c.get(f"{self.url}shares/").status_code, status.HTTP_403_FORBIDDEN)
+        resp = self._as(self.editor).patch(self.url, {"parent": other.id}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.col.refresh_from_db()
+        self.assertEqual(self.col.name, "Owned")
+        self.assertIsNone(self.col.parent_id)
+
+        c = self._as(self.owner)
+        self.assertEqual(c.patch(self.url, {"name": "Renamed"}, format="json").status_code, status.HTTP_200_OK)
+        self.assertEqual(c.delete(self.url).status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_parent_must_be_usable_and_not_a_cycle(self):
+        child = self.Collection.objects.create(owner=self.owner, name="Child", parent=self.col)
+        grandchild = self.Collection.objects.create(owner=self.owner, name="Grandchild", parent=child)
+        foreign = self.Collection.objects.create(owner=self.outsider, name="Private")
+        c = self._as(self.owner)
+        for parent in (self.col, child, grandchild):
+            resp = c.patch(self.url, {"parent": parent.id}, format="json")
+            self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST, parent.name)
+        self.assertEqual(c.post("/api/v1/collections/", {"name": "Sneaky", "parent": foreign.id}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        # An EDIT share on the parent allows a subcollection under it; a VIEW share does not.
+        self.assertEqual(self._as(self.editor).post("/api/v1/collections/", {"name": "Sub", "parent": self.col.id},
+                                                    format="json").status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self._as(self.viewer).post("/api/v1/collections/", {"name": "Sub", "parent": self.col.id},
+                                                    format="json").status_code, status.HTTP_400_BAD_REQUEST)
+        # Moving a collection under an unrelated collection of one's own still works.
+        sibling = self.Collection.objects.create(owner=self.owner, name="Sibling")
+        self.assertEqual(self._as(self.owner).patch(f"/api/v1/collections/{child.id}/", {"parent": sibling.id},
+                                                    format="json").status_code, status.HTTP_200_OK)
+
+
+class ShareCreationTests(_SharedFixture):
+    def test_document_share_validation_and_upsert(self):
+        url = f"/api/v1/documents/{self.doc.id}/shares/"
+        c = self._as(self.owner)
+        self.assertEqual(c.post(url, {"permission": "VIEW"}, format="json").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"shared_with_email": self.owner.email}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"shared_with_email": "nobody@univ.edu"}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"shared_with_email": self.outsider.email, "permission": "ADMIN"},
+                                format="json").status_code, status.HTTP_400_BAD_REQUEST)
+        resp = c.post(url, {"shared_with_email": self.outsider.email.upper(), "permission": "VIEW"}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Sharing again changes the level instead of crashing on the unique constraint.
+        resp = c.post(url, {"shared_with_email": self.outsider.email, "permission": "EDIT"}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(DocumentShare.objects.get(document=self.doc, shared_with_user=self.outsider).permission, "EDIT")
+        self.assertEqual(c.delete(f"{url}abc/").status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_collection_share_validation_and_upsert(self):
+        col = self.Collection.objects.create(owner=self.owner, name="C")
+        url = f"/api/v1/collections/{col.id}/shares/"
+        c = self._as(self.owner)
+        self.assertEqual(c.post(url, {}, format="json").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"shared_with_email": self.owner.email}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"shared_with_email": self.viewer.email}, format="json").status_code,
+                         status.HTTP_201_CREATED)
+        self.assertEqual(c.post(url, {"shared_with_email": self.viewer.email, "permission": "COMMENT"},
+                                format="json").status_code, status.HTTP_200_OK)
+        self.assertEqual(self.CollectionShare.objects.get(collection=col).permission, "COMMENT")
+        self.assertEqual(c.delete(f"{url}abc/").status_code, status.HTTP_404_NOT_FOUND)
+
+
+class DocumentUpdateRuleTests(_SharedFixture):
+    def test_trashed_document_can_be_restored_and_deleted(self):
+        Document.objects.filter(id=self.doc.id).update(in_trash=True)
+        resp = self.client.post(f"/api/v1/documents/{self.doc.id}/toggle-trash/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data["in_trash"])
+        Document.objects.filter(id=self.doc.id).update(in_trash=True)
+        self.assertEqual(self.client.get("/api/v1/documents/").data, [])  # the list still hides Trash
+        with patch("apps.documents.views.delete_document_qdrant_data"), patch("apps.documents.views.evict_rag_instance"):
+            self.assertEqual(self.client.delete(f"/api/v1/documents/{self.doc.id}/").status_code,
+                             status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Document.objects.filter(id=self.doc.id).exists())
+
+    def test_edit_share_cannot_change_owner_only_fields(self):
+        mine = self.Collection.objects.create(owner=self.editor, name="Editor own")
+        url = f"/api/v1/documents/{self.doc.id}/"
+        c = self._as(self.editor)
+        for payload in ({"in_trash": True}, {"is_duplicate": True}, {"primary_collection": mine.id}):
+            self.assertEqual(c.patch(url, payload, format="json").status_code, status.HTTP_403_FORBIDDEN, payload)
+        resp = c.patch(url, {"file": SimpleUploadedFile("x.pdf", PDF_BYTES, content_type="application/pdf")},
+                       format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # Unchanged values (a client re-sending the whole form) and plain metadata are fine.
+        resp = c.patch(url, {"title": "Edited", "in_trash": False, "primary_collection": None}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.doc.refresh_from_db()
+        self.assertEqual(self.doc.title, "Edited")
+        self.assertFalse(self.doc.in_trash)
+        self.trigger.assert_not_called()
+        # The owner may change them.
+        self.assertEqual(self._as(self.owner).patch(url, {"is_duplicate": True}, format="json").status_code,
+                         status.HTTP_200_OK)
+
+    def test_replacing_pdf_removes_old_file(self):
+        old_path = self.doc.file.path
+        with patch("apps.documents.views.evict_rag_instance"):
+            resp = self.client.patch(
+                f"/api/v1/documents/{self.doc.id}/",
+                {"file": SimpleUploadedFile("v2.pdf", PDF_BYTES + b" v2", content_type="application/pdf")},
+                format="multipart",
+            )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.doc.refresh_from_db()
+        self.assertTrue(os.path.exists(self.doc.file.path))
+        self.assertFalse(os.path.exists(old_path))
+
+    def test_non_numeric_query_params_are_400(self):
+        self.assertEqual(self.client.get("/api/v1/documents/?collection_id=abc").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.client.get(f"/api/v1/documents/{self.doc.id}/annotations/?page=x").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.client.get("/api/v1/notes/?document_id=x").status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_duplicate_long_fields_missing_file_and_author_order(self):
+        from .models import Author, DocumentAuthor
+        doc = Document.objects.create(owner=self.owner, title="T" * 500, short_title="S" * 255, citation_key="k" * 100)
+        doc.file.name = "documents/missing.pdf"
+        doc.save()
+        for order, last in ((1, "Zed"), (2, "Alpha")):
+            DocumentAuthor.objects.create(document=doc, author=Author.objects.create(last_name=last), author_order=order)
+        resp = self.client.post(f"/api/v1/documents/{doc.id}/duplicate/")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        clone = Document.objects.get(id=resp.data["id"])
+        self.assertEqual(len(clone.title), 500)
+        self.assertEqual(len(clone.citation_key), 100)
+        self.assertFalse(clone.file)
+        self.assertEqual(
+            list(clone.documentauthor_set.order_by("author_order").values_list("author__last_name", flat=True)),
+            ["Zed", "Alpha"],
+        )
+        self.trigger.assert_not_called()
+
+
+class RelatedAndChunksTests(_SharedFixture):
+    def test_related_hides_inaccessible_and_validates_input(self):
+        private = Document.objects.create(owner=self.owner, title="Owner private paper")
+        url = f"/api/v1/documents/{self.doc.id}/related/"
+        c = self._as(self.owner)
+        self.assertEqual(c.post(url, {"related_document_id": private.id}, format="json").status_code, status.HTTP_201_CREATED)
+        self.assertEqual([d["id"] for d in c.get(url).data], [private.id])
+        # The viewer can open the shared document but not the owner's private one.
+        self.assertEqual(self._as(self.viewer).get(url).data, [])
+
+        c = self._as(self.owner)
+        self.assertEqual(c.post(url, {"related_document_id": self.doc.id}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(c.post(url, {"related_document_id": "abc"}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        other = Document.objects.create(owner=self.owner, title="Other")
+        self.assertEqual(c.post(url, {"related_document_id": other.id, "relation_type": "x" * 51},
+                                format="json").status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_chunk_parameters_validated(self):
+        doc = Document.objects.create(owner=self.owner, title="T", extra="Some abstract text " * 30)
+        base = f"/api/v1/documents/{doc.id}/chunks/?strategy=section_overlap"
+        for params in ("&max_tokens=0", "&max_tokens=100000", "&max_tokens=50&overlap=50", "&overlap=-1"):
+            resp = self.client.get(base + params)
+            self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST, params)
+        self.assertEqual(self.client.get(base + "&max_tokens=20&overlap=5").status_code, status.HTTP_200_OK)
+
+
+class AnnotationRouterTests(_SharedFixture):
+    PAYLOAD = {"page_number": 1, "type": "highlight", "color": "#ffeb3b", "rects": [], "selected_text": "x"}
+
+    def test_create_via_router_requires_comment(self):
+        url = "/api/v1/annotations/"
+        payload = dict(self.PAYLOAD, document=self.doc.id)
+        self.assertEqual(self._as(self.viewer).post(url, payload, format="json").status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.outsider).post(url, payload, format="json").status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self._as(self.commenter).post(url, self.PAYLOAD, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        resp = self._as(self.commenter).post(url, payload, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        anno = Annotation.objects.get(id=resp.data["id"])
+        self.assertEqual((anno.document_id, anno.user_id), (self.doc.id, self.commenter.id))
+
+    def test_edit_author_only_delete_author_or_owner(self):
+        anno = Annotation.objects.create(document=self.doc, user=self.commenter, comment="mine")
+        url = f"/api/v1/annotations/{anno.id}/"
+        # The document owner sees it but cannot edit someone else's annotation.
+        self.assertEqual(self._as(self.owner).patch(url, {"comment": "owner edit"}, format="json").status_code,
+                         status.HTTP_403_FORBIDDEN)
+        self.assertEqual(self._as(self.commenter).patch(url, {"comment": "edited"}, format="json").status_code,
+                         status.HTTP_200_OK)
+        # After the share is downgraded to VIEW, the author can no longer edit.
+        DocumentShare.objects.filter(document=self.doc, shared_with_user=self.commenter).update(permission="VIEW")
+        self.assertEqual(self._as(self.commenter).patch(url, {"comment": "again"}, format="json").status_code,
+                         status.HTTP_403_FORBIDDEN)
+        anno.refresh_from_db()
+        self.assertEqual(anno.comment, "edited")
+        # The document owner may delete (moderation).
+        self.assertEqual(self._as(self.owner).delete(url).status_code, status.HTTP_204_NO_CONTENT)
+        # Another collaborator cannot even see someone else's annotation through the router.
+        other = Annotation.objects.create(document=self.doc, user=self.commenter)
+        self.assertEqual(self._as(self.editor).delete(f"/api/v1/annotations/{other.id}/").status_code,
+                         status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self._as(self.commenter).delete(f"/api/v1/annotations/{other.id}/").status_code,
+                         status.HTTP_204_NO_CONTENT)
+
+
+class TagVisibilityTests(_SharedFixture):
+    def test_tags_limited_to_accessible_documents(self):
+        from .models import Tag
+        self.doc.tags.add(Tag.objects.create(name="shared-tag"))
+        secret = Document.objects.create(owner=self.outsider, title="Secret")
+        secret.tags.add(Tag.objects.create(name="secret-project"))
+
+        def names(user):
+            data = self._as(user).get("/api/v1/tags/").data
+            rows = data["results"] if isinstance(data, dict) else data
+            return {t["name"] for t in rows}
+
+        self.assertEqual(names(self.viewer), {"shared-tag"})
+        self.assertIn("secret-project", names(self.outsider))
+        self.assertNotIn("secret-project", names(self.owner))
+
+
+class ProtectedFileTests(_SharedFixture):
+    def test_file_endpoint_permissions(self):
+        url = f"/api/v1/documents/{self.doc.id}/file/"
+        resp = self._as(self.owner).get(url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp["Content-Type"], "application/pdf")
+        self.assertTrue(resp["Content-Disposition"].startswith("inline"))
+        # Consume the stream (the test client then closes it safely; an explicit close()
+        # would fire request_finished and close the test DB connection).
+        self.assertEqual(b"".join(resp.streaming_content), PDF_BYTES)
+        resp = self._as(self.viewer).get(url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(b"".join(resp.streaming_content), PDF_BYTES)
+        self.assertEqual(self._as(self.outsider).get(url).status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(APIClient().get(url).status_code, status.HTTP_401_UNAUTHORIZED)
+
+        no_file = Document.objects.create(owner=self.owner, title="Metadata only")
+        self.assertEqual(self._as(self.owner).get(f"/api/v1/documents/{no_file.id}/file/").status_code,
+                         status.HTTP_404_NOT_FOUND)
+
+    def test_file_url_points_to_api_and_media_not_routed(self):
+        from django.urls import Resolver404, resolve
+        resp = self._as(self.owner).get(f"/api/v1/documents/{self.doc.id}/")
+        self.assertTrue(resp.data["file_url"].endswith(f"/api/v1/documents/{self.doc.id}/file/"))
+        listed = self.client.get("/api/v1/documents/").data
+        self.assertTrue(listed[0]["file_url"].endswith(f"/api/v1/documents/{self.doc.id}/file/"))
+        with self.assertRaises(Resolver404):
+            resolve(f"/media/{self.doc.file.name}")
+        self.assertEqual(self.client.get(f"/media/{self.doc.file.name}").status_code, status.HTTP_404_NOT_FOUND)
+
+
+class RagStatusAndReadinessTests(_SharedFixture):
+    def test_batched_rag_status(self):
+        secret = Document.objects.create(owner=self.outsider, title="Secret", rag_status="FAILED")
+        url = "/api/v1/documents/rag-status/"
+        resp = self._as(self.viewer).get(f"{url}?ids={self.doc.id},{secret.id},999999")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data, [{"id": self.doc.id, "rag_status": "INDEXED"}])
+        for query in ("", "?ids=", "?ids=1,x", "?ids=" + ",".join(str(i) for i in range(101))):
+            self.assertEqual(self.client.get(url + query).status_code, status.HTTP_400_BAD_REQUEST, query)
+
+    def test_chat_and_summary_409_while_pending_with_file(self):
+        Document.objects.filter(id=self.doc.id).update(rag_status="PENDING")
+        with patch("apps.documents.views.query_document") as q, patch("apps.documents.views.summarize_document") as s:
+            r1 = self.client.post(f"/api/v1/documents/{self.doc.id}/chat/", {"question": "Q?"}, format="json")
+            r2 = self.client.post(f"/api/v1/documents/{self.doc.id}/summarize/", {}, format="json")
+        for resp in (r1, r2):
+            self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+            self.assertEqual(resp.data["code"], "indexing")
+        q.assert_not_called()
+        s.assert_not_called()
+
+    def test_default_reindex_is_queued(self):
+        url = f"/api/v1/documents/{self.doc.id}/reindex/"
+        with patch("apps.documents.views.reindex_document") as reindex, \
+             patch("apps.documents.views.evict_rag_instance") as evict:
+            resp = self.client.post(url, {}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(resp.data["status"], "PENDING")
+        reindex.assert_not_called()
+        evict.assert_called_once_with(self.doc.id)
+        self.trigger.assert_called_once()
+        self.doc.refresh_from_db()
+        self.assertEqual(self.doc.rag_status, "PENDING")
+
+        Document.objects.filter(id=self.doc.id).update(rag_status="INDEXING")
+        self.assertEqual(self.client.post(url, {}, format="json").status_code, status.HTTP_409_CONFLICT)
+
+    def test_chat_is_throttled(self):
+        from django.core.cache import cache
+        from rest_framework.throttling import ScopedRateThrottle
+        cache.clear()
+        self.addCleanup(cache.clear)
+        with patch.object(ScopedRateThrottle, "THROTTLE_RATES", {"chat": "2/min"}), \
+             patch("apps.documents.views.query_document", return_value={"answer": "ok"}):
+            codes = [
+                self.client.post(f"/api/v1/documents/{self.doc.id}/chat/", {"question": "Q?"}, format="json").status_code
+                for _ in range(3)
+            ]
+        self.assertEqual(codes, [200, 200, 429])
+
+
+class MetadataEndpointTests(_MediaTestCase):
+    def test_metadata_endpoints_require_authentication(self):
+        anon = APIClient()
+        self.assertEqual(anon.post("/api/v1/metadata/lookup-doi/", {"doi": "10.1/x"}, format="json").status_code,
+                         status.HTTP_401_UNAUTHORIZED)
+        upload = SimpleUploadedFile("p.pdf", PDF_BYTES, content_type="application/pdf")
+        self.assertEqual(anon.post("/api/v1/metadata/extract-pdf/", {"file": upload}, format="multipart").status_code,
+                         status.HTTP_401_UNAUTHORIZED)
+
+    def test_doi_must_be_a_short_string(self):
+        with patch("apps.documents.views.fetch_metadata_from_doi") as fetch:
+            for doi in (42, ["10.1/x"], "x" * 300):
+                resp = self.client.post("/api/v1/metadata/lookup-doi/", {"doi": doi}, format="json")
+                self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST, doi)
+            fetch.assert_not_called()
+
+    def test_extract_size_cap_and_first_pages_only(self):
+        import pymupdf
+        upload = SimpleUploadedFile("p.pdf", PDF_BYTES, content_type="application/pdf")
+        with patch("apps.documents.views.MAX_UPLOAD_BYTES", 10):
+            resp = self.client.post("/api/v1/metadata/extract-pdf/", {"file": upload}, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        pdf = pymupdf.open()
+        for _ in range(12):
+            pdf.new_page()
+        data = pdf.tobytes()
+        pdf.close()
+        seen = {}
+
+        def fake_extract(path):
+            with pymupdf.open(path) as d:
+                seen["pages"] = d.page_count
+            return {"title": "T", "authors": []}
+
+        with patch("apps.documents.views.extract_metadata_from_pdf", side_effect=fake_extract):
+            resp = self.client.post("/api/v1/metadata/extract-pdf/",
+                                    {"file": SimpleUploadedFile("long.pdf", data, content_type="application/pdf")},
+                                    format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(seen["pages"], 5)

@@ -12,5 +12,8 @@ This directory holds the system architecture diagrams, use-case figures and desi
 
 ## 2. Design Notes
 
+* **`design/RAG_SERVICE_REVIEW.md`**: Review of `services/` (bugs, thread safety, security, performance); fixes deferred until the combination run ends.
+* **`design/CONTEXT_RETRY_PLAN.md`**: Planned FR-16: fetch the next-ranked sections when the model refuses (`strict`/`once`/`loop`); not implemented.
+* **`design/DEPLOYMENT_PLAN.md`**: Deferred until after the graduation project: desktop client + one project-hosted server (backend, storage, Ollama); lists why it does not scale.
 * **`design/FILE_STORAGE_PLAN.md`**: Planned move of PDF storage behind permission checks (after the evaluation work).
 * **`metadata_extract.txt`**: Notes on the PDF metadata extraction flow.

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Collection } from '../types';
 import { collectionsApi, type CollectionNode } from '../api/collectionsApi';
+import { describeApiError } from './useDocuments';
 
 function mapNodeToCollection(node: CollectionNode): Collection {
   return {
@@ -16,17 +17,20 @@ function mapNodeToCollection(node: CollectionNode): Collection {
 export interface UseCollectionsReturn {
   collections: Collection[];
   isLoading: boolean;
+  /** Set when the last load failed (the previous tree, if any, is kept). */
+  error: string | null;
   refetch: () => void;
   createCollection: (data: { name: string; color?: string; parentId?: string | null }) => Promise<Collection>;
 }
 
 /**
  * Fetches the live collection tree from the Django API.
- * Falls back to an empty array on error (backend offline).
+ * On error the previous tree is kept and `error` is set so the sidebar can offer a retry.
  */
 export function useCollections(): UseCollectionsReturn {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   useEffect(() => {
@@ -37,11 +41,12 @@ export function useCollections(): UseCollectionsReturn {
       .then((nodes) => {
         if (!isMounted) return;
         setCollections(nodes.map(mapNodeToCollection));
+        setError(null);
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn('Collections API offline, sidebar will show empty collections:', err);
-        setCollections([]);
+        console.warn('Failed to load collections:', err);
+        setError(describeApiError(err, 'Could not load collections'));
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -65,5 +70,5 @@ export function useCollections(): UseCollectionsReturn {
     return mapNodeToCollection(node);
   }, [refetch]);
 
-  return { collections, isLoading, refetch, createCollection };
+  return { collections, isLoading, error, refetch, createCollection };
 }

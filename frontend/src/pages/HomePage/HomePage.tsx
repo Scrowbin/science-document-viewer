@@ -45,6 +45,9 @@ function buildCitation(doc: Document): string {
 
 const INCLUDE_SUBCOLLECTIONS_KEY = 'library.includeSubcollections';
 
+/** FR-02: the server rejects PDFs larger than this. */
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+
 function readIncludeSubcollections(): boolean {
   try {
     return window.localStorage.getItem(INCLUDE_SUBCOLLECTIONS_KEY) === '1';
@@ -81,6 +84,7 @@ export function HomePage() {
     reloadDocuments,
     refreshDocument,
     setDocumentRagStatus,
+    setDocumentRagStatuses,
     handleDeleteDocument,
     handleRestoreDocument,
     handleUpdateDocument,
@@ -88,6 +92,7 @@ export function HomePage() {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleRetryIndexing,
     handleBulkAction,
     handleFileUpload,
     uploadModalFile,
@@ -106,6 +111,7 @@ export function HomePage() {
     isLookingUpDoi,
     isSavingDoi,
     doiPreview,
+    doiError,
     openDoiModal,
     closeDoiModal,
     setDoiInput,
@@ -113,7 +119,13 @@ export function HomePage() {
     handleSaveDoiDocument,
   } = useDoiModal(showToast);
 
-  const { collections, createCollection, refetch: refetchCollections } = useCollections();
+  const {
+    collections,
+    isLoading: isLoadingCollections,
+    error: collectionsError,
+    createCollection,
+    refetch: refetchCollections,
+  } = useCollections();
 
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [inspectingDoc, setInspectingDoc] = useState<Document | null>(null);
@@ -258,8 +270,16 @@ export function HomePage() {
     if (activeTab?.type === 'pdf' && activeTab.documentId) {
       return documents.find((d) => d.id === activeTab.documentId) ?? null;
     }
+    // A generic viewer tab never mirrors a document that already has its own tab.
+    if (selectedDoc && tabs.some((t) => t.documentId === selectedDoc.id)) return null;
     return selectedDoc;
-  }, [activeTab, selectedDoc, documents]);
+  }, [activeTab, selectedDoc, documents, tabs]);
+
+  /** Generic viewer tab whose selected document is open in its own tab (shown instead). */
+  const selectedDocTab = useMemo(
+    () => (selectedDoc ? tabs.find((t) => t.documentId === selectedDoc.id) ?? null : null),
+    [selectedDoc, tabs]
+  );
 
   /** Document shown in the metadata panel. */
   const panelDoc = isLibraryView ? visibleSoleDoc : activePdfDoc;
@@ -271,18 +291,27 @@ export function HomePage() {
     if (isLibraryView) return processedDocuments;
     return activePdfDoc ? [activePdfDoc] : [];
   }, [isLibraryView, processedDocuments, activePdfDoc]);
-  useRagStatusPolling(visibleDocuments, refreshDocument);
+  useRagStatusPolling(visibleDocuments, refreshDocument, setDocumentRagStatuses);
 
   // Load full detail (user_permission, domains, extra, ...) for documents being viewed,
-  // since the list endpoint omits those fields. Attempted at most once per id.
+  // since the list endpoint omits those fields. One request per id at a time; a failed
+  // request is forgotten so the next selection of that document tries again.
   const detailRequestedRef = useRef(new Set<string>());
+  const panelDocId = panelDoc?.id ?? null;
+  const activePdfDocId = activePdfDoc?.id ?? null;
   useEffect(() => {
     [panelDoc, activePdfDoc].forEach((doc) => {
       if (!doc || doc.userPermission || detailRequestedRef.current.has(doc.id)) return;
-      detailRequestedRef.current.add(doc.id);
-      refreshDocument(doc.id).catch((err) => console.warn('Failed to load document detail:', err));
+      const id = doc.id;
+      detailRequestedRef.current.add(id);
+      refreshDocument(id).catch((err) => {
+        console.warn('Failed to load document detail:', err);
+        detailRequestedRef.current.delete(id);
+      });
     });
-  }, [panelDoc, activePdfDoc, refreshDocument]);
+    // Only re-run when a different document is shown, not on every update of the same one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panelDocId, activePdfDocId, refreshDocument]);
 
   // ─── Tab Handlers ─────────────────────────────────────────────────────────
   const activateTab = useCallback((tab: AppTab) => {
@@ -298,11 +327,14 @@ export function HomePage() {
   }, [tabs, activateTab]);
 
   const handleCloseTab = useCallback((idToClose: string) => {
+    const closedIdx = tabs.findIndex((t) => t.id === idToClose);
+    if (closedIdx === -1) return;
     const remaining = tabs.filter((t) => t.id !== idToClose);
     const nextTabs = remaining.length === 0 ? [LIBRARY_TAB] : remaining;
     setTabs(nextTabs);
     if (activeTabId === idToClose) {
-      activateTab(nextTabs[nextTabs.length - 1]);
+      // Browser-like: the neighbour to the right takes over, else the one to the left.
+      activateTab(nextTabs[Math.min(closedIdx, nextTabs.length - 1)]);
     }
   }, [tabs, activeTabId, activateTab]);
 
@@ -326,13 +358,19 @@ export function HomePage() {
   // ─── Document Handlers ────────────────────────────────────────────────────
   const handleOpenPdf = useCallback((doc: Document) => {
     selectOnly(doc.id);
+    // A document already open in a tab is focused there, never opened twice.
+    const existing = tabs.find((t) => t.documentId === doc.id);
+    if (existing) {
+      setActiveTabId(existing.id);
+      return;
+    }
     const tabId = `pdf-${doc.id}`;
     setTabs((prev) => {
-      if (prev.some((t) => t.id === tabId)) return prev;
+      if (prev.some((t) => t.id === tabId || t.documentId === doc.id)) return prev;
       return [...prev, { id: tabId, title: doc.metadata.shortTitle || doc.title, type: 'pdf', documentId: doc.id, closable: true }];
     });
     setActiveTabId(tabId);
-  }, [selectOnly]);
+  }, [selectOnly, tabs]);
 
   const handleCopyCitation = useCallback((doc: Document) => {
     const citation = buildCitation(doc);
@@ -392,9 +430,11 @@ export function HomePage() {
         if (tag && tag.trim()) void handleBulkAction('add_tag', ids, { tag: tag.trim() });
       },
       onTrash: () => {
+        clearSelection();
         void handleBulkAction('trash', ids);
       },
       onRestore: () => {
+        clearSelection();
         void handleBulkAction('restore', ids);
       },
       onDeletePermanently: () => {
@@ -403,6 +443,7 @@ export function HomePage() {
         );
         if (!ok) return;
         closeTabsForDocuments(ids);
+        clearSelection();
         void handleBulkAction('delete', ids);
       },
       onClearSelection: clearSelection,
@@ -460,14 +501,9 @@ export function HomePage() {
   // ─── Collection Handlers ──────────────────────────────────────────────────
   const handleCreateCollection = useCallback(
     async (name: string, color?: string, parentId?: string | null) => {
-      try {
-        await createCollection({ name, color, parentId });
-        showToast(`Collection "${name}" created successfully`);
-      } catch (err) {
-        console.error('Failed to create collection:', err);
-        showToast('Failed to create collection', 'error');
-        throw err;
-      }
+      // Errors propagate to the modal, which shows them next to the form.
+      await createCollection({ name, color, parentId });
+      showToast(`Collection "${name}" created`);
     },
     [createCollection, showToast]
   );
@@ -498,13 +534,45 @@ export function HomePage() {
     [handleAddTagToDocument, selectOnly]
   );
 
-  const handlePickFile = useCallback((file: File | undefined) => {
-    if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
-      void handleFileUpload(file);
-    } else if (file) {
-      showToast('Only PDF files can be imported', 'error');
+  const handlePickFile = useCallback((files: FileList | null | undefined) => {
+    const file = files?.[0];
+    if (!file) return;
+    if (uploadModalFile) {
+      // Never swap the file under an import that is being reviewed or uploaded.
+      showToast('Finish or cancel the current import first', 'error');
+      return;
     }
-  }, [handleFileUpload, showToast]);
+    if (!(file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
+      showToast('Only PDF files can be imported', 'error');
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      showToast(`"${file.name}" is larger than the 50 MB limit`, 'error');
+      return;
+    }
+    if (files && files.length > 1) {
+      showToast(`One PDF is imported at a time; importing "${file.name}"`);
+    }
+    void handleFileUpload(file);
+  }, [handleFileUpload, showToast, uploadModalFile]);
+
+  // Why the table is empty, in the user's terms.
+  const tableEmptyMessage = useMemo(() => {
+    if (isLoadingDocs && documents.length === 0) return 'Loading library…';
+    if (loadError && documents.length === 0) return 'Could not load your library. Use Retry above once the server is reachable.';
+    if (searchQuery.trim()) return `No documents match "${searchQuery.trim()}".`;
+    if (isTrashView) return 'Trash is empty.';
+    if (selectedTag) return `No documents are tagged "${selectedTag}".`;
+    if (selectedCollectionId) {
+      return includeSubcollections
+        ? 'This collection and its subcollections are empty. Drag documents onto the folder to add them.'
+        : 'No documents are filed directly in this collection. Drag documents onto the folder to add them.';
+    }
+    if (navItemCounts.all === 0) {
+      return 'Your library is empty. Use Add → Upload PDF File, drop a PDF here, or add a paper from its DOI.';
+    }
+    return 'No documents in this view.';
+  }, [isLoadingDocs, loadError, documents.length, searchQuery, isTrashView, selectedTag, selectedCollectionId, includeSubcollections, navItemCounts.all]);
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -518,7 +586,7 @@ export function HomePage() {
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
-          handlePickFile(e.dataTransfer.files?.[0]);
+          handlePickFile(e.dataTransfer.files);
         }}
       >
         {/* 1. Tab Bar + User Menu */}
@@ -580,6 +648,9 @@ export function HomePage() {
               setActiveTabId(LIBRARY_TAB.id);
             }}
             onCreateCollection={handleCreateCollection}
+            collectionsError={collectionsError}
+            isLoadingCollections={isLoadingCollections}
+            onRetryCollections={refetchCollections}
             onDropDocsOnCollection={handleDropDocsOnCollection}
             includeSubcollections={includeSubcollections}
             onToggleIncludeSubcollections={() => setIncludeSubcollections((v) => !v)}
@@ -646,14 +717,25 @@ export function HomePage() {
                   onAddToCollection={handleAddToCollection}
                   onAddTag={handleAddTagPrompt}
                   onInspectChunks={setInspectingDoc}
+                  onRetryIndexing={(doc) => void handleRetryIndexing(doc)}
                   isTrashView={isTrashView}
                   isLoading={isLoadingDocs && documents.length === 0}
+                  emptyMessage={tableEmptyMessage}
                   sortState={sortState}
                   onToggleSort={handleToggleSort}
                 />
               </>
             ) : activePdfDoc ? (
               <PdfViewer document={activePdfDoc} />
+            ) : selectedDocTab ? (
+              <div className={styles.emptyViewer}>
+                <span>
+                  <strong>{selectedDocTab.title}</strong> is already open in its own tab.{' '}
+                  <button type="button" className={styles.viewerLinkBtn} onClick={() => activateTab(selectedDocTab)}>
+                    Go to tab
+                  </button>
+                </span>
+              </div>
             ) : (
               <div className={styles.emptyViewer}>
                 Select a document in the Library and choose <strong>Open PDF</strong> to view it here.
@@ -665,7 +747,7 @@ export function HomePage() {
             document={panelDoc}
             isEditing={Boolean(panelDoc && editingDocId === panelDoc.id)}
             onToggleEdit={(editing) => setEditingDocId(editing && panelDoc ? panelDoc.id : null)}
-            onUpdateDocument={(doc) => void handleUpdateDocument(doc)}
+            onUpdateDocument={handleUpdateDocument}
             collections={collections}
             onSetCollection={handleAddToCollection}
             onInspectChunks={setInspectingDoc}
@@ -696,7 +778,7 @@ export function HomePage() {
           aria-hidden="true"
           tabIndex={-1}
           onChange={(e) => {
-            handlePickFile(e.target.files?.[0]);
+            handlePickFile(e.target.files);
             if (fileInputRef.current) fileInputRef.current.value = '';
           }}
         />
@@ -707,6 +789,7 @@ export function HomePage() {
           isLookingUpDoi={isLookingUpDoi}
           isSaving={isSavingDoi}
           doiPreview={doiPreview}
+          error={doiError}
           onInputChange={setDoiInput}
           onLookup={() => void handleLookupDoi()}
           onSave={() =>

@@ -22,7 +22,8 @@ Methods, data, results and limitations are documented in [`eval/README.md`](eval
 ### Scope & limitations
 1. **Language:** English-only scientific literature (QASPER: NLP/ML arXiv papers).
 2. **Component-level evaluation:** component results do not add up to an end-to-end quality figure; the generation experiment uses gold evidence, not retrieved context. The combination experiment measures complete pipelines.
-3. **Hardware:** commodity desktop (CPU only, about 16 GB RAM, local Ollama).
+3. **Hardware:** evaluated on a commodity machine (CPU only, about 16 GB RAM, Ollama).
+4. **Proof of concept, not scalable as is:** everything runs locally on one machine and handles about one answer at a time. A desktop client + shared server model is a future extension, deferred until after the graduation project (see [`docs/design/DEPLOYMENT_PLAN.md`](docs/design/DEPLOYMENT_PLAN.md)).
 
 ---
 

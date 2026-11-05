@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId, useRef } from 'react';
 import axios from 'axios';
 import styles from './CreateCollectionModal.module.css';
 import type { Collection } from '../../types';
 import { FaFolderPlus, FaXmark, FaSpinner } from 'react-icons/fa6';
+import { useFocusTrap } from '../common/useFocusTrap';
 
 export interface CreateCollectionModalProps {
   isOpen: boolean;
@@ -39,8 +40,12 @@ function flattenTree(items: Collection[], depth = 0): FlattenedOption[] {
   return result;
 }
 
-export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
-  isOpen,
+export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({ isOpen, ...rest }) => {
+  if (!isOpen) return null;
+  return <CreateCollectionDialog {...rest} />;
+};
+
+const CreateCollectionDialog: React.FC<Omit<CreateCollectionModalProps, 'isOpen'>> = ({
   onClose,
   onCreate,
   existingCollections,
@@ -53,27 +58,39 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const flatOptions = useMemo(() => flattenTree(existingCollections), [existingCollections]);
+  const idPrefix = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const isSubmittingRef = useRef(false);
 
-  if (!isOpen) return null;
+  const requestClose = () => {
+    if (!isSubmittingRef.current) onClose();
+  };
+  useFocusTrap(dialogRef, { onEscape: requestClose, initialFocusRef: nameInputRef });
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isSubmittingRef.current) return;
     const trimmed = name.trim();
     if (!trimmed) {
       setError('Collection name cannot be empty.');
       return;
     }
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     setError(null);
     try {
       await onCreate(trimmed, color, parentId ? parentId : null);
+      isSubmittingRef.current = false;
       onClose();
     } catch (err: unknown) {
       let msg = 'Failed to create collection.';
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 401) {
           msg = 'Session expired or unauthenticated. Please sign in again.';
+        } else if (err.response?.status === 429) {
+          msg = 'Too many requests. Please wait a moment and try again.';
         } else if (err.response?.data && typeof err.response.data === 'object') {
           const firstErr = Object.values(err.response.data)[0];
           msg = Array.isArray(firstErr) ? String(firstErr[0]) : String(firstErr);
@@ -85,6 +102,7 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
       }
       setError(msg);
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -92,24 +110,32 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
   return (
     <div
       className={styles.modalBackdrop}
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) requestClose();
+      }}
     >
-      <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={dialogRef}
+        className={styles.modalDialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`${idPrefix}-title`}
+        tabIndex={-1}
+      >
         <div className={styles.modalHeader}>
-          <div className={styles.modalTitle} id="modal-title">
-            <FaFolderPlus style={{ color }} />
+          <div className={styles.modalTitle} id={`${idPrefix}-title`}>
+            <FaFolderPlus aria-hidden="true" style={{ color }} />
             <span>New Collection</span>
           </div>
           <button
             type="button"
             className={styles.modalCloseBtn}
-            onClick={onClose}
-            title="Close modal (Esc)"
+            onClick={requestClose}
+            disabled={isSubmitting}
+            title="Close (Esc)"
+            aria-label="Close"
           >
-            <FaXmark />
+            <FaXmark aria-hidden="true" />
           </button>
         </div>
 
@@ -117,11 +143,12 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
           <div className={styles.modalBody}>
             {/* Collection Name */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="collection-name-input">
+              <label className={styles.formLabel} htmlFor={`${idPrefix}-name`}>
                 Name
               </label>
               <input
-                id="collection-name-input"
+                id={`${idPrefix}-name`}
+                ref={nameInputRef}
                 type="text"
                 className={styles.textInput}
                 placeholder="e.g. Machine Learning, Neuroscience..."
@@ -130,22 +157,24 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                   setName(e.target.value);
                   if (error) setError(null);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') onClose();
-                }}
-                autoFocus
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? `${idPrefix}-error` : undefined}
                 disabled={isSubmitting}
               />
-              {error && <span className={styles.errorMessage}>{error}</span>}
+              {error && (
+                <span id={`${idPrefix}-error`} className={styles.errorMessage} role="alert">
+                  {error}
+                </span>
+              )}
             </div>
 
             {/* Parent Collection (Optional) */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel} htmlFor="collection-parent-select">
+              <label className={styles.formLabel} htmlFor={`${idPrefix}-parent`}>
                 Parent Collection (Optional)
               </label>
               <select
-                id="collection-parent-select"
+                id={`${idPrefix}-parent`}
                 className={styles.selectInput}
                 value={parentId}
                 onChange={(e) => setParentId(e.target.value)}
@@ -164,8 +193,8 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
 
             {/* Color Selector */}
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Folder Color</label>
-              <div className={styles.colorPickerRow}>
+              <span className={styles.formLabel} id={`${idPrefix}-color`}>Folder Color</span>
+              <div className={styles.colorPickerRow} role="group" aria-labelledby={`${idPrefix}-color`}>
                 {PRESET_COLORS.map((c) => (
                   <button
                     key={c}
@@ -175,6 +204,8 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
                     onClick={() => setColor(c)}
                     title={c}
                     aria-label={`Select color ${c}`}
+                    aria-pressed={color === c}
+                    disabled={isSubmitting}
                   />
                 ))}
               </div>
@@ -185,7 +216,7 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
             <button
               type="button"
               className={styles.btnSecondary}
-              onClick={onClose}
+              onClick={requestClose}
               disabled={isSubmitting}
             >
               Cancel
@@ -197,7 +228,7 @@ export const CreateCollectionModal: React.FC<CreateCollectionModalProps> = ({
             >
               {isSubmitting ? (
                 <>
-                  <FaSpinner className="fa-spin" />
+                  <FaSpinner className={styles.spinnerIcon} aria-hidden="true" />
                   <span>Creating...</span>
                 </>
               ) : (

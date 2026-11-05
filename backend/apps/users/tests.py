@@ -105,3 +105,59 @@ class AuthTestCase(TestCase):
             self.refresh_url, {"refresh": refresh_token}, format="json"
         )
         self.assertEqual(fail_refresh.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class AuthHardeningTests(TestCase):
+    """Registration validation, email/username login rules and auth throttling (2026-11)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username="alice", email="Alice@Example.com", password="Password123!"
+        )
+
+    def _register(self, **overrides):
+        payload = {"username": "bob", "email": "bob@example.com", "password": "StrongPassword123!"}
+        payload.update(overrides)
+        return self.client.post("/api/v1/auth/register/", payload, format="json")
+
+    def test_registration_validation(self):
+        self.assertEqual(self._register(username="bob@example").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._register(password="password").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._register(password="12345678901").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._register(email="alice@example.com").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._register().status_code, status.HTTP_201_CREATED)
+
+    def test_login_by_email_case_insensitive_and_inactive_rejected(self):
+        url = "/api/v1/auth/token/"
+        for ident in ("alice", "alice@example.com", "ALICE@EXAMPLE.COM"):
+            resp = self.client.post(url, {"username": ident, "password": "Password123!"}, format="json")
+            self.assertEqual(resp.status_code, status.HTTP_200_OK, ident)
+        resp = self.client.post(url, {"username": "alice@example.com", "password": "wrong"}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.user.is_active = False
+        self.user.save()
+        resp = self.client.post(url, {"username": "alice", "password": "Password123!"}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        from django.contrib.auth import authenticate
+        self.assertIsNone(authenticate(username="alice", password="Password123!"))
+
+    def test_logout_requires_valid_refresh_token(self):
+        self.assertEqual(self.client.post("/api/v1/auth/logout/", {}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.client.post("/api/v1/auth/logout/", {"refresh": "garbage"}, format="json").status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_login_is_throttled(self):
+        from unittest.mock import patch
+        from django.core.cache import cache
+        from rest_framework.throttling import ScopedRateThrottle
+        cache.clear()
+        self.addCleanup(cache.clear)
+        with patch.object(ScopedRateThrottle, "THROTTLE_RATES", {"auth": "2/min"}):
+            codes = [
+                self.client.post("/api/v1/auth/token/", {"username": "alice", "password": "x"}, format="json").status_code
+                for _ in range(3)
+            ]
+        self.assertEqual(codes, [401, 401, 429])

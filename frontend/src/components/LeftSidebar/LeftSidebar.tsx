@@ -19,6 +19,15 @@ import { useTagTooltip } from '../../hooks/useTagTooltip';
 import { CreateCollectionModal } from '../CreateCollectionModal/CreateCollectionModal';
 import { DOC_IDS_DRAG_TYPE } from '../DocumentTable/DocumentTable';
 
+/** Enter/Space activates a custom (div) button, like a native one. */
+function activateOnKey(e: React.KeyboardEvent<HTMLElement>, action: () => void) {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    action();
+  }
+}
+
 /** Document ids carried by a drag from the document table (one or many rows). */
 function readDraggedDocIds(dt: DataTransfer): string[] {
   const json = dt.getData(DOC_IDS_DRAG_TYPE);
@@ -42,6 +51,10 @@ export interface LeftSidebarProps {
   selectedCollectionId: string | null;
   onSelectCollection: (id: string | null) => void;
   onCreateCollection?: (name: string, color?: string, parentId?: string | null) => Promise<void>;
+  /** Message when the collection tree could not be loaded. */
+  collectionsError?: string | null;
+  isLoadingCollections?: boolean;
+  onRetryCollections?: () => void;
   /** Documents dropped on a collection folder (one id, or every row of a multi-selection). */
   onDropDocsOnCollection?: (docIds: string[], colId: string, colName: string) => void;
   /** Show items from subcollections when a collection is selected (counts follow the same rule). */
@@ -65,6 +78,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   selectedCollectionId,
   onSelectCollection,
   onCreateCollection,
+  collectionsError = null,
+  isLoadingCollections = false,
+  onRetryCollections,
   onDropDocsOnCollection,
   includeSubcollections = false,
   onToggleIncludeSubcollections,
@@ -176,6 +192,19 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           }`}
           style={!collapsed && depth > 0 ? { paddingLeft: `${12 + depth * 14}px` } : undefined}
           onClick={() => onSelectCollection(isActive ? null : col.id)}
+          onKeyDown={(e) => {
+            if (hasChildren && e.target === e.currentTarget && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+              e.preventDefault();
+              if ((e.key === 'ArrowRight') !== isExpanded) toggleExpandCollection(col.id);
+              return;
+            }
+            activateOnKey(e, () => onSelectCollection(isActive ? null : col.id));
+          }}
+          role="button"
+          tabIndex={0}
+          aria-pressed={isActive}
+          aria-expanded={hasChildren && !collapsed ? isExpanded : undefined}
+          aria-label={`${col.name}, ${col.count ?? 0} document${(col.count ?? 0) === 1 ? '' : 's'}`}
           title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
           onDragOver={(e) => {
             if (onDropDocsOnCollection) {
@@ -207,7 +236,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 toggleExpandCollection(col.id);
               }}
               style={{ display: 'inline-flex', alignItems: 'center', fontSize: '9px', color: 'var(--text-muted)' }}
-              title={isExpanded ? 'Collapse' : 'Expand'}
+              title={isExpanded ? 'Collapse (Left arrow)' : 'Expand (Right arrow)'}
+              aria-hidden="true"
             >
               {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
             </span>
@@ -215,6 +245,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <FaFolder
             className={styles.sidebarIcon}
             style={{ color: col.color || undefined }}
+            aria-hidden="true"
           />
           {!collapsed && (
             <>
@@ -230,10 +261,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     e.stopPropagation();
                     openModalWithParent(col.id);
                   }}
+                  onKeyDown={(e) => e.stopPropagation()}
                   title={`Add sub-collection to ${col.name}`}
                   aria-label={`Add sub-collection to ${col.name}`}
                 >
-                  <FaPlus />
+                  <FaPlus aria-hidden="true" />
                 </button>
               )}
             </>
@@ -257,6 +289,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   e.stopPropagation();
                   onSelectDoc?.(d.id);
                 }}
+                onKeyDown={(e) => activateOnKey(e, () => onSelectDoc?.(d.id))}
+                role="button"
+                tabIndex={0}
+                aria-pressed={selectedDocId === d.id}
                 title={d.title}
               >
                 <FaFileLines className={styles.nestedDocIcon} />
@@ -295,10 +331,13 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div
             className={styles.sidebarHeaderTitle}
             onClick={() => onSelectNav('all')}
+            onKeyDown={(e) => activateOnKey(e, () => onSelectNav('all'))}
+            role="button"
+            tabIndex={0}
             style={{ cursor: 'pointer' }}
             title="All Documents in My Library"
           >
-            <FaBook />
+            <FaBook aria-hidden="true" />
             <span>My Library</span>
           </div>
         )}
@@ -309,7 +348,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <FaAnglesRight /> : <FaAnglesLeft />}
+          {collapsed ? <FaAnglesRight aria-hidden="true" /> : <FaAnglesLeft aria-hidden="true" />}
         </button>
       </div>
 
@@ -327,9 +366,14 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 collapsed ? styles.sidebarItemCollapsed : ''
               } ${isActive ? styles.sidebarItemActive : ''}`}
               onClick={() => onSelectNav(item.id)}
+              onKeyDown={(e) => activateOnKey(e, () => onSelectNav(item.id))}
+              role="button"
+              tabIndex={0}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={count !== undefined ? `${item.label}, ${count}` : item.label}
               title={collapsed ? `${item.label} (${count ?? 0})` : undefined}
             >
-              <Icon className={styles.sidebarIcon} />
+              <Icon className={styles.sidebarIcon} aria-hidden="true" />
               {!collapsed && (
                 <>
                   <span className={styles.sidebarItemLabel}>{item.label}</span>
@@ -361,7 +405,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     : 'Showing only items filed directly in a collection (click to include subcollections)'
                 }
               >
-                <FaSitemap />
+                <FaSitemap aria-hidden="true" />
               </button>
             )}
             {onCreateCollection && (
@@ -372,7 +416,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 title="New Collection"
                 aria-label="New Collection"
               >
-                <FaPlus />
+                <FaPlus aria-hidden="true" />
               </button>
             )}
           </div>
@@ -381,11 +425,33 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             <div
               className={`${styles.sidebarItem} ${styles.sidebarItemCollapsed}`}
               onClick={() => openModalWithParent(null)}
+              onKeyDown={(e) => activateOnKey(e, () => openModalWithParent(null))}
+              role="button"
+              tabIndex={0}
+              aria-label="New Collection"
               title="New Collection"
             >
-              <FaPlus className={styles.sidebarIcon} />
+              <FaPlus className={styles.sidebarIcon} aria-hidden="true" />
             </div>
           )
+        )}
+        {!collapsed && collectionsError && (
+          <div className={styles.sidebarNotice} role="alert">
+            <span>{collectionsError.replace(/\.$/, '')}.</span>
+            {onRetryCollections && (
+              <button
+                type="button"
+                className={styles.sidebarNoticeBtn}
+                onClick={onRetryCollections}
+                disabled={isLoadingCollections}
+              >
+                {isLoadingCollections ? 'Retrying…' : 'Retry'}
+              </button>
+            )}
+          </div>
+        )}
+        {!collapsed && !collectionsError && !isLoadingCollections && collections.length === 0 && (
+          <div className={styles.sidebarHint}>No collections yet. Use + to create one.</div>
         )}
         {collections.map((col) => renderCollectionNode(col, 0))}
       </div>
@@ -420,6 +486,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           {!isTagsCollapsed && (
             <div className={styles.tagListWrapper}>
               <div className={styles.tagListContainer}>
+                {tags.length === 0 && (
+                  <div className={styles.sidebarHint}>No tags yet. Add tags from the metadata panel.</div>
+                )}
                 {tags.map((tag) => {
                   const isActive = selectedTag === tag;
                   return (
@@ -430,11 +499,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                         isActive ? styles.tagListItemActive : ''
                       }`}
                       onClick={() => onSelectTag(isActive ? null : tag)}
+                      aria-pressed={isActive}
                       onMouseEnter={(e) => showTooltip(tag, e)}
                       onMouseLeave={hideTooltip}
                       title={`Filter by tag: ${tag}`}
                     >
-                      <FaTag className={styles.tagItemIcon} />
+                      <FaTag className={styles.tagItemIcon} aria-hidden="true" />
                       <span className={styles.tagText}>{tag}</span>
                     </button>
                   );
@@ -450,6 +520,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               selectedTag ? styles.sidebarItemActive : ''
             }`}
             onClick={onToggleCollapse}
+            onKeyDown={(e) => activateOnKey(e, onToggleCollapse)}
+            role="button"
+            tabIndex={0}
+            aria-label={selectedTag ? `Tags (filtering by ${selectedTag}). Expand sidebar` : 'Tags. Expand sidebar'}
             title={
               selectedTag
                 ? `Active Tag Filter: ${selectedTag} (Click to expand)`

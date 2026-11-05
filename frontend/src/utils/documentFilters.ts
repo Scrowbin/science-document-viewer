@@ -1,8 +1,11 @@
 import type { Document, SortKey, SortDirection } from '../types';
 
+const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+
 /**
- * Generic sort comparator for the document table.
- * Sorts by string representation of the given key in the given direction.
+ * Generic sort for the document table (one SortState: key + direction).
+ * Text columns compare case- and accent-insensitively with natural number order; empty values
+ * always sort last in either direction; ties fall back to the title so the order is stable.
  */
 export function sortDocuments(
   docs: Document[],
@@ -17,14 +20,17 @@ export function sortDocuments(
       const tB = b.lastRead ? Date.parse(b.lastRead) : NaN;
       const hasA = !Number.isNaN(tA);
       const hasB = !Number.isNaN(tB);
-      if (!hasA && !hasB) return 0;
+      if (!hasA && !hasB) return collator.compare(a.title, b.title);
       if (!hasA) return 1;
       if (!hasB) return -1;
-      return (tA - tB) * sign;
+      return (tA - tB) * sign || collator.compare(a.title, b.title);
     }
-    const valA = (a[key] ?? '').toString().toLowerCase();
-    const valB = (b[key] ?? '').toString().toLowerCase();
-    return valA.localeCompare(valB) * sign;
+    const valA = (a[key] ?? '').toString().trim();
+    const valB = (b[key] ?? '').toString().trim();
+    if (!valA && !valB) return collator.compare(a.title, b.title);
+    if (!valA) return 1;
+    if (!valB) return -1;
+    return collator.compare(valA, valB) * sign || (key === 'title' ? 0 : collator.compare(a.title, b.title));
   });
 }
 
@@ -79,7 +85,7 @@ export function filterDocuments(
     }
 
     // 3. Tag Filtering
-    if (selectedTag && !doc.metadata.tags?.includes(selectedTag)) {
+    if (selectedTag && !doc.metadata.tags?.some((t) => t.trim() === selectedTag)) {
       return false;
     }
 

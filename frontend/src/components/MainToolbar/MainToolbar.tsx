@@ -15,6 +15,10 @@ export interface MainToolbarProps {
   onAddFromOption: (type: 'DOI' | 'Upload PDF') => void;
 }
 
+function menuItems(menu: HTMLElement | null): HTMLElement[] {
+  return menu ? Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]')) : [];
+}
+
 export const MainToolbar: React.FC<MainToolbarProps> = ({
   searchRef,
   searchQuery,
@@ -23,17 +27,19 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Dismiss dropdown on outside click
+  // Dismiss dropdown on outside click; focus the first item when it opens
   useEffect(() => {
+    if (!dropdownOpen) return;
+    menuItems(menuRef.current)[0]?.focus();
     const handleOutsideClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
     };
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
+    document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [dropdownOpen]);
 
@@ -42,53 +48,84 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
     onAddFromOption(type);
   };
 
+  const handleMenuKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const items = menuItems(menuRef.current);
+    const idx = items.findIndex((el) => el === document.activeElement);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const delta = e.key === 'ArrowDown' ? 1 : -1;
+      items[(idx + delta + items.length) % items.length]?.focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      setDropdownOpen(false);
+      buttonRef.current?.focus();
+    } else if (e.key === 'Tab') {
+      setDropdownOpen(false);
+    }
+  };
+
   return (
     <div className={styles.toolbar}>
       <div className={styles.searchContainer}>
-        <FaMagnifyingGlass className={styles.searchIcon} />
+        <FaMagnifyingGlass className={styles.searchIcon} aria-hidden="true" />
         <input
           ref={searchRef}
           type="text"
           className={styles.searchInput}
           placeholder="Search title, creator, tags..."
+          aria-label="Search documents by title, creator, tag or domain"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => {
+            // Escape clears the search (a second Escape leaves the field as is).
+            if (e.key === 'Escape' && searchQuery) {
+              e.preventDefault();
+              onSearchChange('');
+            }
+          }}
         />
-        <span className={styles.searchShortcutHint}>Ctrl+F</span>
+        <span className={styles.searchShortcutHint} aria-hidden="true">Ctrl+F</span>
       </div>
 
       <div className={styles.toolbarActions} ref={dropdownRef}>
         <div className={styles.addDropdownWrapper}>
           <button
+            ref={buttonRef}
             type="button"
             className={styles.primaryBtn}
             onClick={() => setDropdownOpen((prev) => !prev)}
-            aria-haspopup="true"
+            aria-haspopup="menu"
             aria-expanded={dropdownOpen}
+            title="Add a document"
           >
-            <FaPlus />
+            <FaPlus aria-hidden="true" />
             <span>Add</span>
-            <FaChevronDown style={{ fontSize: '10px' }} />
+            <FaChevronDown aria-hidden="true" style={{ fontSize: '10px' }} />
           </button>
 
           {dropdownOpen && (
-            <div className={styles.dropdownMenu} role="menu">
-              <div
+            <div ref={menuRef} className={styles.dropdownMenu} role="menu" aria-label="Add a document" onKeyDown={handleMenuKeyDown}>
+              <button
+                type="button"
                 className={styles.dropdownItem}
                 role="menuitem"
+                tabIndex={-1}
                 onClick={() => handleActionClick('Upload PDF')}
               >
-                <FaFileLines />
+                <FaFileLines aria-hidden="true" />
                 <span>Upload PDF File</span>
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 className={styles.dropdownItem}
                 role="menuitem"
+                tabIndex={-1}
                 onClick={() => handleActionClick('DOI')}
               >
-                <FaBarcode />
+                <FaBarcode aria-hidden="true" />
                 <span>Add from DOI</span>
-              </div>
+              </button>
             </div>
           )}
         </div>
@@ -98,4 +135,3 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
 };
 
 export default MainToolbar;
-

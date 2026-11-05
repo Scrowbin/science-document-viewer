@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient, { RAG_TIMEOUT_MS } from './client';
 import type { Document, DocumentMetadata, DocumentPermission, RagStatus } from '../types';
 
 export interface DjangoDocumentRaw {
@@ -55,6 +55,11 @@ export interface LookupDoiResult {
   language?: string;
   license?: string;
 }
+
+/** Upload (multipart create) timeout: large PDFs on a slow link. */
+const UPLOAD_TIMEOUT_MS = 120_000;
+/** Public OpenAlex fallback for DOI lookup; never let it hang the modal. */
+const OPENALEX_TIMEOUT_MS = 8_000;
 
 const KNOWN_PERMISSIONS: readonly DocumentPermission[] = ['OWNER', 'EDIT', 'COMMENT', 'VIEW', 'NONE'];
 const KNOWN_RAG_STATUSES: readonly RagStatus[] = ['PENDING', 'INDEXING', 'INDEXED', 'FAILED'];
@@ -152,7 +157,11 @@ export const documentsApi = {
    * Create document via JSON payload or FormData (for PDF uploads).
    */
   async createDocument(data: FormData | Record<string, unknown>): Promise<Document> {
-    const res = await apiClient.post<DjangoDocumentRaw>('/documents/', data);
+    // A PDF upload (up to 50 MB) can exceed the CRUD default; a client-side timeout while the
+    // server is still saving would make the user retry and create a duplicate.
+    const res = await apiClient.post<DjangoDocumentRaw>('/documents/', data, {
+      timeout: data instanceof FormData ? UPLOAD_TIMEOUT_MS : undefined,
+    });
     return mapDjangoDocToFrontend(res.data);
   },
 
@@ -223,6 +232,17 @@ export const documentsApi = {
   },
 
   /**
+   * Re-run AI indexing for a document (owner only). The server answers 202 when indexing
+   * continues in the background, or 200 with the final status when it ran synchronously.
+   */
+  async reindexDocument(id: string | number): Promise<{ status: string; accepted: boolean }> {
+    const res = await apiClient.post<{ status?: string }>(`/documents/${id}/reindex/`, undefined, {
+      timeout: RAG_TIMEOUT_MS,
+    });
+    return { status: res.data?.status ?? '', accepted: res.status === 202 };
+  },
+
+  /**
    * Lookup metadata from Crossref by DOI (via the backend proxy), falling back
    * to the public OpenAlex API when the backend proxy is unreachable.
    * Only values actually returned by a registry are used; nothing is invented.
@@ -235,7 +255,9 @@ export const documentsApi = {
       const clean = doi.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i, '');
       const fullDoi = /^s\d{4,5}-\d+/i.test(clean) ? `10.1038/${clean}` : clean;
       try {
-        const resp = await fetch(`https://api.openalex.org/works/doi:${encodeURIComponent(fullDoi)}`);
+        const resp = await fetch(`https://api.openalex.org/works/doi:${encodeURIComponent(fullDoi)}`, {
+          signal: AbortSignal.timeout(OPENALEX_TIMEOUT_MS),
+        });
         if (resp.ok) {
           const data = (await resp.json()) as OpenAlexWork;
           if (!data.title) throw backendErr;

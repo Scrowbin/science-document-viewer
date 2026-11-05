@@ -1127,3 +1127,13 @@
 }
 
 
+
+/* Annotation sync errors (save/delete rolled back). */
+.viewerNoticeError {
+  border-left-color: #ef4444;
+}
+
+.viewerNoticeErrorIcon {
+  color: #ef4444;
+  flex-shrink: 0;
+}

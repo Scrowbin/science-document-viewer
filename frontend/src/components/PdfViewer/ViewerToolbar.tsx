@@ -197,11 +197,11 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
 
       {/* Zoom, Find & Open File */}
       <div className={styles.pdfToolbarGroup}>
-        <button type="button" className={styles.pdfToolBtn} onClick={onZoomOut} title="Zoom Out (Ctrl+Scroll, Ctrl+-)">
+        <button type="button" className={styles.pdfToolBtn} onClick={onZoomOut} title="Zoom Out (Ctrl+Scroll, Ctrl+-)" aria-label="Zoom out">
           <FaMagnifyingGlassMinus />
         </button>
-        <span className={styles.pdfZoomIndicator}>{Math.round(zoom)}%</span>
-        <button type="button" className={styles.pdfToolBtn} onClick={onZoomIn} title="Zoom In (Ctrl+Scroll, Ctrl+=)">
+        <span className={styles.pdfZoomIndicator} aria-live="polite" title="Current zoom (Ctrl+0 resets)">{Math.round(zoom)}%</span>
+        <button type="button" className={styles.pdfToolBtn} onClick={onZoomIn} title="Zoom In (Ctrl+Scroll, Ctrl+=)" aria-label="Zoom in">
           <FaMagnifyingGlassPlus />
         </button>
         <button
@@ -209,6 +209,7 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
           className={`${styles.pdfToolBtn} ${zoomMode === 'fit-width' ? styles.pdfToolBtnActive : ''}`}
           onClick={onFitWidth}
           title="Fit page width"
+          aria-pressed={zoomMode === 'fit-width'}
         >
           <FaArrowsLeftRight />
           <span>Width</span>
@@ -218,6 +219,7 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
           className={`${styles.pdfToolBtn} ${zoomMode === 'fit-page' ? styles.pdfToolBtnActive : ''}`}
           onClick={onFitPage}
           title="Fit whole page"
+          aria-pressed={zoomMode === 'fit-page'}
         >
           <FaExpand />
           <span>Page</span>
@@ -227,6 +229,8 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
           className={`${styles.pdfToolBtn} ${findOpen ? styles.pdfToolBtnActive : ''}`}
           onClick={onToggleFind}
           title="Find in document (Ctrl+F)"
+          aria-label="Find in document"
+          aria-pressed={findOpen}
         >
           <FaMagnifyingGlass />
         </button>

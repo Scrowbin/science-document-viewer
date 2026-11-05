@@ -710,3 +710,71 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* ─── Availability banner (no PDF / queued / indexing) ───────────────────── */
+.stateBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  background-color: var(--status-warning-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.stateBanner svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--status-warning);
+}
+
+.stateBannerNeutral {
+  background-color: var(--bg-app);
+}
+
+.stateBannerNeutral svg {
+  color: var(--text-muted);
+}
+
+/* ─── Thinking bubble with expectation hint ──────────────────────────────── */
+.loadingBubbleWithHint {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.loadingHint {
+  flex-basis: 100%;
+  margin-top: 4px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ─── Inline [Page N] citations inside answers ───────────────────────────── */
+.inlineCitation {
+  display: inline;
+  padding: 0 4px;
+  margin: 0 1px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background-color: var(--accent-blue-subtle);
+  border: 1px solid var(--accent-blue-border);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.inlineCitation:hover,
+.inlineCitation:focus-visible {
+  color: #ffffff;
+  background-color: var(--accent-blue);
+}
+
+/* Images in model output are never loaded; only their alt text is shown. */
+.imagePlaceholder {
+  color: var(--text-muted);
+  font-style: italic;
+}

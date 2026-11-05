@@ -23,6 +23,7 @@ import {
   FaTag,
   FaCube,
   FaFolderMinus,
+  FaRotateRight,
 } from 'react-icons/fa6';
 
 /** drag-and-drop payload type carrying a JSON array of document ids. */
@@ -51,8 +52,12 @@ export interface DocumentTableProps {
   onAddToCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   onAddTag?: (doc: Document) => void;
   onInspectChunks?: (doc: Document) => void;
+  /** Re-run AI indexing for a document whose indexing failed. */
+  onRetryIndexing?: (doc: Document) => void;
   isTrashView?: boolean;
   isLoading?: boolean;
+  /** Text for the empty table (why nothing is shown and what to do). */
+  emptyMessage?: string;
   sortState: SortState;
   onToggleSort: (key: SortKey) => void;
 }
@@ -73,34 +78,53 @@ const COLUMNS: Array<{ key: SortKey; label: string; width: string }> = [
   { key: 'lastRead', label: 'Last Read', width: '22%' },
 ];
 
-function RagBadge({ doc }: { doc: Document }) {
+function RagBadge({ doc, onRetry }: { doc: Document; onRetry?: (doc: Document) => void }) {
   if (!doc.file) {
     return null;
   }
   switch (doc.ragStatus) {
     case 'INDEXED':
       return (
-        <span className={styles.ragIndexedBadge} title="Document indexed in vector store for AI Assistant">
+        <span className={styles.ragIndexedBadge} title="Indexed: the AI assistant can answer questions about this PDF">
           <span className={styles.statusDotGreen} aria-hidden="true" /> Indexed
         </span>
       );
     case 'INDEXING':
       return (
-        <span className={styles.ragIndexingBadge} title="Indexing in progress...">
-          <span className={styles.statusDotYellow} aria-hidden="true" /> Indexing...
+        <span className={styles.ragIndexingBadge} title="Indexing for the AI assistant in the background. You can keep working.">
+          <span className={styles.statusDotYellow} aria-hidden="true" /> Indexing…
         </span>
       );
     case 'PENDING':
       return (
-        <span className={styles.ragPendingBadge} title="Queued for indexing">
+        <span className={styles.ragPendingBadge} title="Waiting to be indexed for the AI assistant (runs in the background)">
           <span className={styles.statusDotGrey} aria-hidden="true" /> Queued
         </span>
       );
     case 'FAILED':
       return (
-        <span className={styles.ragFailedBadge} title="Indexing failed. Open the AI Assistant to retry (owners only).">
-          <span className={styles.statusDotRed} aria-hidden="true" /> Index failed
-        </span>
+        <>
+          <span
+            className={styles.ragFailedBadge}
+            title="AI indexing failed, so the assistant cannot answer questions about this PDF yet. The document itself is fine."
+          >
+            <span className={styles.statusDotRed} aria-hidden="true" /> Index failed
+          </span>
+          {onRetry && !doc.inTrash && (
+            <button
+              type="button"
+              className={styles.ragRetryBtn}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRetry(doc);
+              }}
+              title="Retry AI indexing (document owner only)"
+              aria-label={`Retry AI indexing for ${doc.title}`}
+            >
+              <FaRotateRight aria-hidden="true" /> Retry
+            </button>
+          )}
+        </>
       );
     default:
       return null;
@@ -143,8 +167,10 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onAddToCollection,
   onAddTag,
   onInspectChunks,
+  onRetryIndexing,
   isTrashView = false,
   isLoading = false,
+  emptyMessage,
   sortState,
   onToggleSort,
 }) => {
@@ -376,11 +402,12 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           {documents.length === 0 ? (
             <tr>
               <td colSpan={4} className={styles.emptyState}>
-                {isLoading
-                  ? 'Loading library…'
-                  : isTrashView
-                  ? 'Trash is empty.'
-                  : 'No documents match the current filter or search query.'}
+                {emptyMessage ??
+                  (isLoading
+                    ? 'Loading library…'
+                    : isTrashView
+                    ? 'Trash is empty.'
+                    : 'No documents match the current filter or search query.')}
               </td>
             </tr>
           ) : (
@@ -432,7 +459,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                       <FaFileLines className={styles.docIcon} aria-hidden="true" />
                       <span className={styles.docTitleText}>{doc.title}</span>
 
-                      <RagBadge doc={doc} />
+                      <RagBadge doc={doc} onRetry={onRetryIndexing} />
 
                       {doc.inTrash ? (
                         <button
@@ -672,6 +699,13 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onAddTag(contextMenu.doc))}>
               <FaTag aria-hidden="true" style={{ color: '#10b981' }} />
               <span>Add Tag...</span>
+            </div>
+          )}
+
+          {onRetryIndexing && contextMenu.doc.file && contextMenu.doc.ragStatus === 'FAILED' && !contextMenu.doc.inTrash && (
+            <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onRetryIndexing(contextMenu.doc))}>
+              <FaRotateRight aria-hidden="true" style={{ color: 'var(--status-danger)' }} />
+              <span>Retry AI Indexing</span>
             </div>
           )}
 

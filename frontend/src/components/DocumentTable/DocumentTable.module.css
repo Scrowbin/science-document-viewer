@@ -380,3 +380,23 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
+
+.ragRetryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--status-danger);
+  background-color: transparent;
+  color: var(--status-danger);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ragRetryBtn:hover,
+.ragRetryBtn:focus-visible {
+  background-color: var(--status-danger-subtle);
+}

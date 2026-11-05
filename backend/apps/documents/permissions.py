@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import permissions
 
 # Share levels in increasing order of privilege.
@@ -14,6 +15,16 @@ ACTION_MIN_PERMISSION = {
     'toggle_read': 'EDIT',
     'related': 'EDIT',
 }
+
+
+def visible_documents_q(user):
+    """Q filter for documents the user owns or reaches through a document or collection share.
+    Combine with .distinct(): the share joins can repeat a row."""
+    return (
+        Q(owner=user)
+        | Q(shares__shared_with_user=user)
+        | Q(primary_collection__shares__shared_with_user=user)
+    )
 
 
 def get_document_permission(user, doc):

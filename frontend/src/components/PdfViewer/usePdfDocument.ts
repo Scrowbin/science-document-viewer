@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
-import { pdfjsLib, PDF_DOCUMENT_OPTIONS } from './pdfAssets';
+import { getAccessToken, needsAuth, pdfjsLib, PDF_DOCUMENT_OPTIONS, renewAccessTokenFor } from './pdfAssets';
 
 /** What to load: the document's file URL (or a blob URL for a locally opened file). */
 export type PdfSource = { kind: 'url'; url: string };
@@ -22,6 +22,8 @@ function describeError(err: unknown): string {
     const e = err as { name?: string; message?: string; status?: number };
     if (e.name === 'PasswordException') return 'This PDF is password protected.';
     if (e.name === 'InvalidPDFException') return 'The file is not a valid PDF.';
+    if (e.status === 401) return 'Your session has expired. Please sign in again to open this PDF.';
+    if (e.status === 403) return 'You do not have permission to open this PDF.';
     if (e.name === 'ResponseException' || e.name === 'MissingPDFException') {
       return e.status ? `The PDF could not be downloaded (HTTP ${e.status}).` : 'The PDF could not be downloaded.';
     }
@@ -51,11 +53,43 @@ export function usePdfDocument(sourceKey: string, source: PdfSource | null, retr
   useEffect(() => {
     if (!activeSource) return;
     let cancelled = false;
-    const task = pdfjsLib.getDocument({ url: activeSource.url, ...PDF_DOCUMENT_OPTIONS });
+    /** The current pdf.js loading task (replaced by the 401 retry). */
+    const current: { task: ReturnType<typeof pdfjsLib.getDocument> | null } = { task: null };
+
+    /** Starts a pdf.js load; the backend file endpoint needs the JWT (FR-09 behind auth). */
+    const open = () => {
+      const url = activeSource.url;
+      const token = needsAuth(url) ? getAccessToken() : null;
+      const task = pdfjsLib.getDocument({
+        url,
+        ...PDF_DOCUMENT_OPTIONS,
+        ...(token
+          ? {
+              httpHeaders: { Authorization: `Bearer ${token}` },
+              withCredentials: false,
+              // One full download: later range requests could outlive a short-lived access token.
+              disableRange: true,
+            }
+          : {}),
+      });
+      current.task = task;
+      return task.promise;
+    };
 
     (async () => {
       try {
-        const doc = await task.promise;
+        let doc: PDFDocumentProxy;
+        try {
+          doc = await open();
+        } catch (err) {
+          const status = (err as { status?: number } | null)?.status;
+          if (cancelled || status !== 401 || !needsAuth(activeSource.url)) throw err;
+          // Expired access token: renew it through the axios client and retry once.
+          await current.task?.destroy().catch(() => {});
+          await renewAccessTokenFor(activeSource.url);
+          if (cancelled) return;
+          doc = await open();
+        }
         const pages = await Promise.all(
           Array.from({ length: doc.numPages }, (_, i) => doc.getPage(i + 1)),
         );
@@ -74,8 +108,8 @@ export function usePdfDocument(sourceKey: string, source: PdfSource | null, retr
 
     return () => {
       cancelled = true;
-      // Destroys the document, its pages and the worker transport.
-      task.destroy().catch(() => {});
+      // Destroys the document, its pages and the worker transport (current attempt).
+      current.task?.destroy().catch(() => {});
     };
   }, [loadKey, activeSource]);
 

@@ -37,6 +37,12 @@ function apiErrorMessage(err: unknown, fallback: string): string {
     const status = err.response.status;
     const data = err.response.data as Record<string, unknown> | undefined;
     if (status === 401) return 'Incorrect username/email or password.';
+    if (status === 429) {
+      const retryAfter = Number(err.response.headers?.['retry-after']);
+      return Number.isFinite(retryAfter) && retryAfter > 0
+        ? `Too many attempts. Please wait ${Math.ceil(retryAfter)} seconds and try again.`
+        : 'Too many attempts. Please wait a moment and try again.';
+    }
     if (data && typeof data === 'object') {
       const first = Object.values(data)[0];
       if (typeof first === 'string') return first;

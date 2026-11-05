@@ -152,8 +152,14 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
 
 ## 5. Current status
 * Application: library management, PDF viewer with annotations, sharing, bulk actions and the
-  RAG assistant are implemented. Serving PDFs behind permission checks (MinIO, presigned
-  URLs) is planned after the evaluation work (`docs/design/FILE_STORAGE_PLAN.md`).
+  RAG assistant are implemented. PDFs are served through a permission-checked API endpoint;
+  MinIO/presigned URLs are a later option (`docs/design/FILE_STORAGE_PLAN.md`).
+* `backend/apps/documents/services/` is frozen until the combination run ends; known fixes are
+  listed in `docs/design/RAG_SERVICE_REVIEW.md`. Planned FR-16 (context retry, default
+  `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
+* Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
+  client + project-hosted server model is deferred until after the graduation project and is
+  only a future extension in the thesis (`docs/design/DEPLOYMENT_PLAN.md`).
 * Evaluation: component experiments for extraction, chunking, embedding, retrieval and
   generation are complete; the 16-configuration combination experiment is being prepared.
   See `eval/README.md`.

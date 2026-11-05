@@ -1,4 +1,4 @@
-from django.test import TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
@@ -552,6 +552,9 @@ class RagServiceTestCase(TestCase):
         )
         with open(pdf_path, "rb") as f:
             doc.file.save("attention_test.pdf", File(f), save=True)
+        # A PENDING document with a file gets 409 from /chat/ (no in-request ingestion);
+        # mark it indexed so the endpoint rebuilds the index from the file as before.
+        Document.objects.filter(id=doc.id).update(rag_status='INDEXED')
 
         from .services.rag_service import delete_document_qdrant_data, evict_rag_instance
         delete_document_qdrant_data(doc.id)
@@ -603,6 +606,7 @@ class RagServiceTestCase(TestCase):
         )
         with open(pdf_path, "rb") as f:
             doc.file.save("attention_refusal_test.pdf", File(f), save=True)
+        Document.objects.filter(id=doc.id).update(rag_status='INDEXED')  # see the test above
 
         delete_document_qdrant_data(doc.id)
         evict_rag_instance(doc.id)
@@ -1420,3 +1424,20 @@ class ContextFillTestCase(TestCase):
 
     def test_fill_skips_and_continues(self):
         self.assertEqual(self._run(True), ["p1", "p3"])
+
+
+class WholeDocumentChunkerPageTests(SimpleTestCase):
+    """fixed_size / fixed_size_overlap chunks carry the page of the section where they start
+    (sections use 'page_start'; previously every chunk got page 1)."""
+
+    def test_fixed_size_pages_follow_sections(self):
+        from .services.chunkers import chunk_fixed_size, chunk_fixed_size_overlap
+        secs = [{"text": " ".join(f"s{i}w{j}" for j in range(300)), "page_start": i + 1} for i in range(3)]
+        pages = [c["page"] for c in chunk_fixed_size(secs, max_tokens=400)]
+        self.assertEqual(pages[0], 1)
+        self.assertEqual(pages[-1], 3)
+        self.assertEqual(pages, sorted(pages))
+        ov = chunk_fixed_size_overlap(secs, max_tokens=400, overlap=80)
+        self.assertEqual(ov[-1]["page"], 3)
+        legacy = chunk_fixed_size([{"text": "a b c", "start_page": 4}])
+        self.assertEqual(legacy[0]["page"], 4)

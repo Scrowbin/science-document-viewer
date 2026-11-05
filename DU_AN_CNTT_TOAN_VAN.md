@@ -70,7 +70,7 @@ MSSV: **52300122**
 Các nhà nghiên cứu và sinh viên phải xử lý khối lượng lớn tài liệu PDF. Các phần mềm quản lý tài liệu như Zotero, Mendeley tổ chức thư viện tốt nhưng không hỗ trợ đọc hiểu nội dung, còn các dịch vụ mô hình ngôn ngữ lớn trên đám mây gặp vấn đề về bảo mật bản thảo, ảo giác và chi phí.
 
 Đồ án có hai đóng góp:
-1. **Về phần mềm:** Xây dựng ứng dụng quản lý tài liệu nghiên cứu theo phong cách Zotero, kiến trúc Khối đơn mô-đun hóa (Django 5, React 19), tích hợp trợ lý AI dùng kiến trúc Truy xuất tăng cường sinh (RAG). Ứng dụng được thiết kế để phân phối dưới dạng **ứng dụng máy tính cài đặt cục bộ**: người dùng tải về một bộ cài gọn nhẹ chứa ứng dụng, máy chủ backend và cơ sở dữ liệu; ở lần chạy đầu, ứng dụng tự tải Ollama và các mô hình (mô hình ngôn ngữ, mô hình nhúng) một lần duy nhất, sau đó chạy hoàn toàn trên máy tính cá nhân (CPU, 16 GB RAM, không cần GPU, không dùng dịch vụ đám mây). Hệ thống gồm:
+1. **Về phần mềm:** Xây dựng ứng dụng quản lý tài liệu nghiên cứu theo phong cách Zotero, kiến trúc Khối đơn mô-đun hóa (Django 5, React 19), tích hợp trợ lý AI dùng kiến trúc Truy xuất tăng cường sinh (RAG). Ứng dụng là một **bản thử nghiệm khái niệm (proof of concept)** chạy cục bộ trên một máy: giao diện web, backend, cơ sở dữ liệu, kho vector và các mô hình (mô hình nhúng, mô hình ngôn ngữ qua Ollama, chỉ dùng CPU) đều chạy trên cùng máy, không gửi tài liệu tới dịch vụ AI của bên thứ ba. Thiết kế hiện tại xử lý khoảng một câu trả lời tại một thời điểm và **không có khả năng mở rộng** nếu không thay đổi kiến trúc. Hệ thống gồm:
    - giao diện 3 cột và trình đọc PDF.js có bôi đậm, ghi chú;
    - 22 trường siêu dữ liệu học thuật;
    - kho vector Qdrant nhúng;
@@ -89,7 +89,7 @@ Các nhà nghiên cứu và sinh viên phải xử lý khối lượng lớn tà
 Researchers and students handle large numbers of PDF papers. Reference managers such as Zotero and Mendeley organise libraries well but do not help with reading content, while cloud large-language-model services raise concerns about manuscript confidentiality, hallucination and cost.
 
 This thesis makes two contributions:
-1. **Software:** A Zotero-style application for managing research papers (Modular Monolith; Django 5, React 19) with a Retrieval-Augmented Generation (RAG) assistant. It is designed to be distributed as a **locally installed desktop application**: the user downloads one lightweight installer containing the app, backend server and database; on first run the app downloads Ollama and the models (language model, embedding model) once, after which it runs entirely on a personal computer (CPU, 16 GB RAM, no GPU, no cloud services). The system includes:
+1. **Software:** A Zotero-style application for managing research papers (Modular Monolith; Django 5, React 19) with a Retrieval-Augmented Generation (RAG) assistant. It is a **proof of concept** that runs locally on one machine: the web interface, backend, database, vector store and models (an embedding model and a language model via Ollama, CPU only) all run on the same machine, and no document is sent to a third-party AI service. The design handles about one answer at a time and is **not scalable** without architectural changes. The system includes:
    - a 3-column interface and a PDF.js reader with highlights and notes;
    - 22 bibliographic fields;
    - an embedded Qdrant vector store;
@@ -159,7 +159,8 @@ This thesis makes two contributions:
   - 4.2. Phân tích Use Case
   - 4.3. Kiến trúc hệ thống
     - 4.3.1. Kiến trúc tổng thể
-    - 4.3.2. Mô hình triển khai: ứng dụng máy tính cài đặt cục bộ
+    - 4.3.2. Mô hình triển khai: chạy cục bộ trên một máy
+    - 4.3.3. Giới hạn về khả năng mở rộng
   - 4.4. Thiết kế dữ liệu
     - 4.4.1. Cơ sở dữ liệu quan hệ
     - 4.4.2. Kho vector
@@ -182,6 +183,14 @@ This thesis makes two contributions:
   - 5.6. Sinh câu trả lời
   - 5.7. Tổng hợp lựa chọn cho thực nghiệm kết hợp
   - 5.8. Thực nghiệm kết hợp 16 cấu hình
+    - 5.8.1. Kỳ vọng từ các thực nghiệm thành phần
+    - 5.8.2. Tầng truy xuất và ghép ngữ cảnh
+    - 5.8.3. Tầng sinh câu trả lời
+    - 5.8.4. Ảnh hưởng của từng thành phần và tương tác
+    - 5.8.5. Theo tập dữ liệu và loại câu trả lời
+    - 5.8.6. Cấu hình tốt nhất ở từng tầng và cấu hình ghép
+    - 5.8.7. Đánh giá thủ công
+    - 5.8.8. Lựa chọn cấu hình cho ứng dụng
   - 5.9. Hạn chế
   - 5.10. Tổng kết chương
 - **CHƯƠNG 6. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN**
@@ -193,12 +202,12 @@ This thesis makes two contributions:
   - 6.4. Lời kết
 - **TÀI LIỆU THAM KHẢO**
 - **PHỤ LỤC LUẬN VĂN: TÀI LIỆU KỸ THUẬT VÀ TỪ ĐIỂN DỮ LIỆU**
-  - Phụ lục A. Danh mục 22 Trường Siêu Dữ liệu Học thuật (Bibliographic Metadata)
-  - Phụ lục B. Từ điển Dữ liệu Qdrant Hai Bộ sưu tập Song hành (Companion Vectorless Collections)
-    - B.1. Bộ sưu tập Vector Đoạn con: `doc_{id}`
-    - B.2. Bộ sưu tập Phụ trợ Phi Vector (Vectorless Parent Store): `doc_{id}_parents`
-  - Phụ lục C. Danh mục Điểm cuối Giao diện Lập trình REST API (Backend API Reference)
-  - Phụ lục D. Bảng Phím tắt Trình duyệt trong Ứng dụng (Keyboard Shortcuts Reference)
+  - Phụ lục A. Các trường siêu dữ liệu
+  - Phụ lục B. Hai bộ sưu tập Qdrant của mỗi tài liệu
+    - B.1. Bộ sưu tập đoạn con `doc_{id}`
+    - B.2. Bộ sưu tập đoạn cha `doc_{id}_parents`
+  - Phụ lục C. Các điểm cuối REST API chính
+  - Phụ lục D. Phím tắt
   - Phụ lục E. Mã nguồn và tệp kết quả thực nghiệm
 
 ---
@@ -210,7 +219,7 @@ This thesis makes two contributions:
 | **Hình 4.1** | Sơ đồ Use Case tổng quát | Chương 4 |
 | **Hình 4.2** | Kiến trúc tổng thể của hệ thống | Chương 4 |
 | **Hình 4.3** | Đường ống RAG: lập chỉ mục và trả lời câu hỏi | Chương 4 |
-| **Hình 4.4** | Mô hình triển khai của ứng dụng cài đặt cục bộ | Chương 4 |
+| **Hình 4.4** | Mô hình triển khai của bản thử nghiệm | Chương 4 |
 | **Hình 4.5** | Sơ đồ dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích | Chương 4 |
 | **Hình 4.6** | Sơ đồ dữ liệu (2): tài liệu, tác giả và phân loại | Chương 4 |
 | **Hình 4.7** | Quy trình tải lên và lập chỉ mục tài liệu | Chương 4 |
@@ -241,9 +250,10 @@ This thesis makes two contributions:
 | **Bảng 3.3** | Cách tính các chỉ số | Chương 3 |
 | **Bảng 4.1** | Yêu cầu chức năng | Chương 4 |
 | **Bảng 4.2** | Yêu cầu phi chức năng | Chương 4 |
-| **Bảng 4.3** | Thành phần trong bộ cài và thành phần tải ở lần chạy đầu | Chương 4 |
-| **Bảng 4.4** | Hai bộ sưu tập Qdrant của mỗi tài liệu | Chương 4 |
-| **Bảng 4.5** | Các trường siêu dữ liệu | Chương 4 |
+| **Bảng 4.3** | Các thành phần chạy trên máy cục bộ | Chương 4 |
+| **Bảng 4.4** | Các giới hạn về khả năng mở rộng của bản thử nghiệm | Chương 4 |
+| **Bảng 4.5** | Hai bộ sưu tập Qdrant của mỗi tài liệu | Chương 4 |
+| **Bảng 4.6** | Các trường siêu dữ liệu | Chương 4 |
 | **Bảng 5.1** | Tập dữ liệu dùng cho từng thực nghiệm | Chương 5 |
 | **Bảng 5.2** | Kết quả trích xuất văn bản | Chương 5 |
 | **Bảng 5.3** | Kết quả các chiến lược phân mảnh | Chương 5 |
@@ -251,9 +261,11 @@ This thesis makes two contributions:
 | **Bảng 5.5** | Kết quả sinh câu trả lời với bằng chứng chuẩn | Chương 5 |
 | **Bảng 5.6** | Hai phương pháp được chọn cho mỗi thành phần trong thực nghiệm kết hợp | Chương 5 |
 | **Bảng 6.1** | Tóm tắt kết quả các thực nghiệm thành phần | Chương 6 |
-| **Bảng A.1** | Danh mục 22 Trường Siêu dữ liệu Học thuật và Kiểu Dữ liệu Giao diện | Phụ lục A |
-| **Bảng A.3** | Danh mục Điểm cuối RESTful API của Hệ thống | Phụ lục A |
-| **Bảng A.4** | Danh mục Phím tắt Trình duyệt được Hỗ trợ | Phụ lục A |
+| **Bảng A.1** | Các trường siêu dữ liệu và nơi lưu trữ | Phụ lục A |
+| **Bảng B.1** | Payload của điểm trong bộ sưu tập `doc_{id}` | Phụ lục B |
+| **Bảng B.2** | Payload của điểm trong bộ sưu tập `doc_{id}_parents` | Phụ lục B |
+| **Bảng C.1** | Các điểm cuối REST API chính | Phụ lục C |
+| **Bảng D.1** | Các phím tắt được hỗ trợ | Phụ lục D |
 | **Bảng E.1** | Tập lệnh và tệp kết quả của các thực nghiệm | Phụ lục E |
 
 ---
@@ -305,7 +317,7 @@ Sự bùng nổ của các Mô hình Ngôn ngữ Lớn (Large Language Models - 
 2. **Hiện tượng ảo giác học thuật (Academic Hallucinations):** Các mô hình ngôn ngữ lớn thuần túy có xu hướng tự tin ngụy tạo trích dẫn, xuyên tạc công thức hoặc khẳng định các kết quả thí nghiệm không có thật trong bài báo, gây ra rủi ro học thuật khôn lường.
 3. **Chi phí vận hành và rào cản tài nguyên:** Các mô hình thương mại đòi hỏi chi phí API đắt đỏ duy trì theo token, trong khi việc triển khai các mô hình mã nguồn mở quy mô lớn (70B tham số) tại chỗ lại đòi hỏi dàn máy chủ GPU công nghiệp đắt tiền nằm ngoài khả năng tiếp cận của các nhà nghiên cứu cá nhân.
 
-Xuất phát từ các vấn đề thực tiễn cấp thiết trên, đề tài *"Xây dựng hệ thống quản lý tài liệu nghiên cứu khoa học tích hợp trợ lý AI sử dụng RAG"* được lựa chọn nhằm kết hợp hài hòa giữa năng lực quản trị thư viện học thuật tiện dụng của Zotero và sức mạnh phân tích ngữ nghĩa của trợ lý AI cục bộ tiếp đất (grounded AI), bảo đảm an toàn dữ liệu tuyệt đối và vận hành ổn định trên máy tính cá nhân thông thường.
+Xuất phát từ các vấn đề thực tiễn cấp thiết trên, đề tài *"Xây dựng hệ thống quản lý tài liệu nghiên cứu khoa học tích hợp trợ lý AI sử dụng RAG"* được lựa chọn nhằm kết hợp hài hòa giữa năng lực quản trị thư viện học thuật tiện dụng của Zotero và sức mạnh phân tích ngữ nghĩa của trợ lý AI tiếp đất (grounded AI) chạy trên hạ tầng do nhóm tự vận hành, không gửi tài liệu tới các dịch vụ AI của bên thứ ba.
 
 ---
 
@@ -314,14 +326,14 @@ Xuất phát từ các vấn đề thực tiễn cấp thiết trên, đề tài
 Đề tài xác định hệ thống mục tiêu gồm hai thành phần gắn kết mật thiết với nhau (SYS-004):
 
 ### 1.2.1. Mục tiêu tổng quát
-Nghiên cứu, phân tích, thiết kế và phát triển một ứng dụng quản lý tài liệu nghiên cứu khoa học tích hợp trợ lý AI cục bộ sử dụng kiến trúc RAG. Ứng dụng được phân phối dưới dạng **ứng dụng máy tính cài đặt cục bộ**: người dùng chỉ cần tải về và chạy một bộ cài gọn nhẹ chứa ứng dụng, máy chủ backend và cơ sở dữ liệu; ở lần chạy đầu, ứng dụng tự tải Ollama và các mô hình cần thiết một lần duy nhất. Sau bước thiết lập này, ứng dụng hoạt động trên máy tính cá nhân mà không cần cài thêm phần mềm, không cần kết nối mạng và không phụ thuộc vào dịch vụ đám mây. Đồng thời, đề tài tiến hành các thực nghiệm để đánh giá và lựa chọn phương pháp cho từng thành phần trong đường ống RAG trên tài liệu khoa học.
+Nghiên cứu, phân tích, thiết kế và phát triển một **bản thử nghiệm khái niệm** của ứng dụng quản lý tài liệu nghiên cứu khoa học tích hợp trợ lý AI sử dụng kiến trúc RAG. Toàn bộ hệ thống (giao diện, backend, dữ liệu và các mô hình AI) chạy cục bộ trên một máy chỉ dùng CPU, không dùng dịch vụ AI của bên thứ ba. Mục tiêu là chứng minh tính khả thi của hệ thống, không phải xây dựng một dịch vụ phục vụ nhiều người dùng. Đồng thời, đề tài tiến hành các thực nghiệm để đánh giá và lựa chọn phương pháp cho từng thành phần trong đường ống RAG trên tài liệu khoa học.
 
 ### 1.2.2. Mục tiêu cụ thể
 1. **Về mặt Kỹ thuật phần mềm:**
    - Xây dựng hoàn chỉnh ứng dụng quản lý tài liệu nghiên cứu theo kiến trúc phân tầng rõ ràng giữa giao diện, dịch vụ nghiệp vụ và đường ống AI, với giao diện tái hiện bố cục 3 cột quen thuộc của các phần mềm quản lý tài liệu học thuật.
    - Hiện thực hóa các yêu cầu chức năng và phi chức năng cốt lõi: tổ chức tài liệu theo thư mục phân cấp và thẻ, quản lý siêu dữ liệu học thuật theo cấu hình, tra cứu siêu dữ liệu tự động theo định danh (DOI), và trình đọc PDF cho phép bôi đậm, ghi chú trực tiếp trên trang.
    - Tích hợp trợ lý AI hỏi đáp và tóm tắt tài liệu dựa trên kiến trúc RAG chạy cục bộ: tự động phân tích và lập chỉ mục tài liệu khi tải lên, truy xuất các đoạn liên quan, từ chối trả lời khi ngữ cảnh không đủ liên quan, và chỉ rõ vị trí trích dẫn trên trang PDF.
-   - Đóng gói ứng dụng thành một bộ cài cho máy tính cá nhân, sao cho người dùng chỉ cần tải về và cài đặt; các mô hình AI được tự động tải ở lần chạy đầu, sau đó ứng dụng hoạt động ngoại tuyến mà không cần cài đặt thêm thành phần nào.
+   - Triển khai hệ thống ở mức thử nghiệm khái niệm chạy cục bộ trên một máy, và nêu rõ các giới hạn về khả năng mở rộng của thiết kế này.
 2. **Về mặt Nghiên cứu thực nghiệm:**
    - Đánh giá từng thành phần của đường ống RAG trên ngữ liệu khoa học QASPER: trích xuất văn bản PDF, phân mảnh, mô hình nhúng, chiến lược truy xuất và mô hình sinh câu trả lời.
    - Đối chiếu kết quả đo với kỳ vọng lý thuyết, giải thích những điểm khác biệt, và chọn hai phương pháp triển vọng nhất cho mỗi thành phần dựa trên kết quả, lý thuyết và chi phí.
@@ -335,8 +347,9 @@ Nghiên cứu, phân tích, thiết kế và phát triển một ứng dụng qu
   - Tài liệu nghiên cứu khoa học toàn văn định dạng PDF, tập trung chủ yếu vào các bài báo tiếng Anh có cấu trúc học thuật chuẩn mực (hai cột, có tiêu đề đề mục IMRaD, công thức toán học và tài liệu tham khảo).
   - Ngữ liệu QASPER (*Question Answering on Scientific Papers*, Dasigi et al., 2021) phiên bản chuẩn v0.3 gồm 1.585 bài báo và 5.049 câu hỏi nghiên cứu thực tế kèm bằng chứng nguyên văn do chuyên gia gán nhãn thủ công.
 - **Phạm vi hệ thống:**
-  - Hình thức triển khai: Ứng dụng máy tính cài đặt cục bộ cho một người dùng (nhà nghiên cứu cá nhân), phân phối dưới dạng một bộ cài gọn nhẹ; Ollama và các mô hình được tải tự động ở lần chạy đầu (SYS-006).
-  - Giới hạn phần cứng: Máy tính cá nhân thông thường (thực nghiệm trên AMD Ryzen 7 7735HS, 16 GB RAM), không dùng GPU; toàn bộ suy luận AI chạy cục bộ qua Ollama và thư viện Sentence-Transformers.
+  - Hình thức triển khai: toàn bộ hệ thống chạy cục bộ trên một máy: giao diện web trong trình duyệt, backend, cơ sở dữ liệu, kho vector, mô hình nhúng và mô hình ngôn ngữ (Ollama). Mô hình ứng dụng máy tính gọi API tới một máy chủ dùng chung là hướng mở rộng (Mục 6.3).
+  - Giới hạn phần cứng: chỉ dùng CPU, không GPU (các phép đo được thực hiện trên AMD Ryzen 7 7735HS, 16 GB RAM).
+  - Mức độ hoàn thiện: hệ thống là **bản thử nghiệm khái niệm** và **không có khả năng mở rộng** ở dạng hiện tại: một máy, mô hình ngôn ngữ trên CPU xử lý khoảng một câu trả lời tại một thời điểm, kho vector và việc lập chỉ mục chạy trong một tiến trình, chưa có kiểm thử tải, giám sát hay đánh giá bảo mật (Mục 4.3.3). Hệ thống chưa phù hợp để phục vụ người dùng thực.
   - Phạm vi tương tác RAG: Hệ thống tập trung tối ưu hóa bài toán hỏi đáp trên từng tài liệu khoa học đơn lẻ (Single-Document RAG) mà người dùng đang mở trong trình đọc PDF.
 
 ---
@@ -346,7 +359,7 @@ Nghiên cứu, phân tích, thiết kế và phát triển một ứng dụng qu
 Đề tài áp dụng kết hợp chặt chẽ giữa ba phương pháp nghiên cứu chính:
 
 1. **Phương pháp Nghiên cứu Tài liệu (Literature Review):** Khảo sát toàn diện các công trình nghiên cứu khoa học trong nước và quốc tế về các hệ thống quản lý tài liệu, kiến trúc RAG, các mô hình nhúng ngôn ngữ lớn, các chiến lược phân đoạn văn bản và các thuật toán hợp nhất thứ hạng nhằm xác lập cơ sở lý thuyết vững chắc cho đề tài.
-2. **Phương pháp Kỹ thuật Phần mềm (Software Engineering):** Áp dụng phong cách kiến trúc Khối đơn mô-đun hóa (Modular Monolith) với phân tầng trách nhiệm rạch ròi giữa giao diện người dùng Single Page Application (React 19, TypeScript, CSS Modules thuần), dịch vụ nghiệp vụ Backend (Django 5, Django REST Framework, PostgreSQL 16) và đường ống dịch vụ RAG in-process (`RagService`). Mã nguồn backend được kiểm chứng qua 51 bài kiểm thử tự động (`apps.documents.tests`, `apps.users.tests`).
+2. **Phương pháp Kỹ thuật Phần mềm (Software Engineering):** Áp dụng phong cách kiến trúc Khối đơn mô-đun hóa (Modular Monolith) với phân tầng trách nhiệm rạch ròi giữa giao diện người dùng Single Page Application (React 19, TypeScript, CSS Modules thuần), dịch vụ nghiệp vụ Backend (Django 5, Django REST Framework, PostgreSQL 16) và đường ống dịch vụ RAG in-process (`RagService`). Mã nguồn backend được kiểm chứng qua 104 bài kiểm thử tự động (`apps.documents.tests`, `apps.documents.tests_app`, `apps.users.tests`).
 3. **Phương pháp Thực nghiệm so sánh:** Đánh giá từng thành phần trong cùng điều kiện (cùng câu hỏi, cùng ngân sách ngữ cảnh, các thành phần khác giữ ở cấu hình của hệ thống), báo cáo kết quả bằng giá trị trung bình, chênh lệch và chi phí tính toán, và đối chiếu kết quả với lý thuyết.
 
 ---
@@ -354,14 +367,13 @@ Nghiên cứu, phân tích, thiết kế và phát triển một ứng dụng qu
 ## 1.5. Ý nghĩa khoa học và thực tiễn của đề tài
 
 ### 1. Ý nghĩa Khoa học
-- Cung cấp kết quả thực nghiệm có thể tái lập về hiệu quả và chi phí của các thành phần trong đường ống RAG trên tài liệu khoa học, chạy trên máy tính cá nhân.
+- Cung cấp kết quả thực nghiệm có thể tái lập về hiệu quả và chi phí của các thành phần trong đường ống RAG trên tài liệu khoa học, trên phần cứng chỉ dùng CPU.
 - Cho thấy phân mảnh phân cấp small-to-big hiệu quả khi ngữ cảnh được ghép đúng cách, và lợi ích của truy xuất lai phụ thuộc vào phần còn lại của đường ống.
 - Minh họa cách lựa chọn phương pháp dựa trên cả kết quả đo, lý thuyết và chi phí, thay vì chỉ dựa vào điểm số cao nhất.
 
 ### 2. Ý nghĩa Thực tiễn
-- Xây dựng thành công một phần mềm quản lý tài liệu nghiên cứu hoàn chỉnh, giúp các nhà nghiên cứu, giảng viên và sinh viên nâng cao đáng kể năng suất đọc hiểu và khai thác tri thức học thuật.
-- Giải quyết triệt để mối lo ngại về an toàn dữ liệu và quyền riêng tư bản quyền, cho phép các cơ sở nghiên cứu và trường đại học ứng dụng AI trong quản lý tài liệu mật mà không cần gửi dữ liệu lên các dịch vụ đám mây.
-- Giảm thiểu tối đa chi phí hạ tầng, chứng minh tính khả thi của việc triển khai một trợ lý AI thông minh vận hành mượt mà trên máy tính cá nhân thông thường mà không cần đầu tư các hệ thống máy chủ GPU đắt tiền.
+- Xây dựng một bản thử nghiệm khái niệm của phần mềm quản lý tài liệu nghiên cứu có trợ lý AI hỏi đáp trên nội dung tài liệu.
+- Cho thấy trợ lý có thể chạy trên hạ tầng tự vận hành, chỉ dùng CPU, không gửi tài liệu tới dịch vụ AI của bên thứ ba; đồng thời chỉ ra rõ những thay đổi cần thiết trước khi có thể phục vụ nhiều người dùng.
 
 ---
 
@@ -388,7 +400,7 @@ Lượng ngữ cảnh đưa vào mô hình cần được giới hạn: Liu et a
 ### 2.3.1. Trích xuất văn bản PDF
 PDF được thiết kế để hiển thị, không phải để lưu văn bản có cấu trúc. Với bài báo khoa học, các khó khăn chính là bố cục hai cột (dễ trộn lẫn thứ tự đọc), việc nhận diện đề mục, và các thành phần ngoài văn bản chính như bảng, chú thích hình và công thức. Các phương pháp trích xuất gồm:
 - **Trích xuất văn bản thô:** lấy chữ theo thứ tự trong tệp. Cách này nhanh nhưng không giữ được cấu trúc.
-- **Trích xuất có phân tích bố cục:** sắp xếp khối văn bản theo vị trí và nhận diện đề mục qua định dạng chữ, giữ được thứ tự đọc và cấu trúc đề mục.
+- **Trích xuất có phân tích bố cục:** sắp xếp khối văn bản theo vị trí và nhận diện đề mục qua định dạng chữ, giữ được thứ tự đọc và cấu trúc đề mục; ví dụ chế độ bố cục của PyMuPDF (Artifex Software, 2024).
 - **Phân tích cấu trúc bằng mô hình học máy:** ví dụ GROBID, chuyển bài báo thành văn bản có cấu trúc (đề mục, đoạn, tài liệu tham khảo). Cách này thường chính xác hơn nhưng nặng hơn về tài nguyên.
 
 ### 2.3.2. Phân mảnh văn bản (Chunking)
@@ -399,9 +411,9 @@ Phân mảnh quyết định đơn vị văn bản được lập chỉ mục v�
 - **Phân cấp (small-to-big):** dùng đoạn con nhỏ để so khớp, nhưng đưa đoạn cha lớn hơn chứa nó vào ngữ cảnh (LlamaIndex, n.d.). Cách này kết hợp độ chính xác của đoạn nhỏ với ngữ cảnh đầy đủ của đoạn lớn.
 
 ### 2.3.3. Mô hình nhúng
-Mô hình nhúng biến câu hỏi và đoạn văn thành vector, sao cho các văn bản có nghĩa gần nhau có vector gần nhau; độ liên quan được đo bằng độ tương đồng cosine. Các mô hình dùng cho truy xuất thường có dạng mã hóa hai nhánh (*bi-encoder*; Reimers & Gurevych, 2019; Karpukhin et al., 2020): câu hỏi và đoạn văn được mã hóa độc lập, nên các đoạn văn có thể được mã hóa trước một lần. Khi chọn mô hình, cần cân nhắc:
-- **Mục tiêu huấn luyện:** mô hình được huấn luyện tương phản trên các cặp câu hỏi – đoạn văn (Wang et al., 2022; Xiao et al., 2024) thường tốt hơn mô hình câu tổng quát. Nhiều mô hình yêu cầu tiền tố riêng cho câu hỏi và đoạn văn. Mô hình được huấn luyện cho một tác vụ khác, như tương đồng giữa các bài báo, có thể không phù hợp với việc tìm đoạn trả lời câu hỏi.
-- **Kích thước và độ dài ngữ cảnh:** mô hình lớn hơn với cửa sổ ngữ cảnh dài (Warner et al., 2024) thường chính xác hơn nhưng chậm hơn và tốn bộ nhớ hơn; mô hình có cửa sổ ngắn sẽ cắt bỏ phần cuối của đoạn văn dài.
+Mô hình nhúng biến câu hỏi và đoạn văn thành vector, sao cho các văn bản có nghĩa gần nhau có vector gần nhau; độ liên quan được đo bằng độ tương đồng cosine giữa hai vector, như trong mô hình không gian vector cổ điển (Salton et al., 1975; Manning et al., 2008). Các mô hình nhúng hiện nay dựa trên kiến trúc Transformer (Vaswani et al., 2017), phần lớn theo dạng bộ mã hóa của BERT (Devlin et al., 2019). Các mô hình dùng cho truy xuất thường có dạng mã hóa hai nhánh (*bi-encoder*; Reimers & Gurevych, 2019; Karpukhin et al., 2020): câu hỏi và đoạn văn được mã hóa độc lập, nên các đoạn văn có thể được mã hóa trước một lần. Khi chọn mô hình, cần cân nhắc:
+- **Mục tiêu huấn luyện:** mô hình được huấn luyện tương phản (hàm mất mát InfoNCE; van den Oord et al., 2018; Chen et al., 2020) trên các cặp câu hỏi – đoạn văn (Wang et al., 2022; Xiao et al., 2024; Merrick et al., 2024) thường tốt hơn mô hình câu tổng quát. Nhiều mô hình yêu cầu tiền tố riêng cho câu hỏi và đoạn văn. Mô hình được huấn luyện cho một tác vụ khác, như tương đồng giữa các bài báo, có thể không phù hợp với việc tìm đoạn trả lời câu hỏi.
+- **Kích thước và độ dài ngữ cảnh:** mô hình lớn hơn với cửa sổ ngữ cảnh dài, chẳng hạn nhờ mã hóa vị trí xoay (RoPE; Su et al., 2024) trong ModernBERT (Warner et al., 2024), thường chính xác hơn nhưng chậm hơn và tốn bộ nhớ hơn; mô hình có cửa sổ ngắn sẽ cắt bỏ phần cuối của đoạn văn dài.
 
 ### 2.3.4. Chiến lược truy xuất
 - **Truy xuất dense:** xếp hạng các đoạn theo độ tương đồng giữa vector câu hỏi và vector đoạn văn. Cách này hiểu được các cách diễn đạt khác nhau của cùng một ý.
@@ -414,7 +426,7 @@ Mô hình nhúng biến câu hỏi và đoạn văn thành vector, sao cho các 
 - **Xếp hạng lại (reranking):** mô hình mã hóa chéo (*cross-encoder*) đọc đồng thời câu hỏi và đoạn văn để chấm lại các ứng viên đầu. Cách này chính xác hơn bi-encoder nhưng tốn chi phí tính toán hơn nhiều.
 
 ### 2.3.5. Sinh câu trả lời
-Mô hình ngôn ngữ nhận câu hỏi cùng ngữ cảnh đã truy xuất và sinh câu trả lời. Mô hình lớn hơn thường tuân thủ chỉ dẫn và bám ngữ cảnh tốt hơn, nhưng chậm hơn và tốn bộ nhớ hơn, điều quan trọng khi chạy trên máy cá nhân. Lời nhắc có thể yêu cầu mô hình từ chối khi ngữ cảnh không đủ thông tin, để hạn chế câu trả lời không có căn cứ (ảo giác).
+Mô hình ngôn ngữ nhận câu hỏi cùng ngữ cảnh đã truy xuất và sinh câu trả lời. Mô hình lớn hơn thường tuân thủ chỉ dẫn và bám ngữ cảnh tốt hơn, nhưng chậm hơn và tốn bộ nhớ hơn, điều quan trọng khi chạy trên phần cứng chỉ dùng CPU. Lời nhắc có thể yêu cầu mô hình từ chối khi ngữ cảnh không đủ thông tin, để hạn chế câu trả lời không có căn cứ (ảo giác).
 
 ---
 
@@ -432,7 +444,7 @@ $$\text{DCG}@k = \sum_{i=1}^k \frac{2^{rel_i} - 1}{\log_2(i + 1)}, \quad \text{n
 
 ## 2.5. Nhận xét
 
-1. Các hệ thống RAG thương mại phần lớn dựa vào dịch vụ đám mây, gây lo ngại về bảo mật tài liệu nghiên cứu và chi phí. Một hệ thống chạy cục bộ phải cân bằng giữa chất lượng và chi phí tính toán trên máy cá nhân.
+1. Các hệ thống RAG thương mại phần lớn dựa vào dịch vụ đám mây, gây lo ngại về bảo mật tài liệu nghiên cứu và chi phí. Một hệ thống tự vận hành trên phần cứng khiêm tốn (không GPU) phải cân bằng giữa chất lượng và chi phí tính toán.
 2. Với mỗi thành phần của đường ống, lý thuyết đưa ra kỳ vọng về phương pháp tốt hơn, nhưng hiệu quả thực tế phụ thuộc vào dữ liệu và vào các thành phần còn lại. Vì vậy, các phương pháp cần được đánh giá trên dữ liệu của bài toán và đối chiếu với kỳ vọng lý thuyết.
 
 Những nhận định trên là cơ sở cho thiết kế thực nghiệm trong Chương 3.
@@ -480,6 +492,8 @@ Các phương pháp được so sánh và lựa chọn trên cùng các bài bá
 | Phần mềm | Python 3.11 (`backend/venv`), Sentence-Transformers, rank-bm25, Ollama |
 
 *Bảng 3.1: Môi trường thực nghiệm.*
+
+Máy này cũng là máy chạy bản thử nghiệm (CPU, 16 GB RAM, không GPU), nên độ trễ và bộ nhớ đo được là chi phí khi phục vụ một người dùng tại một thời điểm.
 
 Các phép đo trong lần thực nghiệm đầu tiên của đề tài được thực hiện trên một máy khác (AMD Ryzen 5 5600). Chương 5 chỉ báo cáo kết quả của lần thực nghiệm hiện tại, nên độ trễ và bộ nhớ đều đo trên cùng một máy.
 
@@ -543,7 +557,7 @@ Mỗi thực nghiệm thành phần chỉ thay đổi thành phần đang xét; 
 - **Tiêu chí lựa chọn:** nDCG@10 trên QASPER và trên PeerQA, độ trễ cộng thêm (với xếp hạng lại, độ trễ phải chấp nhận được trong một ứng dụng tương tác), và mức độ đơn giản khi đưa vào hệ thống.
 
 ### 3.3.5. Sinh câu trả lời
-- **Phương pháp:** năm mô hình chạy cục bộ qua Ollama: llama3.2:1b, llama3.2:3b, qwen2.5:0.5b, qwen2.5:1.5b, phi4-mini.
+- **Phương pháp:** năm mô hình chạy cục bộ qua Ollama: llama3.2:1b, llama3.2:3b (Meta AI, 2024), qwen2.5:0.5b, qwen2.5:1.5b, phi4-mini.
 - **Cô lập khâu sinh:** mỗi mô hình nhận cùng lời nhắc và **bằng chứng chuẩn** làm ngữ cảnh, nên thực nghiệm chỉ đo khâu sinh. Kết quả không phải là chất lượng của toàn bộ đường ống.
 - **Chỉ số:** Token F1 (so với câu trả lời tham chiếu tốt nhất), tỷ lệ từ chối, độ chính xác với câu hỏi Có/Không, độ trễ và bộ nhớ.
 - **Đánh giá thủ công:** cùng 20 câu hỏi (lấy cách đều 25 câu trong 500 câu) cho cả năm mô hình, một người đánh giá, ẩn danh mô hình, đối chiếu câu trả lời với ngữ cảnh được cung cấp. Việc đánh giá chia làm hai đợt: đợt 1 gồm llama3.2:1b, llama3.2:3b, qwen2.5:0.5b (60 câu trả lời); đợt 2 gồm qwen2.5:1.5b và phi4-mini (40 câu trả lời, dùng lại câu trả lời đã sinh, không chạy lại mô hình). Mỗi câu trả lời nhận một trong sáu nhãn:
@@ -554,7 +568,7 @@ Mỗi thực nghiệm thành phần chỉ thay đổi thành phần đang xét; 
   - từ chối hợp lệ;
   - từ chối không cần thiết.
 - **Lý do chọn các phương pháp:** các mô hình mở chạy được qua Ollama trên CPU với 16 GB RAM, thuộc hai họ (Llama 3.2, Qwen2.5) ở nhiều kích thước (0,5B–3B) để xem ảnh hưởng của kích thước trong và giữa các họ; phi4-mini (3,8B) là mô hình lớn nhất còn chạy được ở mức chấp nhận được trên máy này.
-- **Tiêu chí lựa chọn:** Token F1, tỷ lệ từ chối và đánh giá thủ công được xem cùng nhau (không chỉ số nào đủ một mình), kèm độ trễ và bộ nhớ trên máy cá nhân.
+- **Tiêu chí lựa chọn:** Token F1, tỷ lệ từ chối và đánh giá thủ công được xem cùng nhau (không chỉ số nào đủ một mình), kèm độ trễ và bộ nhớ trên phần cứng chỉ dùng CPU.
 
 ### 3.3.6. Thực nghiệm kết hợp toàn trình: 16 cấu hình đường ống RAG
 
@@ -618,7 +632,7 @@ Hai lưu ý khi đọc kết quả:
 ## 3.6. Phạm vi thực hiện và giới hạn
 
 ### 3.6.1. Các nội dung đã hoàn thành
-- Ứng dụng web quản lý tài liệu tích hợp RAG cục bộ, với bộ kiểm thử backend tự động (104 bài kiểm thử) đều vượt qua.
+- Bản thử nghiệm khái niệm của ứng dụng quản lý tài liệu tích hợp RAG, với bộ kiểm thử backend tự động (104 bài kiểm thử) đều vượt qua.
 - Năm thực nghiệm thành phần (trích xuất, phân mảnh, mô hình nhúng, chiến lược truy xuất, sinh câu trả lời), cùng các phần mở rộng (phân mảnh ngữ nghĩa, xếp hạng lại, kiểm tra trọng số α, đánh giá thủ công).
 - Thiết kế, dữ liệu và công cụ cho thực nghiệm kết hợp 16 cấu hình, đã chạy thử và đo chi phí.
 
@@ -642,7 +656,7 @@ Hai lưu ý khi đọc kết quả:
 
 ### 4.1.1. Bối cảnh và tác nhân
 
-Các phần mềm quản lý tài liệu như Zotero hay Mendeley tổ chức thư viện tốt nhưng không hỗ trợ khai thác nội dung; còn các dịch vụ LLM trên đám mây gây lo ngại về rò rỉ tài liệu chưa công bố, ảo giác và chi phí. Hệ thống trong đồ án tích hợp một trợ lý RAG chạy cục bộ vào một ứng dụng quản lý tài liệu theo phong cách Zotero, hoạt động hoàn toàn trên máy tính cá nhân.
+Các phần mềm quản lý tài liệu như Zotero hay Mendeley tổ chức thư viện tốt nhưng không hỗ trợ khai thác nội dung; còn các dịch vụ LLM thương mại gây lo ngại về việc gửi tài liệu chưa công bố cho bên thứ ba, ảo giác và chi phí. Hệ thống trong đồ án là một **bản thử nghiệm khái niệm**: một ứng dụng theo phong cách Zotero chạy cục bộ trên một máy, gồm cả đường ống RAG và mô hình ngôn ngữ.
 
 Hệ thống có hai tác nhân:
 - **Khách:** chỉ có thể đăng ký hoặc đăng nhập.
@@ -661,23 +675,26 @@ Hệ thống có hai tác nhân:
 | **FR-07** | Bảng tài liệu | Lọc theo thư mục/thẻ, tìm kiếm, sắp xếp hai chiều, hiển thị trạng thái lập chỉ mục |
 | **FR-08** | Sửa siêu dữ liệu | Sửa trực tiếp 22 trường siêu dữ liệu trên bảng thuộc tính |
 | **FR-09** | Trình đọc PDF | Đọc PDF, phóng to/thu nhỏ, điều hướng trang |
-| **FR-10** | Chú thích | Bôi đậm nhiều màu và ghi chú trên trang, lưu lên máy chủ |
+| **FR-10** | Chú thích | Bôi đậm nhiều màu và ghi chú trên trang, lưu vào cơ sở dữ liệu |
 | **FR-11** | Lập chỉ mục RAG | Phân mảnh và nhúng tài liệu trong luồng nền, không chặn giao diện |
-| **FR-12** | Hỏi đáp có căn cứ | Truy xuất đoạn liên quan, từ chối khi không đủ căn cứ, sinh câu trả lời bằng LLM cục bộ |
+| **FR-12** | Hỏi đáp có căn cứ | Truy xuất đoạn liên quan, từ chối khi không đủ căn cứ, sinh câu trả lời bằng LLM chạy cục bộ |
 | **FR-13** | Điều hướng trích dẫn | Câu trả lời kèm nguồn `[Page X]`; nhấp vào sẽ cuộn tới trang và tô sáng đoạn được trích |
 | **FR-14** | Tóm tắt nhanh | Tóm tắt bài báo (vấn đề, phương pháp, kết quả) bằng một nút bấm |
 | **FR-15** | Xem các đoạn đã phân mảnh | Xem danh sách đoạn, số token và đề mục cha của tài liệu |
+| **FR-16** | Mở rộng ngữ cảnh khi thiếu căn cứ (dự kiến) | Khi mô hình trả lời rằng ngữ cảnh không đủ, truy xuất các mục xếp hạng tiếp theo chưa được dùng và hỏi lại. Ba chế độ: `strict` (mặc định, không truy xuất thêm), `once` (thêm một vòng), `loop` (lặp đến khi mô hình trả lời được, hết mục hoặc đạt số vòng tối đa) |
 
 *Bảng 4.1: Yêu cầu chức năng.*
+
+FR-16 là chức năng dự kiến, chưa được triển khai trong bản hiện tại; mỗi vòng truy xuất thêm làm tăng thời gian trả lời khoảng 30 giây trên CPU và cần được đánh giá trước khi bật (Mục 6.3).
 
 ### 4.1.3. Yêu cầu phi chức năng
 
 | Mã | Nhóm | Yêu cầu |
 | :--- | :--- | :--- |
-| **NFR-01** | Hiệu năng | Chạy trên CPU của máy cá nhân 16 GB RAM, không cần GPU |
-| **NFR-02** | Riêng tư | Tệp PDF, văn bản và vector được lưu cục bộ; không gửi nội dung tài liệu ra dịch vụ AI bên ngoài |
+| **NFR-01** | Hiệu năng | Chạy trên một máy chỉ dùng CPU (16 GB RAM, không GPU); phục vụ một người dùng tại một thời điểm, không đặt mục tiêu về số người dùng đồng thời |
+| **NFR-02** | Riêng tư | Tệp PDF, văn bản và vector chỉ được lưu trên máy cục bộ; không gửi nội dung tài liệu tới dịch vụ AI của bên thứ ba (chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài) |
 | **NFR-03** | Bám ngữ cảnh | Trợ lý chỉ trả lời dựa trên ngữ cảnh truy xuất; từ chối khi độ tương đồng cao nhất dưới ngưỡng (0,80) |
-| **NFR-04** | Phạm vi hội thoại | Lịch sử hỏi đáp chỉ tồn tại trong phiên và được làm mới khi chuyển tài liệu |
+| **NFR-04** | Phạm vi hội thoại | Lịch sử hỏi đáp chỉ tồn tại trong phiên, được giữ riêng cho từng tài liệu và không được lưu lại khi đăng xuất hoặc tải lại trang |
 | **NFR-05** | Chịu lỗi | Khi Ollama không phản hồi (quá 60 giây), trả về các trích đoạn liên quan nhất kèm nguồn thay vì báo lỗi |
 | **NFR-06** | Giao diện | Bố cục 3 cột kiểu Zotero, bảng thuộc tính rộng tối thiểu 320 px, phím tắt (`Ctrl+1..9`, `Ctrl+F`, `Delete`) |
 | **NFR-07** | Phạm vi câu hỏi | Từ chối câu hỏi tục tĩu hoặc nhạy cảm về chính ứng dụng (mật khẩu, cấu hình, dữ liệu người dùng khác) |
@@ -719,22 +736,22 @@ graph LR
 
 ### 4.3.1. Kiến trúc tổng thể
 
-Hệ thống dùng kiến trúc **khối đơn mô-đun hóa (modular monolith)**: một tiến trình backend Django chứa các mô-đun người dùng, thư mục, tài liệu và đường ống RAG; việc lập chỉ mục chạy trong luồng nền của chính tiến trình đó. Vi dịch vụ, hàng đợi Celery và Redis không được dùng vì làm tăng bộ nhớ và độ phức tạp cài đặt trên máy cá nhân mà không mang lại lợi ích cho một người dùng.
+Hệ thống gồm hai phần chạy trên cùng một máy: **giao diện web** (React, chạy trong trình duyệt) và **backend**. Backend dùng kiến trúc **khối đơn mô-đun hóa (modular monolith)**: một tiến trình Django chứa các mô-đun người dùng, thư mục, tài liệu và đường ống RAG; việc lập chỉ mục chạy trong luồng nền của chính tiến trình đó. Vi dịch vụ, hàng đợi Celery và Redis không được dùng vì làm tăng độ phức tạp vận hành mà một bản thử nghiệm khái niệm không cần; cái giá là khả năng mở rộng (Mục 4.3.3).
 
 ```mermaid
 graph TB
-    subgraph FE["Giao diện (React 19 + TypeScript)"]
+    subgraph FE["Giao diện web: React 19 + TypeScript (trình duyệt)"]
         UI["Bố cục 3 cột: thư viện, bảng tài liệu, thuộc tính"]
         PDF["Trình đọc PDF.js + chú thích"]
         CHAT["Khung trợ lý AI"]
     end
-    subgraph BE["Backend (Django 5 + DRF)"]
+    subgraph BE["Backend: Django 5 + DRF"]
         AUTH["users: xác thực JWT"]
         COLL["collections_app: thư mục, chia sẻ"]
         DOCS["documents: tài liệu, siêu dữ liệu, chú thích, quyền"]
         RAG["Đường ống RAG"]
     end
-    subgraph ST["Lưu trữ và suy luận cục bộ"]
+    subgraph ST["Lưu trữ và suy luận"]
         DB[("CSDL quan hệ")]
         FS[("Tệp PDF")]
         QD[("Qdrant nhúng")]
@@ -776,47 +793,54 @@ graph LR
 
 *Hình 4.3: Đường ống RAG: lập chỉ mục và trả lời câu hỏi.*
 
-### 4.3.2. Mô hình triển khai: ứng dụng máy tính cài đặt cục bộ
+### 4.3.2. Mô hình triển khai: chạy cục bộ trên một máy
 
-Người dùng tải về và cài đặt hệ thống như một ứng dụng máy tính thông thường, không cần tự cài Python, cơ sở dữ liệu hay Ollama. Bộ cài được giữ gọn nhẹ; các mô hình được tải ở lần chạy đầu.
+Bản thử nghiệm chạy toàn bộ trên một máy chỉ dùng CPU. Người dùng mở giao diện web trong trình duyệt; giao diện gọi REST API của backend Django trên cùng máy, và backend gọi Ollama qua địa chỉ nội bộ (`localhost`). Nội dung tài liệu không rời khỏi máy; chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài (Crossref, OpenAlex) và chỉ gửi định danh của bài báo.
 
 ```mermaid
-graph TB
-    subgraph PC["Máy tính của người dùng"]
-        subgraph APP["Ứng dụng (cài từ bộ cài)"]
-            W["Cửa sổ Tauri<br/>(giao diện React đã biên dịch)"]
-            S["Backend Django<br/>(tệp thực thi, cổng nội bộ)"]
-        end
-        subgraph DATA["Thư mục dữ liệu người dùng"]
-            DB[("SQLite")]
-            QD[("Qdrant nhúng")]
-            F[("Tệp PDF")]
-            M[("Mô hình nhúng")]
-        end
-        O["Ollama + llama3.2:3b"]
+graph LR
+    subgraph PC["Một máy (chỉ dùng CPU)"]
+        B["Trình duyệt<br/>(giao diện React)"] -->|REST + JWT| D["Django API + đường ống RAG<br/>+ e5-small-v2 + Qdrant nhúng"]
+        D --> DB[("PostgreSQL")]
+        D --> F[("Tệp PDF")]
+        D --> O["Ollama + llama3.2:3b<br/>(localhost)"]
     end
-    NET(("Internet<br/>(chỉ lần chạy đầu)"))
-    W -->|HTTP nội bộ| S
-    S --> DB & QD & F & M
-    S -->|HTTP nội bộ| O
-    NET -.->|tải mô hình nhúng, Ollama, LLM| M
-    NET -.-> O
+    D -->|tra cứu DOI| EXT["Crossref / OpenAlex"]
 ```
 
-*Hình 4.4: Mô hình triển khai của ứng dụng cài đặt cục bộ.*
+*Hình 4.4: Mô hình triển khai của bản thử nghiệm.*
 
-| Thành phần | Cách cung cấp |
+| Thành phần | Cách chạy |
 | :--- | :--- |
-| Cửa sổ ứng dụng, backend | Trong bộ cài: Tauri và Django đóng gói bằng PyInstaller, chạy ngầm trên cổng nội bộ |
-| Cơ sở dữ liệu, kho vector, tệp PDF | Tạo trong thư mục dữ liệu người dùng: SQLite, Qdrant nhúng, thư mục tệp |
-| Mô hình nhúng | Tải ở lần chạy đầu: `intfloat/e5-small-v2` (~130 MB) |
-| Mô hình ngôn ngữ | Tải ở lần chạy đầu: Ollama (nếu máy chưa có) và `llama3.2:3b` (~2 GB) |
+| Giao diện | Ứng dụng React 19 + TypeScript do Vite phục vụ, mở trong trình duyệt |
+| Backend | Django 5 + DRF; đường ống RAG, mô hình nhúng `intfloat/e5-small-v2` và Qdrant nhúng chạy trong cùng tiến trình |
+| Cơ sở dữ liệu | PostgreSQL 16 |
+| Tệp | PDF trong `media/documents/`, dữ liệu Qdrant trong `media/qdrant_db/` |
+| Mô hình ngôn ngữ | Ollama với `llama3.2:3b`, chỉ nhận kết nối từ `localhost` |
 
-*Bảng 4.3: Thành phần trong bộ cài và thành phần tải ở lần chạy đầu.*
+*Bảng 4.3: Các thành phần chạy trên máy cục bộ.*
 
-Ở lần chạy đầu, màn hình thiết lập tải khoảng 2,2 GB (có thanh tiến độ và tiếp tục được khi bị gián đoạn); sau đó ứng dụng chạy hoàn toàn ngoại tuyến. Mỗi lần mở, ứng dụng khởi động Ollama và backend, chờ cả hai sẵn sàng rồi hiển thị giao diện; khi đóng, các tiến trình ngầm được dừng. Ứng dụng dành cho một người dùng nên tài khoản cục bộ được tạo và đăng nhập tự động. Bộ cài dự kiến khoảng 1 GB; máy cần tối thiểu 16 GB RAM.
+Tài khoản và quyền chia sẻ (chủ sở hữu, EDIT, COMMENT, VIEW) được quản lý trong backend, nên chúng chỉ áp dụng giữa các tài khoản dùng chung một backend. Với mô hình một máy, những người dùng ở các máy khác nhau chưa thể chia sẻ một thư viện. Tệp PDF không được phục vụ qua đường dẫn tĩnh công khai mà qua điểm cuối `/api/v1/documents/{id}/file/`, có kiểm tra JWT và quyền xem tài liệu.
 
-**Trạng thái:** trong quá trình phát triển và thực nghiệm, hệ thống chạy từ mã nguồn (Vite, Django, PostgreSQL và Ollama cài riêng). Việc đóng gói là bước tiếp theo, theo kế hoạch tại `docs/design/DESKTOP_PACKAGING_PLAN.md`.
+**Hướng mở rộng.** Hệ thống có thể được tách thành một ứng dụng máy tính chỉ chứa giao diện, cài trên máy người dùng, và một máy chủ dùng chung chạy backend, cơ sở dữ liệu, kho vector và các mô hình. Mô hình này cho phép nhiều người dùng chia sẻ thư viện và không đòi hỏi máy người dùng đủ mạnh để chạy mô hình ngôn ngữ. Đổi lại, nó cần kết nối HTTPS, giới hạn tần suất và giám sát, lưu trữ tệp tách khỏi ổ đĩa của máy chủ ứng dụng, và người dùng phải tin tưởng bên vận hành máy chủ. Các giới hạn ở Mục 4.3.3 vẫn còn nguyên khi chuyển sang mô hình này (Mục 6.3).
+
+### 4.3.3. Giới hạn về khả năng mở rộng
+
+Hệ thống là một **bản thử nghiệm khái niệm** và **không có khả năng mở rộng** ở dạng hiện tại. Thiết kế hiện tại chính là thiết kế một máy đã được dùng trong thực nghiệm; nó đủ để minh họa hệ thống, không đủ để phục vụ người dùng thực, kể cả khi được đặt trên một máy chủ dùng chung. Bảng 4.4 liệt kê các nguyên nhân.
+
+| Giới hạn | Nguyên nhân trong thiết kế hiện tại | Hệ quả | Điều cần có để mở rộng |
+| :--- | :--- | :--- | :--- |
+| Một câu trả lời tại một thời điểm | Ollama chạy trên CPU, khoảng 30 giây cho mỗi câu trả lời với ngữ cảnh truy xuất (Mục 5.8); các yêu cầu xếp hàng | Với N người hỏi cùng lúc, người cuối chờ khoảng N × 30 giây; quá 60 giây thì hệ thống trả về nhánh dự phòng | Máy chủ suy luận có GPU, nhiều bản sao, hàng đợi yêu cầu và trả lời dạng luồng |
+| Bộ nhớ | Ollama dùng 4,5–6,9 GB, phần còn lại của 16 GB dành cho mô hình nhúng và Django | Không còn chỗ cho thêm mô hình hoặc tiến trình | Tách máy chủ suy luận, nhúng và API |
+| Một tiến trình | Qdrant ở chế độ nhúng chỉ cho một tiến trình; mô hình nhúng nằm trong tiến trình Django | Không chạy được nhiều tiến trình API hay nhiều máy | Qdrant và mô hình nhúng chạy như dịch vụ riêng |
+| Lập chỉ mục trong luồng nền | Luồng nền nằm trong tiến trình web | Mất công việc khi khởi động lại, không thử lại, tranh CPU với yêu cầu hỏi đáp | Hàng đợi công việc (Celery/RQ + Redis) và worker riêng |
+| Lưu trữ | Tệp PDF trên một ổ đĩa | Không dự phòng; dung lượng ổ đĩa giới hạn thư viện | Lưu trữ đối tượng (S3/MinIO) |
+| Một máy | Mọi thành phần trên một máy | Một điểm lỗi duy nhất; không cập nhật mà không gián đoạn | Cân bằng tải, nhiều bản sao ứng dụng, cơ sở dữ liệu được quản lý |
+| Vận hành và bảo mật | Chưa có giám sát, kiểm thử tải hay đánh giá bảo mật ngoài JWT, phân quyền và bộ lọc câu hỏi | Không biết sức chịu tải; chưa phù hợp với tài liệu mật của người dùng thực | Giám sát, kiểm thử tải, đánh giá bảo mật, mã hóa dữ liệu lưu trữ |
+
+*Bảng 4.4: Các giới hạn về khả năng mở rộng của bản thử nghiệm.*
+
+Các giới hạn này là lựa chọn có chủ đích: chúng giữ hệ thống đơn giản để tập trung vào chất lượng của đường ống RAG, là trọng tâm của đề tài. Đổi lại, các kết luận về chi phí trong Chương 5 chỉ áp dụng cho một người dùng tại một thời điểm.
 
 ---
 
@@ -824,7 +848,7 @@ graph TB
 
 ### 4.4.1. Cơ sở dữ liệu quan hệ
 
-Cơ sở dữ liệu gồm 15 bảng được định nghĩa bằng Django ORM (PostgreSQL khi phát triển; các mô hình không dùng tính năng riêng của PostgreSQL nên chạy được trên SQLite trong bản cài). Để dễ đọc, sơ đồ được tách thành hai phần: người dùng, thư mục và quyền (Hình 4.5); tài liệu và phân loại (Hình 4.6).
+Cơ sở dữ liệu gồm 15 bảng được định nghĩa bằng Django ORM (PostgreSQL 16). Để dễ đọc, sơ đồ được tách thành hai phần: người dùng, thư mục và quyền (Hình 4.5); tài liệu và phân loại (Hình 4.6).
 
 ```mermaid
 erDiagram
@@ -924,14 +948,14 @@ Bảng `Document` chứa trực tiếp các trường siêu dữ liệu (loại 
 
 ### 4.4.2. Kho vector
 
-Dữ liệu cho trợ lý AI được lưu trong Qdrant chạy nhúng cục bộ. Để thực hiện phân mảnh phân cấp mà không lặp lại văn bản đoạn cha trong từng vector con, mỗi tài liệu có hai bộ sưu tập:
+Dữ liệu cho trợ lý AI được lưu trong Qdrant (Qdrant, 2024), chạy ở chế độ nhúng trong tiến trình backend (chế độ này chỉ cho phép một tiến trình, Mục 4.3.3). Để thực hiện phân mảnh phân cấp mà không lặp lại văn bản đoạn cha trong từng vector con, mỗi tài liệu có hai bộ sưu tập:
 
 | Bộ sưu tập | Nội dung | Dùng để |
 | :--- | :--- | :--- |
 | `doc_{id}` | Vector 384 chiều của các đoạn con (khoảng 200 token, chồng lấp 40), kèm số trang, tên đề mục, mã đoạn cha | Tìm kiếm theo độ tương đồng |
 | `doc_{id}_parents` | Không có vector; lưu nguyên văn từng đề mục (đoạn cha) | Đọc đoạn cha theo khóa khi mở rộng ngữ cảnh |
 
-*Bảng 4.4: Hai bộ sưu tập Qdrant của mỗi tài liệu.*
+*Bảng 4.5: Hai bộ sưu tập Qdrant của mỗi tài liệu.*
 
 ---
 
@@ -1044,7 +1068,7 @@ Bảng siêu dữ liệu hiển thị 22 trường, được khai báo trong m�
 | Phân loại | Thẻ (tự do), lĩnh vực (chuẩn hóa), nhóm tài liệu, màu nhóm |
 | Hệ thống | Ngày thêm, ngày sửa (chỉ đọc), ghi chú thêm |
 
-*Bảng 4.5: Các trường siêu dữ liệu.*
+*Bảng 4.6: Các trường siêu dữ liệu.*
 
 Thẻ là nhãn tự do do người dùng đặt (ví dụ `transformer`, `cần-đọc`), còn lĩnh vực là danh mục ngành chuẩn hóa (ví dụ `Natural Language Processing`).
 
@@ -1053,8 +1077,8 @@ Thẻ là nhãn tự do do người dùng đặt (ví dụ `transformer`, `cần
 ## 4.7. Cài đặt các phân hệ
 
 - **Xác thực:** SimpleJWT; giao diện tự làm mới access token khi nhận lỗi 401; refresh token bị đưa vào danh sách đen khi đăng xuất.
-- **Siêu dữ liệu:** trích từ trang đầu PDF bằng PyMuPDF (tiêu đề theo cỡ chữ lớn nhất, DOI và mã arXiv bằng biểu thức chính quy), chạy hoàn toàn cục bộ; tra cứu DOI qua Crossref, dự phòng OpenAlex.
-- **Trình đọc và chú thích:** `pdfjs-dist` với lớp văn bản cho phép chọn chữ; tọa độ chú thích được lưu theo tỷ lệ trang nên hiển thị đúng ở mọi mức phóng to.
+- **Siêu dữ liệu:** trích từ trang đầu PDF bằng PyMuPDF (tiêu đề theo cỡ chữ lớn nhất, DOI và mã arXiv bằng biểu thức chính quy), chạy trong backend, không gọi dịch vụ bên ngoài; tra cứu DOI qua Crossref (Crossref, 2024), dự phòng OpenAlex (Priem et al., 2022).
+- **Trình đọc và chú thích:** `pdfjs-dist` (Mozilla, 2024) với lớp văn bản cho phép chọn chữ; tọa độ chú thích được lưu theo tỷ lệ trang nên hiển thị đúng ở mọi mức phóng to.
 - **Phân quyền chia sẻ:** VIEW cho phép đọc, hỏi đáp, tóm tắt; COMMENT cho phép chú thích; EDIT cho phép sửa siêu dữ liệu; xóa, lập chỉ mục lại và quản lý chia sẻ chỉ dành cho chủ sở hữu.
 - **Trợ lý AI:**
   - đường ống RAG như Hình 4.3, với cấu hình được chọn từ thực nghiệm (Chương 5); chế độ tùy chọn `rrf_legacy` kết hợp thêm BM25 bằng RRF;
@@ -1074,13 +1098,14 @@ Thẻ là nhãn tự do do người dùng đặt (ví dụ `transformer`, `cần
 3. **Chia sẻ chỉ qua API:** phân quyền đã có ở backend nhưng chưa có giao diện quản lý chia sẻ.
 4. **Bộ lọc câu hỏi đơn giản:** dựa trên danh sách từ nên có thể bị lách; tỷ lệ từ chối đúng chưa được đo.
 5. **Dữ liệu mẫu khi mất kết nối:** giao diện có thể hiển thị dữ liệu mẫu để trình diễn khi không kết nối được backend; trợ lý AI không bao giờ hiển thị câu trả lời giả lập.
-6. **Chưa đóng gói:** bộ cài (Mục 4.3.2) là bước phát triển tiếp theo.
+6. **Chạy từ mã nguồn trên một máy:** chưa có bộ cài đặt; những người dùng ở các máy khác nhau chưa thể dùng chung một thư viện.
+7. **Không mở rộng được:** đây là bản thử nghiệm khái niệm; các giới hạn được liệt kê ở Mục 4.3.3.
 
 ---
 
 ## 4.9. Tổng kết chương
 
-Chương 4 đã trình bày yêu cầu (15 chức năng, 7 phi chức năng), kiến trúc khối đơn mô-đun hóa, mô hình triển khai dạng ứng dụng cài đặt cục bộ, thiết kế dữ liệu (cơ sở dữ liệu quan hệ và kho vector hai bộ sưu tập), các quy trình chính và giao diện. Hệ thống này là nền tảng cho các thực nghiệm ở Chương 5.
+Chương 4 đã trình bày yêu cầu (15 chức năng đã triển khai, 1 chức năng dự kiến và 7 yêu cầu phi chức năng), kiến trúc khối đơn mô-đun hóa, mô hình triển khai (chạy cục bộ trên một máy) cùng các giới hạn về khả năng mở rộng của bản thử nghiệm khái niệm, thiết kế dữ liệu (cơ sở dữ liệu quan hệ và kho vector hai bộ sưu tập), các quy trình chính và giao diện. Hệ thống này là nền tảng cho các thực nghiệm ở Chương 5.
 
 ---
 
@@ -1358,13 +1383,48 @@ Mỗi lựa chọn dựa trên thực nghiệm thành phần tương ứng, và 
 - **Đo chi phí trên 10 bài báo:**
   - Với ngữ cảnh truy xuất dài 1.300–1.600 token, `llama3.2:3b` mất khoảng 32 giây cho mỗi câu trả lời, so với 6,5 giây khi dùng bằng chứng chuẩn ngắn. `qwen2.5:1.5b` mất khoảng 14 giây.
   - Trong lúc sinh câu trả lời, Ollama dùng 4,5–6,9 GB bộ nhớ, làm bộ nhớ trống của máy (16 GB) giảm xuống gần 0.
-  - Chi phí này là một phát hiện thực tế quan trọng: thời gian trả lời trong ứng dụng thực tế dài hơn nhiều so với thực nghiệm dùng bằng chứng chuẩn.
+  - Chi phí này là một phát hiện thực tế quan trọng: thời gian trả lời trong ứng dụng thực tế dài hơn nhiều so với thực nghiệm dùng bằng chứng chuẩn. Vì hệ thống xử lý một câu trả lời tại một thời điểm, đây cũng là giới hạn chính về khả năng mở rộng của bản thử nghiệm (Mục 4.3.3).
 - **Thời gian chạy ước tính:** khoảng 32–43 giờ, tùy theo số câu hỏi dùng để tính các chỉ số truy xuất.
 
-Khi có kết quả, mục này sẽ trình bày:
-- kết quả theo từng tầng: truy xuất, ghép ngữ cảnh, sinh câu trả lời, độ bám ngữ cảnh và chi phí, không gộp thành một điểm tổng hợp;
-- kết quả theo từng tập Train, Dev, Test và theo loại câu trả lời;
-- so sánh cấu hình tốt nhất ở mỗi tầng với cấu hình ghép từ các phương pháp tốt nhất của từng thành phần.
+Các bảng và hình của mục này được sinh tự động từ tệp kết quả bằng `eval/phases/phase_12_combination/scripts/report_combinations.py` (bảng ở `artifacts/combinations/thesis_tables.md`, hình ở `reports/thesis_figures/`). Kết quả được trình bày theo từng tầng, không gộp thành một điểm tổng hợp.
+
+### 5.8.1. Kỳ vọng từ các thực nghiệm thành phần
+
+Trước khi chạy, các thực nghiệm thành phần (Mục 5.3–5.6) cho các kỳ vọng sau. Mỗi kỳ vọng đến từ một thiết lập riêng, nên thực nghiệm kết hợp là lần đầu các phương pháp được so sánh trong cùng một thiết lập.
+- **Phân mảnh:** `hierarchical` có nDCG@10 cao hơn; `fixed_size` có CEC@0,5 cao hơn vì đưa nhiều token hơn vào ngữ cảnh.
+- **Mô hình nhúng:** ModernBERT-embed có nDCG@10 cao hơn e5-small-v2 một chút, nhưng truy vấn chậm hơn khoảng 4 lần và tốn bộ nhớ hơn.
+- **Truy xuất:** dense và hybrid gần như bằng nhau trên QASPER, vì câu hỏi ít trùng từ với bằng chứng; lợi ích của hybrid phụ thuộc vào chiến lược phân mảnh và mô hình nhúng (Hình 5.8).
+- **Mô hình sinh:** `qwen2.5:1.5b` có Token F1 cao hơn và nhanh hơn; `llama3.2:3b` từ chối nhiều hơn nhưng ít câu trả lời không có căn cứ hơn trong đánh giá thủ công.
+
+### 5.8.2. Tầng truy xuất và ghép ngữ cảnh
+
+> **[Chờ kết quả]** Dán Bảng 5.7 (8 đường ống: nDCG@10, MRR@10, CEC@0,5, số token và số đơn vị trong ngữ cảnh, độ trễ) và Hình 5.12. Nhận xét: đường ống nào dẫn đầu ở nDCG@10 và ở CEC@0,5; hai chỉ số có cùng chiều không; so với kỳ vọng ở Mục 5.8.1.
+
+### 5.8.3. Tầng sinh câu trả lời
+
+> **[Chờ kết quả]** Dán Bảng 5.8 (16 cấu hình: Token F1, tỷ lệ từ chối, Có/Không đúng, tỷ lệ chứa, thời gian sinh), Bảng 5.9 (từ chối khi ngữ cảnh có hoặc thiếu bằng chứng) và Hình 5.13. Nhận xét: khác biệt giữa hai mô hình sinh có giữ nguyên trên cả 8 đường ống không; mô hình có từ chối đúng lúc (ngữ cảnh thiếu bằng chứng) hay không. Token F1 chỉ đo mức trùng từ, không đo tính đúng sự thật.
+
+### 5.8.4. Ảnh hưởng của từng thành phần và tương tác
+
+> **[Chờ kết quả]** Dán Bảng 5.10. Với mỗi thành phần, viết: lý thuyết và thực nghiệm thành phần dự đoán gì (Mục 5.8.1), kết quả kết hợp cho thấy gì, và giải thích nếu khác. Khoảng chênh lệch theo cặp rộng hoặc đổi dấu cho thấy tương tác giữa các thành phần. Điều gì chưa giải thích được thì ghi rõ.
+
+### 5.8.5. Theo tập dữ liệu và loại câu trả lời
+
+> **[Chờ kết quả]** Dán Bảng 5.11 và 5.12. Lưu ý: nhiều bài báo trong tập kết hợp đã được dùng khi chọn phương pháp, nên kết quả trên Train, Dev và Test không phải phép kiểm tra độc lập.
+
+### 5.8.6. Cấu hình tốt nhất ở từng tầng và cấu hình ghép
+
+> **[Chờ kết quả]** Dán Bảng 5.13: so sánh cấu hình tốt nhất ở từng tầng với cấu hình ghép từ các phương pháp tốt nhất của từng thành phần (`HIER_MBERT_DENSE` với cả hai mô hình sinh) và cấu hình hiện tại của hệ thống (`HIER_E5_DENSE` + `llama3.2:3b`). Dán Bảng 5.14 (bộ nhớ) và tổng thời gian chạy.
+
+### 5.8.7. Đánh giá thủ công
+
+Đường ống được chọn theo quy tắc cố định trước khi xem câu trả lời: CEC@0,5 cao nhất, nếu bằng nhau thì xét nDCG@10. Trên đường ống đó, 15 câu hỏi (hạt giống 42, phân tầng theo loại câu trả lời) được trả lời bởi cả hai mô hình sinh từ cùng một ngữ cảnh, tạo thành 30 câu trả lời. Các câu trả lời được ẩn danh mô hình và gán nhãn theo cùng bộ 6 nhãn ở Mục 3.3.5, đối chiếu với ngữ cảnh đã truy xuất (tập lệnh `human_check_combinations.py`). Đây là phép kiểm tra định tính bổ sung của một người đánh giá, không phải đánh giá đại diện về mặt thống kê.
+
+> **[Chờ kết quả]** Số câu trả lời theo từng nhãn cho mỗi mô hình.
+
+### 5.8.8. Lựa chọn cấu hình cho ứng dụng
+
+> **[Chờ kết quả]** Chọn cấu hình dựa trên chất lượng ở từng tầng, độ bám ngữ cảnh (đánh giá thủ công) và chi phí (thời gian trả lời và bộ nhớ trên CPU), và nêu đánh đổi của lựa chọn.
 
 ---
 
@@ -1404,10 +1464,10 @@ Kết quả của bộ xếp hạng lại bge chưa được giải thích. Hai 
 ## 6.1. Kết quả đạt được
 
 ### 6.1.1. Về xây dựng phần mềm
-Đề tài đã xây dựng một ứng dụng web quản lý tài liệu nghiên cứu theo phong cách Zotero:
+Đề tài đã xây dựng một bản thử nghiệm khái niệm của ứng dụng quản lý tài liệu nghiên cứu theo phong cách Zotero:
 - **Kiến trúc và giao diện:** kiến trúc Khối đơn mô-đun hóa (Django 5 + React 19); bố cục 3 cột; trình đọc PDF.js có bôi đậm và ghi chú.
 - **Quản lý tài liệu:** 22 trường siêu dữ liệu; tra cứu DOI; chia sẻ theo quyền.
-- **Trợ lý AI cục bộ:** đường ống RAG chạy hoàn toàn trên máy cá nhân:
+- **Trợ lý AI tự vận hành:** đường ống RAG chạy trên phần cứng chỉ dùng CPU, không dùng dịch vụ AI của bên thứ ba:
   - PyMuPDF Layout → phân mảnh phân cấp → e5-small-v2 → Qdrant nhúng → truy xuất dense → `llama3.2:3b` qua Ollama;
   - ngưỡng từ chối khi ngữ cảnh không liên quan;
   - định vị trích dẫn trên trang PDF.
@@ -1441,7 +1501,8 @@ Thực nghiệm kết hợp 16 cấu hình đã được chuẩn bị đầy đ�
 2. **Chọn và đánh giá trên cùng dữ liệu.** Các phương pháp được chọn và đánh giá trên cùng các bài báo QASPER (NLP/ML), nên kết quả không chứng minh khả năng tổng quát hóa.
 3. **Chỉ số tự động dựa trên mức trùng từ,** và đánh giá thủ công chỉ có một người đánh giá với số câu nhỏ.
 4. **Tốc độ sinh câu trả lời trên CPU chậm khi ngữ cảnh dài:** khoảng 30 giây mỗi câu với `llama3.2:3b`. Bộ nhớ của máy 16 GB gần đạt giới hạn khi chạy mô hình sinh.
-5. **Một số kết quả chưa được giải thích đầy đủ:** bộ xếp hạng lại `bge-reranker-base`, và lợi thế của GROBID ở truy xuất phía sau.
+5. **Bản thử nghiệm khái niệm, không mở rộng được.** Toàn bộ giao diện, backend, dữ liệu và mô hình chạy trên một máy; mô hình ngôn ngữ trên CPU trả lời khoảng một câu mỗi 30 giây và xử lý tuần tự; Qdrant nhúng chỉ cho phép một tiến trình; lập chỉ mục chạy trong luồng nền; chưa có kiểm thử tải, giám sát hay đánh giá bảo mật. Hệ thống chưa phù hợp để phục vụ người dùng thực.
+6. **Một số kết quả chưa được giải thích đầy đủ:** bộ xếp hạng lại `bge-reranker-base`, và lợi thế của GROBID ở truy xuất phía sau.
 
 ---
 
@@ -1450,14 +1511,16 @@ Thực nghiệm kết hợp 16 cấu hình đã được chuẩn bị đầy đ�
 1. **Hoàn thành thực nghiệm kết hợp 16 cấu hình.** So sánh cấu hình tốt nhất ở từng tầng (truy xuất, ngữ cảnh, sinh câu trả lời, chi phí) với cấu hình ghép từ các phương pháp tốt nhất của từng thành phần, rồi chọn cấu hình cho ứng dụng.
 2. **Cải thiện cách ghép ngữ cảnh** (biến thể "fill" đã cho thấy CEC tăng) và cân nhắc rút ngắn ngữ cảnh để giảm thời gian sinh câu trả lời trên CPU.
 3. **Tìm hiểu nguyên nhân lợi thế của GROBID** bằng hai phép kiểm tra nhỏ đã được thiết kế.
-4. **Mở rộng sang hỏi đáp trên nhiều tài liệu** trong cùng một thư mục, và hỗ trợ PDF dạng ảnh (OCR).
-5. **Đóng gói thành ứng dụng máy tính cài đặt cục bộ:** một bộ cài Windows gọn nhẹ chứa ứng dụng, backend và cơ sở dữ liệu SQLite; Ollama, `llama3.2:3b` và mô hình nhúng được tự tải ở lần chạy đầu, để người dùng chỉ cần tải về và cài đặt (Mục 4.3.3).
+4. **Mở rộng ngữ cảnh khi thiếu căn cứ (FR-16):** khi mô hình từ chối vì ngữ cảnh không đủ, truy xuất các mục xếp hạng tiếp theo chưa được dùng và hỏi lại, với ba chế độ `strict`, `once` và `loop` (có giới hạn số vòng). Cần đo trên tập sinh câu trả lời của thực nghiệm kết hợp: tỷ lệ từ chối, Token F1, thời gian trả lời (mỗi vòng thêm khoảng 30 giây) và đánh giá thủ công các câu trả lời thay đổi, vì giảm từ chối có thể làm tăng câu trả lời không có căn cứ.
+5. **Mở rộng sang hỏi đáp trên nhiều tài liệu** trong cùng một thư mục, và hỗ trợ PDF dạng ảnh (OCR).
+6. **Mô hình ứng dụng máy tính và máy chủ dùng chung:** người dùng cài một ứng dụng máy tính (ví dụ Tauri) chỉ chứa giao diện, gọi API tới một máy chủ chạy backend, PostgreSQL, Qdrant và Ollama, kèm HTTPS và truy cập PDF có kiểm tra quyền (Mục 4.3.2). Mô hình này cho phép nhiều người dùng chia sẻ thư viện và không đòi hỏi máy người dùng đủ mạnh để chạy mô hình ngôn ngữ.
+7. **Hướng tới khả năng mở rộng:** máy chủ suy luận có GPU, hàng đợi công việc và worker riêng cho lập chỉ mục, Qdrant chạy như dịch vụ riêng, lưu trữ đối tượng cho PDF, cùng kiểm thử tải và giám sát (Mục 4.3.3).
 
 ---
 
 ## 6.4. Lời kết
 
-Đề tài cho thấy một trợ lý AI dựa trên RAG có thể chạy hoàn toàn trên máy tính cá nhân để hỗ trợ đọc tài liệu khoa học. Đồng thời, việc lựa chọn phương pháp cho từng thành phần nên dựa trên cả kết quả đo, lý thuyết và chi phí, thay vì chỉ chọn phương pháp có điểm cao nhất.
+Đề tài cho thấy, ở mức thử nghiệm khái niệm, một trợ lý AI dựa trên RAG có thể chạy cục bộ trên phần cứng chỉ dùng CPU để hỗ trợ đọc tài liệu khoa học; việc phục vụ nhiều người dùng đòi hỏi thay đổi kiến trúc đáng kể. Đồng thời, việc lựa chọn phương pháp cho từng thành phần nên dựa trên cả kết quả đo, lý thuyết và chi phí, thay vì chỉ chọn phương pháp có điểm cao nhất.
 
 ---
 
@@ -1495,8 +1558,6 @@ Merrick, L., Xu, D., Nuti, G., & Campos, D. (2024). *Arctic-Embed: Scalable, eff
 
 Meta AI. (2024, September 25). *Llama 3.2: Revolutionizing edge AI and vision with open, customizable models*. https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/
 
-Mixedbread AI. (2024). *mxbai-embed-large-v1* [Model card]. Hugging Face. https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1
-
 Mozilla. (2024). *PDF.js: A general-purpose, web standards-based platform for parsing and rendering PDFs*. https://mozilla.github.io/pdf.js/
 
 Priem, J., Piwowar, H., & Orr, R. (2022). *OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts* (arXiv:2205.01833). arXiv. https://doi.org/10.48550/arXiv.2205.01833
@@ -1531,129 +1592,138 @@ Xiao, S., Liu, Z., Zhang, P., Muennighoff, N., Lian, D., & Nie, J.-Y. (2024). C-
 
 ---
 
-## Phụ lục A. Danh mục 22 Trường Siêu Dữ liệu Học thuật (Bibliographic Metadata)
+## Phụ lục A. Các trường siêu dữ liệu
 
-Hệ thống quản lý tài liệu khoa học áp dụng cơ chế quản lý siêu dữ liệu hướng cấu hình (Data-Driven Configuration) tại tệp mã nguồn `frontend/src/constants/metadataConfig.ts`. Toàn bộ 22 trường thông tin học thuật được định nghĩa chi tiết theo chuẩn thư mục quốc tế:
+Các trường siêu dữ liệu được khai báo trong `frontend/src/constants/metadataConfig.ts`; bảng thuộc tính hiển thị theo danh sách này thay vì viết cố định từng dòng. Cột "Lưu ở backend" cho biết trường tương ứng trong mô hình Django (`backend/apps/documents/models.py`); việc chuyển đổi tên trường nằm trong `frontend/src/api/documentsApi.ts`.
 
-*Bảng A.1: Danh mục 22 Trường Siêu dữ liệu Học thuật và Kiểu Dữ liệu Giao diện.*
+| STT | Khóa | Nhãn | Kiểu giao diện | Lưu ở backend | Ghi chú |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| 1 | `title` | Title | `text` | `Document.title` | Tiêu đề bài báo |
+| 2 | `shortTitle` | Short Title | `text` | `Document.short_title` | Tiêu đề rút gọn |
+| 3 | `itemType` | Item Type | `text` | `Document.item_type` | Loại ấn phẩm, mặc định `journalArticle` |
+| 4 | `authors` | Authors | `authors` | `Author` qua `DocumentAuthor` | Họ, tên và thứ tự tác giả (`author_order`) |
+| 5 | `doi` | DOI | `text` | `Document.doi` | Có nút tra cứu Crossref |
+| 6 | `url` | URL | `url` | `Document.url` | |
+| 7 | `date` | Date | `text` | `Document.date` | Ngày xuất bản |
+| 8 | `genre` | Genre | `text` | `Document.genre` | |
+| 9 | `repository` | Repository | `text` | `Document.repository` | Ví dụ: arXiv |
+| 10 | `archiveId` | Archive ID | `text` | `Document.archive_id` | Ví dụ: mã arXiv |
+| 11 | `language` | Language | `text` | `Document.language` | Mặc định `English` |
+| 12 | `license` | License | `text` | `Document.license` | |
+| 13 | `version` | Version | `text` | `Document.version` | Mặc định `1.0` |
+| 14 | `citationKey` | Citation Key | `text` | `Document.citation_key` | Khóa trích dẫn BibTeX |
+| 15 | `locationInArchive` | Location In Archive | `text` | `Document.loc_in_archive` | |
+| 16 | `dateAdded` | Date Added | `text` | `Document.date_added` | Tự động khi tạo |
+| 17 | `dateModified` | Date Modified | `text` | `Document.date_modified` | Tự động khi sửa |
+| 18 | `extra` | Extra | `text` | `Document.extra` | Ghi chú tự do |
+| 19 | `tags` | Tags | `chips` | `Tag` qua `DocumentTag` | Thẻ tự do |
+| 20 | `domains` | Domains | `chips` | `Domain` qua `DocumentDomain` | Lĩnh vực |
+| 21 | `documentGroups` | Document Groups | `chips` | `Document.primary_collection` | Hiển thị tên thư mục chính của tài liệu; không có bảng riêng |
+| 22 | `groupColor` | Group Color | `color` | Không lưu | Giao diện dùng màu mặc định `#3b82f6` |
 
-| STT | Khóa thuộc tính (Key) | Nhãn hiển thị (Label) | Kiểu nhập liệu (UI Type) | Bảng CSDL PostgreSQL | Mô tả ngữ nghĩa và Mục đích học thuật |
-| :---: | :--- | :--- | :---: | :--- | :--- |
-| 1 | `title` | Title | `text` (Primary) | `Document.title` | Tiêu đề đầy đủ của bài báo hoặc ấn phẩm khoa học. |
-| 2 | `shortTitle` | Short Title | `text` | `DocumentMetadata.publication_title` | Tiêu đề rút gọn hoặc tiêu đề chạy đầu trang (running header). |
-| 3 | `itemType` | Item Type | `text` / `dropdown` | `DocumentMetadata.item_type` | Loại hình ấn phẩm: Journal Article, Conference Paper, Book, Preprint, Thesis, Report. |
-| 4 | `authors` | Authors | `authors` (Dynamic list) | `Author` & `DocumentAuthor` | Danh sách tác giả xếp theo thứ tự đóng góp (`order`), gồm Họ (`last_name`) và Tên (`first_name`). |
-| 5 | `doi` | DOI | `text` (Interactive) | `Document.doi` | Định danh đối tượng số (Digital Object Identifier) chuẩn quốc tế; tích hợp nút tra cứu Crossref. |
-| 6 | `url` | URL | `url` | `DocumentMetadata.extra` | Đường dẫn trực tiếp đến trang chủ bài báo hoặc kho lưu trữ mở. |
-| 7 | `date` | Date | `text` / `date` | `DocumentMetadata.date` | Ngày hoặc năm xuất bản chính thức của công trình nghiên cứu. |
-| 8 | `genre` | Genre | `text` | `DocumentMetadata.extra` | Thể loại bài viết học thuật (Research Article, Review, Short Communication, Survey). |
-| 9 | `repository` | Repository | `text` | `DocumentMetadata.extra` | Kho lưu trữ dữ liệu số (arXiv, IEEE Xplore, PubMed, ACM Digital Library). |
-| 10 | `archiveId` | Archive ID | `text` | `Document.arxiv_id` | Mã số định danh trong kho lưu trữ chuyên ngành (ví dụ: arXiv ID `1706.03762`). |
-| 11 | `language` | Language | `text` / `dropdown` | `DocumentMetadata.language` | Ngôn ngữ chính của bài viết (tiếng Anh `en`, tiếng Việt `vi`, tiếng Pháp `fr`). |
-| 12 | `license` | License | `text` | `DocumentMetadata.license` | Giấy phép bản quyền phân phối tài liệu (CC-BY 4.0, MIT, Closed Access). |
-| 13 | `version` | Version | `text` | `DocumentMetadata.extra` | Phiên bản ấn phẩm (v1, v2, Author Accepted Manuscript, Final Published). |
-| 14 | `citationKey` | Citation Key | `text` | `DocumentMetadata.extra` | Khóa trích dẫn BibTeX định danh duy nhất (ví dụ: `vaswani2017attention`). |
-| 15 | `locationInArchive` | Location In Archive | `text` | `DocumentMetadata.extra` | Vị trí lưu trữ bài báo trong bộ sưu tập hoặc số thứ tự tệp vật lý. |
-| 16 | `dateAdded` | Date Added | `text` (Readonly) | `Document.date_added` | Thời điểm tài liệu được nạp vào thư viện hệ thống (tạo tự động). |
-| 17 | `dateModified` | Date Modified | `text` (Readonly) | `Document.updated_at` | Thời điểm chỉnh sửa thuộc tính tài liệu gần nhất (cập nhật tự động). |
-| 18 | `extra` | Extra | `textarea` | `DocumentMetadata.extra` | Ghi chú văn bản tự do, lưu trữ các trường mở rộng hoặc trích dẫn tùy biến. |
-| 19 | `tags` | Tags | `chips` (Multiselect) | `Tag` (M2M) | Thẻ từ khóa phân loại do người dùng gắn tự do (e.g. `self-attention`, `paper-to-review`). |
-| 20 | `domains` | Domains | `chips` (Multiselect) | `Domain` (M2M) | Phân ngành khoa học chuẩn mực bao quát (e.g. `Computer Science`, `NLP`). |
-| 21 | `documentGroups` | Document Groups | `chips` (Multiselect) | `DocumentGroup` (M2M) | Nhóm làm việc hoặc dự án nghiên cứu gán cho tài liệu. |
-| 22 | `groupColor` | Group Color | `color` (Picker) | `DocumentMetadata.group_color` | Mã màu nhận diện trực quan trên bảng tài liệu (Hex code, ví dụ: `#3b82f6`). |
-
----
-
-## Phụ lục B. Từ điển Dữ liệu Qdrant Hai Bộ sưu tập Song hành (Companion Vectorless Collections)
-
-Nhằm tối ưu hóa triệt để mô hình phân mảnh phân cấp Small-to-Big trên môi trường máy trạm cá nhân, hệ thống loại bỏ sự trùng lặp văn bản bằng cách tách biệt kho lưu trữ vector con và kho lưu trữ văn bản đề mục cha trong Qdrant SQLite cục bộ:
-
-### B.1. Bộ sưu tập Vector Đoạn con: `doc_{id}`
-- **Cấu hình Vector:** `size = 384`, `distance = Cosine`, định dạng dấu phẩy động 32-bit (FP32).
-- **Mã hóa Vector:** Mô hình `intfloat/e5-small-v2` với tiền tố bắt buộc `"passage: "`.
-- **Khóa định danh (Point ID):** UUIDv5 tất định sinh từ chuỗi `f"doc_{id}::{doc_id}::{chunk_id}"`.
-
-*Bảng A.2.1: Cấu trúc Payload của Vector Đoạn con trong Bộ sưu tập `doc_{id}`.*
-
-| Tên trường Payload | Kiểu dữ liệu | Ý nghĩa kỹ thuật | Ví dụ giá trị |
-| :--- | :---: | :--- | :--- |
-| `document_id` | `integer` | Khóa chính ID của tài liệu trong bảng `Document` (PostgreSQL) | `12` |
-| `chunk_id` | `integer` | Số thứ tự phân đoạn con trong tài liệu (bắt đầu từ 0) | `3` |
-| `page_number` | `integer` | Trang vật lý thực tế trong tệp PDF nơi đoạn con xuất hiện | `4` |
-| `section_title` | `string` | Tiêu đề đề mục học thuật cha bao chứa đoạn con | `"3. Methodology"` |
-| `parent_id` | `string` | Định danh duy nhất của đề mục cha dùng để truy xuất mở rộng | `"sec_003"` |
-| `char_start` | `integer` | Chỉ số ký tự bắt đầu của đoạn con trong toàn văn bài báo | `4120` |
-| `char_end` | `integer` | Chỉ số ký tự kết thúc của đoạn con trong toàn văn bài báo | `4980` |
-| `text` | `string` | Nội dung văn bản của đoạn con (tối đa ~200 token ước lượng ≈ 150 từ) phục vụ kiểm tra đối soát | `"The scaled dot-product attention..."` |
+*Bảng A.1: Các trường siêu dữ liệu và nơi lưu trữ.*
 
 ---
 
-### B.2. Bộ sưu tập Phụ trợ Phi Vector (Vectorless Parent Store): `doc_{id}_parents`
-- **Cấu hình Vector:** `vectors_config = {}` (Không tạo chỉ mục vector HNSW, tiết kiệm 100% dung lượng RAM chỉ mục).
-- **Cơ chế truy xuất:** Đọc trực tiếp theo khóa băm $O(1)$ thông qua phương thức `client.retrieve(collection_name, ids=[parent_uuids])`.
-- **Khóa định danh (Point ID):** UUIDv5 tất định sinh từ chuỗi `f"doc_{id}_parents::{parent_id}"`.
+## Phụ lục B. Hai bộ sưu tập Qdrant của mỗi tài liệu
 
-*Bảng A.2.2: Cấu trúc Payload của Đề mục Cha trong Bộ sưu tập `doc_{id}_parents`.*
+Qdrant chạy ở chế độ nhúng trong tiến trình backend và lưu dữ liệu trên đĩa tại `media/qdrant_db/`. Khi lập chỉ mục tài liệu có mã `id` (`rag_service.ingest_document`), hệ thống tạo hai bộ sưu tập: `doc_{id}` chứa vector của đoạn con, và `doc_{id}_parents` chứa văn bản đoạn cha, không có vector.
 
-| Tên trường Payload | Kiểu dữ liệu | Ý nghĩa kỹ thuật | Ví dụ giá trị |
-| :--- | :---: | :--- | :--- |
-| `section_id` | `string` | Mã định danh đề mục duy nhất khớp với `parent_id` của đoạn con | `"sec_003"` |
-| `section_title` | `string` | Tên đề mục học thuật chuẩn | `"3. Methodology"` |
-| `page_number` | `integer` | Trang PDF bắt đầu của đề mục | `4` |
-| `text` | `string` | Toàn văn nội dung hoàn chỉnh của đề mục cha (từ 300 đến 1.500 từ) | `"Full uninterrupted text of Section 3..."` |
-| `char_start` | `integer` | Chỉ số ký tự bắt đầu của toàn bộ đề mục cha | `3800` |
-| `char_end` | `integer` | Chỉ số ký tự kết thúc của toàn bộ đề mục cha | `9200` |
+### B.1. Bộ sưu tập đoạn con `doc_{id}`
+- **Vector:** 384 chiều, khoảng cách cosine; mã hóa bằng `intfloat/e5-small-v2` với tiền tố `passage: `.
+- **Mã điểm:** UUIDv5 sinh tất định từ chuỗi `doc_{id}::{document_id}::{chunk_id}`, nên lập chỉ mục lại không tạo bản trùng.
+- **Chỉ mục payload:** `document_id`, `parent_id`, `paper_arxiv_id` (kiểu từ khóa).
 
----
+| Trường payload | Ý nghĩa |
+| :--- | :--- |
+| `document_id` | Mã tài liệu trong PostgreSQL (dạng chuỗi) |
+| `chunk_id` | Mã đoạn con, dạng `{mã đoạn cha}_c{số thứ tự}` |
+| `parent_id` | Mã đoạn cha chứa đoạn con này |
+| `text`, `child_text` | Văn bản đoạn con (khoảng 200 token) |
+| `section`, `section_title` | Đề mục chứa đoạn con |
+| `page_start`, `page_end`, `page_number` | Trang PDF của đoạn con |
+| `char_start`, `char_end` | Vị trí ký tự của đoạn con |
+| `token_count` | Số token ước lượng |
+| `strategy` | Chiến lược phân mảnh (`hierarchical`) |
+| `locations` (nếu có) | Tọa độ trên trang PDF, chỉ dùng để tô sáng trích dẫn, không dùng khi truy xuất |
 
-## Phụ lục C. Danh mục Điểm cuối Giao diện Lập trình REST API (Backend API Reference)
+*Bảng B.1: Payload của điểm trong bộ sưu tập `doc_{id}`.*
 
-Hệ thống cung cấp hệ thống điểm cuối RESTful API chuẩn mực tuân thủ kiến trúc phân quyền JWT và định dạng trao đổi dữ liệu JSON:
+### B.2. Bộ sưu tập đoạn cha `doc_{id}_parents`
+- **Vector:** không có (`vectors_config = {}`); văn bản đoạn cha chỉ được lưu một lần thay vì lặp lại trong từng đoạn con.
+- **Mã điểm:** UUIDv5 sinh từ chuỗi `doc_{id}_parents::{document_id}::{parent_id}`.
+- **Cách đọc:** sau khi truy xuất đoạn con, backend tính lại mã điểm của các đoạn cha liên quan và đọc chúng bằng `client.retrieve(...)` theo mã, không cần tìm kiếm.
 
-*Bảng A.3: Danh mục Điểm cuối RESTful API của Hệ thống.*
+| Trường payload | Ý nghĩa |
+| :--- | :--- |
+| `parent_id` | Mã đoạn cha, dạng `{mã tài liệu}_parent_{số thứ tự đề mục}` |
+| `document_id` | Mã tài liệu trong PostgreSQL |
+| `section`, `section_title` | Tên đề mục |
+| `parent_text`, `text` | Toàn văn đề mục |
+| `token_count` | Số token ước lượng của đề mục |
+| `page_start`, `page_end`, `page_number` | Trang PDF |
 
-| Nhóm chức năng | Phương thức | Điểm cuối API (URI) | Quyền hạn yêu cầu | Mô tả chức năng nghiệp vụ |
-| :--- | :---: | :--- | :---: | :--- |
-| **Xác thực** | `POST` | `/api/v1/auth/register/` | Công khai | Đăng ký tài khoản người dùng mới |
-| | `POST` | `/api/v1/auth/login/` | Công khai | Đăng nhập hệ thống, cấp cặp `access_token` và `refresh_token` |
-| | `POST` | `/api/v1/auth/token/refresh/` | Công khai | Cấp lại `access_token` mới thông qua `refresh_token` |
-| | `POST` | `/api/v1/auth/logout/` | Xác thực JWT | Đăng xuất, đưa `refresh_token` vào danh sách đen |
-| | `GET` | `/api/v1/auth/me/` | Xác thực JWT | Lấy thông tin hồ sơ người dùng đang đăng nhập |
-| **Thư mục** | `GET` | `/api/v1/collections/` | Xác thực JWT | Lấy danh sách thư mục phẳng của người dùng |
-| | `GET` | `/api/v1/collections/tree/` | Xác thực JWT | Lấy toàn bộ cây thư mục phân cấp $O(N)$ trong 1 truy vấn |
-| | `POST` | `/api/v1/collections/` | Xác thực JWT | Tạo một thư mục mới (hỗ trợ chỉ định thư mục cha `parent`) |
-| | `PATCH` | `/api/v1/collections/{id}/` | Chủ sở hữu | Đổi tên hoặc di chuyển vị trí thư mục |
-| | `DELETE` | `/api/v1/collections/{id}/` | Chủ sở hữu | Xóa thư mục khỏi hệ thống |
-| **Tài liệu** | `GET` | `/api/v1/documents/` | Xác thực JWT | Lấy danh sách tài liệu (kèm lọc theo collection, tag, domain) |
-| | `POST` | `/api/v1/documents/` | Xác thực JWT | Tải lên tệp PDF bài báo (multipart), kích hoạt RAG luồng ngầm |
-| | `GET` | `/api/v1/documents/{id}/` | Người xem/Chủ | Xem chi tiết thông tin và 22 trường siêu dữ liệu của bài báo |
-| | `PATCH` | `/api/v1/documents/{id}/` | Người sửa/Chủ | Cập nhật siêu dữ liệu học thuật của tài liệu |
-| | `DELETE` | `/api/v1/documents/{id}/` | Chủ sở hữu | Xóa vĩnh viễn tài liệu, tệp PDF, bản ghi CSDL và kho vector Qdrant |
-| | `GET` | `/api/v1/documents/{id}/chunks/` | Xác thực JWT | Lấy danh sách các phân đoạn văn bản phục vụ thanh tra |
-| **Siêu dữ liệu**| `POST` | `/api/v1/metadata/extract-pdf/` | Xác thực JWT | Trích xuất nhanh tiêu đề, tác giả, DOI từ tệp PDF để xem trước |
-| | `POST` | `/api/v1/metadata/lookup-doi/` | Xác thực JWT | Phân giải tự động 22 trường thông tin từ mã DOI qua Crossref API |
-| **Chú thích** | `GET` | `/api/v1/annotations/?document={id}` | Xác thực JWT | Lấy danh sách toàn bộ chú thích bôi đậm và ghi chú trên Canvas |
-| | `POST` | `/api/v1/annotations/` | Người sửa/Chủ | Tạo mới một chú thích hoặc ghi chú nổi trên trang tài liệu |
-| | `DELETE` | `/api/v1/annotations/{id}/` | Chủ sở hữu | Xóa một chú thích khỏi trang tài liệu |
-| **Trợ lý AI** | `POST` | `/api/v1/documents/{id}/chat/` | Xác thực JWT | Gửi câu hỏi kỹ thuật, nhận câu trả lời có tiếp đất và nguồn dẫn |
-| | `POST` | `/api/v1/documents/{id}/summarize/` | Xác thực JWT | Kích hoạt tóm tắt nhanh tài liệu một chạm thông qua LLM |
+*Bảng B.2: Payload của điểm trong bộ sưu tập `doc_{id}_parents`.*
 
 ---
 
-## Phụ lục D. Bảng Phím tắt Trình duyệt trong Ứng dụng (Keyboard Shortcuts Reference)
+## Phụ lục C. Các điểm cuối REST API chính
 
-Hệ thống được trang bị bộ điều khiển phím tắt tập trung (`frontend/src/hooks/useKeyboardShortcuts.ts`) nhằm tối ưu hóa thao tác nghiên cứu nhanh:
+Mọi điểm cuối (trừ đăng ký, đăng nhập và làm mới token) yêu cầu JWT. Đăng nhập, đăng ký, hỏi đáp, tóm tắt và trích xuất siêu dữ liệu có giới hạn tần suất (trả về 429 khi vượt). Hỏi đáp và tóm tắt trả về 409 khi tài liệu chưa lập chỉ mục xong. Với tài liệu, quyền tối thiểu được khai báo trong `backend/apps/documents/permissions.py`: xem và hỏi đáp cần VIEW, tạo chú thích cần COMMENT, sửa cần EDIT; xóa, chuyển vào thùng rác, nhân bản, lập chỉ mục lại và quản lý chia sẻ chỉ dành cho chủ sở hữu.
 
-*Bảng A.4: Danh mục Phím tắt Trình duyệt được Hỗ trợ.*
+| Nhóm | Phương thức | Điểm cuối | Quyền | Chức năng |
+| :--- | :---: | :--- | :--- | :--- |
+| Xác thực | `POST` | `/api/v1/auth/register/` | Công khai | Đăng ký |
+| | `POST` | `/api/v1/auth/token/` | Công khai | Đăng nhập, nhận cặp access/refresh token |
+| | `POST` | `/api/v1/auth/token/refresh/` | Công khai | Làm mới access token |
+| | `POST` | `/api/v1/auth/logout/` | JWT | Đăng xuất, đưa refresh token vào danh sách đen |
+| | `GET` | `/api/v1/auth/me/` | JWT | Thông tin người dùng hiện tại |
+| Thư mục | `GET`, `POST` | `/api/v1/collections/` | JWT | Liệt kê, tạo thư mục |
+| | `GET` | `/api/v1/collections/tree/` | JWT | Cây thư mục |
+| | `PATCH`, `DELETE` | `/api/v1/collections/{id}/` | Chủ sở hữu | Sửa, di chuyển, xóa thư mục |
+| | `GET`, `POST` | `/api/v1/collections/{id}/shares/` | Chủ sở hữu | Xem, thêm chia sẻ thư mục |
+| Tài liệu | `GET` | `/api/v1/documents/` | JWT | Liệt kê (lọc theo `collection_id`, `tag`, `in_trash`) |
+| | `POST` | `/api/v1/documents/` | JWT | Tải lên PDF, bắt đầu lập chỉ mục trong luồng nền |
+| | `GET` | `/api/v1/documents/{id}/` | VIEW | Chi tiết tài liệu |
+| | `PATCH` | `/api/v1/documents/{id}/` | EDIT | Sửa siêu dữ liệu (thư mục chính, thùng rác và tệp chỉ chủ sở hữu được đổi) |
+| | `GET` | `/api/v1/documents/{id}/file/` | VIEW | Tải tệp PDF để hiển thị trong trình đọc |
+| | `GET` | `/api/v1/documents/rag-status/?ids=…` | JWT | Trạng thái lập chỉ mục của nhiều tài liệu (tối đa 100) |
+| | `DELETE` | `/api/v1/documents/{id}/` | Chủ sở hữu | Xóa tài liệu, tệp PDF và hai bộ sưu tập Qdrant |
+| | `POST` | `/api/v1/documents/bulk/` | JWT | Thao tác hàng loạt |
+| | `POST` | `/api/v1/documents/{id}/toggle-trash/` | Chủ sở hữu | Chuyển vào hoặc lấy ra khỏi thùng rác |
+| | `POST` | `/api/v1/documents/{id}/reindex/` | Chủ sở hữu | Lập chỉ mục lại trong luồng nền (trả về 202) |
+| | `GET` | `/api/v1/documents/{id}/chunks/` | VIEW | Danh sách đoạn đã phân mảnh |
+| | `GET`, `POST` | `/api/v1/documents/{id}/shares/` | Chủ sở hữu | Xem, thêm chia sẻ tài liệu |
+| Siêu dữ liệu | `POST` | `/api/v1/metadata/extract-pdf/` | JWT | Trích tiêu đề, tác giả, DOI từ PDF |
+| | `POST` | `/api/v1/metadata/lookup-doi/` | JWT | Tra cứu DOI (Crossref, dự phòng OpenAlex) |
+| Chú thích | `GET`, `POST` | `/api/v1/documents/{id}/annotations/` | VIEW / COMMENT | Xem, tạo chú thích |
+| | `PATCH`, `DELETE` | `/api/v1/annotations/{id}/` | Tác giả / chủ tài liệu | Tác giả sửa; tác giả hoặc chủ tài liệu xóa |
+| | `GET`, `POST` | `/api/v1/notes/` | JWT | Ghi chú cá nhân (lọc theo `document_id`) |
+| Trợ lý AI | `POST` | `/api/v1/documents/{id}/chat/` | VIEW | Hỏi đáp, trả về câu trả lời và nguồn trích dẫn |
+| | `POST` | `/api/v1/documents/{id}/summarize/` | VIEW | Tóm tắt tài liệu |
 
-| Phím tắt (Windows/Linux) | Phím tắt (macOS) | Phạm vi tác dụng | Chức năng nghiệp vụ |
-| :---: | :---: | :--- | :--- |
-| `Ctrl + 1` đến `Ctrl + 9` | `Cmd + 1` đến `Cmd + 9` | Toàn ứng dụng | Chuyển đổi nhanh giữa các Tab tài liệu đang mở (từ tab 1 đến 9). |
-| `Ctrl + F` | `Cmd + F` | Màn hình thư viện | Tự động di chuyển con trỏ vào ô tìm kiếm nhanh trên thanh công cụ. |
-| `Delete` hoặc `Backspace` | `Delete` | Bảng tài liệu | Xóa tài liệu đang được chọn (chỉ kích hoạt khi không ở trong ô nhập liệu văn bản). |
-| `Ctrl + Cuộn chuột lên` | `Cmd + Cuộn chuột lên` | Trình đọc PDF | Phóng to trang tài liệu trên Canvas (Zoom In, tối đa 300%). |
-| `Ctrl + Cuộn chuột xuống`| `Cmd + Cuộn chuột xuống`| Trình đọc PDF | Thu nhỏ trang tài liệu trên Canvas (Zoom Out, tối thiểu 50%). |
-| `Escape` | `Escape` | Cửa sổ phụ (Modals) | Đóng nhanh hộp thoại đang mở (UploadModal, DoiModal, ChunkInspectorModal). |
+*Bảng C.1: Các điểm cuối REST API chính.*
+
+---
+
+## Phụ lục D. Phím tắt
+
+Phím tắt toàn ứng dụng được tập trung trong `frontend/src/hooks/useKeyboardShortcuts.ts` và không hoạt động khi người dùng đang nhập liệu trong ô văn bản. Phím tắt của trình đọc PDF nằm trong `PdfViewer.tsx` và `useZoom.ts`, chỉ hoạt động khi con trỏ ở vùng tài liệu.
+
+| Phím tắt (Windows; macOS dùng `Cmd`) | Phạm vi | Chức năng |
+| :--- | :--- | :--- |
+| `Ctrl + 1` … `Ctrl + 9` | Toàn ứng dụng | Chuyển tới tab thứ 1 đến 9 |
+| `Ctrl + F` | Thư viện | Đưa con trỏ vào ô tìm kiếm |
+| `Ctrl + N` | Toàn ứng dụng | Mở hộp thoại thêm PDF (trình duyệt có thể chặn tổ hợp này) |
+| `Delete` / `Backspace` | Bảng tài liệu | Xóa các tài liệu đang chọn |
+| `Ctrl + F` | Trình đọc PDF | Mở thanh tìm kiếm trong tài liệu |
+| `Ctrl + +` / `Ctrl + -` / `Ctrl + 0` | Trình đọc PDF | Phóng to, thu nhỏ (25–400%), về chế độ vừa trang |
+| `Ctrl + cuộn chuột` | Trình đọc PDF | Phóng to, thu nhỏ |
+| `Delete` / `Backspace` | Trình đọc PDF | Xóa chú thích đang chọn |
+| `Ctrl + C` / `Ctrl + X` / `Ctrl + V` | Trình đọc PDF | Sao chép, cắt, dán chú thích đang chọn |
+| `Escape` | Trình đọc PDF, hộp thoại tải lên | Đóng menu, thanh tìm kiếm hoặc hộp thoại |
+
+*Bảng D.1: Các phím tắt được hỗ trợ.*
 
 ---
 

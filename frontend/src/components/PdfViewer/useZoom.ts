@@ -34,12 +34,14 @@ interface UseZoomOptions {
   sizes: PageSize[] | null;
   /** 0-based index of the page fit modes should measure. */
   currentPageIndex: number;
+  /** Zoom to start with (e.g. restored when a document tab is reopened). */
+  initial?: { zoom: number; mode: ZoomMode };
 }
 
-export function useZoom({ scrollAreaRef, getPageEl, sizes, currentPageIndex }: UseZoomOptions) {
-  const [zoom, setZoom] = useState(100);
-  const [mode, setMode] = useState<ZoomMode>('auto');
-  const [renderScale, setRenderScale] = useState(1);
+export function useZoom({ scrollAreaRef, getPageEl, sizes, currentPageIndex, initial }: UseZoomOptions) {
+  const [zoom, setZoom] = useState(() => (initial && Number.isFinite(initial.zoom) ? clampZoom(initial.zoom) : 100));
+  const [mode, setMode] = useState<ZoomMode>(() => initial?.mode ?? 'auto');
+  const [renderScale, setRenderScale] = useState(() => zoom / 100);
   const anchorRef = useRef<ZoomAnchor | null>(null);
   const zoomRef = useRef(zoom);
   const sizesRef = useRef(sizes);

@@ -2,8 +2,8 @@
 
 .metadataPanel {
   width: clamp(240px, 22vw, 320px);
-  min-width: 220px;
-  max-width: 500px;
+  min-width: 320px;
+  max-width: 600px;
   background-color: var(--bg-panel);
   display: flex;
   flex-direction: column;
@@ -603,3 +603,16 @@
   color: var(--text-primary);
 }
 
+
+.fieldError {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--status-danger);
+}
+
+.saveBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

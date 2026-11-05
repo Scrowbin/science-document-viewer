@@ -7,43 +7,60 @@ from django.apps import AppConfig
 logger = logging.getLogger(__name__)
 
 
+# Production WSGI/ASGI servers whose worker processes serve requests.
+_WEB_SERVER_PROGRAMS = ("gunicorn", "uvicorn", "daphne", "hypercorn", "waitress-serve")
+
+
 def _should_run_startup_recovery(argv=None, environ=None) -> bool:
     """
     Only recover in the process that actually serves requests:
       - never during tests, migrations or any management command other than runserver;
       - under runserver's autoreloader, only in the child (RUN_MAIN == 'true');
-      - with `runserver --noreload`, in the single process.
-    Non-manage.py launches (e.g. a WSGI/ASGI server) are allowed.
+      - with `runserver --noreload`, in the single process;
+      - under a known WSGI/ASGI server (gunicorn, uvicorn, daphne, hypercorn, waitress-serve).
+    Anything else (evaluation scripts calling django.setup(), pytest, notebooks) does not
+    recover, so it never starts background ingestion. RAG_STARTUP_RECOVERY=1 forces it on
+    (e.g. for a server launched another way), RAG_STARTUP_RECOVERY=0 forces it off.
     """
     argv = sys.argv if argv is None else argv
     environ = os.environ if environ is None else environ
 
+    override = environ.get("RAG_STARTUP_RECOVERY", "").strip().lower()
+    if override in ("0", "false", "no"):
+        return False
     if "test" in argv:
         return False
+    if override in ("1", "true", "yes"):
+        return True
     program = os.path.basename(argv[0]) if argv else ""
+    if program.lower().endswith(".exe"):
+        program = program[:-4]
     if program in ("manage.py", "django-admin", "django-admin.py") or program.startswith("django-admin"):
         if len(argv) < 2 or argv[1] != "runserver":
             return False
         if "--noreload" in argv:
             return True
         return environ.get("RUN_MAIN") == "true"
-    return True
+    return program in _WEB_SERVER_PROGRAMS
 
 
 def recover_stuck_documents() -> int:
     """
-    Resets documents left in INDEXING (by a crash/restart mid-ingestion) to PENDING and
-    re-enqueues them on the background ingestion worker. Returns the number enqueued.
+    Re-enqueues documents whose ingestion did not finish: INDEXING (crash/restart
+    mid-ingestion) is reset to PENDING, and PENDING documents with a file (queued in memory
+    when the process stopped) are queued again. Returns the number enqueued.
     Never raises (the database may not exist yet or be unreachable).
     """
     try:
         from .models import Document
         from .services.webhook_service import trigger_rag_ingestion
 
-        stuck = list(Document.objects.filter(rag_status="INDEXING"))
+        pending = list(Document.objects.filter(rag_status="PENDING").exclude(file="").exclude(file__isnull=True))
+        stuck = list(Document.objects.filter(rag_status="INDEXING")) + pending
         enqueued = 0
         for doc in stuck:
-            Document.objects.filter(id=doc.id).update(rag_status="PENDING")
+            if doc.rag_status != "PENDING":
+                Document.objects.filter(id=doc.id).update(rag_status="PENDING")
             if not doc.file:
                 continue
             try:
@@ -59,8 +76,8 @@ def recover_stuck_documents() -> int:
             enqueued += 1
         if stuck:
             logger.info(
-                "Startup recovery: reset %d document(s) stuck in INDEXING, re-enqueued %d.",
-                len(stuck), enqueued,
+                "Startup recovery: %d unfinished document(s) (%d PENDING), re-enqueued %d.",
+                len(stuck), len(pending), enqueued,
             )
         return enqueued
     except Exception as e:

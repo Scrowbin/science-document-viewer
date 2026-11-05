@@ -1,7 +1,9 @@
 import logging
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from .serializers import UserRegisterSerializer, UserSerializer
 from django.http import JsonResponse
@@ -15,10 +17,19 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
+class ThrottledTokenObtainPairView(TokenObtainPairView):
+    """JWT login, rate-limited per client IP (scope 'auth')."""
+
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth"
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserRegisterSerializer
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "auth"
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

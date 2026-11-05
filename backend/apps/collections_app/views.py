@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from django.db.models import Q, Count
 from .models import Collection, CollectionShare
@@ -24,6 +25,13 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return Collection.objects.filter(
             Q(owner=user) | Q(shares__shared_with_user=user)
         ).distinct().annotate(doc_count=LIVE_DOCUMENT_COUNT)
+
+    def check_object_permissions(self, request, obj):
+        super().check_object_permissions(request, obj)
+        # Shared users (any level) may see a collection but not rename, move or delete it.
+        # (An EDIT share only allows filing documents into it; see can_file_into_collection.)
+        if self.action in ('update', 'partial_update', 'destroy') and obj.owner_id != request.user.id:
+            raise PermissionDenied("Only the collection owner can rename, move or delete it.")
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -68,14 +76,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Only the collection owner can manage shares."}, status=status.HTTP_403_FORBIDDEN)
 
         if request.method == 'GET':
-            shares = collection.shares.all()
+            shares = collection.shares.select_related('shared_with_user')
             serializer = CollectionShareSerializer(shares, many=True)
             return Response(serializer.data)
 
-        serializer = CollectionShareSerializer(data=request.data)
+        serializer = CollectionShareSerializer(data=request.data, context={'owner_id': collection.owner_id})
         serializer.is_valid(raise_exception=True)
         serializer.save(collection=collection)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if serializer.created else status.HTTP_200_OK,
+        )
 
     @action(detail=True, methods=['delete'], url_path='shares/(?P<share_id>[^/.]+)')
     def delete_share(self, request, pk=None, share_id=None):
@@ -83,8 +94,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if collection.owner != request.user:
             return Response({"detail": "Only the collection owner can revoke shares."}, status=status.HTTP_403_FORBIDDEN)
         try:
-            share = collection.shares.get(id=share_id)
-            share.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except CollectionShare.DoesNotExist:
+            share = collection.shares.get(id=int(share_id))
+        except (ValueError, TypeError, CollectionShare.DoesNotExist):
             return Response({"detail": "Share not found."}, status=status.HTTP_404_NOT_FOUND)
+        share.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from .models import (
     Author, Tag, Domain, Document, DocumentAuthor,
     Annotation, Note, DocumentShare, RelatedDocument
 )
 
+from ..collections_app.serializers import ShareCreateMixin
 from .permissions import can_file_into_collection
 
 User = get_user_model()
@@ -44,7 +46,8 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'username', 'document', 'title', 'content', 'created_at', 'updated_at')
         read_only_fields = ('user', 'created_at', 'updated_at')
 
-class DocumentShareSerializer(serializers.ModelSerializer):
+class DocumentShareSerializer(ShareCreateMixin, serializers.ModelSerializer):
+    target_field = 'document'
     shared_with_email = serializers.EmailField(write_only=True, required=False)
     shared_with_username = serializers.ReadOnlyField(source='shared_with_user.username')
     shared_with_email_display = serializers.ReadOnlyField(source='shared_with_user.email')
@@ -58,28 +61,22 @@ class DocumentShareSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('document', 'shared_with_user', 'created_at')
 
-    def create(self, validated_data):
-        email = validated_data.pop('shared_with_email', None)
-        if email:
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                raise serializers.ValidationError({"email": "User with this email not found."})
-            validated_data['shared_with_user'] = user
-        return super().create(validated_data)
-
 class RelatedDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelatedDocument
         fields = ('id', 'document_1', 'document_2', 'relation_type', 'created_at')
 
 class FileUrlMixin:
-    """Provides a consistent get_file_url method for document serializers."""
+    """
+    file_url points at the permission-checked API endpoint GET /api/v1/documents/{id}/file/
+    (MEDIA is no longer served publicly); absolute when a request is available.
+    """
 
     def get_file_url(self, obj):
         if obj.file:
+            path = reverse('document-file', args=[obj.pk])
             request = self.context.get('request')
-            return request.build_absolute_uri(obj.file.url) if request else obj.file.url
+            return request.build_absolute_uri(path) if request else path
         return None
 
 

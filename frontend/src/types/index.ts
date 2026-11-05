@@ -234,3 +234,17 @@ export interface SummaryResponse {
   degraded?: boolean;
 }
 
+
+/**
+ * Chunk inspector, hierarchical strategy: one parent section with its child chunk ids
+ * (`parent_text` is sent once per parent instead of on every child).
+ */
+export interface ChunkParent {
+  parent_id: string;
+  section?: string;
+  page?: number;
+  parent_tokens?: number;
+  parent_text?: string;
+  child_ids?: string[];
+  child_count?: number;
+}

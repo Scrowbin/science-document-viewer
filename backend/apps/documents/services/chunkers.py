@@ -30,6 +30,38 @@ def split_sentences(text: str) -> List[str]:
     return sentences if sentences else [text.strip()]
 
 
+def _section_page(section: Dict[str, Any]) -> int:
+    """Start page of a section (extractors use 'page_start'; older callers used 'start_page' or 'page')."""
+    return int(section.get("page_start") or section.get("start_page") or section.get("page") or 1)
+
+
+def _joined_text_and_pages(text_or_sections: Union[str, List[Dict[str, Any]]]):
+    """
+    Joins section texts for the whole-document chunkers and returns (full_text, page_of_word),
+    where page_of_word(i) is the start page of the section containing word i of full_text.split().
+    The joined text is unchanged; only each chunk's page number is derived from where it starts.
+    """
+    if not isinstance(text_or_sections, list):
+        return text_or_sections, (lambda i: 1)
+    secs = [s for s in text_or_sections if s.get("text")]
+    full_text = "\n\n".join(s.get("text", "") for s in secs)
+    bounds: List[int] = []
+    pages: List[int] = []
+    total = 0
+    for s in secs:
+        total += len(s.get("text", "").split())
+        bounds.append(total)
+        pages.append(_section_page(s))
+
+    def page_of_word(i: int) -> int:
+        for b, pg in zip(bounds, pages):
+            if i < b:
+                return pg
+        return pages[-1] if pages else 1
+
+    return full_text, page_of_word
+
+
 def chunk_fixed_size(
     text_or_sections: Union[str, List[Dict[str, Any]]],
     max_tokens: int = 400,
@@ -39,12 +71,7 @@ def chunk_fixed_size(
     Fixed-size continuous chunking across the entire document text.
     Strictly ignores section headings and layout boundaries; zero overlap.
     """
-    if isinstance(text_or_sections, list):
-        full_text = "\n\n".join(s.get("text", "") for s in text_or_sections if s.get("text"))
-        first_page = text_or_sections[0].get("start_page", 1) if text_or_sections else 1
-    else:
-        full_text = text_or_sections
-        first_page = 1
+    full_text, page_of_word = _joined_text_and_pages(text_or_sections)
 
     words = full_text.strip().split()
     if not words:
@@ -62,7 +89,7 @@ def chunk_fixed_size(
             "chunk_id": f"{paper_id}_fixed_{idx:03d}",
             "paper_arxiv_id": paper_id,
             "section": "None (Fixed Continuous)",
-            "page": first_page,
+            "page": page_of_word(start_idx),
             "strategy": "fixed_size",
             "token_count": token_cnt,
             "text": chunk_text,
@@ -82,12 +109,7 @@ def chunk_fixed_size_overlap(
     Fixed-size continuous chunking with sliding window overlap across entire document text.
     Uses identical token budget (400 max_tokens, 80 overlap) as section_overlap for fair comparison.
     """
-    if isinstance(text_or_sections, list):
-        full_text = "\n\n".join(s.get("text", "") for s in text_or_sections if s.get("text"))
-        first_page = text_or_sections[0].get("start_page", 1) if text_or_sections else 1
-    else:
-        full_text = text_or_sections
-        first_page = 1
+    full_text, page_of_word = _joined_text_and_pages(text_or_sections)
 
     words = full_text.strip().split()
     if not words:
@@ -109,7 +131,7 @@ def chunk_fixed_size_overlap(
             "chunk_id": f"{paper_id}_fixed_overlap_{idx:03d}",
             "paper_arxiv_id": paper_id,
             "section": "None (Fixed Overlap)",
-            "page": first_page,
+            "page": page_of_word(start_idx),
             "strategy": "fixed_size_overlap",
             "token_count": token_cnt,
             "text": chunk_text,
@@ -136,12 +158,7 @@ def chunk_semantic(
       4. Splits at similarity drops below the specified percentile threshold.
       5. Groups sentences into chunks respecting max_tokens ceiling.
     """
-    if isinstance(text_or_sections, list):
-        full_text = "\n\n".join(s.get("text", "") for s in text_or_sections if s.get("text"))
-        first_page = text_or_sections[0].get("start_page", 1) if text_or_sections else 1
-    else:
-        full_text = text_or_sections
-        first_page = 1
+    full_text, page_of_word = _joined_text_and_pages(text_or_sections)
 
     sentences = split_sentences(full_text)
     if not sentences:
@@ -152,7 +169,7 @@ def chunk_semantic(
             "chunk_id": f"{paper_id}_semantic_000",
             "paper_arxiv_id": paper_id,
             "section": "Semantic Group",
-            "page": first_page,
+            "page": page_of_word(0),
             "strategy": "semantic",
             "token_count": estimate_tokens(chunk_text),
             "text": chunk_text,
@@ -179,6 +196,11 @@ def chunk_semantic(
     current_sentences: List[str] = [sentences[0]]
     current_tokens = estimate_tokens(sentences[0])
     chunk_idx = 0
+    # word offset of each sentence in full_text.split(), to give each chunk the page where it starts
+    sent_word_start = [0]
+    for s in sentences[:-1]:
+        sent_word_start.append(sent_word_start[-1] + len(s.split()))
+    chunk_first_sent = 0
 
     for i in range(len(consec_sims)):
         next_sent = sentences[i + 1]
@@ -194,13 +216,14 @@ def chunk_semantic(
                 "chunk_id": f"{paper_id}_semantic_{chunk_idx:03d}",
                 "paper_arxiv_id": paper_id,
                 "section": "Semantic Group",
-                "page": first_page,
+                "page": page_of_word(sent_word_start[chunk_first_sent]),
                 "strategy": "semantic",
                 "token_count": current_tokens,
                 "text": chunk_text,
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
             })
             chunk_idx += 1
+            chunk_first_sent = i + 1
             current_sentences = [next_sent]
             current_tokens = next_tokens
         else:
@@ -213,7 +236,7 @@ def chunk_semantic(
             "chunk_id": f"{paper_id}_semantic_{chunk_idx:03d}",
             "paper_arxiv_id": paper_id,
             "section": "Semantic Group",
-            "page": first_page,
+            "page": page_of_word(sent_word_start[chunk_first_sent]),
             "strategy": "semantic",
             "token_count": current_tokens,
             "text": chunk_text,

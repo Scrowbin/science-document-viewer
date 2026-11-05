@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { documentsApi, type LookupDoiResult } from '../api/documentsApi';
 import type { Document } from '../types';
 import { describeApiError, type ToastFn } from './useDocuments';
+import { normalizeDateForApi } from '../utils/format';
 
 export interface UseDoiModalReturn {
   showDoiModal: boolean;
@@ -9,6 +10,8 @@ export interface UseDoiModalReturn {
   isLookingUpDoi: boolean;
   isSavingDoi: boolean;
   doiPreview: LookupDoiResult | null;
+  /** Lookup or save error shown inside the modal (null = none). */
+  doiError: string | null;
   openDoiModal: () => void;
   closeDoiModal: () => void;
   setDoiInput: (val: string) => void;
@@ -19,47 +22,75 @@ export interface UseDoiModalReturn {
 
 export function useDoiModal(showToast: ToastFn): UseDoiModalReturn {
   const [showDoiModal, setShowDoiModal] = useState(false);
-  const [doiInput, setDoiInput] = useState('');
+  const [doiInput, setDoiInputState] = useState('');
   const [isLookingUpDoi, setIsLookingUpDoi] = useState(false);
   const [isSavingDoi, setIsSavingDoi] = useState(false);
   const [doiPreview, setDoiPreview] = useState<LookupDoiResult | null>(null);
+  const [doiError, setDoiError] = useState<string | null>(null);
   const isSavingRef = useRef(false);
+  /** Incremented on every lookup, input change and close; a late response with an old id is ignored. */
+  const lookupIdRef = useRef(0);
 
   const openDoiModal = useCallback(() => {
+    setDoiError(null);
     setShowDoiModal(true);
   }, []);
 
   const closeDoiModal = useCallback(() => {
+    if (isSavingRef.current) return;
+    lookupIdRef.current += 1;
     setShowDoiModal(false);
     setDoiPreview(null);
-    setDoiInput('');
+    setDoiInputState('');
+    setDoiError(null);
+    setIsLookingUpDoi(false);
+  }, []);
+
+  const setDoiInput = useCallback((val: string) => {
+    // The preview belongs to the DOI that was looked up; a different DOI needs a new lookup
+    // before it can be saved.
+    lookupIdRef.current += 1;
+    setDoiInputState(val);
+    setDoiPreview(null);
+    setDoiError(null);
+    setIsLookingUpDoi(false);
   }, []);
 
   const handleLookupDoi = useCallback(async () => {
     let clean = doiInput.trim();
-    if (!clean) return;
+    if (!clean || isLookingUpDoi || isSavingRef.current) return;
 
     // Auto-complete Nature/Springer suffixes if 10.1038/ was omitted
     if (/^s\d{4,5}-\d+/i.test(clean)) {
       clean = `10.1038/${clean}`;
-      setDoiInput(clean);
+      setDoiInputState(clean);
     }
 
+    const requestId = ++lookupIdRef.current;
     setIsLookingUpDoi(true);
+    setDoiError(null);
+    setDoiPreview(null);
     try {
       const res = await documentsApi.lookupDoi(clean);
+      if (lookupIdRef.current !== requestId) return;
       setDoiPreview(res);
-    } catch {
-      showToast('Could not find metadata for this DOI. Make sure the DOI is valid (e.g. 10.1038/s41586-020-2649-2)', 'error');
+    } catch (err) {
+      if (lookupIdRef.current !== requestId) return;
+      console.warn('DOI lookup failed:', err);
+      setDoiError(
+        describeApiError(err, 'Could not find metadata for this DOI') +
+          ' Check the DOI (e.g. 10.1038/s41586-020-2649-2) and try again.'
+      );
     } finally {
-      setIsLookingUpDoi(false);
+      if (lookupIdRef.current === requestId) setIsLookingUpDoi(false);
     }
-  }, [doiInput, showToast]);
+  }, [doiInput, isLookingUpDoi]);
 
   const handleSaveDoiDocument = useCallback(async (onCreated: (doc: Document) => void) => {
     if (!doiPreview || isSavingRef.current) return;
     isSavingRef.current = true;
     setIsSavingDoi(true);
+    setDoiError(null);
     try {
       const newDoc = await documentsApi.createDocument({
         title: doiPreview.title,
@@ -74,16 +105,17 @@ export function useDoiModal(showToast: ToastFn): UseDoiModalReturn {
         domain_names: doiPreview.domains || [],
         language: doiPreview.language || '',
         license: doiPreview.license || '',
-        date: doiPreview.date || null,
+        date: normalizeDateForApi(doiPreview.date),
       });
       onCreated(newDoc);
+      lookupIdRef.current += 1;
       setShowDoiModal(false);
       setDoiPreview(null);
-      setDoiInput('');
+      setDoiInputState('');
       showToast(`Added "${newDoc.title}" to library`);
     } catch (err) {
       console.warn('Saving DOI document failed:', err);
-      showToast(describeApiError(err, 'Failed to save document'), 'error');
+      setDoiError(describeApiError(err, 'Failed to save document'));
     } finally {
       isSavingRef.current = false;
       setIsSavingDoi(false);
@@ -96,6 +128,7 @@ export function useDoiModal(showToast: ToastFn): UseDoiModalReturn {
     isLookingUpDoi,
     isSavingDoi,
     doiPreview,
+    doiError,
     openDoiModal,
     closeDoiModal,
     setDoiInput,

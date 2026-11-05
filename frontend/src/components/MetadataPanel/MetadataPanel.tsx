@@ -18,11 +18,20 @@ import {
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
 import { flattenCollections } from '../../utils/collections';
-import { formatDateTime } from '../../utils/format';
+import { DATE_FORMAT_HINT, dateInputValue, formatDateTime, isValidDateInput } from '../../utils/format';
 
-function cloneMetadata(meta: DocumentMetadata): DocumentMetadata {
+/** NFR-06: the metadata panel is never narrower than this while expanded. */
+const MIN_PANEL_WIDTH = 320;
+const MAX_PANEL_WIDTH = 600;
+
+/** Fields shown but never editable here (server-managed, or not stored by the backend). */
+const READ_ONLY_FIELDS: ReadonlySet<keyof DocumentMetadata> = new Set(['dateAdded', 'dateModified', 'groupColor']);
+
+/** Editable copy of the metadata; the date is edited as YYYY-MM-DD, not the stored timestamp. */
+function makeDraft(meta: DocumentMetadata): DocumentMetadata {
   return {
     ...meta,
+    date: dateInputValue(meta.date),
     authors: [...meta.authors],
     tags: [...meta.tags],
     domains: [...meta.domains],
@@ -30,11 +39,26 @@ function cloneMetadata(meta: DocumentMetadata): DocumentMetadata {
   };
 }
 
+function sameValue(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** Only http(s) URLs become clickable links; anything else (javascript:, data:, ...) is text. */
+function isSafeHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export interface MetadataPanelProps {
   document: Document | null;
   isEditing?: boolean;
   onToggleEdit?: (editing: boolean) => void;
-  onUpdateDocument?: (updatedDoc: Document) => void;
+  /** Resolves to true when the server accepted the change (false keeps the editor open). */
+  onUpdateDocument?: (updatedDoc: Document) => Promise<boolean> | void;
   collections?: Collection[];
   onSetCollection?: (docId: string, colId: string | null, colName: string | null) => void;
   collapsed?: boolean;
@@ -64,7 +88,10 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     doc: document,
     editing: isEditing,
   });
-  const [draft, setDraft] = useState<DocumentMetadata | null>(document ? cloneMetadata(document.metadata) : null);
+  const [draft, setDraft] = useState<DocumentMetadata | null>(document ? makeDraft(document.metadata) : null);
+  /** The metadata the draft started from; on save only fields changed against it are applied. */
+  const [draftBase, setDraftBase] = useState<DocumentMetadata | null>(document ? makeDraft(document.metadata) : null);
+  const [isSaving, setIsSaving] = useState(false);
   const [newTagText, setNewTagText] = useState('');
   const [newDomainText, setNewDomainText] = useState('');
   const [newGroupText, setNewGroupText] = useState('');
@@ -84,12 +111,9 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   // Compute effective width: automatically shrink as horizontal width narrows
   const effectivePanelWidth = (() => {
     if (customPanelWidth !== null) {
-      return Math.min(customPanelWidth, Math.max(220, Math.floor(windowWidth * 0.35)));
+      return Math.max(MIN_PANEL_WIDTH, Math.min(customPanelWidth, Math.floor(windowWidth * 0.35)));
     }
-    if (windowWidth >= 1400) return 320;
-    if (windowWidth >= 1200) return 280;
-    if (windowWidth >= 1000) return 245;
-    return 230;
+    return MIN_PANEL_WIDTH;
   })();
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
@@ -100,7 +124,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
 
     const onMouseMove = (moveEvent: MouseEvent) => {
       const deltaX = startX - moveEvent.clientX;
-      const newWidth = Math.min(600, Math.max(220, startWidth + deltaX));
+      const newWidth = Math.min(MAX_PANEL_WIDTH, Math.max(MIN_PANEL_WIDTH, startWidth + deltaX));
       setCustomPanelWidth(newWidth);
     };
 
@@ -132,7 +156,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     const startedEditing = isEditing && !syncedFrom.editing;
     setSyncedFrom({ doc: document, editing: isEditing });
     if (docChanged || startedEditing || !isEditing) {
-      setDraft(document ? cloneMetadata(document.metadata) : null);
+      setDraft(document ? makeDraft(document.metadata) : null);
+      setDraftBase(document ? makeDraft(document.metadata) : null);
     }
     if (docChanged) {
       setNewTagText('');
@@ -164,7 +189,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     );
   }
 
-  if (!document || !draft) {
+  if (!document || !draft || !draftBase) {
     return (
       <aside
         className={styles.metadataPanel}
@@ -322,41 +347,57 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
     });
   };
 
-  // Save changes
-  const handleSave = () => {
-    if (!draft) return;
-    const finalTags =
-      newTagText.trim() && !draft.tags.includes(newTagText.trim())
-        ? [...draft.tags, newTagText.trim()]
-        : draft.tags;
+  // Shared documents with view/comment access cannot be edited (the server would refuse).
+  const canEdit = !document.userPermission || document.userPermission === 'OWNER' || document.userPermission === 'EDIT';
+  const dateInvalid = isEditing && !isValidDateInput(draft.date);
+  const titleMissing = isEditing && !draft.title.trim();
+  const canSave = !isSaving && !dateInvalid && !titleMissing;
 
-    const finalDomains =
-      newDomainText.trim() && !draft.domains.includes(newDomainText.trim())
-        ? [...draft.domains, newDomainText.trim()]
-        : draft.domains;
-
-    const authors = draft.authors.map((a) => a.trim()).filter(Boolean);
+  // Save changes: apply only the fields edited in this session on top of the latest document,
+  // so values that arrived while editing (full detail, background updates) are not overwritten.
+  const handleSave = async () => {
+    if (!canSave) return;
+    const pendingTag = newTagText.trim();
+    const pendingDomain = newDomainText.trim();
+    const edited: DocumentMetadata = {
+      ...draft,
+      title: draft.title.trim(),
+      date: draft.date.trim(),
+      authors: draft.authors.map((a) => a.trim()).filter(Boolean),
+      tags: pendingTag && !draft.tags.includes(pendingTag) ? [...draft.tags, pendingTag] : draft.tags,
+      domains: pendingDomain && !draft.domains.includes(pendingDomain) ? [...draft.domains, pendingDomain] : draft.domains,
+    };
+    const merged: DocumentMetadata = { ...document.metadata };
+    (Object.keys(edited) as Array<keyof DocumentMetadata>).forEach((key) => {
+      if (READ_ONLY_FIELDS.has(key)) return;
+      if (!sameValue(edited[key], draftBase[key])) {
+        (merged as unknown as Record<string, unknown>)[key] = edited[key];
+      }
+    });
     const updatedDoc: Document = {
       ...document,
-      title: draft.title,
-      creator: authors.join(', '),
-      metadata: {
-        ...draft,
-        authors,
-        tags: finalTags,
-        domains: finalDomains,
-        dateModified: new Date().toISOString(),
-      },
+      title: merged.title,
+      creator: merged.authors.join(', '),
+      metadata: merged,
     };
-    setNewTagText('');
-    setNewDomainText('');
-    onUpdateDocument?.(updatedDoc);
-    onToggleEdit?.(false);
+    setIsSaving(true);
+    let ok: boolean;
+    try {
+      ok = (await onUpdateDocument?.(updatedDoc)) ?? true;
+    } finally {
+      setIsSaving(false);
+    }
+    if (ok) {
+      setNewTagText('');
+      setNewDomainText('');
+      onToggleEdit?.(false);
+    }
   };
 
   // Cancel changes
   const handleCancel = () => {
-    setDraft(cloneMetadata(document.metadata));
+    setDraft(makeDraft(document.metadata));
+    setDraftBase(makeDraft(document.metadata));
     onToggleEdit?.(false);
   };
 
@@ -390,30 +431,34 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                 <button
                   type="button"
                   className={styles.saveBtn}
-                  onClick={handleSave}
-                  title="Save changes"
+                  onClick={() => void handleSave()}
+                  disabled={!canSave}
+                  title={titleMissing ? 'A title is required' : dateInvalid ? DATE_FORMAT_HINT : 'Save changes'}
                 >
-                  <FaFloppyDisk /> Save
+                  <FaFloppyDisk aria-hidden="true" /> {isSaving ? 'Saving…' : 'Save'}
                 </button>
                 <button
                   type="button"
                   className={styles.cancelBtn}
                   onClick={handleCancel}
+                  disabled={isSaving}
                   title="Discard changes"
                 >
-                  <FaXmark /> Cancel
+                  <FaXmark aria-hidden="true" /> Cancel
                 </button>
               </>
             ) : (
               <>
-                <button
-                  type="button"
-                  className={styles.editBtn}
-                  onClick={() => onToggleEdit?.(true)}
-                  title="Edit document metadata"
-                >
-                  <FaPenToSquare /> Edit
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    className={styles.editBtn}
+                    onClick={() => onToggleEdit?.(true)}
+                    title="Edit document metadata"
+                  >
+                    <FaPenToSquare aria-hidden="true" /> Edit
+                  </button>
+                )}
                 {onInspectChunks && document && (
                   <button
                     type="button"
@@ -421,7 +466,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                     onClick={() => onInspectChunks(document)}
                     title="Inspect extracted sections and RAG chunks"
                   >
-                    <FaCube /> Chunks
+                    <FaCube aria-hidden="true" /> Chunks
                   </button>
                 )}
               </>
@@ -446,7 +491,9 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
             className={styles.metaInput}
             value={draft.title}
             onChange={(e) => handleFieldChange('title', e.target.value)}
-            placeholder="Document Title"
+            placeholder="Document Title (required)"
+            aria-label="Title"
+            aria-invalid={titleMissing}
             style={{ fontWeight: 600 }}
           />
         ) : (
@@ -506,6 +553,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                           >
                             <FaTag className={styles.tagItemIcon} />
                             <span className={styles.tagText}>{tag}</span>
+                            {canEdit && (
                             <button
                               type="button"
                               className={styles.tagRemoveBtn}
@@ -516,18 +564,21 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                               title={`Remove tag: ${tag}`}
                               aria-label={`Remove tag: ${tag}`}
                             >
-                              <FaXmark />
+                              <FaXmark aria-hidden="true" />
                             </button>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
 
+                    {canEdit && (
                     <div className={styles.addTagRow}>
                       <input
                         type="text"
                         className={styles.metaInput}
                         placeholder="Add tag (press Enter)..."
+                        aria-label="New tag"
                         value={newTagText}
                         onChange={(e) => setNewTagText(e.target.value)}
                         onKeyDown={(e) => {
@@ -542,10 +593,12 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                         className={styles.smallAddBtn}
                         onClick={() => handleAddTag()}
                         title="Add tag"
+                        aria-label="Add tag"
                       >
-                        <FaPlus />
+                        <FaPlus aria-hidden="true" />
                       </button>
                     </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -576,6 +629,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                               className={styles.chipRemoveBtn}
                               onClick={() => handleRemoveAuthor(i)}
                               title="Remove author"
+                              aria-label={`Remove author ${i + 1}`}
                             >
                               <FaXmark />
                             </button>
@@ -651,6 +705,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                                     if (field.key === 'documentGroups') handleRemoveGroup(chip);
                                   }}
                                   title={`Remove ${chip}`}
+                                  aria-label={`Remove ${chip}`}
                                 >
                                   <FaXmark />
                                 </button>
@@ -666,6 +721,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                             type="text"
                             className={styles.metaInput}
                             placeholder={`Add ${field.label.toLowerCase()}...`}
+                            aria-label={`New ${field.label.toLowerCase()}`}
                             value={
                               field.key === 'domains'
                                 ? newDomainText
@@ -690,8 +746,9 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                               if (field.key === 'domains') handleAddDomain();
                               if (field.key === 'documentGroups') handleAddGroup();
                             }}
+                            aria-label={`Add ${field.label.toLowerCase()}`}
                           >
-                            <FaPlus />
+                            <FaPlus aria-hidden="true" />
                           </button>
                         </div>
                       )}
@@ -702,20 +759,12 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                 {/* 3. Color Swatch Indicator / Picker */}
                 {field.type === 'color' && typeof rawValue === 'string' && (
                   <div className={styles.colorIndicator}>
-                    {isEditing ? (
-                      <input
-                        type="color"
-                        value={draft.groupColor}
-                        onChange={(e) => handleFieldChange('groupColor', e.target.value)}
-                        style={{ cursor: 'pointer', border: 'none', background: 'none', width: '24px', height: '24px' }}
-                      />
-                    ) : (
-                      <span
-                        className={styles.colorSwatch}
-                        style={{ backgroundColor: rawValue }}
-                      />
-                    )}
-                    <span>{isEditing ? draft.groupColor : rawValue}</span>
+                    <span
+                      className={styles.colorSwatch}
+                      style={{ backgroundColor: rawValue }}
+                      aria-hidden="true"
+                    />
+                    <span>{rawValue}</span>
                   </div>
                 )}
 
@@ -727,17 +776,24 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                         type="text"
                         className={styles.metaInput}
                         value={draft.url}
+                        aria-label={field.label}
+                        placeholder="https://"
                         onChange={(e) => handleFieldChange('url', e.target.value)}
                       />
+                    ) : !rawValue.trim() ? (
+                      <span style={{ color: 'var(--text-muted)' }}>—</span>
+                    ) : !isSafeHttpUrl(rawValue) ? (
+                      <span style={{ wordBreak: 'break-all' }}>{rawValue}</span>
                     ) : (
                       <a
                         href={rawValue}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className={styles.metaUrl}
                       >
                         {rawValue}{' '}
                         <FaArrowUpRightFromSquare
+                          aria-hidden="true"
                           style={{ fontSize: '10px', marginLeft: '4px' }}
                         />
                       </a>
@@ -748,18 +804,37 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                 {/* 5. Standard Text / Textarea for Extra */}
                 {field.type === 'text' && (
                   <div>
-                    {isEditing ? (
+                    {isEditing && !READ_ONLY_FIELDS.has(field.key) ? (
                       field.key === 'extra' ? (
                         <textarea
                           className={styles.metaTextarea}
                           value={draft.extra}
+                          aria-label={field.label}
                           onChange={(e) => handleFieldChange('extra', e.target.value)}
                         />
+                      ) : field.key === 'date' ? (
+                        <>
+                          <input
+                            type="text"
+                            className={styles.metaInput}
+                            value={draft.date}
+                            placeholder="YYYY-MM-DD"
+                            aria-label={field.label}
+                            aria-invalid={dateInvalid}
+                            onChange={(e) => handleFieldChange('date', e.target.value)}
+                          />
+                          {dateInvalid && (
+                            <span className={styles.fieldError} role="alert">
+                              {DATE_FORMAT_HINT}
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <input
                           type="text"
                           className={styles.metaInput}
                           value={(draft[field.key] as string) || ''}
+                          aria-label={field.label}
                           onChange={(e) => handleFieldChange(field.key, e.target.value)}
                         />
                       )
@@ -768,6 +843,8 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                         {typeof rawValue === 'string' && rawValue.trim().length > 0 ? (
                           field.key === 'dateAdded' || field.key === 'dateModified' ? (
                             <time dateTime={rawValue}>{formatDateTime(rawValue)}</time>
+                          ) : field.key === 'date' ? (
+                            dateInputValue(rawValue)
                           ) : (
                             rawValue
                           )
