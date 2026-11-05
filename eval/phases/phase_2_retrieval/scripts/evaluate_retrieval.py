@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Phase 2: Retrieval Evaluation (Combined Chunking & Dense Embedding Benchmark).
 
@@ -7,10 +6,10 @@ across standard Information Retrieval (IR) metrics on QASPER and PeerQA datasets
 
 Combinations:
   Chunkers:  {hierarchical, section_overlap, fixed_size}
-  Embedders: {e5-small-v2, all-MiniLM-L6-v2, bge-small-en-v1.5, snowflake-arctic-embed-s, modernbert-embed-base}
+  Embedders: {e5-small-v2, Qwen3-Embedding-0.6B, embeddinggemma-300m, snowflake-arctic-embed-s, modernbert-embed-base}
   Datasets:  QASPER (C-RET / C-RET-150) and PeerQA (PEERQA-PDF / PEERQA-TEXT)
 
-Metrics (Pure Retrieval Quality - zero context concatenation / CEC):
+Metrics (Pure Retrieval Quality):
   - MRR:       MRR@5, MRR@10
   - Recall:    Recall@5, Recall@10, Recall@20
   - Precision: Precision@1, Precision@5, Precision@10
@@ -25,6 +24,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -54,8 +54,10 @@ ARTIFACTS_DIR = ROOT / "eval" / "phases" / "phase_2_retrieval" / "artifacts"
 CHUNKERS = ["hierarchical", "section_overlap", "fixed_size"]
 MODEL_MAP = {
     "e5": "intfloat/e5-small-v2",
-    "minilm": "sentence-transformers/all-MiniLM-L6-v2",
-    "bge": "BAAI/bge-small-en-v1.5",
+    # "minilm": "sentence-transformers/all-MiniLM-L6-v2",
+    # "bge": "BAAI/bge-small-en-v1.5",
+    "qwen": "Qwen/Qwen3-Embedding-0.6B",
+    "gemma": "google/embeddinggemma-300m",
     "arctic": "Snowflake/snowflake-arctic-embed-s",
     "modernbert": "nomic-ai/modernbert-embed-base",
 }
@@ -245,25 +247,31 @@ def rank_units_and_evaluate(
     evidence: List[str],
     cand_pool: List[Dict[str, Any]],
     tau: float = 0.50,
-) -> Dict[str, float]:
-    """Ranks units and calculates IR metrics directly without context truncation."""
-    r_q = count_relevant_chunks(cand_pool, paper_id, "", evidence, tau=tau)
-    ranked_indices = np.argsort(scores)[::-1]
+) -> Optional[Dict[str, float]]:
+    """Ranks units and calculates IR metrics directly without context truncation.
 
+    Returns None when the question has no relevant chunk in this chunker's
+    candidate pool (r_q == 0); the caller counts these as skipped.
+    """
+    K = 20
+    r_q = count_relevant_chunks(cand_pool, paper_id, "", evidence, tau=tau)
+    if r_q <= 0:
+        return None
+    ranked = np.argsort(-scores)
     if strategy == "hierarchical":
         # Small-to-big retrieval: expand child hits to unique parent sections in rank order
-        seen_parents = set()
-        retrieved_items = []
-        for idx in ranked_indices:
+        seen, items = set(), []
+        for idx in ranked:
             pid = units[idx].get("parent_id")
-            if pid and pid not in seen_parents:
-                seen_parents.add(pid)
-                retrieved_items.append({"text": units[idx].get("parent_text") or units[idx]["text"], "parent_id": pid})
-        relevances = [1 if is_chunk_hit(p, paper_id, "", evidence, tau=tau) else 0 for p in retrieved_items]
+            if pid and pid not in seen:
+                seen.add(pid)
+                items.append({"text": units[idx].get("parent_text") or units[idx]["text"], "parent_id": pid})
+                if len(items) == K:
+                    break
     else:
         # Flat chunk retrieval
-        relevances = [1 if is_chunk_hit(units[idx], paper_id, "", evidence, tau=tau) else 0 for idx in ranked_indices]
-
+        items = [units[i] for i in ranked[:K]]
+    relevances = [1 if is_chunk_hit(u, paper_id, "", evidence, tau=tau) else 0 for u in items]
     metrics = compute_all_ir_metrics(relevances, r_q)
     metrics["r_q"] = r_q
     return metrics
@@ -332,21 +340,37 @@ def run_dataset_retrieval_benchmark(
         m_label = m_short[0] if m_short else model_name.split("/")[-1]
         print(f"\n--- Model: {model_name} ({m_label}) ---", flush=True)
 
-        rp.get_model(model_name)
-        model_latencies: List[float] = []
+        try:
+            rp.get_model(model_name)
+        except Exception as e:
+            print(f"Error loading model {model_name}: {e}\nSkipping this model.", flush=True)
+            summary["failures"].append({"model": model_name, "error": f"Failed to load: {e}"})
+            continue
 
-        # Warm-up model
+        # Warm-up first so lazy load / CUDA init doesn't pollute latency numbers
         try:
             rp.embed(model_name, ["warmup text for retriever"], is_query=True, batch_size=1)
         except Exception as e:
             print(f"Warning: model warm-up error: {e}", flush=True)
 
+        # Query latency: real uncached single-query embeds, once per model
+        qs = [it["question"] for p in valid_papers for it in groups[p]][:200]
+        model_latencies: List[float] = []
+        for q in qs:
+            try:
+                t0 = time.perf_counter()
+                rp.embed(model_name, [q], is_query=True, batch_size=1)
+                model_latencies.append((time.perf_counter() - t0) * 1000)
+            except Exception:
+                pass
+
         for st in chunkers:
             combo_key = f"{st}|{m_label}"
             print(f"  > Evaluating combination: [{combo_key}]", flush=True)
             combo_metrics: Dict[str, List[float]] = defaultdict(list)
-            indexing_times = []
+            indexing_times: List[float] = []
             total_units_indexed = 0
+            skipped = 0
 
             for pid in valid_papers:
                 units = chunker_units[st].get(pid)
@@ -357,19 +381,18 @@ def run_dataset_retrieval_benchmark(
                 texts = [u["text"] for u in units]
                 total_units_indexed += len(texts)
 
-                # Embed chunks
+                # Embed chunks (key includes model label + content hash so changing
+                # chunk params or switching models never reuses stale embeddings)
+                h = hashlib.md5("\x00".join(texts).encode()).hexdigest()[:8]
                 t_idx0 = time.perf_counter()
-                um = rp.cached_embed(model_name, texts, False, f"{tag}_{pid}_{st}")
+                um = rp.cached_embed(model_name, texts, False, f"{tag}_{pid}_{st}_{m_label}_{h}")
                 indexing_times.append(time.perf_counter() - t_idx0)
 
                 items = groups[pid]
                 questions = [it["question"] for it in items]
 
                 # Embed questions
-                t_q0 = time.perf_counter()
-                qv = rp.cached_embed(model_name, questions, True, f"{tag}_{pid}")
-                q_dur = (time.perf_counter() - t_q0) * 1000 / max(1, len(questions))
-                model_latencies.extend([q_dur] * len(questions))
+                qv = rp.cached_embed(model_name, questions, True, f"{tag}_{pid}_{m_label}")
 
                 # Rank & evaluate
                 for it, q in zip(items, qv):
@@ -382,6 +405,9 @@ def run_dataset_retrieval_benchmark(
                         evidence=it.get("retrieval_evidence", []),
                         cand_pool=cand_pool,
                     )
+                    if ir_m is None:
+                        skipped += 1
+                        continue
 
                     for mk, mv in ir_m.items():
                         combo_metrics[mk].append(mv)
@@ -405,6 +431,7 @@ def run_dataset_retrieval_benchmark(
                 "model": model_name,
                 "model_label": m_label,
                 "evaluated_questions": n_eval,
+                "skipped_no_relevant": skipped,
                 "means": {mk: round(float(np.mean(combo_metrics[mk])), 4) if combo_metrics[mk] else 0.0
                           for mk in IR_METRIC_KEYS},
                 "total_units": total_units_indexed,
@@ -414,7 +441,8 @@ def run_dataset_retrieval_benchmark(
             print(f"    Done {combo_key}: nDCG@10={combo_summary['means']['ndcg_10']}, "
                   f"MRR@10={combo_summary['means']['mrr_10']}, "
                   f"Recall@10={combo_summary['means']['recall_10']}, "
-                  f"P@5={combo_summary['means']['precision_5']}", flush=True)
+                  f"P@5={combo_summary['means']['precision_5']}, "
+                  f"n={n_eval}, skipped={skipped}", flush=True)
 
         # Record model latencies
         summary[f"model_latency_{m_label}"] = {
@@ -459,8 +487,8 @@ def generate_markdown_report(summary: Dict[str, Any], report_path: Path):
         "",
         "## 1. Overall Leaderboard (Ranked by nDCG@10)",
         "",
-        "| Rank | Combination | Chunker | Model | nDCG@10 | MRR@10 | MAP@10 | Recall@10 | Recall@5 | Prec@5 | Hit@1 | Throughput (chunks/s) |",
-        "| :---: | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
+        "| Rank | Combination | Chunker | Model | nDCG@10 | MRR@10 | MAP@10 | Recall@10 | Recall@5 | Prec@5 | Hit@1 | N | Skipped | Throughput (chunks/s) |",
+        "| :---: | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
     ]
 
     for rank_idx, (ck, cdata) in enumerate(sorted_combos, 1):
@@ -469,7 +497,9 @@ def generate_markdown_report(summary: Dict[str, Any], report_path: Path):
             f"| {rank_idx} | **{ck}** | `{cdata['chunker']}` | `{cdata['model_label']}` | "
             f"**{m['ndcg_10']:.4f}** | {m['mrr_10']:.4f} | {m['map_10']:.4f} | "
             f"{m['recall_10']:.4f} | {m['recall_5']:.4f} | {m['precision_5']:.4f} | "
-            f"{m['hit_1']:.4f} | {cdata.get('indexing_throughput_chunks_per_s', 0):.1f} |"
+            f"{m['hit_1']:.4f} | {cdata.get('evaluated_questions', 0)} | "
+            f"{cdata.get('skipped_no_relevant', 0)} | "
+            f"{cdata.get('indexing_throughput_chunks_per_s', 0):.1f} |"
         )
 
     lines.extend([
@@ -529,6 +559,7 @@ def generate_markdown_report(summary: Dict[str, Any], report_path: Path):
         "",
         f"1. **Champion Combination:** `{sorted_combos[0][0]}` achieved highest nDCG@10 of **{sorted_combos[0][1]['means']['ndcg_10']:.4f}** with MRR@10 of **{sorted_combos[0][1]['means']['mrr_10']:.4f}**.",
         "2. **Metric Integrity:** Pure Information Retrieval (IR) metrics evaluated directly on ranked candidate units without context concatenation or token-budget proxies.",
+        "3. **Question Set:** Questions with no relevant chunk in a chunker's candidate pool are skipped (see Skipped column); compare chunkers only when N/Skipped are similar.",
         "",
     ])
 
@@ -547,7 +578,7 @@ def main():
     ap.add_argument("--chunkers", default=None,
                     help="Comma-separated chunkers (default: hierarchical,section_overlap,fixed_size)")
     ap.add_argument("--models", default=None,
-                    help="Comma-separated model names or short keys (default: e5,minilm,bge,arctic,modernbert)")
+                    help="Comma-separated model names or short keys (default: e5,qwen,gemma,arctic,modernbert)")
     ap.add_argument("--limit", type=int, default=None,
                     help="Number of papers to evaluate (useful for smoke tests)")
     args = ap.parse_args()
@@ -591,6 +622,7 @@ def main():
 
     # Generate top-level combined summary
     combined_summary_path = ARTIFACTS_DIR / ("summary.json" if not args.limit else f"summary_smoke_{args.limit}.json")
+    combined_summary_path.parent.mkdir(parents=True, exist_ok=True)
     combined_summary_path.write_text(json.dumps(all_results, indent=2), encoding="utf-8")
     print(f"\nAll Phase 2 retrieval benchmarks complete! Overall summary written to {combined_summary_path}")
 

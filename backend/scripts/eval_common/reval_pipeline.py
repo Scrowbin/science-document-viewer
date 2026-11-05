@@ -59,7 +59,8 @@ _MODELS: Dict[str, Any] = {}
 def get_model(name: str):
     if name not in _MODELS:
         from sentence_transformers import SentenceTransformer
-        _MODELS[name] = SentenceTransformer(name, device="cpu")
+        token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+        _MODELS[name] = SentenceTransformer(name, device="cpu", token=token)
     return _MODELS[name]
 
 

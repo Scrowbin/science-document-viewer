@@ -54,6 +54,8 @@ MODEL_DIMENSIONS: Dict[str, int] = {
     "nomic-ai/modernbert-embed-base": 768,
     "Snowflake/snowflake-arctic-embed-m-v2.0": 768,
     "mixedbread-ai/mxbai-embed-large-v1": 1024,
+    "Qwen/Qwen3-Embedding-0.6B": 1024,
+    "google/embeddinggemma-300m": 768,
 }
 
 # Centralized model prefix specifications for asymmetric dense embeddings
@@ -69,6 +71,14 @@ MODEL_PREFIX_SPECS: Dict[str, Dict[str, str]] = {
     "nomic-ai/nomic-embed-text-v1.5": {"query": "search_query: ", "passage": "search_document: "},
     "nomic-ai/modernbert-embed-base": {"query": "search_query: ", "passage": "search_document: "},
     "mixedbread-ai/mxbai-embed-large-v1": {"query": "Represent this sentence for searching relevant passages: ", "passage": ""},
+    "Qwen/Qwen3-Embedding-0.6B": {
+        "query": "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        "passage": "",
+    },
+    "google/embeddinggemma-300m": {
+        "query": "task: search result | query: ",
+        "passage": "",
+    },
 }
 
 
@@ -86,6 +96,10 @@ def get_model_prefix(model_name: str, is_query: bool = False) -> str:
         return "Represent this sentence for searching relevant passages: " if is_query else ""
     if any(k in model_name for k in ["nomic", "modernbert"]):
         return "search_query: " if is_query else "search_document: "
+    if "qwen" in model_name.lower():
+        return "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: " if is_query else ""
+    if "gemma" in model_name.lower():
+        return "task: search result | query: " if is_query else ""
     return ""
 
 
