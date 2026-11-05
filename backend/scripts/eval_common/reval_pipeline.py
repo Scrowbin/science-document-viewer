@@ -58,9 +58,11 @@ _MODELS: Dict[str, Any] = {}
 
 def get_model(name: str):
     if name not in _MODELS:
+        import torch
         from sentence_transformers import SentenceTransformer
         token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
-        _MODELS[name] = SentenceTransformer(name, device="cpu", token=token)
+        device = os.environ.get("EVAL_DEVICE") or ("cuda" if torch.cuda.is_available() else "cpu")
+        _MODELS[name] = SentenceTransformer(name, device=device, token=token)
     return _MODELS[name]
 
 
