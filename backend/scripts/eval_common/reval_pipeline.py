@@ -31,7 +31,11 @@ CONVEX_ALPHA = 0.7
 
 def setup_django():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
-    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    # HF_HUB_OFFLINE is intentionally NOT set here. The original harness set it to
+    # prevent accidental downloads during Django init, but it also blocked new models
+    # (Qwen3-Embedding-0.6B, embeddinggemma-300m) from downloading on first use.
+    # Models are downloaded lazily by get_model() after setup; if offline mode is
+    # needed, set HF_HUB_OFFLINE=1 in the shell before running the script.
     for p in (str(BACKEND), str(BACKEND / "scripts")):
         if p not in sys.path:
             sys.path.insert(0, p)
