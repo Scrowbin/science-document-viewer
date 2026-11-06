@@ -535,7 +535,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
   - từ chối hợp lệ (REFUSAL_VALID);
   - từ chối không cần thiết (UNJUSTIFIED_REFUSAL).
 
-  Trước khi dùng, mô hình chấm được kiểm tra trên **100 câu trả lời đã được người đánh giá gán nhãn** (Mục 5.5.1): tỷ lệ đồng thuận và hệ số kappa của Cohen (Cohen, 1960), trên sáu nhãn và trên ba nhóm (có căn cứ / không có căn cứ / từ chối). Nhãn của mô hình chấm chỉ được báo cáo kèm mức đồng thuận này. Mô hình chấm chạy qua API chỉ trong thực nghiệm, trên các bài báo công khai; ứng dụng không gửi tài liệu tới dịch vụ AI bên ngoài. Một mô hình lớn hơn có khả năng chấm chính xác hơn các mô hình nhỏ đang được đánh giá, và không tốn thời gian chạy cục bộ.
+  Trước khi dùng, mô hình chấm được kiểm tra trên **100 câu trả lời đã được người đánh giá gán nhãn** (Mục 5.5.1): tỷ lệ câu trả lời mà mô hình chấm cho cùng nhãn với người đánh giá, trên sáu nhãn và trên ba nhóm (có căn cứ / không có căn cứ / từ chối). Nhãn của mô hình chấm chỉ được báo cáo kèm mức đồng thuận này. Mô hình chấm chạy qua API chỉ trong thực nghiệm, trên các bài báo công khai; ứng dụng không gửi tài liệu tới dịch vụ AI bên ngoài. Một mô hình lớn hơn có khả năng chấm chính xác hơn các mô hình nhỏ đang được đánh giá, và không tốn thời gian chạy cục bộ.
 - **Lý do chọn các mô hình:** các mô hình mở đủ nhỏ để ứng dụng chạy trên CPU với 16 GB RAM, thuộc bốn họ khác nhau; hai mô hình thế hệ mới (`qwen3:4b`, `gemma3:4b`) được thêm vào để xem mức cải thiện so với các mô hình đã đánh giá sơ bộ.
 - **Tiêu chí lựa chọn:** Token F1, tỷ lệ từ chối và nhãn độ bám ngữ cảnh được xem cùng nhau, kèm chi phí trên CPU (từ đánh giá sơ bộ và kích thước mô hình).
 
@@ -1226,7 +1226,7 @@ Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu 
 - Các mô hình thế hệ mới (`qwen3:4b`, `gemma3:4b`) được kỳ vọng tuân thủ chỉ dẫn và bám ngữ cảnh tốt hơn các mô hình cũ cùng cỡ.
 - Ngữ cảnh truy xuất được kỳ vọng cho Token F1 thấp hơn và tỷ lệ từ chối cao hơn bằng chứng chuẩn, vì ngữ cảnh có thể thiếu bằng chứng và dài hơn.
 
-**Kiểm tra mô hình chấm.** **[Chờ kết quả]** Mức đồng thuận giữa mô hình chấm Gemini và người đánh giá trên 100 câu trả lời (sáu nhãn và ba nhóm, tỷ lệ đồng thuận và kappa), từ `phase_4_generation/artifacts/judge_validation.json`.
+**Kiểm tra mô hình chấm.** **[Chờ kết quả]** Mức đồng thuận giữa mô hình chấm Gemini và người đánh giá trên 100 câu trả lời (tỷ lệ cùng nhãn, trên sáu nhãn và trên ba nhóm, kèm bảng các nhãn bị nhầm), từ `phase_4_generation/artifacts/judge_validation.json`.
 
 **Kết quả.** **[Chờ kết quả]** Với mỗi bộ dữ liệu, mỗi loại ngữ cảnh và mỗi mô hình: Token F1, tỷ lệ từ chối, tỷ lệ chứa, độ chính xác Có/Không, độ trễ (GPU) và phân bố nhãn độ bám ngữ cảnh; chênh lệch giữa bằng chứng chuẩn và ngữ cảnh truy xuất (`phase_4_generation/artifacts/summary.json`).
 
@@ -1341,8 +1341,6 @@ Baumgärtner, T., Briscoe, T., & Gurevych, I. (2025). PeerQA: A scientific quest
 Chen, J., Xiao, S., Zhang, P., Luo, K., Lian, D., & Liu, Z. (2024). *BGE M3-Embedding: Multi-lingual, multi-functionality, multi-granularity text embeddings through self-knowledge distillation* (arXiv:2402.03216). arXiv. https://doi.org/10.48550/arXiv.2402.03216
 
 Chen, T., Kornblith, S., Norouzi, M., & Hinton, G. (2020). A simple framework for contrastive learning of visual representations. In *Proceedings of the 37th International Conference on Machine Learning* (Vol. 119, pp. 1597–1607). PMLR.
-
-Cohen, J. (1960). A coefficient of agreement for nominal scales. *Educational and Psychological Measurement, 20*(1), 37–46. https://doi.org/10.1177/001316446002000104
 
 Cormack, G. V., Clarke, C. L. A., & Büttcher, S. (2009). Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In *Proceedings of the 32nd International ACM SIGIR Conference on Research and Development in Information Retrieval* (pp. 758–759). ACM. https://doi.org/10.1145/1571941.1572114
 

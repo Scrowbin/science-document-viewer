@@ -32,8 +32,8 @@ GEMINI_API, read from .env) gives each answer one of the 6 human-check labels. T
 evaluation, never by the application. A model name without the "gemini" prefix is run through Ollama instead
 (SUPPORTED, MISSING_INFO - PARTIAL, MISSING_INFO - UNJUSTIFIED_REFUSAL, REFUSAL_VALID, UNSUPPORTED,
 CONTRADICTED), judging only against the context given to the model. --judge-validate first runs the judge on the
-100 answers already labelled by a human (generation human checks, rounds 1-2) and reports agreement and
-Cohen's kappa; only then should judge labels be reported.
+100 answers already labelled by a human (generation human checks, rounds 1-2) and reports the share of answers
+where the judge gives the same label as the human (and a confusion table); only then should judge labels be reported.
 
 Outputs: eval/phases/phase_4_generation/artifacts/
   <cohort>/<condition>/per_query.jsonl   one row per (model, question); resumable
@@ -497,14 +497,6 @@ def judge_ready(judge_model: str) -> None:
         ollama_ready(judge_model)
 
 
-def cohen_kappa(a: List[str], b: List[str]) -> float:
-    cats = sorted(set(a) | set(b))
-    n = len(a)
-    po = sum(x == y for x, y in zip(a, b)) / n
-    pe = sum((a.count(c) / n) * (b.count(c) / n) for c in cats)
-    return round((po - pe) / (1 - pe), 4) if pe < 1 else 1.0
-
-
 def collapse(label: str) -> str:
     if label in ("SUPPORTED", "MISSING_INFO - PARTIAL"):
         return "grounded"
@@ -550,9 +542,7 @@ def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
         conf[a][b] += 1
     res = {"judge_model": judge_model, "n": len(rows),
            "agreement_6_labels": round(sum(a == b for a, b in zip(h, j)) / len(rows), 4),
-           "kappa_6_labels": cohen_kappa(h, j),
            "agreement_3_classes": round(sum(a == b for a, b in zip(hc, jc)) / len(rows), 4),
-           "kappa_3_classes": cohen_kappa(hc, jc),
            "classes_3": "grounded = SUPPORTED/PARTIAL; not_grounded = UNSUPPORTED/CONTRADICTED; "
                         "refusal = REFUSAL_VALID/UNJUSTIFIED_REFUSAL",
            "confusion_human_rows_judge_cols": {k: dict(v) for k, v in conf.items()},
@@ -561,8 +551,8 @@ def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
     name = "judge_validation.json" if not limit else f"judge_validation_smoke_{limit}.json"
     (ART / name).write_text(json.dumps(res, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Judge {judge_model} vs human on {len(rows)} answers: 6-label agreement {res['agreement_6_labels']} "
-          f"(kappa {res['kappa_6_labels']}), 3-class agreement {res['agreement_3_classes']} "
-          f"(kappa {res['kappa_3_classes']}), invalid {res['invalid_outputs']}", flush=True)
+          f"3-class agreement {res['agreement_3_classes']} "
+          f"invalid {res['invalid_outputs']}", flush=True)
     return res
 
 

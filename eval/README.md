@@ -122,7 +122,7 @@ Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook 
 - **Questions:** C-RET references are rebuilt from QASPER JSON with `is_atomic_eligible` (all 567 have one); PeerQA uses `answer_free_form`.
 - **Metrics:** Token F1 (refusals 0), refusal rate, containment proxy, boolean accuracy, latency and tokens/s, per answer type.
 - **LLM-as-judge:** Gemini (`gemini-2.5-flash` by default, `--judge-model` to change) through the Gemini API, key in the environment variable `GEMINI_API` (read from `.env` at the repo root or `backend/`, or a Kaggle secret). JSON output with one of the 6 labels, judged only against the given context; retries with backoff on rate limits. Used only for evaluation (public papers), never by the application. Any non-`gemini` model name runs through Ollama instead.
-  - `--judge-validate` first runs it on the **100 human-labelled answers** of the preliminary study (round 1: 60, round 2: 40, final labels) and reports agreement and Cohen's kappa on 6 labels and on 3 classes (grounded / not grounded / refusal).
+  - `--judge-validate` first runs it on the **100 human-labelled answers** of the preliminary study (round 1: 60, round 2: 40, final labels) and reports the share of answers where the judge's label equals the human label, on 6 labels and on 3 classes (grounded / not grounded / refusal), plus a confusion table.
   - Judge labels are reported only together with this agreement.
 - **Status:** smoke-tested locally (gold and retrieved conditions, judge validation and judge pass); full runs pending.
 
