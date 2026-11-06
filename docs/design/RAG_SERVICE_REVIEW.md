@@ -1,6 +1,6 @@
 # RAG service review (findings only, fixes deferred)
 
-**Status (2026-11-06):** review only. `backend/apps/documents/services/` was **not changed**, because the combination experiment imports this code (`backend/scripts/eval_common/`, `eval/phases/*`). Apply the fixes below **after the combination run is finished**, then re-run the backend tests and `pytest backend/scripts/eval_common`.
+**Status (2026-11-06):** review; apart from B1 (chunk page numbers, output-neutral) `backend/apps/documents/services/` was **not changed**, because the evaluation scripts import this code (`backend/scripts/eval_common/`, `eval/phases/*`). Apply the fixes below **after the combination run is finished**, then re-run the backend tests and `pytest backend/scripts/eval_common`.
 
 Line numbers refer to the code as of this review.
 

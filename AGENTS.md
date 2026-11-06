@@ -17,7 +17,7 @@ Guide for AI agents working on the **Scientific Document Manager** (a Zotero-sty
    per-query results so each result can be reproduced.
 2. Evaluate one component at a time with the others at the documented baseline (the
    production setting, listed in `eval/README.md`); then compare the selected methods together
-   in the final combination experiment (two methods for each of four components, 16 pipelines).
+   in later phases (each phase starts from the previous phase's choices).
 3. Report descriptive evaluation results: metric means, differences between methods, and
    computational costs (latency, throughput, memory).
 4. Choose methods using results, cost and theory together; for each component write what
@@ -154,12 +154,13 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
 * Application: library management, PDF viewer with annotations, sharing, bulk actions and the
   RAG assistant are implemented. PDFs are served through a permission-checked API endpoint;
   MinIO/presigned URLs are a later option (`docs/design/FILE_STORAGE_PLAN.md`).
-* `backend/apps/documents/services/` is frozen until the combination run ends; known fixes are
-  listed in `docs/design/RAG_SERVICE_REVIEW.md`. Planned FR-16 (context retry, default
+* `backend/apps/documents/services/` is imported by the Phase 2–4 evaluation scripts; keep its
+  behaviour unchanged until Phase 4 is done. Known fixes are in `docs/design/RAG_SERVICE_REVIEW.md`. Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is
   only a future extension in the thesis (`docs/design/DEPLOYMENT_PLAN.md`).
-* Evaluation: component experiments for extraction, chunking, embedding, retrieval and
-  generation are complete; the 16-configuration combination experiment is being prepared.
-  See `eval/README.md`.
+* Evaluation (four phases, `eval/README.md`): Phase 1 extraction (OHR-Bench) and Phase 2
+  chunking × embedding (QASPER C-RET) are done; Phase 2 PeerQA/gemma rerun, Phase 3 (BM25,
+  fusion, reranking) and Phase 4 (LLMs, gold vs retrieved, LLM judge) run on Kaggle
+  (`eval/kaggle/`). The 16-configuration combination run was dropped (archived).

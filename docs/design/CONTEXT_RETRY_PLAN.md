@@ -1,6 +1,6 @@
 # FR-16 plan: fetch more context when the model says the context is not enough
 
-**Status:** planned, **not implemented**. Default mode `strict` (today's behaviour). Implement after the combination experiment, because `query_document` is used by the experiments.
+**Status:** planned, **not implemented**. Default mode `strict` (today's behaviour). Implement after Phase 4 of the evaluation, because the evaluation imports the RAG service code.
 
 ## Idea
 When the model answers with the refusal sentence ("the context does not contain enough information"), the evidence may still be in the document, just ranked below the 5 sections that were sent. The feature retrieves the **next-ranked, not yet used sections** and asks again. This follows the common "corrective retrieval" practice with a sliding window over the ranking: each extra round replaces the context with new sections under the same budget, instead of growing one prompt (which would exceed `num_ctx` and slow down every round).
@@ -27,8 +27,8 @@ When the model answers with the refusal sentence ("the context does not contain 
 - It only helps when the evidence is in sections ranked 6–15.
 
 ## Evaluation (required before calling it done)
-On the combination experiment's generation sample (300 questions), production retrieval pipeline, compare `strict`, `once` and `loop`:
-- refusal rate, and refusal rate split by whether the evidence was in the first context (as in Bảng 5.9);
+On the Phase 4 questions (C-RET), with the retrieval pipeline chosen in Phase 3, compare `strict`, `once` and `loop`:
+- refusal rate, and refusal rate split by whether the evidence was in the first context;
 - Token F1 and the containment proxy;
 - answer time (p50/p95) and number of rounds;
 - a small blinded human check of the answers that changed between modes (same 6-label rubric).

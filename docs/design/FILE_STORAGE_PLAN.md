@@ -83,6 +83,6 @@ flowchart LR
 | Tests (isolated storage), soft delete, backup and restore notes | 1 day |
 
 ## 5. Constraints and notes
-- **Not before the combination experiment.** It ingests PDFs through `rag_service.ingest_document` reading local files from `eval/pdfs/`, so it doesn't depend on `media/`. Even so, changing the app's ingestion path during the evaluation window is avoided.
+- **Not before Phase 4 of the evaluation.** It ingests PDFs through `rag_service.ingest_document` reading local files from `eval/pdfs/`, so it doesn't depend on `media/`. Even so, changing the app's ingestion path during the evaluation window is avoided.
 - **Prefer the smallest step if time is short:** steps 1–4 of the table close the security hole (public, guessable PDF URLs) and give dedup and hashes. Celery and ClamAV are optional for a thesis demo.
 - **Teammate's branch:** `origin/main` (hyperded) moved `backend/scripts/` and rewrote `chunkers.py`. Rebase this work on the merged main after the combination experiment.

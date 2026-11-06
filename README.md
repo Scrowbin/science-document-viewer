@@ -6,22 +6,20 @@ An advanced scientific document management system inspired by **Zotero**, design
 
 ## 0. Evaluation Overview & Scope
 
-The project implements a Scientific Document Manager with a locally hosted RAG assistant and evaluates the main RAG components on the QASPER benchmark of NLP/ML papers. Each component is evaluated on its own, with the other components held at the production setting:
+The project implements a Scientific Document Manager with a locally hosted RAG assistant and evaluates the RAG pipeline in four consecutive phases, each starting from the previous phase's choices:
 
-| Component experiment | Methods compared | Outcome |
-| :--- | :--- | :--- |
-| Document extraction | PyMuPDF (layout / plain), pypdf, pdfminer.six, pdfplumber; GROBID separately | PyMuPDF Layout kept: same evidence recovery as the best, the only one with heading detection, fast |
-| Text chunking | hierarchical (small-to-big), fixed size, section overlap; semantic chunking and children-only separately | hierarchical leads on nDCG@10; fixed size kept as the simple alternative |
-| Embedding model | e5-small-v2, MiniLM, arctic-embed-s, bge-small, ModernBERT-embed; SPECTER2 separately | ModernBERT most accurate, e5-small-v2 nearly as good at about a quarter of the latency |
-| Retrieval strategy | dense, BM25, RRF and convex hybrids; cross-encoder rerankers separately | dense and hybrid-convex tie on QASPER; hybrid helps on PeerQA |
-| Answer generation | llama3.2 (1B, 3B), qwen2.5 (0.5B, 1.5B), phi4-mini, given gold evidence | complementary strengths: higher Token F1 (qwen2.5:1.5b) vs fewer unsupported answers (llama3.2:3b) |
-| Combination | 2 chunkers × 2 embedders × 2 retrieval modes × 2 LLMs = 16 pipelines | pending (design and runner ready) |
+| Phase | Methods compared | Data | Outcome |
+| :--- | :--- | :--- | :--- |
+| 1. PDF extraction | PyMuPDF (layout / plain), pypdf, pdfminer.six, pdfplumber, GROBID | OHR-Bench (706 docs, 6,916 questions) | PyMuPDF best and fastest (evidence coverage 0.747); GROBID clearly lower (0.494). PyMuPDF Layout kept |
+| 2. Chunking × embedding | 3 chunkers × 5 embedders (e5, arctic, ModernBERT, EmbeddingGemma, Qwen3-Embedding) | QASPER C-RET (335 papers / 567 questions), PeerQA | hierarchical best for every embedder (nDCG@10 0.703–0.721); embedders nearly tied with it. PeerQA rerun pending |
+| 3. Keyword, fusion, reranking | BM25, RRF, convex hybrid, 2 cross-encoders on 4 embedders | as Phase 2 | pending (Kaggle) |
+| 4. Answer generation | 5 small LLMs via Ollama, gold vs retrieved contexts, LLM judge | C-RET, PeerQA | pending (Kaggle) |
 
 Methods, data, results and limitations are documented in [`eval/README.md`](eval/README.md). The thesis is [`DU_AN_CNTT_TOAN_VAN.md`](DU_AN_CNTT_TOAN_VAN.md).
 
 ### Scope & limitations
 1. **Language:** English-only scientific literature (QASPER: NLP/ML arXiv papers).
-2. **Component-level evaluation:** component results do not add up to an end-to-end quality figure; the generation experiment uses gold evidence, not retrieved context. The combination experiment measures complete pipelines.
+2. **Evaluation scope:** Phases 2–4 use QASPER's own text, so extraction errors of the app are not included; Phase 4 compares gold-evidence and retrieved contexts to separate retrieval from generation.
 3. **Hardware:** evaluated on a commodity machine (CPU only, about 16 GB RAM, Ollama).
 4. **Proof of concept, not scalable as is:** everything runs locally on one machine and handles about one answer at a time. A desktop client + shared server model is a future extension, deferred until after the graduation project (see [`docs/design/DEPLOYMENT_PLAN.md`](docs/design/DEPLOYMENT_PLAN.md)).
 
@@ -105,8 +103,8 @@ flowchart TB
 | **Phase 3.5 - 3.8** | **Full Monorepo Audit & Refactoring** | 🟢 **100% Done** | Security fixes, JWT token blacklist logout, Axios refresh queue, N+1 query optimization, magic byte upload validation (`%PDF-`). |
 | **Phase 4.1** | **Midterm Scope Audit & Alignment** | 🟢 **100% Done** | Scope reduction, dropped non-essential features, locked RAG stack (PyMuPDF, Qdrant, Ollama `llama3.2:3b`). |
 | **Phase 4.2** | **Local RAG Pipeline Implementation** | 🟢 **100% Done** | Hierarchical indexing, dense retrieval (RRF hybrid optional), `/chat/` and `/summarize/` endpoints, `<AiChatPanel>` with page citations. |
-| **Phase 5** | **Component Evaluation & Thesis** | 🟢 **Done** | Component experiments in `eval/phases/`, documented in [`eval/README.md`](eval/README.md); thesis in `DU_AN_CNTT_TOAN_VAN.md`. |
-| **Phase 6** | **Combination Experiment (16 pipelines)** | 🟡 **In progress** | Runner `eval/phases/phase_12_combination/scripts/run_combinations.py`; results pending. |
+| **Phase 5** | **Evaluation phases 1–2 & Thesis** | 🟢 **Done** | Extraction (OHR-Bench) and chunking × embedding, documented in [`eval/README.md`](eval/README.md); thesis in `DU_AN_CNTT_TOAN_VAN.md`. |
+| **Phase 6** | **Evaluation phases 3–4** | 🟡 **In progress** | Hybrid/reranking and LLM evaluation scripts with Kaggle notebooks in `eval/kaggle/`; results pending. |
 
 ---
 

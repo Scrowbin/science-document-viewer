@@ -94,183 +94,83 @@ def fig_qasper():
 
 # ----------------------------------------------------------------------------- extraction
 def fig_extraction():
-    s = J(PH / "phase_1_extraction/artifacts/extraction/summary.json")
-    g = J(PH / "phase_1_extraction/artifacts/extraction_grobid/summary.json")
-    names = ["pymupdf_layout", "pymupdf_plain", "pdfminer.six", "pypdf", "pdfplumber"]
-    lab = {"pymupdf_layout": "PyMuPDF Layout", "pymupdf_plain": "PyMuPDF (thường)", "pdfminer.six": "pdfminer.six",
-           "pypdf": "pypdf", "pdfplumber": "pdfplumber"}
-    nd = [s["downstream_c_ret_150"]["means"][n]["ndcg10"] for n in names] + [g["downstream_c_ret_150"]["means"]["grobid"]["ndcg10"]]
-    rec = [s["means"][n]["evidence_recall"] for n in names] + [g["means"]["grobid"]["evidence_recall"]]
-    ms = [s["secondary"][n]["ms_per_page_p50"] for n in names] + [g["secondary"]["grobid"]["ms_per_page_p50"]]
-    labels = [lab[n] for n in names] + ["GROBID (dịch vụ riêng)"]
-    hl = [True] + [False] * 5
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.0))
-    hbars(axes[0], labels, rec, hl, xlabel="Độ phủ bằng chứng (335 bài)")
-    hbars(axes[1], labels, nd, hl, xlabel="nDCG@10 truy xuất phía sau (150 bài)")
-    hbars(axes[2], labels, ms, hl, fmt="{:.0f}", xlabel="ms/trang (trung vị)")
+    """Phase 1, OHR-Bench: evidence coverage, LCS by evidence source, ms/page."""
+    s = J(PH / "phase_1_extraction/artifacts/summary.json")["extractors"]
+    names = ["pymupdf_layout", "pymupdf_plain", "pypdf", "pdfminer.six", "pdfplumber", "grobid"]
+    lab = {"pymupdf_layout": "PyMuPDF Layout", "pymupdf_plain": "PyMuPDF (thường)", "pypdf": "pypdf",
+           "pdfminer.six": "pdfminer.six", "pdfplumber": "pdfplumber", "grobid": "GROBID"}
+    labels = [lab[n] for n in names]
+    rec = [s[n]["evidence_recall"] for n in names]
+    ms = [s[n]["timing"]["ms_per_page"] for n in names]
+    hl = [n == "pymupdf_layout" for n in names]
+    fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.2))
+    hbars(axes[0], labels, rec, hl, xlabel="Độ phủ bằng chứng")
+    y = np.arange(len(names))[::-1]
+    srcs = [("text", "Văn bản"), ("table", "Bảng"), ("formula", "Công thức")]
+    h = 0.26
+    for j, (k, name) in enumerate(srcs):
+        v = [s[n]["by_source"][k]["lcs"] for n in names]
+        axes[1].barh(y + (1 - j) * h, v, height=h, color=C[j], edgecolor=SURF, linewidth=1, label=name)
+    axes[1].set_xlim(0, 100)
+    axes[1].set_xlabel("LCS (%) theo loại nguồn bằng chứng")
+    axes[1].grid(axis="y", visible=False)
+    axes[1].legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=7)
+    hbars(axes[2], labels, ms, hl, fmt="{:.1f}", xlabel="ms/trang")
     for ax in axes[1:]:
-        ax.set_yticklabels([])
+        ax.set_yticks(y, [""] * len(y))
         ax.tick_params(axis="y", length=0)
-    save(fig, "fig5_2_extraction.png")
+    save(fig, "fig5_2_extraction_ohr.png")
 
 
-# ----------------------------------------------------------------------------- chunking
-def fig_chunking():
-    base = PH / "phase_2_chunking/artifacts"
-    c = J(base / "chunking/summary.json")["means"]
-    sem = J(base / "chunking_semantic/summary.json")["means"]
-    ch = J(base / "chunking_children/summary.json")["means"]
-    rows = [("Hierarchical", c["hierarchical|dense"]), ("Fixed size", c["fixed_size|dense"]),
-            ("Recursive (section_overlap)", c["section_overlap|dense"]), ("Semantic v1", sem["semantic_v1"]),
-            ("Semantic v2", sem["semantic_v2"]), ("Chỉ đoạn con (không mở rộng)", ch["children_only"])]
-    labels = [r[0] for r in rows]
-    hl = [True, True, False, False, False, False]
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.0))
-    hbars(axes[0], labels, [r[1]["ndcg10"] for r in rows], hl, xlabel="nDCG@10")
-    hbars(axes[1], labels, [r[1]["cec_0.5"] for r in rows], hl, xlabel="CEC@0.5 (bằng chứng trong ngữ cảnh)")
-    hbars(axes[2], labels, [r[1]["context_tokens"] for r in rows], hl, fmt="{:.0f}", xlabel="Số token ngữ cảnh (TB)")
-    for ax in axes[1:]:
-        ax.set_yticklabels([])
-        ax.tick_params(axis="y", length=0)
-    save(fig, "fig5_3_chunking.png")
+# ----------------------------------------------------------------------------- phase 2: chunking x embedding
+P2_LABELS = {"e5": "e5-small-v2", "arctic": "arctic-embed-s", "modernbert": "ModernBERT-embed",
+             "gemma": "embeddinggemma-300m", "qwen": "Qwen3-Embedding-0.6B"}
 
 
-# ----------------------------------------------------------------------------- embedding
-def fig_embedding():
-    e = J(PH / "phase_3_embedding/artifacts/embedding/summary.json")
-    sp = J(PH / "phase_3_embedding/artifacts/embedding_specter2/summary.json")
-    short = {"intfloat/e5-small-v2": "e5-small-v2", "sentence-transformers/all-MiniLM-L6-v2": "MiniLM-L6",
-             "Snowflake/snowflake-arctic-embed-s": "arctic-embed-s", "BAAI/bge-small-en-v1.5": "bge-small",
-             "nomic-ai/modernbert-embed-base": "ModernBERT-embed"}
-    pts = [(short[m], e["efficiency"][m]["query_latency_ms"]["p50"], e["means"][m]["ndcg10"]) for m in short]
-    pts.append(("SPECTER2", sp["efficiency"]["query_latency_ms"]["p50"], sp["means"]["specter2"]["ndcg10"]))
-    fig, ax = plt.subplots(figsize=(6.2, 3.6))
-    for name, x, y in pts:
-        sel = name in ("e5-small-v2", "ModernBERT-embed")
-        ax.scatter(x, y, s=70, color=C[0] if sel else GREY, edgecolor=SURF, linewidth=2, zorder=3)
-        ax.annotate(f"{name} ({y:.3f})", (x, y), xytext=(7, 4), textcoords="offset points", fontsize=8, color=INK)
-    ax.set_xscale("log")
-    ax.set_xticks([10, 20, 50, 100], ["10", "20", "50", "100"])
-    ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    ax.set_xlabel("Độ trễ mã hóa một truy vấn, P50 (ms, thang log)")
-    ax.set_ylabel("nDCG@10")
-    ax.set_xlim(6, 160)
-    save(fig, "fig5_4_embedding.png")
+def phase2_ndcg(cohort="c_ret"):
+    """nDCG@10 per (chunker, model label): artifacts/<cohort>/summary.json when downloaded, else the Kaggle run log."""
+    import re
+    summ = PH / f"phase_2_retrieval/artifacts/{cohort}/summary.json"
+    if summ.exists():
+        d = J(summ)
+        out = {}
+        for c in d["combinations"].values():
+            m = c.get("common_means") or c["means"]
+            out[(c["chunker"], c["model_label"])] = m["ndcg_10"]
+        return out, str(summ.relative_to(ROOT))
+    log = PH / "phase_2_retrieval/artifacts/kaggle_full_run.log"
+    txt = log.read_text(encoding="utf-8")
+    block = txt.split("Cohort [C-RET]")[1].split("Cohort [")[0] if cohort == "c_ret" else txt.split("Cohort [PEERQA-PDF]")[1]
+    out = {(m.group(1), m.group(2)): float(m.group(3))
+           for m in re.finditer(r"Done (\w+)\|(\w+): nDCG@10=([\d.]+)", block)}
+    return out, str(log.relative_to(ROOT))
 
 
-# ----------------------------------------------------------------------------- retrieval
-def fig_retrieval():
-    base = PH / "phase_6_hybrid_retrieval/artifacts/retrieval_fusion"
-    sets = [("QASPER\n(335 bài)", "C-RET"), ("PeerQA PDF\n(107 bài)", "PEERQA-PDF"), ("PeerQA văn bản\n(73 bài)", "PEERQA-TEXT")]
-    methods = [("Dense", "dense"), ("Hybrid (convex)", "convex_fix"), ("RRF", "rrf_fix"), ("BM25", "bm25_fix")]
-    vals = {k: J(base / k / "summary.json")["means"] for _, k in sets}
-    fig, ax = plt.subplots(figsize=(7.2, 3.4))
-    x = np.arange(len(sets))
-    w = 0.19
-    for i, (lab, m) in enumerate(methods):
-        ys = [vals[k][m]["ndcg10"] for _, k in sets]
-        bars = ax.bar(x + (i - 1.5) * w, ys, w * 0.92, color=C[i], label=lab, edgecolor=SURF, linewidth=1.2)
-        for b, v in zip(bars, ys):
-            ax.text(b.get_x() + b.get_width() / 2, v + 0.006, f"{v:.3f}", ha="center", fontsize=6.5, color=INK, rotation=90)
-    ax.set_xticks(x, [s[0] for s in sets])
-    ax.set_ylabel("nDCG@10")
-    ax.set_ylim(0, 0.62)
-    ax.grid(axis="x", visible=False)
-    ax.legend(ncol=4, loc="upper left", fontsize=8)
-    save(fig, "fig5_5_retrieval.png")
-
-
-def fig_complementarity():
-    base = PH / "phase_6_hybrid_retrieval/artifacts/retrieval_fusion"
-    sets = [("QASPER", "C-RET"), ("PeerQA PDF", "PEERQA-PDF"), ("PeerQA văn bản", "PEERQA-TEXT")]
-    cats = ["Cả hai tìm thấy", "Chỉ dense", "Chỉ BM25", "Không tìm thấy"]
-    data = []
-    for _, k in sets:
-        rows = [json.loads(line) for line in open(base / k / "per_query.jsonl", encoding="utf-8")]
-        n = len(rows)
-        d = [r["dense"]["cec_0.5"] for r in rows]
-        b = [r["bm25_fix"]["cec_0.5"] for r in rows]
-        data.append([sum(x and y for x, y in zip(d, b)) / n, sum(x and not y for x, y in zip(d, b)) / n,
-                     sum(y and not x for x, y in zip(d, b)) / n, sum(not x and not y for x, y in zip(d, b)) / n])
-    data = np.array(data)
-    fig, ax = plt.subplots(figsize=(7.2, 2.4))
-    left = np.zeros(len(sets))
-    colors = [C[0], C[1], C[2], GREY]
-    y = np.arange(len(sets))[::-1]
-    for j, cat in enumerate(cats):
-        ax.barh(y, data[:, j], left=left, color=colors[j], label=cat, edgecolor=SURF, linewidth=1.5, height=0.6)
-        for yi, l0, v in zip(y, left, data[:, j]):
-            if v >= 0.04:
-                ax.text(l0 + v / 2, yi, f"{v:.0%}", ha="center", va="center", fontsize=7.5,
-                        color="white" if j < 2 else INK)
-        left += data[:, j]
-    ax.set_yticks(y, [s[0] for s in sets])
-    ax.set_xlim(0, 1)
-    ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-    ax.set_xlabel("Tỷ lệ câu hỏi (bằng chứng có trong ngữ cảnh, CEC@0.5)")
+def fig_retrieval_grid():
+    """Phase 2: nDCG@10 for 3 chunkers x 5 embedders on C-RET."""
+    nd, src = phase2_ndcg("c_ret")
+    models = ["e5", "arctic", "modernbert", "gemma", "qwen"]
+    chunkers = [("hierarchical", "hierarchical"), ("fixed_size", "fixed_size"), ("section_overlap", "section_overlap")]
+    fig, ax = plt.subplots(figsize=(7.2, 3.6))
+    y = np.arange(len(models))[::-1]
+    h = 0.26
+    for j, (ck, name) in enumerate(chunkers):
+        v = [nd.get((ck, m), np.nan) for m in models]
+        yy = y + (1 - j) * h
+        ax.barh(yy, v, height=h, color=C[j], edgecolor=SURF, linewidth=1, label=name)
+        for yi, vi in zip(yy, v):
+            if not np.isnan(vi):
+                ax.text(vi + 0.008, yi, f"{vi:.3f}", va="center", fontsize=7, color=INK)
+    ax.set_yticks(y, [P2_LABELS[m] for m in models])
+    ax.set_xlim(0, 0.82)
+    ax.set_xlabel("nDCG@10 (C-RET, 335 bài báo; truy xuất dense)")
     ax.grid(axis="y", visible=False)
-    ax.legend(ncol=4, loc="upper center", bbox_to_anchor=(0.5, 1.32), fontsize=8)
-    save(fig, "fig5_6_dense_bm25_overlap.png")
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=7.5)
+    print("  phase 2 source:", src)
+    save(fig, "fig5_3_retrieval_grid.png")
 
 
-def fig_alpha():
-    s = J(PH / "phase_6_hybrid_retrieval/artifacts/hybrid_alpha_sweep/summary.json")
-    A = s["alphas"]
-    m = s["means_by_pipeline"]
-    lines = [("Hierarchical + e5", "hierarchical|e5"), ("Hierarchical + ModernBERT", "hierarchical|modernbert"),
-             ("Fixed + e5", "fixed_size|e5"), ("Fixed + ModernBERT", "fixed_size|modernbert")]
-    fig, ax = plt.subplots(figsize=(6.6, 3.6))
-    for i, (lab, k) in enumerate(lines):
-        ys = [m[f"{k}|{a}"]["ndcg10"] for a in A]
-        ax.plot(A, ys, color=C[i], linewidth=2, marker="o", markersize=4.5, label=lab)
-        ax.annotate(lab, (A[-1], ys[-1]), xytext=(6, 0), textcoords="offset points", fontsize=7.5, color=INK2, va="center")
-    ax.axvline(0.7, color=INK2, linewidth=1, linestyle="--")
-    ax.text(0.69, ax.get_ylim()[0] + 0.004, "α = 0.7 (chọn)", fontsize=7.5, color=INK2, ha="right", va="bottom")
-    ax.set_xlabel("α (trọng số của dense; 0 = chỉ BM25, 1 = chỉ dense)")
-    ax.set_ylabel("nDCG@10")
-    ax.set_xlim(-0.03, 1.38)
-    ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
-    ax.legend(fontsize=7.5, loc="upper left")
-    save(fig, "fig5_7_alpha_sweep.png")
-
-
-def fig_hybrid_grid():
-    s = J(PH / "phase_12_combination/artifacts/stage1/summary.json")["means"]
-    chunkers = [("Hierarchical", "hierarchical"), ("Fixed size", "fixed_size"), ("Recursive", "section_overlap")]
-    embs = [("e5", "e5"), ("ModernBERT", "modernbert"), ("arctic-s", "arctic"), ("bge-small", "bge"), ("MiniLM", "minilm")]
-    M = np.array([[s[f"pymupdf_layout|{c}|{e}|convex_fix"]["ndcg10"] - s[f"pymupdf_layout|{c}|{e}|dense"]["ndcg10"]
-                   for _, e in embs] for _, c in chunkers])
-    from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
-    cmap = LinearSegmentedColormap.from_list("div", ["#eb6834", "#f0efec", "#2a78d6"])
-    lim = max(abs(M.min()), abs(M.max()))
-    fig, ax = plt.subplots(figsize=(6.4, 2.6))
-    im = ax.imshow(M, cmap=cmap, norm=TwoSlopeNorm(vcenter=0, vmin=-lim, vmax=lim), aspect="auto")
-    for i in range(M.shape[0]):
-        for j in range(M.shape[1]):
-            ax.text(j, i, f"{M[i, j]:+.3f}", ha="center", va="center", fontsize=8, color=INK)
-    ax.set_xticks(range(len(embs)), [e[0] for e in embs])
-    ax.set_yticks(range(len(chunkers)), [c[0] for c in chunkers])
-    ax.grid(False)
-    cb = fig.colorbar(im, ax=ax, fraction=0.04)
-    cb.set_label("nDCG@10: hybrid − dense", color=INK2)
-    save(fig, "fig5_8_hybrid_gain_grid.png")
-
-
-def fig_rerank():
-    r = J(PH / "phase_6_hybrid_retrieval/artifacts/reranking/summary.json")
-    rows = [("Không xếp hạng lại (dense)", r["means"]["dense"]["ndcg10"], 0.0),
-            ("ms-marco-MiniLM-L6", r["means"]["rerank_minilm"]["ndcg10"], r["rerank_latency_ms_added_per_query"]["rerank_minilm"]["p50"] / 1000),
-            ("bge-reranker-base", r["means"]["rerank_bge"]["ndcg10"], r["rerank_latency_ms_added_per_query"]["rerank_bge"]["p50"] / 1000)]
-    fig, axes = plt.subplots(1, 2, figsize=(8.5, 2.3))
-    hl = [True, False, False]
-    hbars(axes[0], [x[0] for x in rows], [x[1] for x in rows], hl, xlabel="nDCG@10 (335 bài)")
-    hbars(axes[1], [x[0] for x in rows], [x[2] for x in rows], hl, fmt="{:.1f} s", xlabel="Độ trễ cộng thêm mỗi câu hỏi, P50")
-    axes[1].set_yticklabels([])
-    axes[1].tick_params(axis="y", length=0)
-    save(fig, "fig5_9_reranking.png")
-
-
-# ----------------------------------------------------------------------------- generation
+# ----------------------------------------------------------------------------- generation (preliminary study)
 def fig_generation():
     g = J(PH / "phase_9_generation/artifacts/rq5_llm_generation_benchmark_500q.json")["model_summaries"]
     x = J(PH / "phase_9_generation/artifacts/generation_extra_llms/summary.json")
@@ -322,12 +222,6 @@ def fig_human():
 if __name__ == "__main__":
     fig_qasper()
     fig_extraction()
-    fig_chunking()
-    fig_embedding()
-    fig_retrieval()
-    fig_complementarity()
-    fig_alpha()
-    fig_hybrid_grid()
-    fig_rerank()
+    fig_retrieval_grid()
     fig_generation()
     fig_human()
