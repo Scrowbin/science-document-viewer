@@ -527,7 +527,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
 - **Dữ liệu:** C-RET (567 câu hỏi; câu trả lời tham chiếu lấy từ QASPER) và các câu hỏi PeerQA có câu trả lời của tác giả.
 - **Thiết lập sinh:** lời nhắc của ứng dụng (`build_answer_prompt`, yêu cầu từ chối bằng một câu cố định khi ngữ cảnh không đủ thông tin), nhiệt độ 0, `num_ctx` 4096, tối đa 256 token đầu ra, `seed` 42.
 - **Chỉ số tự động:** Token F1 (so với câu trả lời tham chiếu gần nhất; câu từ chối nhận 0), tỷ lệ từ chối, tỷ lệ chứa (tỷ lệ từ có nội dung của câu trả lời xuất hiện trong ngữ cảnh), độ chính xác với câu hỏi Có/Không, độ trễ và tốc độ sinh.
-- **Độ bám ngữ cảnh (LLM-as-judge):** một mô hình lớn hơn, `qwen2.5:14b`, gán cho mỗi câu trả lời một trong sáu nhãn của đánh giá thủ công, chỉ đối chiếu với ngữ cảnh đã cung cấp (Zheng et al., 2023):
+- **Độ bám ngữ cảnh (LLM-as-judge):** mô hình Gemini (`gemini-2.5-flash`, gọi qua Gemini API của Google) gán cho mỗi câu trả lời một trong sáu nhãn của đánh giá thủ công, chỉ đối chiếu với ngữ cảnh đã cung cấp (Zheng et al., 2023):
   - có căn cứ (SUPPORTED);
   - đúng một phần (PARTIAL);
   - không có căn cứ (UNSUPPORTED);
@@ -535,7 +535,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
   - từ chối hợp lệ (REFUSAL_VALID);
   - từ chối không cần thiết (UNJUSTIFIED_REFUSAL).
 
-  Trước khi dùng, mô hình chấm được kiểm tra trên **100 câu trả lời đã được người đánh giá gán nhãn** (Mục 5.5.1): tỷ lệ đồng thuận và hệ số kappa của Cohen (Cohen, 1960), trên sáu nhãn và trên ba nhóm (có căn cứ / không có căn cứ / từ chối). Nhãn của mô hình chấm chỉ được báo cáo kèm mức đồng thuận này.
+  Trước khi dùng, mô hình chấm được kiểm tra trên **100 câu trả lời đã được người đánh giá gán nhãn** (Mục 5.5.1): tỷ lệ đồng thuận và hệ số kappa của Cohen (Cohen, 1960), trên sáu nhãn và trên ba nhóm (có căn cứ / không có căn cứ / từ chối). Nhãn của mô hình chấm chỉ được báo cáo kèm mức đồng thuận này. Mô hình chấm chạy qua API chỉ trong thực nghiệm, trên các bài báo công khai; ứng dụng không gửi tài liệu tới dịch vụ AI bên ngoài. Một mô hình lớn hơn có khả năng chấm chính xác hơn các mô hình nhỏ đang được đánh giá, và không tốn thời gian chạy cục bộ.
 - **Lý do chọn các mô hình:** các mô hình mở đủ nhỏ để ứng dụng chạy trên CPU với 16 GB RAM, thuộc bốn họ khác nhau; hai mô hình thế hệ mới (`qwen3:4b`, `gemma3:4b`) được thêm vào để xem mức cải thiện so với các mô hình đã đánh giá sơ bộ.
 - **Tiêu chí lựa chọn:** Token F1, tỷ lệ từ chối và nhãn độ bám ngữ cảnh được xem cùng nhau, kèm chi phí trên CPU (từ đánh giá sơ bộ và kích thước mô hình).
 
@@ -1226,7 +1226,7 @@ Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu 
 - Các mô hình thế hệ mới (`qwen3:4b`, `gemma3:4b`) được kỳ vọng tuân thủ chỉ dẫn và bám ngữ cảnh tốt hơn các mô hình cũ cùng cỡ.
 - Ngữ cảnh truy xuất được kỳ vọng cho Token F1 thấp hơn và tỷ lệ từ chối cao hơn bằng chứng chuẩn, vì ngữ cảnh có thể thiếu bằng chứng và dài hơn.
 
-**Kiểm tra mô hình chấm.** **[Chờ kết quả]** Mức đồng thuận giữa `qwen2.5:14b` và người đánh giá trên 100 câu trả lời (sáu nhãn và ba nhóm, tỷ lệ đồng thuận và kappa), từ `phase_4_generation/artifacts/judge_validation.json`.
+**Kiểm tra mô hình chấm.** **[Chờ kết quả]** Mức đồng thuận giữa mô hình chấm Gemini và người đánh giá trên 100 câu trả lời (sáu nhãn và ba nhóm, tỷ lệ đồng thuận và kappa), từ `phase_4_generation/artifacts/judge_validation.json`.
 
 **Kết quả.** **[Chờ kết quả]** Với mỗi bộ dữ liệu, mỗi loại ngữ cảnh và mỗi mô hình: Token F1, tỷ lệ từ chối, tỷ lệ chứa, độ chính xác Có/Không, độ trễ (GPU) và phân bố nhãn độ bám ngữ cảnh; chênh lệch giữa bằng chứng chuẩn và ngữ cảnh truy xuất (`phase_4_generation/artifacts/summary.json`).
 

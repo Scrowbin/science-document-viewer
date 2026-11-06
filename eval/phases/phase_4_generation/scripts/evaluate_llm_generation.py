@@ -27,7 +27,9 @@ Metrics (descriptive, no statistical tests):
   boolean_correct   yes/no questions: first yes/no in the answer equals the gold majority
   latency           wall time per answer, tokens/s (device recorded; Kaggle GPU is not the app's CPU)
 
-LLM-as-judge (--judge): a larger model (default qwen2.5:14b) gives each answer one of the 6 human-check labels
+LLM-as-judge (--judge): Gemini (default gemini-2.5-flash, Google Gemini API; key from the environment variable
+GEMINI_API, read from .env) gives each answer one of the 6 human-check labels. The judge is used only for this
+evaluation, never by the application. A model name without the "gemini" prefix is run through Ollama instead
 (SUPPORTED, MISSING_INFO - PARTIAL, MISSING_INFO - UNJUSTIFIED_REFUSAL, REFUSAL_VALID, UNSUPPORTED,
 CONTRADICTED), judging only against the context given to the model. --judge-validate first runs the judge on the
 100 answers already labelled by a human (generation human checks, rounds 1-2) and reports agreement and
@@ -69,7 +71,8 @@ OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
 
 MODELS = ["llama3.2:3b", "qwen2.5:1.5b", "phi4-mini", "qwen3:4b", "gemma3:4b"]
 THINKING_MODELS = ("qwen3",)  # sent think=false
-JUDGE_MODEL = "qwen2.5:14b"
+JUDGE_MODEL = os.environ.get("JUDGE_MODEL", "gemini-2.5-flash")
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 GEN_OPTIONS = {"temperature": 0, "num_ctx": 4096, "num_predict": 256, "seed": 42}
 JUDGE_OPTIONS = {"temperature": 0, "num_ctx": 8192, "num_predict": 200, "seed": 42}
 COHORTS = ["C-RET", "PEERQA-PDF"]
@@ -408,17 +411,90 @@ Answer to check:
 Reply with JSON only: {{"label": "<one of the six labels>", "reason": "<one sentence>"}}"""
 
 
+def load_env() -> None:
+    """Read GEMINI_API from .env files: repo root, then backend/ (Django already loads backend/.env), then cwd."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    for env in (ROOT / ".env", ROOT / "backend" / ".env", Path.cwd() / ".env"):
+        if env.exists():
+            load_dotenv(env, override=False)
+
+
+def is_gemini(model: str) -> bool:
+    return model.lower().startswith("gemini")
+
+
+def gemini_generate(model: str, prompt: str, tries: int = 6) -> Dict[str, Any]:
+    """Gemini API generateContent with JSON output; retries with backoff on 429/5xx (free-tier rate limits)."""
+    key = os.environ.get("GEMINI_API")
+    if not key:
+        raise SystemExit("GEMINI_API is not set: put GEMINI_API=<key> in .env (repo root or backend/) "
+                         "or in the environment (Kaggle: Secrets).")
+    body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0, "responseMimeType": "application/json"}}
+    delay, last = 5.0, None
+    for _ in range(tries):
+        try:
+            t0 = time.perf_counter()
+            r = requests.post(GEMINI_URL.format(model=model), json=body, timeout=120,
+                              headers={"x-goog-api-key": key, "Content-Type": "application/json"})
+            if r.status_code in (429, 500, 502, 503, 504):
+                last = f"HTTP {r.status_code}"
+                time.sleep(delay)
+                delay = min(delay * 2, 120)
+                continue
+            r.raise_for_status()
+            d = r.json()
+            cand = (d.get("candidates") or [{}])[0]
+            text = "".join(p.get("text", "") for p in cand.get("content", {}).get("parts", [])).strip()
+            return {"text": text, "wall_s": round(time.perf_counter() - t0, 3),
+                    "error": None if text else f"empty response ({cand.get('finishReason')})"}
+        except requests.RequestException as e:
+            last = f"{type(e).__name__}: {str(e).split('?')[0]}"  # never echo the key
+            time.sleep(delay)
+            delay = min(delay * 2, 120)
+    return {"text": "", "wall_s": None, "error": last}
+
+
+ALIASES = {"PARTIAL": "MISSING_INFO - PARTIAL", "UNJUSTIFIED_REFUSAL": "MISSING_INFO - UNJUSTIFIED_REFUSAL"}
+
+
+def normalise_label(raw: Any) -> str:
+    label = " ".join(str(raw).strip().upper().replace("–", "-").replace("_-_", " - ").split())
+    label = label.replace("MISSING_INFO-", "MISSING_INFO - ").replace("MISSING_INFO_", "MISSING_INFO - ")
+    if label in LABELS:
+        return label
+    for lb in sorted(LABELS, key=len, reverse=True):  # longest first: UNSUPPORTED before SUPPORTED
+        if lb in label:
+            return lb
+    for short, lb in sorted(ALIASES.items(), key=lambda kv: -len(kv[0])):
+        if short in label:
+            return lb
+    return "INVALID"
+
+
 def judge_one(judge_model: str, context: str, question: str, answer: str) -> Tuple[str, str]:
-    res = ollama_generate(judge_model, JUDGE_PROMPT.format(context=context[:24000], question=question,
-                                                           answer=answer or "(empty answer)"),
-                          JUDGE_OPTIONS, fmt="json")
+    prompt = JUDGE_PROMPT.format(context=context[:24000], question=question, answer=answer or "(empty answer)")
+    res = gemini_generate(judge_model, prompt) if is_gemini(judge_model) else \
+        ollama_generate(judge_model, prompt, JUDGE_OPTIONS, fmt="json")
     try:
         d = json.loads(res["text"])
-        label = str(d.get("label", "")).strip().upper().replace("–", "-")
-        label = next((lb for lb in LABELS if lb == label), next((lb for lb in LABELS if lb in label), "INVALID"))
-        return label, str(d.get("reason", ""))[:300]
-    except (json.JSONDecodeError, AttributeError):
+        if isinstance(d, list):
+            d = d[0] if d else {}
+        return normalise_label(d.get("label", "")), str(d.get("reason", ""))[:300]
+    except (json.JSONDecodeError, AttributeError, TypeError):
         return "INVALID", res["text"][:200] or (res["error"] or "")
+
+
+def judge_ready(judge_model: str) -> None:
+    if is_gemini(judge_model):
+        load_env()
+        if not os.environ.get("GEMINI_API"):
+            raise SystemExit("GEMINI_API is not set: put GEMINI_API=<key> in .env (repo root or backend/).")
+    else:
+        ollama_ready(judge_model)
 
 
 def cohen_kappa(a: List[str], b: List[str]) -> float:
@@ -462,7 +538,7 @@ def human_labelled_answers() -> List[Dict[str, Any]]:
 
 def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
     items = human_labelled_answers()[:limit] if limit else human_labelled_answers()
-    ollama_ready(judge_model)
+    judge_ready(judge_model)
     rows = []
     for it in items:
         label, reason = judge_one(judge_model, it["context"], it["question"], it["answer"])
@@ -491,7 +567,7 @@ def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
 
 
 def judge_runs(judge_model: str, models: List[str]) -> None:
-    ollama_ready(judge_model)
+    judge_ready(judge_model)
     for pq in sorted(ART.glob("*/*/per_query.jsonl")):
         if "_smoke_" in pq.parent.name:
             continue
@@ -547,7 +623,8 @@ def main() -> None:
     ap.add_argument("--limit", type=int, help="papers per cohort (smoke test)")
     ap.add_argument("--judge", action="store_true", help="label all generated answers with the judge model")
     ap.add_argument("--judge-validate", action="store_true", help="run the judge on the 100 human-labelled answers")
-    ap.add_argument("--judge-model", default=JUDGE_MODEL)
+    ap.add_argument("--judge-model", default=JUDGE_MODEL,
+                    help="gemini-* uses the Gemini API (key GEMINI_API in .env); any other name runs through Ollama")
     a = ap.parse_args()
     models = [m.strip() for m in a.models.split(",") if m.strip()]
     if a.judge_validate:

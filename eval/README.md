@@ -121,7 +121,7 @@ Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook 
   - No similarity gate (the 0.80 cutoff is calibrated for e5 only). The gold − retrieved gap is the loss due to retrieval.
 - **Questions:** C-RET references are rebuilt from QASPER JSON with `is_atomic_eligible` (all 567 have one); PeerQA uses `answer_free_form`.
 - **Metrics:** Token F1 (refusals 0), refusal rate, containment proxy, boolean accuracy, latency and tokens/s, per answer type.
-- **LLM-as-judge:** `qwen2.5:14b`, JSON output with one of the 6 labels, judged only against the given context.
+- **LLM-as-judge:** Gemini (`gemini-2.5-flash` by default, `--judge-model` to change) through the Gemini API, key in the environment variable `GEMINI_API` (read from `.env` at the repo root or `backend/`, or a Kaggle secret). JSON output with one of the 6 labels, judged only against the given context; retries with backoff on rate limits. Used only for evaluation (public papers), never by the application. Any non-`gemini` model name runs through Ollama instead.
   - `--judge-validate` first runs it on the **100 human-labelled answers** of the preliminary study (round 1: 60, round 2: 40, final labels) and reports agreement and Cohen's kappa on 6 labels and on 3 classes (grounded / not grounded / refusal).
   - Judge labels are reported only together with this agreement.
 - **Status:** smoke-tested locally (gold and retrieved conditions, judge validation and judge pass); full runs pending.
@@ -165,4 +165,4 @@ backend/venv/Scripts/python.exe eval/phases/phase_4_generation/scripts/evaluate_
 [2] Dasigi, P. et al. (2021). A dataset of information-seeking questions and answers anchored in research papers (QASPER). NAACL.
 [3] Baumgärtner, T., Briscoe, T., & Gurevych, I. (2025). PeerQA. NAACL.
 
-Models: `intfloat/e5-small-v2`, `Snowflake/snowflake-arctic-embed-s`, `nomic-ai/modernbert-embed-base`, `google/embeddinggemma-300m`, `Qwen/Qwen3-Embedding-0.6B`; rerankers `cross-encoder/ms-marco-MiniLM-L6-v2`, `BAAI/bge-reranker-v2-m3`; LLMs via Ollama `llama3.2:3b`, `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b`, `gemma3:4b`, judge `qwen2.5:14b`. Prefixes and instructions per model are in `rag_service.MODEL_PREFIX_SPECS`.
+Models: `intfloat/e5-small-v2`, `Snowflake/snowflake-arctic-embed-s`, `nomic-ai/modernbert-embed-base`, `google/embeddinggemma-300m`, `Qwen/Qwen3-Embedding-0.6B`; rerankers `cross-encoder/ms-marco-MiniLM-L6-v2`, `BAAI/bge-reranker-v2-m3`; LLMs via Ollama `llama3.2:3b`, `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b`, `gemma3:4b`, judge `gemini-2.5-flash` (Gemini API). Prefixes and instructions per model are in `rag_service.MODEL_PREFIX_SPECS`.
