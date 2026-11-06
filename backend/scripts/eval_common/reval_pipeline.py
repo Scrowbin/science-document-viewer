@@ -31,7 +31,11 @@ CONVEX_ALPHA = 0.7
 
 def setup_django():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
-    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    # HF_HUB_OFFLINE is intentionally NOT set here. The original harness set it to
+    # prevent accidental downloads during Django init, but it also blocked new models
+    # (Qwen3-Embedding-0.6B, embeddinggemma-300m) from downloading on first use.
+    # Models are downloaded lazily by get_model() after setup; if offline mode is
+    # needed, set HF_HUB_OFFLINE=1 in the shell before running the script.
     for p in (str(BACKEND), str(BACKEND / "scripts")):
         if p not in sys.path:
             sys.path.insert(0, p)
@@ -58,8 +62,11 @@ _MODELS: Dict[str, Any] = {}
 
 def get_model(name: str):
     if name not in _MODELS:
+        import torch
         from sentence_transformers import SentenceTransformer
-        _MODELS[name] = SentenceTransformer(name, device="cpu")
+        token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+        device = os.environ.get("EVAL_DEVICE") or ("cuda" if torch.cuda.is_available() else "cpu")
+        _MODELS[name] = SentenceTransformer(name, device=device, token=token)
     return _MODELS[name]
 
 
@@ -72,8 +79,11 @@ def embed(name: str, texts: Sequence[str], is_query: bool, batch_size: int = 32)
 
 
 def cached_embed(name: str, texts: Sequence[str], is_query: bool, tag: str) -> np.ndarray:
-    """Disk cache keyed by model, role and a hash of the exact input texts."""
-    h = hashlib.sha256(("\x1f".join(texts)).encode("utf-8")).hexdigest()[:16]
+    """Disk cache keyed by model, role and a hash of the prefix and the exact input texts
+    (the prefix is part of the key so that changing a model's prompt never reuses stale vectors)."""
+    from apps.documents.services.rag_service import get_model_prefix
+    prefix = get_model_prefix(name, is_query=is_query)
+    h = hashlib.sha256((prefix + "\x1e" + "\x1f".join(texts)).encode("utf-8")).hexdigest()[:16]
     path = EMB_CACHE / name.replace("/", "__") / ("q" if is_query else "p") / f"{tag}_{h}.npy"
     if path.exists():
         return np.load(path)

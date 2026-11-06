@@ -1,0 +1,176 @@
+{
+  "cohort": "C-RET",
+  "n_papers": 2,
+  "n_questions": 3,
+  "chunkers": [
+    "hierarchical",
+    "section_overlap",
+    "fixed_size"
+  ],
+  "models": [
+    "intfloat/e5-small-v2",
+    "sentence-transformers/all-MiniLM-L6-v2"
+  ],
+  "combinations": {
+    "hierarchical|e5": {
+      "chunker": "hierarchical",
+      "model": "intfloat/e5-small-v2",
+      "model_label": "e5",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.8978,
+        "ndcg_5": 0.8978,
+        "mrr_10": 0.8333,
+        "mrr_5": 0.8333,
+        "map_10": 0.8611,
+        "map_20": 0.8611,
+        "recall_5": 1.0,
+        "recall_10": 1.0,
+        "recall_20": 1.0,
+        "precision_1": 0.6667,
+        "precision_5": 0.2667,
+        "precision_10": 0.1333,
+        "hit_1": 0.6667,
+        "hit_5": 1.0,
+        "hit_10": 1.0
+      },
+      "total_units": 117,
+      "indexing_throughput_chunks_per_s": 27.33
+    },
+    "section_overlap|e5": {
+      "chunker": "section_overlap",
+      "model": "intfloat/e5-small-v2",
+      "model_label": "e5",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.7012,
+        "ndcg_5": 0.7012,
+        "mrr_10": 0.75,
+        "mrr_5": 0.75,
+        "map_10": 0.5972,
+        "map_20": 0.6275,
+        "recall_5": 0.8333,
+        "recall_10": 0.8333,
+        "recall_20": 1.0,
+        "precision_1": 0.6667,
+        "precision_5": 0.3333,
+        "precision_10": 0.1667,
+        "hit_1": 0.6667,
+        "hit_5": 1.0,
+        "hit_10": 1.0
+      },
+      "total_units": 69,
+      "indexing_throughput_chunks_per_s": 16.25
+    },
+    "fixed_size|e5": {
+      "chunker": "fixed_size",
+      "model": "intfloat/e5-small-v2",
+      "model_label": "e5",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.6996,
+        "ndcg_5": 0.5377,
+        "mrr_10": 0.7037,
+        "mrr_5": 0.6667,
+        "map_10": 0.5741,
+        "map_20": 0.5741,
+        "recall_5": 0.5,
+        "recall_10": 1.0,
+        "recall_20": 1.0,
+        "precision_1": 0.6667,
+        "precision_5": 0.1333,
+        "precision_10": 0.1333,
+        "hit_1": 0.6667,
+        "hit_5": 0.6667,
+        "hit_10": 1.0
+      },
+      "total_units": 41,
+      "indexing_throughput_chunks_per_s": 14.78
+    },
+    "hierarchical|minilm": {
+      "chunker": "hierarchical",
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "model_label": "minilm",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.7606,
+        "ndcg_5": 0.7606,
+        "mrr_10": 0.6667,
+        "mrr_5": 0.6667,
+        "map_10": 0.6667,
+        "map_20": 0.6667,
+        "recall_5": 1.0,
+        "recall_10": 1.0,
+        "recall_20": 1.0,
+        "precision_1": 0.3333,
+        "precision_5": 0.2667,
+        "precision_10": 0.1333,
+        "hit_1": 0.3333,
+        "hit_5": 1.0,
+        "hit_10": 1.0
+      },
+      "total_units": 117,
+      "indexing_throughput_chunks_per_s": 51.88
+    },
+    "section_overlap|minilm": {
+      "chunker": "section_overlap",
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "model_label": "minilm",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.4974,
+        "ndcg_5": 0.3601,
+        "mrr_10": 0.4444,
+        "mrr_5": 0.4444,
+        "map_10": 0.3195,
+        "map_20": 0.3195,
+        "recall_5": 0.5,
+        "recall_10": 0.8333,
+        "recall_20": 0.8333,
+        "precision_1": 0.0,
+        "precision_5": 0.2,
+        "precision_10": 0.1667,
+        "hit_1": 0.0,
+        "hit_5": 1.0,
+        "hit_10": 1.0
+      },
+      "total_units": 69,
+      "indexing_throughput_chunks_per_s": 66.7
+    },
+    "fixed_size|minilm": {
+      "chunker": "fixed_size",
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "model_label": "minilm",
+      "evaluated_questions": 3,
+      "means": {
+        "ndcg_10": 0.4875,
+        "ndcg_5": 0.4147,
+        "mrr_10": 0.5,
+        "mrr_5": 0.5,
+        "map_10": 0.3889,
+        "map_20": 0.3889,
+        "recall_5": 0.5,
+        "recall_10": 0.6667,
+        "recall_20": 0.6667,
+        "precision_1": 0.3333,
+        "precision_5": 0.1333,
+        "precision_10": 0.1,
+        "hit_1": 0.3333,
+        "hit_5": 0.6667,
+        "hit_10": 0.6667
+      },
+      "total_units": 41,
+      "indexing_throughput_chunks_per_s": 47.26
+    }
+  },
+  "failures": [],
+  "model_latency_e5": {
+    "p50_ms": 0.21,
+    "p95_ms": 8.91
+  },
+  "model_latency_minilm": {
+    "p50_ms": 0.21,
+    "p95_ms": 5.87
+  },
+  "elapsed_s": 16.2
+}

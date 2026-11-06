@@ -1,0 +1,168 @@
+# Phase 2 full run on Kaggle (retrieval-benchmark-full notebook). Progress bars and model downloads removed.
+
+
+======================================================================
+Starting Phase 2 Retrieval Evaluation: Cohort [C-RET]
+======================================================================
+Loaded cohort C-RET: 335 papers (limit=None, seed=None), 567 questions
+Pre-loading sections...
+Sections ready for 335/335 papers. Sources: {'json:train': 335}
+
+--- Model: intfloat/e5-small-v2 (e5) ---
+modules.json:   0%|                                   | 0.00/387 [00:00<?, ?B/s]
+README.md:   0%|                                    | 0.00/67.8k [00:00<?, ?B/s]
+sentence_bert_config.json:   0%|                     | 0.00/57.0 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/615 [00:00<?, ?B/s]
+
+vocab.txt:   0%|                                     | 0.00/232k [00:00<?, ?B/s]
+special_tokens_map.json:   0%|                        | 0.00/125 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/200 [00:00<?, ?B/s]
+> Evaluating combination: [hierarchical|e5]
+Done hierarchical|e5: nDCG@10=0.7029, MRR@10=0.6469, Recall@10=0.9451, P@5=0.258, n=566, skipped=1, no_units=0
+> Evaluating combination: [section_overlap|e5]
+Done section_overlap|e5: nDCG@10=0.5848, MRR@10=0.5272, Recall@10=0.8577, P@5=0.1961, n=566, skipped=1, no_units=0
+> Evaluating combination: [fixed_size|e5]
+Done fixed_size|e5: nDCG@10=0.62, MRR@10=0.5435, Recall@10=0.9243, P@5=0.2488, n=566, skipped=1, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+--- Model: Qwen/Qwen3-Embedding-0.6B (qwen) ---
+modules.json:   0%|                                   | 0.00/349 [00:00<?, ?B/s]
+config_sentence_transformers.json:   0%|              | 0.00/215 [00:00<?, ?B/s]
+README.md:   0%|                                    | 0.00/17.2k [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/727 [00:00<?, ?B/s]
+
+vocab.json:   0%|                                   | 0.00/2.78M [00:00<?, ?B/s]
+merges.txt:   0%|                                   | 0.00/1.67M [00:00<?, ?B/s]
+
+config.json:   0%|                                    | 0.00/313 [00:00<?, ?B/s]
+> Evaluating combination: [hierarchical|qwen]
+Done hierarchical|qwen: nDCG@10=0.7212, MRR@10=0.6633, Recall@10=0.9554, P@5=0.2601, n=566, skipped=1, no_units=0
+> Evaluating combination: [section_overlap|qwen]
+Done section_overlap|qwen: nDCG@10=0.5858, MRR@10=0.5238, Recall@10=0.8544, P@5=0.1989, n=566, skipped=1, no_units=0
+> Evaluating combination: [fixed_size|qwen]
+Done fixed_size|qwen: nDCG@10=0.6624, MRR@10=0.596, Recall@10=0.9281, P@5=0.2657, n=566, skipped=1, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+--- Model: google/embeddinggemma-300m (gemma) ---
+modules.json:   0%|                                   | 0.00/573 [00:00<?, ?B/s]
+config_sentence_transformers.json:   0%|              | 0.00/997 [00:00<?, ?B/s]
+README.md:   0%|                                    | 0.00/18.7k [00:00<?, ?B/s]
+sentence_bert_config.json:   0%|                     | 0.00/58.0 [00:00<?, ?B/s]
+config.json:   0%|                                  | 0.00/1.49k [00:00<?, ?B/s]
+
+
+added_tokens.json:   0%|                             | 0.00/35.0 [00:00<?, ?B/s]
+special_tokens_map.json:   0%|                        | 0.00/662 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/312 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/134 [00:00<?, ?B/s]
+
+config.json:   0%|                                    | 0.00/134 [00:00<?, ?B/s]
+
+> Evaluating combination: [hierarchical|gemma]
+Done hierarchical|gemma: nDCG@10=0.7186, MRR@10=0.6635, Recall@10=0.9553, P@5=0.2572, n=566, skipped=1, no_units=0
+> Evaluating combination: [section_overlap|gemma]
+Done section_overlap|gemma: nDCG@10=0.6268, MRR@10=0.5734, Recall@10=0.8737, P@5=0.2124, n=566, skipped=1, no_units=0
+> Evaluating combination: [fixed_size|gemma]
+Done fixed_size|gemma: nDCG@10=0.6894, MRR@10=0.6424, Recall@10=0.9354, P@5=0.27, n=566, skipped=1, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+--- Model: Snowflake/snowflake-arctic-embed-s (arctic) ---
+modules.json:   0%|                                   | 0.00/349 [00:00<?, ?B/s]
+config_sentence_transformers.json:   0%|              | 0.00/252 [00:00<?, ?B/s]
+README.md:   0%|                                    | 0.00/85.0k [00:00<?, ?B/s]
+sentence_bert_config.json:   0%|                      | 0.00/107 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/703 [00:00<?, ?B/s]
+
+vocab.txt:   0%|                                     | 0.00/232k [00:00<?, ?B/s]
+special_tokens_map.json:   0%|                        | 0.00/695 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/296 [00:00<?, ?B/s]
+> Evaluating combination: [hierarchical|arctic]
+Done hierarchical|arctic: nDCG@10=0.7113, MRR@10=0.6552, Recall@10=0.9533, P@5=0.2548, n=566, skipped=1, no_units=0
+> Evaluating combination: [section_overlap|arctic]
+Done section_overlap|arctic: nDCG@10=0.5774, MRR@10=0.5269, Recall@10=0.8353, P@5=0.1905, n=566, skipped=1, no_units=0
+> Evaluating combination: [fixed_size|arctic]
+Done fixed_size|arctic: nDCG@10=0.6371, MRR@10=0.5711, Recall@10=0.9107, P@5=0.2477, n=566, skipped=1, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+--- Model: nomic-ai/modernbert-embed-base (modernbert) ---
+modules.json:   0%|                                   | 0.00/349 [00:00<?, ?B/s]
+config_sentence_transformers.json:   0%|              | 0.00/210 [00:00<?, ?B/s]
+README.md:   0%|                                     | 0.00/445k [00:00<?, ?B/s]
+sentence_bert_config.json:   0%|                     | 0.00/54.0 [00:00<?, ?B/s]
+config.json:   0%|                                  | 0.00/1.26k [00:00<?, ?B/s]
+
+special_tokens_map.json:   0%|                        | 0.00/694 [00:00<?, ?B/s]
+config.json:   0%|                                    | 0.00/296 [00:00<?, ?B/s]
+> Evaluating combination: [hierarchical|modernbert]
+Done hierarchical|modernbert: nDCG@10=0.713, MRR@10=0.6598, Recall@10=0.9531, P@5=0.2587, n=566, skipped=1, no_units=0
+> Evaluating combination: [section_overlap|modernbert]
+Done section_overlap|modernbert: nDCG@10=0.5918, MRR@10=0.5373, Recall@10=0.8554, P@5=0.1968, n=566, skipped=1, no_units=0
+> Evaluating combination: [fixed_size|modernbert]
+Done fixed_size|modernbert: nDCG@10=0.6367, MRR@10=0.5661, Recall@10=0.9372, P@5=0.2484, n=566, skipped=1, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+Artifacts written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/c_ret
+
+======================================================================
+Starting Phase 2 Retrieval Evaluation: Cohort [PEERQA-PDF]
+======================================================================
+Loaded cohort PEERQA-PDF: 107 papers (limit=None, seed=None), 288 questions
+Pre-loading sections...
+Sections ready for 8/107 papers. Sources: {'papers_jsonl': 8}
+
+--- Model: intfloat/e5-small-v2 (e5) ---
+> Evaluating combination: [hierarchical|e5]
+Done hierarchical|e5: nDCG@10=0.8419, MRR@10=0.891, Recall@10=0.9132, P@5=0.5692, n=26, skipped=0, no_units=0
+> Evaluating combination: [section_overlap|e5]
+Done section_overlap|e5: nDCG@10=0.5309, MRR@10=0.6225, Recall@10=0.5914, P@5=0.2846, n=26, skipped=0, no_units=0
+> Evaluating combination: [fixed_size|e5]
+Done fixed_size|e5: nDCG@10=0.5262, MRR@10=0.6022, Recall@10=0.6695, P@5=0.2923, n=26, skipped=0, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+--- Model: Qwen/Qwen3-Embedding-0.6B (qwen) ---
+> Evaluating combination: [hierarchical|qwen]
+Done hierarchical|qwen: nDCG@10=0.8296, MRR@10=0.875, Recall@10=0.912, P@5=0.5769, n=26, skipped=0, no_units=0
+> Evaluating combination: [section_overlap|qwen]
+Done section_overlap|qwen: nDCG@10=0.5415, MRR@10=0.6008, Recall@10=0.6396, P@5=0.2615, n=26, skipped=0, no_units=0
+> Evaluating combination: [fixed_size|qwen]
+Done fixed_size|qwen: nDCG@10=0.6075, MRR@10=0.6904, Recall@10=0.644, P@5=0.2846, n=26, skipped=0, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+--- Model: google/embeddinggemma-300m (gemma) ---
+> Evaluating combination: [hierarchical|gemma]
+Done hierarchical|gemma: nDCG@10=0.8623, MRR@10=0.9231, Recall@10=0.922, P@5=0.5846, n=26, skipped=0, no_units=0
+> Evaluating combination: [section_overlap|gemma]
+Done section_overlap|gemma: nDCG@10=0.5218, MRR@10=0.5908, Recall@10=0.616, P@5=0.2538, n=26, skipped=0, no_units=0
+> Evaluating combination: [fixed_size|gemma]
+Done fixed_size|gemma: nDCG@10=0.5605, MRR@10=0.6475, Recall@10=0.6997, P@5=0.3077, n=26, skipped=0, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+--- Model: Snowflake/snowflake-arctic-embed-s (arctic) ---
+> Evaluating combination: [hierarchical|arctic]
+Done hierarchical|arctic: nDCG@10=0.8533, MRR@10=0.9231, Recall@10=0.9088, P@5=0.5769, n=26, skipped=0, no_units=0
+> Evaluating combination: [section_overlap|arctic]
+Done section_overlap|arctic: nDCG@10=0.5211, MRR@10=0.6818, Recall@10=0.5577, P@5=0.2538, n=26, skipped=0, no_units=0
+> Evaluating combination: [fixed_size|arctic]
+Done fixed_size|arctic: nDCG@10=0.5425, MRR@10=0.6615, Recall@10=0.5778, P@5=0.3154, n=26, skipped=0, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+--- Model: nomic-ai/modernbert-embed-base (modernbert) ---
+> Evaluating combination: [hierarchical|modernbert]
+Done hierarchical|modernbert: nDCG@10=0.8315, MRR@10=0.8526, Recall@10=0.9193, P@5=0.5615, n=26, skipped=0, no_units=0
+> Evaluating combination: [section_overlap|modernbert]
+Done section_overlap|modernbert: nDCG@10=0.5296, MRR@10=0.6188, Recall@10=0.5998, P@5=0.2538, n=26, skipped=0, no_units=0
+> Evaluating combination: [fixed_size|modernbert]
+Done fixed_size|modernbert: nDCG@10=0.5517, MRR@10=0.6177, Recall@10=0.6532, P@5=0.3, n=26, skipped=0, no_units=0
+Checkpoint written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+Artifacts written to /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/peerqa_pdf
+
+All Phase 2 retrieval benchmarks complete! Overall summary → /kaggle/working/science-document-viewer/eval/phases/phase_2_retrieval/artifacts/summary.json
+/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 34676 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 304101 bytes to __results__.html
