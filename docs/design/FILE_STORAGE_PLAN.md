@@ -48,7 +48,7 @@ flowchart LR
   - **Fallback:** keep a direct multipart upload endpoint for tests and offline use, writing through the same storage backend.
 - **Download flow:** `GET /documents/{id}/file/` checks `IsOwnerOrCollaborator` (VIEW and above), then redirects to a presigned GET URL valid for a few minutes. **Remove the public `/media/` route** for documents. The serializer's `file_url` points to this endpoint instead of `/media/...`.
 - **The frontend viewer:** pdf.js loads the `/file/` URL with the JWT, or the redirect target, and never a permanent public link.
-- **Background processing:** Celery + Redis (or RQ), replacing the in-process thread. Jobs: scan → extract → chunk → embed → index. They are retried, survive restarts, and keep the existing PENDING → INDEXING → INDEXED/FAILED status values.
+- **Background processing:** Celery + Redis, replacing the in-process thread. Jobs: scan → extract → chunk → embed → index. They are retried, survive restarts, and keep the existing PENDING → INDEXING → INDEXED/FAILED status values.
 - **Deletion and recovery:**
   - Soft delete: `Document.deleted_at`, purged after 30 days.
   - Bucket versioning on, so overwrites and deletes can be recovered.
@@ -78,7 +78,7 @@ flowchart LR
 | `StoredFile` model, migration, dedup and ref counting, data migration command | 1 day |
 | Presigned upload/complete endpoints + validation + quota | 1 day |
 | `/file/` download endpoint, remove the public `/media/` route, update the serializer, update the frontend viewer and upload | 1 day |
-| Celery/RQ worker replacing the in-process queue | 0.5–1 day |
+| Celery worker replacing the in-process queue | 0.5–1 day |
 | ClamAV scan + quarantine status | 0.5 day |
 | Tests (isolated storage), soft delete, backup and restore notes | 1 day |
 

@@ -72,7 +72,7 @@ The measured costs come from the evaluation machine (8-core CPU, 16 GB RAM).
 | **One answer at a time** | Ollama on CPU, ~30 s per answer with retrieved contexts; requests queue | With N users asking at once, the last waits about N × 30 s; HTTP timeouts (60 s) trigger the fallback answer | GPU inference server (e.g. vLLM), several replicas, a request queue with streaming responses |
 | **Memory** | Ollama uses 4.5–6.9 GB, the embedder and Django the rest of a 16 GB machine | No headroom for more models or workers | Separate LLM, embedding and API machines |
 | **Single process** | Embedded Qdrant (local mode) allows one process; embedding model lives in that process | Cannot run several API workers or machines | Qdrant as a separate service; embedding as a service |
-| **Indexing in threads** | Background thread inside the web process | Jobs lost on restart (only stuck rows are recovered), no retries, competes with requests for CPU | Job queue (Celery/RQ + Redis) and separate workers |
+| **Indexing in threads** | Background thread inside the web process | Jobs lost on restart (only stuck rows are recovered), no retries, competes with requests for CPU | Job queue (Celery + Redis) and separate workers |
 | **Vector search** | Local-mode Qdrant does exact (brute-force) search per document collection | Fine per document, but grows with corpus size; no cross-document index | Qdrant server with HNSW indexes |
 | **Storage** | PDFs on one disk | No redundancy; disk size caps the library | Object storage (S3/MinIO, `FILE_STORAGE_PLAN.md`) |
 | **One machine** | Everything on one VM | Single point of failure; no rolling updates | Load balancer, multiple app instances, managed database |

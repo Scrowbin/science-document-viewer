@@ -778,7 +778,7 @@ Hệ thống là một **bản thử nghiệm khái niệm** và **không có kh
 | Một câu trả lời tại một thời điểm | Ollama chạy trên CPU, khoảng 30 giây cho mỗi câu trả lời với ngữ cảnh truy xuất (Mục 5.5.1); các yêu cầu xếp hàng | Với N người hỏi cùng lúc, người cuối chờ khoảng N × 30 giây; quá 60 giây thì hệ thống trả về nhánh dự phòng | Máy chủ suy luận có GPU, nhiều bản sao, hàng đợi yêu cầu và trả lời dạng luồng |
 | Bộ nhớ | Ollama dùng 4,5–6,9 GB, phần còn lại của 16 GB dành cho mô hình nhúng và Django | Không còn chỗ cho thêm mô hình hoặc tiến trình | Tách máy chủ suy luận, nhúng và API |
 | Một tiến trình | Qdrant ở chế độ nhúng chỉ cho một tiến trình; mô hình nhúng nằm trong tiến trình Django | Không chạy được nhiều tiến trình API hay nhiều máy | Qdrant và mô hình nhúng chạy như dịch vụ riêng |
-| Lập chỉ mục trong luồng nền | Luồng nền nằm trong tiến trình web | Mất công việc khi khởi động lại, không thử lại, tranh CPU với yêu cầu hỏi đáp | Hàng đợi công việc (Celery/RQ + Redis) và worker riêng |
+| Lập chỉ mục trong luồng nền | Luồng nền nằm trong tiến trình web | Mất công việc khi khởi động lại, không thử lại, tranh CPU với yêu cầu hỏi đáp | Hàng đợi công việc (Celery + Redis) và worker riêng |
 | Lưu trữ | Tệp PDF trên một ổ đĩa | Không dự phòng; dung lượng ổ đĩa giới hạn thư viện | Lưu trữ đối tượng (S3/MinIO) |
 | Một máy | Mọi thành phần trên một máy | Một điểm lỗi duy nhất; không cập nhật mà không gián đoạn | Cân bằng tải, nhiều bản sao ứng dụng, cơ sở dữ liệu được quản lý |
 | Vận hành và bảo mật | Chưa có giám sát, kiểm thử tải hay đánh giá bảo mật ngoài JWT, phân quyền và bộ lọc câu hỏi | Không biết sức chịu tải; chưa phù hợp với tài liệu mật của người dùng thực | Giám sát, kiểm thử tải, đánh giá bảo mật, mã hóa dữ liệu lưu trữ |
