@@ -14,9 +14,11 @@ import hashlib
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
+
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 ROOT = Path(__file__).resolve().parents[3]
 BACKEND = ROOT / "backend"
@@ -60,25 +62,60 @@ def build_units(sections: List[Dict[str, Any]], strategy: str, paper_id: str) ->
 _MODELS: Dict[str, Any] = {}
 
 
-def get_model(name: str):
+def get_model(name: str, device: Optional[str] = None):
+    if device is None:
+        device = os.environ.get("EVAL_EMBED_DEVICE") or os.environ.get("EVAL_DEVICE")
+        if not device:
+            import torch
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
     if name not in _MODELS:
         import torch
         from sentence_transformers import SentenceTransformer
         token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
-        device = os.environ.get("EVAL_DEVICE") or ("cuda" if torch.cuda.is_available() else "cpu")
         _MODELS[name] = SentenceTransformer(name, device=device, token=token)
+    elif device:
+        try:
+            m = _MODELS[name]
+            if str(m.device) != str(device) and not str(m.device).startswith(str(device)):
+                m.to(device)
+        except Exception:
+            pass
     return _MODELS[name]
 
 
-def embed(name: str, texts: Sequence[str], is_query: bool, batch_size: int = 32) -> np.ndarray:
+def embed(name: str, texts: Sequence[str], is_query: bool, batch_size: int = 32,
+          device: Optional[str] = None) -> np.ndarray:
     from apps.documents.services.rag_service import get_model_prefix
     prefix = get_model_prefix(name, is_query=is_query)
     inputs = [prefix + t if prefix and not t.startswith(prefix) else t for t in texts]
-    return get_model(name).encode(inputs, batch_size=batch_size, normalize_embeddings=True,
-                                  convert_to_numpy=True, show_progress_bar=False).astype(np.float32)
+    model = get_model(name, device=device)
+    curr_batch = batch_size
+    while curr_batch >= 1:
+        try:
+            return model.encode(inputs, batch_size=curr_batch, normalize_embeddings=True,
+                                convert_to_numpy=True, show_progress_bar=False).astype(np.float32)
+        except Exception as e:
+            err = str(e).lower()
+            if "out of memory" in err or "cuda oom" in err:
+                try:
+                    import torch
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                except ImportError:
+                    pass
+                if curr_batch == 1:
+                    raise
+                next_batch = max(1, curr_batch // 2)
+                print(f"    [OOM recovery] CUDA OOM with batch_size={curr_batch}. "
+                      f"Retrying with batch_size={next_batch}...", flush=True)
+                curr_batch = next_batch
+            else:
+                raise
+    raise RuntimeError(f"Failed to encode texts with model {name}")
 
 
-def cached_embed(name: str, texts: Sequence[str], is_query: bool, tag: str) -> np.ndarray:
+def cached_embed(name: str, texts: Sequence[str], is_query: bool, tag: str,
+                 device: Optional[str] = None) -> np.ndarray:
     """Disk cache keyed by model, role and a hash of the prefix and the exact input texts
     (the prefix is part of the key so that changing a model's prompt never reuses stale vectors)."""
     from apps.documents.services.rag_service import get_model_prefix
@@ -87,7 +124,7 @@ def cached_embed(name: str, texts: Sequence[str], is_query: bool, tag: str) -> n
     path = EMB_CACHE / name.replace("/", "__") / ("q" if is_query else "p") / f"{tag}_{h}.npy"
     if path.exists():
         return np.load(path)
-    arr = embed(name, texts, is_query)
+    arr = embed(name, texts, is_query, device=device)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.save(path, arr)
     return arr

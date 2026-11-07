@@ -42,6 +42,7 @@ import argparse
 import gc
 import hashlib
 import json
+import os
 import sys
 import time
 from collections import defaultdict
@@ -49,6 +50,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
+
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 ROOT = Path(__file__).resolve().parents[4]
 BACKEND = ROOT / "backend"
@@ -917,7 +920,24 @@ def main():
     ap.add_argument("--run-tag", default=None,
                     help="Write to <cohort>_<tag>/ and summary_<tag>.json instead of the main files, so a partial "
                          "rerun (e.g. one model) never overwrites the full run")
+    ap.add_argument("--device", default=None,
+                    help="Device for embedding models (e.g. cuda:0, cuda:1, cpu; default: EVAL_DEVICE or cuda:0)")
     args = ap.parse_args()
+
+    if args.device:
+        os.environ["EVAL_DEVICE"] = args.device
+
+    try:
+        import torch
+        if torch.cuda.is_available():
+            n = torch.cuda.device_count()
+            print(f"[Hardware Setup] CUDA available: {n} GPU(s) found.", flush=True)
+            for i in range(n):
+                mem = torch.cuda.get_device_properties(i).total_memory / (1024**3)
+                print(f"  GPU {i}: {torch.cuda.get_device_name(i)} ({mem:.1f} GiB VRAM)", flush=True)
+            print(f"  Device in use: {os.environ.get('EVAL_DEVICE', 'cuda:0')}\n", flush=True)
+    except Exception:
+        pass
 
     if args.limit is not None and args.limit < 0:
         ap.error("--limit must be >= 0")
