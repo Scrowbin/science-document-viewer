@@ -90,7 +90,7 @@ export interface BulkActionOptions {
   /** Target collection for 'move'. */
   collectionId?: string;
   collectionName?: string;
-  /** Tag name for 'add_tag'. */
+  /** Tag name for 'add_tag' / 'remove_tag'. */
   tag?: string;
 }
 
@@ -106,6 +106,7 @@ const BULK_VERBS: Record<BulkAction, { done: string; failed: string }> = {
   restore: { done: 'Restored', failed: 'restored' },
   delete: { done: 'Permanently deleted', failed: 'deleted' },
   add_tag: { done: 'Tagged', failed: 'tagged' },
+  remove_tag: { done: 'Untagged', failed: 'untagged' },
 };
 
 const FAILURE_REASONS: Record<string, string> = {
@@ -128,6 +129,7 @@ function describeBulkOutcome(action: BulkAction, outcome: BulkOutcome, opts: Bul
     else if (action === 'remove_from_collection') parts.push(`${verb} ${plural(n)} from their collection`);
     else if (action === 'trash') parts.push(`${verb} ${plural(n)} to Trash`);
     else if (action === 'add_tag') parts.push(`${verb} ${plural(n)} with "${opts.tag ?? ''}"`);
+    else if (action === 'remove_tag') parts.push(`Removed "${opts.tag ?? ''}" from ${plural(n)}`);
     else parts.push(`${verb} ${plural(n)}`);
   }
   if (outcome.failed.length > 0) {
@@ -164,6 +166,11 @@ function applyBulkLocally(doc: Document, action: BulkAction, opts: BulkActionOpt
       if (!opts.tag || tags.includes(opts.tag)) return doc;
       return { ...doc, metadata: { ...doc.metadata, tags: [...tags, opts.tag] } };
     }
+    case 'remove_tag': {
+      const tags = doc.metadata.tags ?? [];
+      if (!opts.tag || !tags.includes(opts.tag)) return doc;
+      return { ...doc, metadata: { ...doc.metadata, tags: tags.filter((t) => t !== opts.tag) } };
+    }
     case 'delete':
       return null;
     default:
@@ -189,10 +196,16 @@ export interface UseDocumentsReturn {
   handleSetDocumentCollection: (docId: string, collectionId: string | null, collectionName: string | null) => Promise<void>;
   handleAddTagToDocument: (docId: string, tagName: string) => Promise<void>;
   handleToggleReadStatus: (doc: Document) => Promise<void>;
+  /** Add to / remove from "My Publications" (is_publication). */
+  handleTogglePublication: (doc: Document) => Promise<void>;
   /** Re-run AI indexing for a document whose indexing failed (owner only). */
   handleRetryIndexing: (doc: Document) => Promise<void>;
   /** One request for many documents; optimistic, rolls back only the ids that failed. */
   handleBulkAction: (action: BulkAction, ids: string[], opts?: BulkActionOptions) => Promise<BulkOutcome | null>;
+  /** Rename a tag on every document of the user that carries it (add new + remove old). True if any changed. */
+  handleRenameTag: (oldTag: string, newTag: string) => Promise<boolean>;
+  /** Remove a tag from every document of the user that carries it. True if any changed. */
+  handleDeleteTag: (tag: string) => Promise<boolean>;
   // Upload preview flow
   handleFileUpload: (file: File) => Promise<void>;
   uploadModalFile: File | null;
@@ -383,6 +396,19 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     }
   }, [showToast]);
 
+  const handleTogglePublication = useCallback(async (doc: Document) => {
+    const next = !doc.isPublication;
+    setDocuments((prev) => prev.map((d) => (d.id === doc.id ? { ...d, isPublication: next } : d)));
+    try {
+      await documentsApi.updateDocument(doc.id, { is_publication: next });
+      showToast(next ? 'Added to My Publications' : 'Removed from My Publications');
+    } catch (err) {
+      console.warn('Toggle publication failed, rolling back:', err);
+      setDocuments((prev) => prev.map((d) => (d.id === doc.id ? { ...d, isPublication: doc.isPublication } : d)));
+      showToast(describeApiError(err, 'Failed to update My Publications'), 'error');
+    }
+  }, [showToast]);
+
   const retryingIndexRef = useRef(new Set<string>());
   const handleRetryIndexing = useCallback(async (doc: Document) => {
     if (!doc.file || retryingIndexRef.current.has(doc.id)) return;
@@ -522,6 +548,49 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     }
   }, [showToast]);
 
+  /** Tag rows are shared by all users, so a tag is renamed per document: add the new name, then
+   *  remove the old one from the documents that got it. Documents without EDIT permission keep it. */
+  const handleRenameTag = useCallback(async (oldTag: string, newTag: string): Promise<boolean> => {
+    const ids = documentsRef.current.filter((d) => d.metadata.tags?.includes(oldTag)).map((d) => d.id);
+    if (ids.length === 0 || oldTag === newTag) return false;
+    try {
+      const added = await documentsApi.bulkAction({ action: 'add_tag', ids, tag: newTag });
+      const removed = added.succeeded.length
+        ? await documentsApi.bulkAction({ action: 'remove_tag', ids: added.succeeded, tag: oldTag })
+        : { succeeded: [], failed: [] };
+      const addedSet = new Set(added.succeeded);
+      const renamed = new Set(removed.succeeded);
+      setDocuments((prev) =>
+        prev.map((d) => {
+          if (!addedSet.has(d.id)) return d;
+          let tags = d.metadata.tags ?? [];
+          if (!tags.includes(newTag)) tags = [...tags, newTag];
+          if (renamed.has(d.id)) tags = tags.filter((t) => t !== oldTag);
+          return { ...d, metadata: { ...d.metadata, tags } };
+        })
+      );
+      const skipped = ids.length - renamed.size;
+      showToast(
+        skipped > 0
+          ? `Renamed "${oldTag}" to "${newTag}" on ${renamed.size} of ${plural(ids.length)}; ${skipped} could not be changed (no edit permission)`
+          : `Renamed tag "${oldTag}" to "${newTag}" on ${plural(renamed.size)}`,
+        skipped > 0 ? 'error' : 'success'
+      );
+      return renamed.size > 0;
+    } catch (err) {
+      console.warn('Tag rename failed:', err);
+      showToast(describeApiError(err, 'Could not rename the tag'), 'error');
+      return false;
+    }
+  }, [showToast]);
+
+  const handleDeleteTag = useCallback(async (tag: string): Promise<boolean> => {
+    const ids = documentsRef.current.filter((d) => d.metadata.tags?.includes(tag)).map((d) => d.id);
+    if (ids.length === 0) return false;
+    const outcome = await handleBulkAction('remove_tag', ids, { tag });
+    return Boolean(outcome && outcome.succeeded.length > 0);
+  }, [handleBulkAction]);
+
   // ─── Upload preview flow ──────────────────────────────────────────────────
   const [uploadModalFile, setUploadModalFile] = useState<File | null>(null);
   const [isExtractingUpload, setIsExtractingUpload] = useState(false);
@@ -630,8 +699,11 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleTogglePublication,
     handleRetryIndexing,
     handleBulkAction,
+    handleRenameTag,
+    handleDeleteTag,
     handleFileUpload,
     uploadModalFile,
     isExtractingUpload,

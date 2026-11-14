@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import styles from './LeftSidebar.module.css';
 import type { Collection, Document } from '../../types';
 import { SIDEBAR_NAV_ITEMS } from '../../constants/metadataConfig';
 import {
   FaBook,
   FaFolder,
+  FaFolderOpen,
   FaTag,
   FaAnglesLeft,
   FaAnglesRight,
@@ -13,11 +14,20 @@ import {
   FaFileLines,
   FaPlus,
   FaSitemap,
+  FaPenToSquare,
+  FaFolderPlus,
+  FaTrash,
+  FaFilter,
+  FaFilterCircleXmark,
 } from 'react-icons/fa6';
+import { ContextMenu, type ContextMenuEntry } from '../common/ContextMenu';
+import { COLLECTION_COLORS } from '../../constants/collectionColors';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
 import { CreateCollectionModal } from '../CreateCollectionModal/CreateCollectionModal';
 import { DOC_IDS_DRAG_TYPE } from '../DocumentTable/DocumentTable';
+import { setDocumentDragImage } from '../../utils/dragImage';
+import { collectionPath } from '../../utils/collections';
 
 /** Enter/Space activates a custom (div) button, like a native one. */
 function activateOnKey(e: React.KeyboardEvent<HTMLElement>, action: () => void) {
@@ -26,6 +36,23 @@ function activateOnKey(e: React.KeyboardEvent<HTMLElement>, action: () => void) 
     e.preventDefault();
     action();
   }
+}
+
+const COLLAPSED_KEY = 'library.collapsedCollections';
+
+function readCollapsedCollections(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(COLLAPSED_KEY);
+    const ids: unknown = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(ids) ? ids.map(String) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** ContextMenu key or Shift+F10 opens the item's menu from the keyboard. */
+function isMenuKey(e: React.KeyboardEvent) {
+  return e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10');
 }
 
 /** Document ids carried by a drag from the document table (one or many rows). */
@@ -57,6 +84,8 @@ export interface LeftSidebarProps {
   onRetryCollections?: () => void;
   /** Documents dropped on a collection folder (one id, or every row of a multi-selection). */
   onDropDocsOnCollection?: (docIds: string[], colId: string, colName: string) => void;
+  /** Documents dropped on "Unfiled Items": take them out of their collection. */
+  onDropDocsOnUnfiled?: (docIds: string[]) => void;
   /** Show items from subcollections when a collection is selected (counts follow the same rule). */
   includeSubcollections?: boolean;
   onToggleIncludeSubcollections?: () => void;
@@ -67,6 +96,28 @@ export interface LeftSidebarProps {
   documents?: Document[];
   selectedDocId?: string | null;
   onSelectDoc?: (id: string) => void;
+  /** Right-click actions (each menu item is shown only when its handler is given). */
+  onRenameCollection?: (col: Collection, name: string) => void;
+  onRecolorCollection?: (col: Collection, color: string) => void;
+  onDeleteCollection?: (col: Collection) => void;
+  onRenameTag?: (oldTag: string, newTag: string) => void;
+  onDeleteTag?: (tag: string) => void;
+  onEmptyTrash?: () => void;
+}
+
+interface MenuState {
+  x: number;
+  y: number;
+  header: string;
+  entries: ContextMenuEntry[];
+  returnFocusTo: HTMLElement | null;
+}
+
+/** In-place rename of a collection (key = id) or a tag (key = tag name). */
+interface RenameState {
+  kind: 'collection' | 'tag';
+  key: string;
+  value: string;
 }
 
 export const LeftSidebar: React.FC<LeftSidebarProps> = ({
@@ -82,6 +133,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   isLoadingCollections = false,
   onRetryCollections,
   onDropDocsOnCollection,
+  onDropDocsOnUnfiled,
   includeSubcollections = false,
   onToggleIncludeSubcollections,
   tags,
@@ -91,7 +143,16 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   documents,
   selectedDocId,
   onSelectDoc,
+  onRenameCollection,
+  onRecolorCollection,
+  onDeleteCollection,
+  onRenameTag,
+  onDeleteTag,
+  onEmptyTrash,
 }) => {
+  const [menu, setMenu] = useState<MenuState | null>(null);
+  const [renaming, setRenaming] = useState<RenameState | null>(null);
+  const closeMenu = useCallback(() => setMenu(null), []);
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
   const [customSidebarWidth, setCustomSidebarWidth] = useState<number | null>(null);
   const [isDraggingWidth, setIsDraggingWidth] = useState(false);
@@ -120,20 +181,97 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createModalParentId, setCreateModalParentId] = useState<string | null>(null);
 
-  // Tree expansion: every collection starts expanded, including ones that arrive after
-  // mount (the tree loads asynchronously), so only the user's collapses are tracked.
-  const [collapsedCollections, setCollapsedCollections] = useState<Set<string>>(() => new Set());
+  // Tree expansion: collections start expanded (including ones that arrive after mount, since
+  // the tree loads asynchronously), so only the user's collapses are tracked. They are kept in
+  // localStorage, like a file explorer that remembers which folders were open.
+  const [collapsedCollections, setCollapsedCollections] = useState<Set<string>>(readCollapsedCollections);
 
-  const toggleExpandCollection = (id: string) => {
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(COLLAPSED_KEY, JSON.stringify(Array.from(collapsedCollections)));
+    } catch {
+      /* storage unavailable: the state still works for this session */
+    }
+  }, [collapsedCollections]);
+
+  const setExpanded = (id: string, expanded: boolean) => {
     setCollapsedCollections((prev) => {
+      if (prev.has(id) !== expanded) return prev;
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (expanded) next.delete(id);
+      else next.add(id);
       return next;
     });
+  };
+
+  const toggleExpandCollection = (id: string) => setExpanded(id, collapsedCollections.has(id));
+
+  // Reveal the selected collection: when the selection changes (e.g. chosen from the path bar),
+  // open its ancestors once. Adjusting state during render on a prop change (React's
+  // recommended pattern) keeps the user free to close those folders afterwards.
+  const [revealedFor, setRevealedFor] = useState<string | null>(null);
+  if (selectedCollectionId !== revealedFor) {
+    setRevealedFor(selectedCollectionId);
+    if (selectedCollectionId) {
+      const ancestors = collectionPath(collections, selectedCollectionId).slice(0, -1);
+      if (ancestors.some((a) => collapsedCollections.has(a.id))) {
+        const next = new Set(collapsedCollections);
+        ancestors.forEach((a) => next.delete(a.id));
+        setCollapsedCollections(next);
+      }
+    }
+  }
+
+  /** Arrow-key navigation over the visible folder rows (Windows Explorer / WAI tree pattern). */
+  const handleTreeKey = (e: React.KeyboardEvent<HTMLElement>, col: Collection, hasChildren: boolean, isExpanded: boolean) => {
+    const rows = Array.from(
+      e.currentTarget.closest('aside')?.querySelectorAll<HTMLElement>('[data-tree-row]') ?? []
+    );
+    const idx = rows.indexOf(e.currentTarget);
+    const go = (row: HTMLElement | undefined) => {
+      if (!row) return;
+      row.focus();
+      const id = row.dataset.colId;
+      if (id) onSelectCollection(id); // selection follows focus, as in Explorer's folder pane
+    };
+    switch (e.key) {
+      case 'ArrowDown':
+        go(rows[idx + 1]);
+        break;
+      case 'ArrowUp':
+        go(rows[idx - 1]);
+        break;
+      case 'Home':
+        go(rows[0]);
+        break;
+      case 'End':
+        go(rows[rows.length - 1]);
+        break;
+      case 'ArrowRight':
+        if (hasChildren && !isExpanded) setExpanded(col.id, true);
+        else if (hasChildren) go(rows.find((r) => r.dataset.parentId === col.id));
+        break;
+      case 'ArrowLeft':
+        if (hasChildren && isExpanded) setExpanded(col.id, false);
+        else if (col.parent) go(rows.find((r) => r.dataset.colId === col.parent));
+        break;
+      case '*':
+        // Explorer shortcut: expand this folder and every folder below it
+        setCollapsedCollections((prev) => {
+          const next = new Set(prev);
+          const open = (c: Collection) => {
+            next.delete(c.id);
+            c.children?.forEach(open);
+          };
+          open(col);
+          return next;
+        });
+        break;
+      default:
+        return false;
+    }
+    e.preventDefault();
+    return true;
   };
 
   const openModalWithParent = (parentId: string | null = null) => {
@@ -170,89 +308,272 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     setCustomSidebarWidth(null);
   };
 
+  /** Opens a menu at the mouse, or under the focused item when opened from the keyboard. */
+  const openMenu = (
+    e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>,
+    header: string,
+    entries: ContextMenuEntry[]
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const target = e.currentTarget;
+    let x: number;
+    let y: number;
+    if ('clientX' in e && (e.clientX || e.clientY)) {
+      x = e.clientX;
+      y = e.clientY;
+    } else {
+      const r = target.getBoundingClientRect();
+      x = r.left + 24;
+      y = r.bottom;
+    }
+    setMenu({ x, y, header, entries, returnFocusTo: target });
+  };
+
+  /** Rename in place; with the sidebar collapsed (no label to edit) a prompt is used instead. */
+  const startRename = (kind: RenameState['kind'], key: string, current: string, apply: (name: string) => void) => {
+    if (collapsed) {
+      const next = window.prompt(kind === 'collection' ? 'Rename collection:' : 'Rename tag:', current);
+      if (next && next.trim() && next.trim() !== current) apply(next.trim());
+      return;
+    }
+    setRenaming({ kind, key, value: current });
+  };
+
+  const commitRename = (current: string, apply: (name: string) => void) => {
+    const value = renaming?.value.trim() ?? '';
+    setRenaming(null);
+    if (value && value !== current) apply(value);
+  };
+
+  const renameInput = (current: string, apply: (name: string) => void, what: 'collection' | 'tag') => (
+    <input
+      className={styles.renameInput}
+      value={renaming?.value ?? ''}
+      autoFocus
+      maxLength={what === 'tag' ? 100 : 255}
+      aria-label={`New ${what} name`}
+      onFocus={(e) => e.currentTarget.select()}
+      onChange={(e) => setRenaming((r) => (r ? { ...r, value: e.target.value } : r))}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commitRename(current, apply);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          setRenaming(null);
+        }
+      }}
+      onBlur={() => commitRename(current, apply)}
+    />
+  );
+
+  const collectionMenuEntries = (col: Collection): ContextMenuEntry[] => {
+    const entries: ContextMenuEntry[] = [];
+    if (onRenameCollection) {
+      entries.push({
+        label: 'Rename…',
+        icon: <FaPenToSquare />,
+        onSelect: () => startRename('collection', col.id, col.name, (name) => onRenameCollection(col, name)),
+      });
+    }
+    if (onCreateCollection) {
+      entries.push({ label: 'New subcollection…', icon: <FaFolderPlus />, onSelect: () => openModalWithParent(col.id) });
+    }
+    if (onRecolorCollection) {
+      if (entries.length) entries.push({ kind: 'divider' });
+      entries.push({
+        kind: 'swatches',
+        label: 'Folder color',
+        colors: COLLECTION_COLORS,
+        current: col.color ?? null,
+        onPick: (c) => onRecolorCollection(col, c),
+      });
+    }
+    if (onDeleteCollection) {
+      entries.push({ kind: 'divider' });
+      entries.push({ label: 'Delete collection…', icon: <FaTrash />, danger: true, onSelect: () => onDeleteCollection(col) });
+    }
+    return entries;
+  };
+
+  const trashMenuEntries = (count: number): ContextMenuEntry[] => [
+    { label: 'Show Trash', icon: <FaTrash />, onSelect: () => onSelectNav('trash') },
+    { kind: 'divider' },
+    {
+      label: 'Empty Trash…',
+      icon: <FaTrash />,
+      danger: true,
+      disabled: count === 0,
+      title: count === 0 ? 'Trash is empty' : undefined,
+      onSelect: () => onEmptyTrash?.(),
+    },
+  ];
+
+  const tagMenuEntries = (tag: string): ContextMenuEntry[] => {
+    const isActive = selectedTag === tag;
+    const entries: ContextMenuEntry[] = [
+      isActive
+        ? { label: 'Clear tag filter', icon: <FaFilterCircleXmark />, onSelect: () => onSelectTag(null) }
+        : { label: 'Show documents with this tag', icon: <FaFilter />, onSelect: () => onSelectTag(tag) },
+    ];
+    if (onRenameTag) {
+      entries.push({
+        label: 'Rename tag…',
+        icon: <FaPenToSquare />,
+        onSelect: () => startRename('tag', tag, tag, (name) => onRenameTag(tag, name)),
+      });
+    }
+    if (onDeleteTag) {
+      entries.push({ kind: 'divider' });
+      entries.push({ label: 'Delete tag…', icon: <FaTrash />, danger: true, onSelect: () => onDeleteTag(tag) });
+    }
+    return entries;
+  };
+
+  /** Pixels of indentation per tree level. */
+  const INDENT = 16;
+  /** Row left padding for a tree depth (rows also have a 6px side margin). */
+  const rowPad = (depth: number) => 8 + depth * INDENT;
+
+  // While dragging documents, hovering over a collapsed parent opens it (as in file managers).
+  const dragExpandTimer = useRef<number | null>(null);
+  const clearDragExpand = () => {
+    if (dragExpandTimer.current) window.clearTimeout(dragExpandTimer.current);
+    dragExpandTimer.current = null;
+  };
+  useEffect(() => clearDragExpand, []);
+
+  const startDocDrag = (e: React.DragEvent<HTMLElement>, doc: Document) => {
+    e.stopPropagation();
+    e.dataTransfer.setData(DOC_IDS_DRAG_TYPE, JSON.stringify([doc.id]));
+    e.dataTransfer.setData('text/plain', doc.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setDocumentDragImage(e, doc.title);
+  };
+
+  /** Drag-and-drop handlers for a drop zone identified by `key` (collection id or '__unfiled'). */
+  const dropZone = (key: string, onDropIds: (ids: string[]) => void, onHoverLong?: () => void) => ({
+    onDragOver: (e: React.DragEvent<HTMLElement>) => {
+      if (!Array.from(e.dataTransfer.types).includes(DOC_IDS_DRAG_TYPE)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (dragOverColId !== key) {
+        setDragOverColId(key);
+        clearDragExpand();
+        if (onHoverLong) dragExpandTimer.current = window.setTimeout(onHoverLong, 700);
+      }
+    },
+    onDragLeave: (e: React.DragEvent<HTMLElement>) => {
+      // Ignore leaving into a child element of the same row.
+      if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+      if (dragOverColId === key) setDragOverColId(null);
+      clearDragExpand();
+    },
+    onDrop: (e: React.DragEvent<HTMLElement>) => {
+      e.preventDefault();
+      setDragOverColId(null);
+      clearDragExpand();
+      const ids = readDraggedDocIds(e.dataTransfer);
+      if (ids.length > 0) onDropIds(ids);
+    },
+  });
+
   const renderCollectionNode = (col: Collection, depth = 0): React.ReactNode => {
     const isActive = selectedCollectionId === col.id;
-    const colDocs = documents
-      ? documents.filter(
-          (d) => !d.inTrash && d.collectionId === col.id
-        )
-      : [];
-    const hasChildren = Boolean(col.children && col.children.length > 0);
+    const colDocs = documents ? documents.filter((d) => !d.inTrash && d.collectionId === col.id) : [];
+    const childCount = col.children?.length ?? 0;
+    const hasChildren = childCount > 0;
     const isExpanded = !collapsedCollections.has(col.id);
-
+    const showDocs = !collapsed && isActive && colDocs.length > 0;
+    const showChildren = !collapsed && hasChildren && isExpanded;
     const isDropTarget = dragOverColId === col.id;
+    const FolderIcon = hasChildren && isExpanded && !collapsed ? FaFolderOpen : FaFolder;
+    const subLabel = hasChildren ? `, ${childCount} subcollection${childCount === 1 ? '' : 's'}` : '';
+    const zone = onDropDocsOnCollection
+      ? dropZone(
+          col.id,
+          (ids) => onDropDocsOnCollection(ids, col.id, col.name),
+          hasChildren && !isExpanded ? () => toggleExpandCollection(col.id) : undefined
+        )
+      : {};
 
     return (
       <React.Fragment key={col.id}>
         <div
-          className={`${styles.sidebarItem} ${
+          className={`${styles.sidebarItem} ${styles.treeRow} ${
             collapsed ? styles.sidebarItemCollapsed : ''
-          } ${isActive ? styles.sidebarItemActive : ''} ${
-            isDropTarget ? styles.sidebarItemDropTarget : ''
-          }`}
-          style={!collapsed && depth > 0 ? { paddingLeft: `${12 + depth * 14}px` } : undefined}
-          onClick={() => onSelectCollection(isActive ? null : col.id)}
+          } ${isActive ? styles.sidebarItemActive : ''} ${isDropTarget ? styles.sidebarItemDropTarget : ''}`}
+          style={!collapsed ? { paddingLeft: `${rowPad(depth)}px` } : undefined}
+          data-tree-row=""
+          data-col-id={col.id}
+          data-parent-id={col.parent ?? ''}
+          // Click selects (clicking the selected folder keeps it selected); double-click opens or
+          // closes a folder that has subcollections, like a file explorer.
+          onClick={() => onSelectCollection(col.id)}
+          onDoubleClick={(e) => {
+            if (!hasChildren || collapsed) return;
+            e.preventDefault();
+            toggleExpandCollection(col.id);
+          }}
+          onMouseDown={(e) => {
+            if (e.detail > 1) e.preventDefault(); // no text selection on double-click
+          }}
+          onContextMenu={(e) => openMenu(e, col.name, collectionMenuEntries(col))}
           onKeyDown={(e) => {
-            if (hasChildren && e.target === e.currentTarget && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
-              e.preventDefault();
-              if ((e.key === 'ArrowRight') !== isExpanded) toggleExpandCollection(col.id);
+            if (e.target !== e.currentTarget) return;
+            if (isMenuKey(e)) {
+              openMenu(e, col.name, collectionMenuEntries(col));
               return;
             }
-            activateOnKey(e, () => onSelectCollection(isActive ? null : col.id));
+            if (!collapsed && handleTreeKey(e, col, hasChildren, isExpanded)) return;
+            activateOnKey(e, () => onSelectCollection(col.id));
           }}
           role="button"
           tabIndex={0}
           aria-pressed={isActive}
           aria-expanded={hasChildren && !collapsed ? isExpanded : undefined}
-          aria-label={`${col.name}, ${col.count ?? 0} document${(col.count ?? 0) === 1 ? '' : 's'}`}
-          title={collapsed ? `${col.name} (${col.count ?? 0})` : undefined}
-          onDragOver={(e) => {
-            if (onDropDocsOnCollection) {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-              if (dragOverColId !== col.id) {
-                setDragOverColId(col.id);
-              }
-            }
-          }}
-          onDragLeave={() => {
-            if (dragOverColId === col.id) {
-              setDragOverColId(null);
-            }
-          }}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOverColId(null);
-            const docIds = readDraggedDocIds(e.dataTransfer);
-            if (docIds.length > 0 && onDropDocsOnCollection) {
-              onDropDocsOnCollection(docIds, col.id, col.name);
-            }
-          }}
+          aria-label={`${col.name}, ${col.count ?? 0} document${(col.count ?? 0) === 1 ? '' : 's'}${subLabel}`}
+          title={
+            collapsed
+              ? `${col.name} (${col.count ?? 0})`
+              : `${col.name}${subLabel}${hasChildren ? '. Double-click to open or close' : ''}. Drop documents here to move them.`
+          }
+          {...zone}
         >
-          {hasChildren && !collapsed && (
+          {!collapsed && (
             <span
+              className={`${styles.treeToggle} ${hasChildren ? styles.treeToggleActive : ''} ${
+                hasChildren && isExpanded ? styles.treeToggleOpen : ''
+              }`}
               onClick={(e) => {
-                e.stopPropagation();
+                if (!hasChildren) return;
+                e.stopPropagation(); // the arrow only opens/closes; it does not select
                 toggleExpandCollection(col.id);
               }}
-              style={{ display: 'inline-flex', alignItems: 'center', fontSize: '9px', color: 'var(--text-muted)' }}
-              title={isExpanded ? 'Collapse (Left arrow)' : 'Expand (Right arrow)'}
+              onDoubleClick={(e) => e.stopPropagation()}
+              title={hasChildren ? (isExpanded ? 'Close folder (Left arrow)' : 'Open folder (Right arrow)') : undefined}
               aria-hidden="true"
             >
-              {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
+              {hasChildren && <FaChevronRight />}
             </span>
           )}
-          <FaFolder
-            className={styles.sidebarIcon}
-            style={{ color: col.color || undefined }}
-            aria-hidden="true"
-          />
+          <FolderIcon className={styles.sidebarIcon} style={{ color: col.color || undefined }} aria-hidden="true" />
           {!collapsed && (
             <>
-              <span className={styles.sidebarItemLabel}>{col.name}</span>
-              {col.count !== undefined && (
-                <span className={styles.sidebarBadge}>{col.count}</span>
+              {renaming?.kind === 'collection' && renaming.key === col.id && onRenameCollection ? (
+                renameInput(col.name, (name) => onRenameCollection(col, name), 'collection')
+              ) : (
+                <span className={styles.sidebarItemLabel}>{col.name}</span>
               )}
+              {hasChildren && !isExpanded && (
+                <span className={styles.subCount} aria-hidden="true" title={`${childCount} hidden subcollection${childCount === 1 ? '' : 's'}`}>
+                  +{childCount}
+                </span>
+              )}
+              {col.count !== undefined && <span className={styles.sidebarBadge}>{col.count}</span>}
               {onCreateCollection && (
                 <button
                   type="button"
@@ -272,40 +593,42 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           )}
         </div>
 
-        {/* Documents filed directly in the selected collection */}
-        {!collapsed && isActive && colDocs.length > 0 && (
-          <div
-            className={styles.nestedDocList}
-            style={{ paddingLeft: `${28 + depth * 14}px` }}
-            aria-label={`Documents in ${col.name}`}
-          >
-            {colDocs.map((d) => (
+        {(showDocs || showChildren) && (
+          // A vertical guide line joins a folder to everything inside it.
+          <div className={styles.subtree} style={{ ['--guide-left' as string]: `${6 + rowPad(depth) + 6}px` }}>
+            {/* Documents filed directly in the selected collection (drag them onto another folder) */}
+            {showDocs && (
               <div
-                key={d.id}
-                className={`${styles.nestedDocItem} ${
-                  selectedDocId === d.id ? styles.nestedDocItemActive : ''
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectDoc?.(d.id);
-                }}
-                onKeyDown={(e) => activateOnKey(e, () => onSelectDoc?.(d.id))}
-                role="button"
-                tabIndex={0}
-                aria-pressed={selectedDocId === d.id}
-                title={d.title}
+                className={styles.nestedDocList}
+                style={{ paddingLeft: `${6 + rowPad(depth + 1)}px` }}
+                aria-label={`Documents in ${col.name}`}
               >
-                <FaFileLines className={styles.nestedDocIcon} />
-                <span className={styles.nestedDocTitle}>{d.title}</span>
+                {colDocs.map((d) => (
+                  <div
+                    key={d.id}
+                    className={`${styles.nestedDocItem} ${selectedDocId === d.id ? styles.nestedDocItemActive : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectDoc?.(d.id);
+                    }}
+                    onKeyDown={(e) => activateOnKey(e, () => onSelectDoc?.(d.id))}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selectedDocId === d.id}
+                    title={`${d.title} (drag onto another collection to move it)`}
+                    draggable
+                    onDragStart={(e) => startDocDrag(e, d)}
+                  >
+                    <FaFileLines className={styles.nestedDocIcon} />
+                    <span className={styles.nestedDocTitle}>{d.title}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
+            {/* Child collections come after this folder's own documents, so documents are never
+                drawn below a subfolder and mistaken for its content. */}
+            {showChildren && col.children!.map((child) => renderCollectionNode(child, depth + 1))}
           </div>
-        )}
-
-        {/* Nested child collections (after this folder's own documents, so those are never
-            drawn below a subfolder and mistaken for the subfolder's content) */}
-        {!collapsed && hasChildren && isExpanded && (
-          col.children!.map((child) => renderCollectionNode(child, depth + 1))
         )}
       </React.Fragment>
     );
@@ -358,15 +681,31 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           const Icon = item.icon;
           const isActive = activeNavId === item.id;
           const count = navItemCounts ? navItemCounts[item.id] : undefined;
+          const unfiledZone =
+            item.id === 'unfiled' && onDropDocsOnUnfiled ? dropZone('__unfiled', onDropDocsOnUnfiled) : {};
 
           return (
             <div
               key={item.id}
               className={`${styles.sidebarItem} ${
                 collapsed ? styles.sidebarItemCollapsed : ''
-              } ${isActive ? styles.sidebarItemActive : ''}`}
+              } ${isActive ? styles.sidebarItemActive : ''} ${
+                item.id === 'unfiled' && dragOverColId === '__unfiled' ? styles.sidebarItemDropTarget : ''
+              }`}
+              {...unfiledZone}
               onClick={() => onSelectNav(item.id)}
-              onKeyDown={(e) => activateOnKey(e, () => onSelectNav(item.id))}
+              onContextMenu={
+                item.id === 'trash' && onEmptyTrash
+                  ? (e) => openMenu(e, 'Trash', trashMenuEntries(count ?? 0))
+                  : undefined
+              }
+              onKeyDown={(e) => {
+                if (item.id === 'trash' && onEmptyTrash && isMenuKey(e)) {
+                  openMenu(e, 'Trash', trashMenuEntries(count ?? 0));
+                  return;
+                }
+                activateOnKey(e, () => onSelectNav(item.id));
+              }}
               role="button"
               tabIndex={0}
               aria-current={isActive ? 'page' : undefined}
@@ -491,6 +830,14 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 )}
                 {tags.map((tag) => {
                   const isActive = selectedTag === tag;
+                  if (renaming?.kind === 'tag' && renaming.key === tag && onRenameTag) {
+                    return (
+                      <div key={tag} className={`${styles.tagListItem} ${styles.tagListItemEditing}`}>
+                        <FaTag className={styles.tagItemIcon} aria-hidden="true" />
+                        {renameInput(tag, (name) => onRenameTag(tag, name), 'tag')}
+                      </div>
+                    );
+                  }
                   return (
                     <button
                       type="button"
@@ -499,6 +846,13 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                         isActive ? styles.tagListItemActive : ''
                       }`}
                       onClick={() => onSelectTag(isActive ? null : tag)}
+                      onContextMenu={(e) => {
+                        hideTooltip();
+                        openMenu(e, `Tag: ${tag}`, tagMenuEntries(tag));
+                      }}
+                      onKeyDown={(e) => {
+                        if (isMenuKey(e)) openMenu(e, `Tag: ${tag}`, tagMenuEntries(tag));
+                      }}
                       aria-pressed={isActive}
                       onMouseEnter={(e) => showTooltip(tag, e)}
                       onMouseLeave={hideTooltip}
@@ -549,6 +903,17 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
       )}
 
       <FloatingTagTooltip {...tooltipProps} />
+
+      {menu && (
+        <ContextMenu
+          x={menu.x}
+          y={menu.y}
+          header={menu.header}
+          entries={menu.entries}
+          onClose={closeMenu}
+          returnFocusTo={menu.returnFocusTo}
+        />
+      )}
 
       {onCreateCollection && isCreateModalOpen && (
         <CreateCollectionModal

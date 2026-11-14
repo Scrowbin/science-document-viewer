@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useId, useRef } from 'react';
 import axios from 'axios';
 import styles from './CreateCollectionModal.module.css';
+import { COLLECTION_COLORS } from '../../constants/collectionColors';
 import type { Collection } from '../../types';
 import { FaFolderPlus, FaXmark, FaSpinner } from 'react-icons/fa6';
 import { useFocusTrap } from '../common/useFocusTrap';
@@ -13,15 +14,7 @@ export interface CreateCollectionModalProps {
   initialParentId?: string | null;
 }
 
-const PRESET_COLORS = [
-  '#3b82f6', // Blue
-  '#10b981', // Emerald
-  '#8b5cf6', // Violet
-  '#f59e0b', // Amber
-  '#f43f5e', // Rose
-  '#06b6d4', // Cyan
-  '#64748b', // Slate
-];
+const PRESET_COLORS = COLLECTION_COLORS;
 
 interface FlattenedOption {
   id: string;

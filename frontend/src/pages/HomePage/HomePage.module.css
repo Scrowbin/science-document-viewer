@@ -452,3 +452,58 @@
   background-color: var(--accent-blue);
   color: var(--text-on-accent);
 }
+
+/* Path of the open collection ("Methods > Retrieval > Dense"), above the document table */
+.collectionPath {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background-color: var(--bg-main);
+}
+
+.collectionPathIcon {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.collectionPathSep {
+  font-size: 8px;
+  color: var(--text-muted);
+}
+
+.collectionPathLink {
+  border: 0;
+  background: none;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font: inherit;
+  color: var(--accent-blue);
+  cursor: pointer;
+}
+
+.collectionPathLink:hover {
+  background-color: var(--bg-hover);
+  text-decoration: underline;
+}
+
+.collectionPathLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.collectionPathCurrent {
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 1px 4px;
+}
+
+.collectionPathHint {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}

@@ -11,6 +11,7 @@ import {
   FaRotateLeft,
   FaXmark,
   FaChevronDown,
+  FaQuoteLeft,
 } from 'react-icons/fa6';
 
 /** Handlers for actions on the current multi-selection (wired in HomePage). */
@@ -18,6 +19,8 @@ export interface BulkActionHandlers {
   onMove: (collectionId: string, collectionName: string) => void;
   onRemoveFromCollection: () => void;
   onAddTag: () => void;
+  /** Copy the selection as an APA reference list. */
+  onCopyCitations: () => void;
   onTrash: () => void;
   onRestore: () => void;
   onDeletePermanently: () => void;
@@ -213,6 +216,9 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
       </button>
       <button type="button" className={btn} onClick={handlers.onAddTag} aria-label={`Add a tag to ${count} documents`}>
         <FaTag aria-hidden="true" /> <span>Add tag…</span>
+      </button>
+      <button type="button" className={btn} onClick={handlers.onCopyCitations} aria-label={`Copy APA citations for ${count} documents`}>
+        <FaQuoteLeft aria-hidden="true" /> <span>Copy citations</span>
       </button>
       <button
         type="button"

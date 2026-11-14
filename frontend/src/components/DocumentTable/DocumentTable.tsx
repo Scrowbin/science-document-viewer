@@ -5,6 +5,7 @@ import { flattenCollections } from '../../utils/collections';
 import type { RowSelectModifiers } from '../../hooks/useDocumentSelection';
 import type { BulkActionHandlers } from '../BulkActions/BulkActions';
 import { formatDateTime } from '../../utils/format';
+import { setDocumentDragImage } from '../../utils/dragImage';
 import {
   FaFileLines,
   FaFilePdf,
@@ -24,6 +25,7 @@ import {
   FaCube,
   FaFolderMinus,
   FaRotateRight,
+  FaBook,
 } from 'react-icons/fa6';
 
 /** drag-and-drop payload type carrying a JSON array of document ids. */
@@ -46,6 +48,7 @@ export interface DocumentTableProps {
   onEditDoc?: (doc: Document) => void;
   onDuplicateDoc?: (doc: Document) => void;
   onToggleReadStatus?: (doc: Document) => void;
+  onTogglePublication?: (doc: Document) => void;
   onTrashDoc?: (doc: Document) => void;
   onCopyCitation?: (doc: Document) => void;
   collections?: Collection[];
@@ -161,6 +164,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onEditDoc,
   onDuplicateDoc,
   onToggleReadStatus,
+  onTogglePublication,
   onTrashDoc,
   onCopyCitation,
   collections = [],
@@ -442,6 +446,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                     e.dataTransfer.setData('text/plain', ids.join(','));
                     e.dataTransfer.setData('application/json', JSON.stringify({ id: doc.id, title: doc.title }));
                     e.dataTransfer.effectAllowed = 'copyMove';
+                    setDocumentDragImage(e, ids.length > 1 ? `${ids.length} documents` : doc.title);
                   }}
                 >
                   <td className={`${styles.td} ${styles.checkboxCell}`} onClick={(e) => e.stopPropagation()}>
@@ -735,6 +740,13 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             <FaClock aria-hidden="true" style={{ color: '#10b981' }} />
             <span>{contextMenu.doc.lastRead ? 'Mark as Unread' : 'Mark as Read'}</span>
           </div>
+
+          {!contextMenu.doc.inTrash && onTogglePublication && (
+            <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onTogglePublication(contextMenu.doc))}>
+              <FaBook aria-hidden="true" style={{ color: '#0f766e' }} />
+              <span>{contextMenu.doc.isPublication ? 'Remove from My Publications' : 'Add to My Publications'}</span>
+            </div>
+          )}
 
           <div className={styles.contextMenuDivider} role="separator" />
 

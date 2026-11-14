@@ -32,6 +32,16 @@ export function findCollection(cols: Collection[], id: string): Collection | nul
   return null;
 }
 
+/** Path from the top level down to the collection (inclusive), or [] when it is not in the tree. */
+export function collectionPath(cols: Collection[], id: string): Collection[] {
+  for (const col of cols) {
+    if (col.id === id) return [col];
+    const sub = col.children ? collectionPath(col.children, id) : [];
+    if (sub.length) return [col, ...sub];
+  }
+  return [];
+}
+
 function addSubtreeIds(col: Collection, into: Set<string>) {
   into.add(col.id);
   col.children?.forEach((child) => addSubtreeIds(child, into));

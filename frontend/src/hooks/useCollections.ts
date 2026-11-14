@@ -21,6 +21,10 @@ export interface UseCollectionsReturn {
   error: string | null;
   refetch: () => void;
   createCollection: (data: { name: string; color?: string; parentId?: string | null }) => Promise<Collection>;
+  /** Rename and/or recolor; resolves after the tree is refetched. Throws on failure. */
+  updateCollection: (id: string, data: { name?: string; color?: string }) => Promise<void>;
+  /** Server side: subcollections move to the top level, documents become unfiled. Throws on failure. */
+  deleteCollection: (id: string) => Promise<void>;
 }
 
 /**
@@ -70,5 +74,15 @@ export function useCollections(): UseCollectionsReturn {
     return mapNodeToCollection(node);
   }, [refetch]);
 
-  return { collections, isLoading, error, refetch, createCollection };
+  const updateCollection = useCallback(async (id: string, data: { name?: string; color?: string }) => {
+    await collectionsApi.updateCollection(id, data);
+    refetch();
+  }, [refetch]);
+
+  const deleteCollection = useCallback(async (id: string) => {
+    await collectionsApi.deleteCollection(id);
+    refetch();
+  }, [refetch]);
+
+  return { collections, isLoading, error, refetch, createCollection, updateCollection, deleteCollection };
 }

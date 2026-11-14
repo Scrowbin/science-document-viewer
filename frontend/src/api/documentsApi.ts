@@ -324,7 +324,7 @@ export const documentsApi = {
   },
 };
 
-export type BulkAction = 'move' | 'remove_from_collection' | 'trash' | 'restore' | 'delete' | 'add_tag';
+export type BulkAction = 'move' | 'remove_from_collection' | 'trash' | 'restore' | 'delete' | 'add_tag' | 'remove_tag';
 
 export interface BulkActionRequest {
   action: BulkAction;

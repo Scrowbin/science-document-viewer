@@ -1312,7 +1312,7 @@ def build_answer_prompt(question: str, doc_title: str, docs: List[Document], ref
     return (
         f'You are a precise academic research assistant reading "{doc_title or "the document"}".\n'
         f"Use ONLY the provided context below to answer the user's question clearly and accurately.\n"
-        f"Respond in the same language as the user's question (e.g. if the question is in Vietnamese, answer in Vietnamese using the English context as the factual ground).\n"
+        f"Respond in the same language as the user's question.\n"
         f"If the answer is not contained in the context, state clearly: '{refusal_message}'\n"
         f"Do NOT extrapolate, speculate, or fabricate details beyond the provided context.\n\n"
         f"Context:\n{context_str}\n\nQuestion: {question}\n\nAnswer:"

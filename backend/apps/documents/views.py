@@ -83,6 +83,7 @@ BULK_ACTIONS = {
     "move": "OWNER",
     "remove_from_collection": "OWNER",
     "add_tag": "EDIT",
+    "remove_tag": "EDIT",
     "trash": "OWNER",
     "restore": "OWNER",
     "delete": "OWNER",
@@ -366,10 +367,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
         """
         Apply one action to many documents in a single request.
 
-        Body: {"action": "move" | "remove_from_collection" | "trash" | "restore" | "delete" | "add_tag",
-               "ids": [int, ...], "collection_id": int (move), "tag": str (add_tag)}
+        Body: {"action": "move" | "remove_from_collection" | "trash" | "restore" | "delete" | "add_tag"
+                         | "remove_tag",
+               "ids": [int, ...], "collection_id": int (move), "tag": str (add_tag, remove_tag)}
         Response 200: {"action", "succeeded": [id, ...], "failed": [{"id", "reason", "detail"}, ...]}
-        Permissions follow the single-document actions: add_tag needs EDIT (like PATCH of tags);
+        Permissions follow the single-document actions: add_tag / remove_tag need EDIT (like PATCH
+        of tags; tag rows are shared by all users, so renaming a tag is add_tag + remove_tag on the
+        user's own documents, never an edit of the shared row);
         move / remove (changing primary_collection), trash / restore / delete are owner-only.
         """
         data = request.data if isinstance(request.data, dict) else {}
@@ -409,12 +413,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 )
 
         tag = None
-        if action_name == "add_tag":
+        if action_name in ("add_tag", "remove_tag"):
             tag_name = data.get("tag")
             tag_name = tag_name.strip() if isinstance(tag_name, str) else ""
             if not tag_name or len(tag_name) > 100:
                 return Response({"detail": "tag must be 1-100 characters."}, status=status.HTTP_400_BAD_REQUEST)
-            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            if action_name == "add_tag":
+                tag, _ = Tag.objects.get_or_create(name=tag_name)
+            else:
+                tag = Tag.objects.filter(name=tag_name).first()  # unknown tag: nothing to remove
 
         user = request.user
         visible = {
@@ -451,6 +458,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
                         doc.save(update_fields=["in_trash"])
                 elif action_name == "add_tag":
                     doc.tags.add(tag)
+                elif action_name == "remove_tag":
+                    if tag is not None:
+                        doc.tags.remove(tag)
                 elif action_name == "delete":
                     _delete_document_permanently(doc)
             except Exception as e:  # one bad document must not abort the rest of the batch

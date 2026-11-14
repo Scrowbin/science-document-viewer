@@ -5,6 +5,7 @@ import type { Document, ChatMessage, ChatSource, RagStatus } from '../../types';
 import { ragApi, classifyRagError, type RagErrorInfo } from '../../api/ragApi';
 import { useChatSessions } from '../../hooks/useChatSession';
 import type { ChatRequestKind } from '../../context/ChatSessionContextDefinition';
+import { isWholeDocumentRequest } from '../../utils/summaryIntent';
 import {
   FaRobot,
   FaPaperPlane,
@@ -299,6 +300,12 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
     const query = (textToSend ?? inputQuery).trim();
     if (!query || query.length > MAX_QUESTION_CHARS) return;
     if (textToSend === undefined) setInputQuery('');
+    // Whole-document requests ("summarize this paper", "what is this paper about") match no
+    // single passage, so they go to the summary endpoint instead of passage retrieval.
+    if (isWholeDocumentRequest(query)) {
+      void runRequest('summary', query);
+      return;
+    }
     void runRequest('chat', query, query);
   };
 

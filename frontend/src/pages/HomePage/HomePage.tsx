@@ -1,23 +1,24 @@
-import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { useState, useRef, useMemo, useCallback, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
-import type { Document, AppTab, SortKey, SortState } from '../../types';
+import type { Document, AppTab, SortKey, SortState, Collection } from '../../types';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useAuth } from '../../hooks/useAuth';
-import { useDocuments } from '../../hooks/useDocuments';
+import { useDocuments, describeApiError } from '../../hooks/useDocuments';
 import { useDoiModal } from '../../hooks/useDoiModal';
 import { useCollections } from '../../hooks/useCollections';
 import { useRagStatusPolling } from '../../hooks/useRagStatusPolling';
 import { useDocumentSelection } from '../../hooks/useDocumentSelection';
 import { sortDocuments, filterDocuments } from '../../utils/documentFilters';
-import { collectionScope, withDocumentCounts } from '../../utils/collections';
-import { yearFromIsoDate } from '../../utils/format';
+import { collectionScope, collectionPath, withDocumentCounts } from '../../utils/collections';
+import { formatApaCitation, formatApaReferenceList, copyCitation } from '../../utils/citation';
+import { markDuplicates } from '../../utils/duplicates';
 import { ChatSessionProvider } from '../../context/ChatSessionContext';
 
 import { TabBar } from '../../components/TabBar/TabBar';
 import { LeftSidebar } from '../../components/LeftSidebar/LeftSidebar';
 import { MainToolbar } from '../../components/MainToolbar/MainToolbar';
-import { DocumentTable } from '../../components/DocumentTable/DocumentTable';
+import { DocumentTable, DOC_IDS_DRAG_TYPE } from '../../components/DocumentTable/DocumentTable';
 import { PdfViewer } from '../../components/PdfViewer/PdfViewer';
 import { MetadataPanel } from '../../components/MetadataPanel/MetadataPanel';
 import { DoiModal } from '../../components/DoiModal/DoiModal';
@@ -25,23 +26,9 @@ import { UploadModal } from '../../components/UploadModal/UploadModal';
 import { ChunkInspectorModal } from '../../components/ChunkInspectorModal/ChunkInspectorModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { BulkActions, type BulkActionHandlers } from '../../components/BulkActions/BulkActions';
-import { FaCheck, FaCircleExclamation } from 'react-icons/fa6';
+import { FaCheck, FaCircleExclamation, FaChevronRight, FaFolderTree } from 'react-icons/fa6';
 
 const LIBRARY_TAB: AppTab = { id: 'tab-library', title: 'Library', type: 'library', closable: false };
-
-/** APA-like citation; parts the document does not have are omitted, never invented. */
-function buildCitation(doc: Document): string {
-  const parts: string[] = [];
-  const authors = doc.metadata.authors.length > 0 ? doc.metadata.authors.join(', ') : doc.creator;
-  const year = yearFromIsoDate(doc.metadata.date);
-  if (authors) parts.push(year ? `${authors} (${year}).` : `${authors}.`);
-  else if (year) parts.push(`(${year}).`);
-  parts.push(`${doc.title}.`);
-  if (doc.metadata.repository) parts.push(`${doc.metadata.repository}.`);
-  if (doc.metadata.doi) parts.push(`https://doi.org/${doc.metadata.doi}`);
-  else if (doc.metadata.url) parts.push(doc.metadata.url);
-  return parts.join(' ');
-}
 
 const INCLUDE_SUBCOLLECTIONS_KEY = 'library.includeSubcollections';
 
@@ -92,8 +79,11 @@ export function HomePage() {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleTogglePublication,
     handleRetryIndexing,
     handleBulkAction,
+    handleRenameTag,
+    handleDeleteTag,
     handleFileUpload,
     uploadModalFile,
     isExtractingUpload,
@@ -124,6 +114,8 @@ export function HomePage() {
     isLoading: isLoadingCollections,
     error: collectionsError,
     createCollection,
+    updateCollection,
+    deleteCollection,
     refetch: refetchCollections,
   } = useCollections();
 
@@ -197,23 +189,31 @@ export function HomePage() {
   const [activeTabId, setActiveTabId] = useState<string>(LIBRARY_TAB.id);
 
   // ─── Derived State (Memos) ────────────────────────────────────────────────
+  // Duplicate Items = same DOI or title (not only copies made with "Duplicate Item")
+  const libraryDocuments = useMemo(() => markDuplicates(documents), [documents]);
+
   const navItemCounts = useMemo(() => {
-    const nonTrash = documents.filter((d) => !d.inTrash);
+    const nonTrash = libraryDocuments.filter((d) => !d.inTrash);
     return {
       all: nonTrash.length,
       recent: nonTrash.filter((d) => Boolean(d.lastRead)).length,
       publications: nonTrash.filter((d) => d.isPublication).length,
       duplicates: nonTrash.filter((d) => d.isDuplicate).length,
       unfiled: nonTrash.filter((d) => !d.collectionId).length,
-      trash: documents.filter((d) => d.inTrash).length,
+      trash: libraryDocuments.filter((d) => d.inTrash).length,
     };
-  }, [documents]);
+  }, [libraryDocuments]);
 
   // Collections with live document counts, matched by collection id, using the same
   // membership rule as the document list (direct only, or including subcollections).
   const collectionsWithCounts = useMemo(
     () => withDocumentCounts(collections, documents, includeSubcollections),
     [documents, collections, includeSubcollections]
+  );
+
+  const selectedCollectionPath = useMemo(
+    () => (selectedCollectionId ? collectionPath(collections, selectedCollectionId) : []),
+    [collections, selectedCollectionId]
   );
 
   const selectedCollectionScope = useMemo(
@@ -230,9 +230,9 @@ export function HomePage() {
   }, [documents]);
 
   const processedDocuments = useMemo(() => {
-    const filtered = filterDocuments(documents, searchQuery, activeNavId, selectedCollectionScope, selectedTag);
+    const filtered = filterDocuments(libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag);
     return sortDocuments(filtered, sortState.key, sortState.direction);
-  }, [documents, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sortState]);
+  }, [libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sortState]);
 
   // ─── Selection (single + multi) ───────────────────────────────────────────
   // Only an explicit user selection counts; there is no "first row" fallback.
@@ -373,14 +373,9 @@ export function HomePage() {
   }, [selectOnly, tabs]);
 
   const handleCopyCitation = useCallback((doc: Document) => {
-    const citation = buildCitation(doc);
-    if (!navigator.clipboard) {
-      showToast('Clipboard is not available in this browser', 'error');
-      return;
-    }
-    navigator.clipboard.writeText(citation).then(
-      () => showToast('Citation copied to clipboard'),
-      () => showToast('Could not copy citation to clipboard', 'error')
+    copyCitation(formatApaCitation(doc)).then(
+      () => showToast('APA citation copied'),
+      () => showToast('Could not copy the citation: the browser blocked clipboard access', 'error')
     );
   }, [showToast]);
 
@@ -446,6 +441,12 @@ export function HomePage() {
         clearSelection();
         void handleBulkAction('delete', ids);
       },
+      onCopyCitations: () => {
+        copyCitation(formatApaReferenceList(visibleSelectedDocs)).then(
+          () => showToast(`${count} APA citations copied (sorted as a reference list)`),
+          () => showToast('Could not copy the citations: the browser blocked clipboard access', 'error')
+        );
+      },
       onClearSelection: clearSelection,
     };
   }, [visibleSelectedIds, visibleSelectedDocs, handleBulkAction, showToast, closeTabsForDocuments, clearSelection]);
@@ -508,6 +509,87 @@ export function HomePage() {
     [createCollection, showToast]
   );
 
+  // ─── Left sidebar right-click actions ─────────────────────────────────────
+  const handleRenameCollection = useCallback(async (col: Collection, name: string) => {
+    try {
+      await updateCollection(col.id, { name });
+      // The document list shows the collection name in "Document Groups"
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.collectionId === col.id ? { ...d, metadata: { ...d.metadata, documentGroups: [name] } } : d
+        )
+      );
+      showToast(`Renamed collection to "${name}"`);
+    } catch (err) {
+      showToast(describeApiError(err, `Could not rename "${col.name}"`), 'error');
+    }
+  }, [updateCollection, setDocuments, showToast]);
+
+  const handleRecolorCollection = useCallback(async (col: Collection, color: string) => {
+    try {
+      await updateCollection(col.id, { color });
+    } catch (err) {
+      showToast(describeApiError(err, `Could not change the color of "${col.name}"`), 'error');
+    }
+  }, [updateCollection, showToast]);
+
+  const handleDeleteCollection = useCallback(async (col: Collection) => {
+    const filed = documents.filter((d) => d.collectionId === col.id).length;
+    const children = col.children?.length ?? 0;
+    const effects = [
+      filed > 0 ? `its ${filed} document${filed === 1 ? '' : 's'} become unfiled (they are not deleted)` : '',
+      children > 0 ? `its ${children} subcollection${children === 1 ? '' : 's'} move to the top level` : '',
+    ].filter(Boolean);
+    const ok = window.confirm(
+      `Delete the collection "${col.name}"?${effects.length ? `\n\n${effects.join('; ')}.` : ''}`
+    );
+    if (!ok) return;
+    try {
+      await deleteCollection(col.id);
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.collectionId === col.id ? { ...d, collectionId: null, metadata: { ...d.metadata, documentGroups: [] } } : d
+        )
+      );
+      if (selectedCollectionId === col.id) {
+        setSelectedCollectionId(null);
+        setActiveNavId('all');
+      }
+      showToast(`Deleted collection "${col.name}"`);
+    } catch (err) {
+      showToast(describeApiError(err, `Could not delete "${col.name}"`), 'error');
+    }
+  }, [documents, deleteCollection, setDocuments, selectedCollectionId, showToast]);
+
+  const handleSidebarRenameTag = useCallback(async (oldTag: string, newTag: string) => {
+    const changed = await handleRenameTag(oldTag, newTag);
+    if (changed && selectedTag === oldTag) setSelectedTag(newTag);
+  }, [handleRenameTag, selectedTag]);
+
+  const handleSidebarDeleteTag = useCallback(async (tag: string) => {
+    const n = documents.filter((d) => d.metadata.tags?.includes(tag)).length;
+    if (!window.confirm(`Remove the tag "${tag}" from ${n} document${n === 1 ? '' : 's'}? The documents themselves are kept.`)) return;
+    const changed = await handleDeleteTag(tag);
+    if (changed && selectedTag === tag) {
+      setSelectedTag(null);
+      setActiveNavId('all');
+    }
+  }, [documents, handleDeleteTag, selectedTag]);
+
+  const handleEmptyTrash = useCallback(async () => {
+    const ids = documents.filter((d) => d.inTrash).map((d) => d.id);
+    if (ids.length === 0) return;
+    const ok = window.confirm(
+      `Permanently delete all ${ids.length} document${ids.length === 1 ? '' : 's'} in the Trash? This removes their PDFs and AI indexes and cannot be undone.`
+    );
+    if (!ok) return;
+    closeTabsForDocuments(ids);
+    clearSelection();
+    for (let i = 0; i < ids.length; i += 500) {
+      await handleBulkAction('delete', ids.slice(i, i + 500)); // server limit: 500 ids per request
+    }
+  }, [documents, closeTabsForDocuments, clearSelection, handleBulkAction]);
+
   const handleAddToCollection = useCallback(
     (docId: string, colId: string | null, colName: string | null) => {
       void handleSetDocumentCollection(docId, colId, colName);
@@ -517,10 +599,30 @@ export function HomePage() {
 
   const handleDropDocsOnCollection = useCallback(
     (docIds: string[], colId: string, colName: string) => {
-      if (docIds.length === 1) void handleSetDocumentCollection(docIds[0], colId, colName);
-      else void handleBulkAction('move', docIds, { collectionId: colId, collectionName: colName });
+      // Documents already filed in the target collection need no request.
+      const moving = docIds.filter((id) => documents.find((d) => d.id === id)?.collectionId !== colId);
+      if (moving.length === 0) {
+        showToast(docIds.length === 1 ? `Already in "${colName}"` : `All ${docIds.length} documents are already in "${colName}"`);
+        return;
+      }
+      if (moving.length === 1) void handleSetDocumentCollection(moving[0], colId, colName);
+      else void handleBulkAction('move', moving, { collectionId: colId, collectionName: colName });
     },
-    [handleSetDocumentCollection, handleBulkAction]
+    [documents, handleSetDocumentCollection, handleBulkAction, showToast]
+  );
+
+  /** Dropped on "Unfiled Items": take the documents out of their collection. */
+  const handleDropDocsOnUnfiled = useCallback(
+    (docIds: string[]) => {
+      const filed = docIds.filter((id) => documents.find((d) => d.id === id)?.collectionId);
+      if (filed.length === 0) {
+        showToast(docIds.length === 1 ? 'This document is not in a collection' : 'None of these documents is in a collection');
+        return;
+      }
+      if (filed.length === 1) void handleSetDocumentCollection(filed[0], null, null);
+      else void handleBulkAction('remove_from_collection', filed);
+    },
+    [documents, handleSetDocumentCollection, handleBulkAction, showToast]
   );
 
   const handleAddTagPrompt = useCallback(
@@ -648,10 +750,17 @@ export function HomePage() {
               setActiveTabId(LIBRARY_TAB.id);
             }}
             onCreateCollection={handleCreateCollection}
+            onRenameCollection={(col, name) => void handleRenameCollection(col, name)}
+            onRecolorCollection={(col, color) => void handleRecolorCollection(col, color)}
+            onDeleteCollection={(col) => void handleDeleteCollection(col)}
+            onRenameTag={(oldTag, newTag) => void handleSidebarRenameTag(oldTag, newTag)}
+            onDeleteTag={(tag) => void handleSidebarDeleteTag(tag)}
+            onEmptyTrash={() => void handleEmptyTrash()}
             collectionsError={collectionsError}
             isLoadingCollections={isLoadingCollections}
             onRetryCollections={refetchCollections}
             onDropDocsOnCollection={handleDropDocsOnCollection}
+            onDropDocsOnUnfiled={handleDropDocsOnUnfiled}
             includeSubcollections={includeSubcollections}
             onToggleIncludeSubcollections={() => setIncludeSubcollections((v) => !v)}
             tags={availableTags}
@@ -681,6 +790,50 @@ export function HomePage() {
                   onSearchChange={setSearchQuery}
                   onAddFromOption={handleAddFromOption}
                 />
+                {selectedCollectionPath.length > 0 && (
+                  <nav className={styles.collectionPath} aria-label="Collection path">
+                    <FaFolderTree aria-hidden="true" className={styles.collectionPathIcon} />
+                    {selectedCollectionPath.map((c, i) => {
+                      const last = i === selectedCollectionPath.length - 1;
+                      return (
+                        <Fragment key={c.id}>
+                          {i > 0 && <FaChevronRight aria-hidden="true" className={styles.collectionPathSep} />}
+                          {last ? (
+                            <span className={styles.collectionPathCurrent} aria-current="page">{c.name}</span>
+                          ) : (
+                            <button
+                              type="button"
+                              className={styles.collectionPathLink}
+                              onClick={() => {
+                                clearSelection();
+                                setSelectedCollectionId(c.id);
+                              }}
+                              onDragOver={(e) => {
+                                if (e.dataTransfer.types.includes(DOC_IDS_DRAG_TYPE)) e.preventDefault();
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const raw = e.dataTransfer.getData(DOC_IDS_DRAG_TYPE);
+                                try {
+                                  const ids = (JSON.parse(raw) as unknown[]).map(String);
+                                  if (ids.length) handleDropDocsOnCollection(ids, c.id, c.name);
+                                } catch {
+                                  /* not a document drag */
+                                }
+                              }}
+                              title={`Open "${c.name}" (or drop documents here to move them)`}
+                            >
+                              {c.name}
+                            </button>
+                          )}
+                        </Fragment>
+                      );
+                    })}
+                    {includeSubcollections && (
+                      <span className={styles.collectionPathHint}>including subcollections</span>
+                    )}
+                  </nav>
+                )}
                 {isMultiSelection && (
                   <BulkActions
                     variant="bar"
@@ -711,6 +864,7 @@ export function HomePage() {
                     });
                   }}
                   onToggleReadStatus={(doc) => void handleToggleReadStatus(doc)}
+                  onTogglePublication={(doc) => void handleTogglePublication(doc)}
                   onTrashDoc={(doc) => void requestDeleteDocument(doc)}
                   onCopyCitation={handleCopyCitation}
                   collections={collections}

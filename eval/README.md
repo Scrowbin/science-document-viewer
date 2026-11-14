@@ -115,6 +115,7 @@ Script `phases/phase_3_hybrid_reranking/scripts/evaluate_hybrid_reranking.py`; n
 Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook `eval/kaggle/phase4_llm_generation.ipynb` (installs Ollama on the GPU).
 
 - **Models:** llama3.2:3b (application), qwen2.5:1.5b, phi4-mini, qwen3:4b (`think: false`), gemma3:4b. Prompt `rag_service.build_answer_prompt`; temperature 0, `num_ctx` 4096, `num_predict` 256, seed 42.
+  - Prompt change on 2026-11-14, before any Phase 4 run: the language line was shortened to "Respond in the same language as the user's question." (its Vietnamese example was removed). All Phase 4 runs use this version. The preliminary study (7.1) used its own copy of the prompt, which has no language line.
 - **Conditions:**
   - `gold`: the evidence passages;
   - `retrieved --pipeline <embedder:arm>`: context assembled exactly as the application does (≤ 5 parents, 1,600 tokens), cached to `retrieved_contexts_<pipeline>.jsonl`.

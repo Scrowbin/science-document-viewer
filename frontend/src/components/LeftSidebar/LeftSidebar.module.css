@@ -447,3 +447,92 @@
   opacity: 0.6;
   cursor: default;
 }
+
+/* In-place rename (right-click > Rename) */
+.renameInput {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 1px 4px;
+  border: 1px solid var(--border-focus);
+  border-radius: 3px;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.tagListItemEditing {
+  cursor: default;
+}
+
+/* Collection tree: a fixed toggle slot keeps folders with and without children aligned,
+   and a guide line joins each folder to its documents and subcollections. */
+.treeRow {
+  gap: 6px;
+}
+
+.treeToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: -3px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.treeToggleActive {
+  cursor: pointer;
+}
+
+.treeToggleActive:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.treeToggle svg {
+  transition: transform 0.12s ease;
+}
+
+.treeToggleOpen svg {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .treeToggle svg { transition: none; }
+}
+
+.treeRow {
+  user-select: none;
+}
+
+.subtree {
+  position: relative;
+}
+
+.subtree::before {
+  content: '';
+  position: absolute;
+  left: var(--guide-left, 20px);
+  top: 0;
+  bottom: 6px;
+  border-left: 1px solid var(--border-color);
+  pointer-events: none;
+}
+
+.subCount {
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 0 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  line-height: 14px;
+}
+
+.nestedDocItem[draggable='true'] {
+  cursor: grab;
+}

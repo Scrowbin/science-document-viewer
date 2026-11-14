@@ -19,7 +19,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .apps import _should_run_startup_recovery, recover_stuck_documents
-from .models import Annotation, Document, DocumentShare
+from .models import Annotation, Document, DocumentShare, Tag
 from .services import webhook_service
 from .services.pdf_metadata_service import apply_pdf_metadata_to_document, is_raw_title
 
@@ -585,6 +585,22 @@ class BulkDocumentActionTests(_MediaTestCase):
         self.assertEqual(resp.data["succeeded"], [self.mine[0].id])
         self.assertEqual(list(self.mine[0].tags.values_list("name", flat=True)), ["review"])
         self.assertEqual(self._bulk({"action": "add_tag", "ids": [self.mine[0].id], "tag": "  "}).status_code, 400)
+
+    def test_remove_tag_only_touches_permitted_documents(self):
+        """Removing a tag detaches it per document (EDIT needed); the shared Tag row stays for others."""
+        tag = Tag.objects.create(name="draft")
+        for d in (self.mine[0], self.mine[1], self.shared_view, self.foreign):
+            d.tags.add(tag)
+        resp = self._bulk({"action": "remove_tag", "ids": [self.mine[0].id, self.mine[1].id, self.shared_view.id], "tag": "draft"})
+        self.assertEqual(sorted(resp.data["succeeded"]), sorted([self.mine[0].id, self.mine[1].id]))
+        self.assertEqual(self._failed_reasons(resp), {self.shared_view.id: "permission_denied"})
+        self.assertFalse(self.mine[0].tags.exists())
+        self.assertTrue(self.shared_view.tags.filter(name="draft").exists())
+        self.assertTrue(self.foreign.tags.filter(name="draft").exists())
+        self.assertTrue(Tag.objects.filter(name="draft").exists())
+        # an unknown tag is a no-op, not an error
+        resp = self._bulk({"action": "remove_tag", "ids": [self.mine[2].id], "tag": "never-used"})
+        self.assertEqual(resp.data["succeeded"], [self.mine[2].id])
 
     def test_delete_uses_full_cleanup(self):
         doc = self._doc_with_file(title="With file")
