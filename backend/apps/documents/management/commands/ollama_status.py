@@ -45,8 +45,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
+        key = getattr(settings, "OLLAMA_API_KEY", "")
+        headers = {"Authorization": f"Bearer {key}"} if key else None
         try:
-            models = requests.get(f"{url}/api/ps", timeout=5).json().get("models", [])
+            models = requests.get(f"{url}/api/ps", headers=headers, timeout=10).json().get("models", [])
         except requests.RequestException as e:
             self.stderr.write(f"Ollama not reachable at {url}: {e}")
             models = []

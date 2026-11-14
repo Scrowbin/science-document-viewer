@@ -166,6 +166,13 @@ LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'ollama')
 OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:3b')
 OLLAMA_TIMEOUT = int(os.getenv('OLLAMA_TIMEOUT', '60'))
+# Demo option: OLLAMA_BASE_URL may point to a remote Ollama (e.g. a Kaggle GPU behind a tunnel,
+# demo/kaggle_llm_server.ipynb). OLLAMA_API_KEY is sent as a Bearer token to that endpoint;
+# if it gives no answer, OLLAMA_FALLBACK_URL (e.g. the local Ollama) is tried with OLLAMA_FALLBACK_MODEL.
+# Both empty (the default) = the single local endpoint, unchanged behaviour.
+OLLAMA_API_KEY = os.getenv('OLLAMA_API_KEY', '')
+OLLAMA_FALLBACK_URL = os.getenv('OLLAMA_FALLBACK_URL', '')
+OLLAMA_FALLBACK_MODEL = os.getenv('OLLAMA_FALLBACK_MODEL', OLLAMA_MODEL)
 EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'intfloat/e5-small-v2')
 CHUNKING_STRATEGY = os.getenv('CHUNKING_STRATEGY', 'hierarchical')  # 'hierarchical' (production default) | 'section_overlap'
 QDRANT_MODE = os.getenv('QDRANT_MODE', 'local')  # 'local' (embedded SQLite) or 'server' (standalone Docker)

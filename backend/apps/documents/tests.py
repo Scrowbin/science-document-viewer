@@ -1351,6 +1351,54 @@ class RetrievalModeTestCase(TestCase):
         self.assertEqual(post.call_args.kwargs["json"]["options"], {"temperature": 0.0, "num_ctx": 4096})
 
 
+class LlmEndpointFallbackTestCase(TestCase):
+    """Demo option: remote Ollama (OLLAMA_BASE_URL + OLLAMA_API_KEY) first, then OLLAMA_FALLBACK_URL."""
+
+    REMOTE = dict(OLLAMA_BASE_URL="https://demo.ngrok-free.app", OLLAMA_MODEL="llama3.2:3b",
+                  OLLAMA_API_KEY="secret", OLLAMA_FALLBACK_URL="http://localhost:11434",
+                  OLLAMA_FALLBACK_MODEL="llama3.2:3b")
+
+    def _post(self, responses):
+        from unittest.mock import MagicMock, patch
+
+        def fake(url, **kwargs):
+            r = responses[url]
+            if isinstance(r, Exception):
+                raise r
+            resp = MagicMock(status_code=r[0])
+            resp.json.return_value = {"response": r[1]}
+            return resp
+        return patch("apps.documents.services.rag_service.requests.post", side_effect=fake)
+
+    def test_remote_answers_with_bearer_key(self):
+        from django.test import override_settings
+        from .services.rag_service import _generate
+        with override_settings(**self.REMOTE), self._post({
+                "https://demo.ngrok-free.app/api/generate": (200, "remote answer")}) as post:
+            self.assertEqual(_generate("p"), ("remote answer", "llama3.2:3b (Remote GPU)"))
+        self.assertEqual(post.call_count, 1)
+        self.assertEqual(post.call_args.kwargs["headers"], {"Authorization": "Bearer secret"})
+
+    def test_falls_back_to_local_when_remote_is_down(self):
+        import requests
+        from django.test import override_settings
+        from .services.rag_service import _generate
+        for remote in (requests.ConnectionError("down"), (404, "")):  # unreachable / tunnel endpoint offline
+            with override_settings(**self.REMOTE), self._post({
+                    "https://demo.ngrok-free.app/api/generate": remote,
+                    "http://localhost:11434/api/generate": (200, "local answer")}) as post:
+                self.assertEqual(_generate("p"), ("local answer", "llama3.2:3b (Local RAG)"))
+            self.assertIsNone(post.call_args.kwargs["headers"])  # the key is not sent to the fallback
+
+    def test_default_single_local_endpoint(self):
+        from django.test import override_settings
+        from .services.rag_service import _generate
+        with override_settings(OLLAMA_BASE_URL="http://localhost:11434", OLLAMA_API_KEY="", OLLAMA_FALLBACK_URL=""), \
+                self._post({"http://localhost:11434/api/generate": (500, "")}) as post:
+            self.assertEqual(_generate("p"), (None, ""))
+        self.assertEqual(post.call_count, 1)
+
+
 class QuestionScopeGuardTestCase(TestCase):
     """NFR-07: obscene and app-sensitive questions are refused before retrieval; paper questions pass."""
 
