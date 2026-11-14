@@ -13,7 +13,9 @@ function firstServerMessage(data: unknown): string {
   const record = data as Record<string, unknown>;
   if (typeof record.detail === 'string') return record.detail;
   for (const [field, value] of Object.entries(record)) {
-    const msg = Array.isArray(value) ? value.find((v) => typeof v === 'string') : typeof value === 'string' ? value : undefined;
+    // List fields report per-item errors as {"0": ["..."]}; dig one level for those.
+    const nested = value && typeof value === 'object' && !Array.isArray(value) ? firstServerMessage(value) : undefined;
+    const msg = nested || (Array.isArray(value) ? value.find((v) => typeof v === 'string') : typeof value === 'string' ? value : undefined);
     if (typeof msg === 'string') {
       return field === 'non_field_errors' ? msg : `${field.replace(/_/g, ' ')}: ${msg}`;
     }
@@ -33,6 +35,7 @@ export function describeApiError(err: unknown, fallback: string): string {
       return `${fallback}: too many requests.${wait}`;
     }
     const detail = firstServerMessage(err.response.data);
+    if (!detail && status >= 500) return `${fallback}: server error (HTTP ${status}). See the backend log for details.`;
     return `${fallback} (HTTP ${status})${detail ? `: ${detail}` : ''}`;
   }
   return fallback;

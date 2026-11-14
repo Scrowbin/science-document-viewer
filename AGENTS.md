@@ -139,7 +139,7 @@ Never edit tables by hand: change `models.py`, then `python manage.py makemigrat
 ```powershell
 # backend/ (venv active)
 python manage.py check
-python manage.py test apps.documents.tests apps.documents.tests_app apps.users.tests
+python manage.py test apps.documents.tests apps.documents.tests_app apps.documents.tests_upload apps.documents.tests_extraction apps.users.tests
 
 # frontend/
 npm run lint

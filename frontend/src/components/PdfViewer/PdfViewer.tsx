@@ -18,6 +18,7 @@ import { FindBar } from './FindBar';
 import { AnnotationsList } from './AnnotationsList';
 import { ViewerContextMenu, type ContextMenuState, type PagePoint } from './ViewerContextMenu';
 import { ViewerLinkService, type LinkTarget } from './linkService';
+import { caretFromPoint, rangeText } from './textLayerSelection';
 import {
   getPageTextIndex,
   itemRangesToPageRects,
@@ -108,10 +109,16 @@ interface ViewerNotice {
 
 // ─── Inner viewer ────────────────────────────────────────────────────────────
 
-interface SelectionPopupState {
+/** The part of a text selection that lies on one page. */
+interface SelectionPart {
   pageIndex: number;
   rects: PageRect[];
   text: string;
+}
+
+/** Popup anchored at the first part; `parts` holds every page the selection covers. */
+interface SelectionPopupState extends SelectionPart {
+  parts: SelectionPart[];
 }
 
 type NoteEditorState =
@@ -466,30 +473,165 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const isInsidePopup = (target: EventTarget | null) =>
     !!(target as HTMLElement | null)?.closest?.('[data-viewer-popup]');
 
-  const handlePagesMouseUp = (e: React.MouseEvent) => {
-    if (draggingNoteId !== null || e.button !== 0 || isInsidePopup(e.target)) return;
+  /**
+   * The current DOM selection split per page (text + page-space rects), read live so a
+   * selection extended with Shift+arrows or Shift+click is captured in full, across pages.
+   */
+  const captureSelection = useCallback((): SelectionPart[] => {
     const sel = window.getSelection();
-    const text = sel && !sel.isCollapsed ? sel.toString().trim() : '';
-    if (!sel || !text || sel.rangeCount === 0 || !ready) {
+    const area = scrollAreaRef.current;
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0 || !ready || !area) return [];
+    const range = sel.getRangeAt(0);
+    if (!area.contains(range.commonAncestorContainer)) return [];
+    const parts: SelectionPart[] = [];
+    const indices = Array.from(pageElsRef.current.keys()).sort((a, b) => a - b);
+    for (const pageIndex of indices) {
+      const pageEl = pageElsRef.current.get(pageIndex);
+      const textLayer = pageEl?.querySelector('.textLayer');
+      const size = ready.sizes[pageIndex];
+      if (!pageEl || !textLayer || !size || !range.intersectsNode(textLayer)) continue;
+      // Clip the range to this page's text layer.
+      const clip = range.cloneRange();
+      if (!textLayer.contains(range.startContainer)) clip.setStart(textLayer, 0);
+      if (!textLayer.contains(range.endContainer)) clip.setEnd(textLayer, textLayer.childNodes.length);
+      const text = rangeText(clip);
+      const rects = text ? selectionRangeToPageRects(clip, pageEl, size.width, size.height) : [];
+      clip.detach();
+      if (rects.length > 0) parts.push({ pageIndex, rects, text });
+    }
+    return parts;
+  }, [ready]);
+
+  const highlightParts = useCallback(
+    (parts: SelectionPart[], color: string) => {
+      for (const p of parts) createHighlight(p.pageIndex, p.rects, p.text, color);
+    },
+    [createHighlight],
+  );
+
+  // A mouse drag is in progress on the pages: overlays and links stop taking the pointer
+  // (otherwise crossing a highlight or link makes the browser jump the selection).
+  const pointerSelectingRef = useRef(false);
+  const pagesHostRef = useRef<HTMLDivElement | null>(null);
+
+  /** End of a mouse selection: highlight it (highlight tool) or offer the popup. */
+  const finishPointerSelection = () => {
+    const parts = captureSelection();
+    if (parts.length === 0) {
       setSelectionPopup(null);
       return;
     }
-    const range = sel.getRangeAt(0);
-    const startNode = range.startContainer;
-    const startEl = (startNode.nodeType === Node.ELEMENT_NODE ? (startNode as Element) : startNode.parentElement)?.closest(
-      '[data-page-index]',
-    ) as HTMLElement | null;
-    if (!startEl || !scrollAreaRef.current?.contains(startEl)) return;
-    const pageIndex = Number(startEl.dataset.pageIndex);
-    const size = ready.sizes[pageIndex];
-    const rects = selectionRangeToPageRects(range, startEl, size.width, size.height);
-    if (rects.length === 0) return;
-
     if (tool === 'highlight') {
-      createHighlight(pageIndex, rects, text, selectedColor);
+      highlightParts(parts, selectedColor);
       return;
     }
-    setSelectionPopup({ pageIndex, rects, text });
+    setSelectionPopup({ ...parts[0], parts });
+  };
+  const finishPointerSelectionRef = useRef(finishPointerSelection);
+  useEffect(() => {
+    finishPointerSelectionRef.current = finishPointerSelection;
+  });
+
+  /**
+   * A drag that starts on a link selects text instead of dragging the link: the selection is
+   * built from caret positions under the pointer. Without movement the click opens the link.
+   */
+  const startSelectionFromLink = (e: React.MouseEvent, host: HTMLElement) => {
+    e.preventDefault(); // no native link drag
+    const start = { x: e.clientX, y: e.clientY };
+    let anchor: { node: Node; offset: number } | null = null;
+    const onMove = (me: MouseEvent) => {
+      if (!anchor) {
+        if (Math.hypot(me.clientX - start.x, me.clientY - start.y) < 4) return;
+        host.classList.add(styles.selectingText); // links let the pointer through from here on
+        anchor = caretFromPoint(start.x, start.y);
+        if (!anchor) return;
+      }
+      const focus = caretFromPoint(me.clientX, me.clientY);
+      if (focus && host.contains(focus.node)) {
+        window.getSelection()?.setBaseAndExtent(anchor.node, anchor.offset, focus.node, focus.offset);
+      }
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove, true);
+      window.removeEventListener('mouseup', onUp, true);
+      pointerSelectingRef.current = false;
+      host.classList.remove(styles.selectingText);
+      if (!anchor) return; // a plain click: the link handles it
+      const swallowClick = (ce: MouseEvent) => {
+        ce.preventDefault();
+        ce.stopPropagation();
+      };
+      window.addEventListener('click', swallowClick, { capture: true, once: true });
+      setTimeout(() => window.removeEventListener('click', swallowClick, true), 0);
+      finishPointerSelectionRef.current();
+    };
+    pointerSelectingRef.current = true;
+    window.addEventListener('mousemove', onMove, true);
+    window.addEventListener('mouseup', onUp, true);
+  };
+
+  const handlePagesMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0 || isInsidePopup(e.target)) return;
+    const host = pagesHostRef.current;
+    if (!host) return;
+    const target = e.target as HTMLElement;
+    if (tool !== 'note' && target.closest('.annotationLayer a, .annotationLayer section')) {
+      startSelectionFromLink(e, host);
+      return;
+    }
+    if (!target.closest('.textLayer')) {
+      // Gaps between pages and the page column are not selectable, so the browser would keep
+      // the old selection: a click there dismisses it like a click on blank page area.
+      window.getSelection()?.removeAllRanges();
+      setSelectionPopup(null);
+    }
+    pointerSelectingRef.current = true;
+    host.classList.add(styles.selectingText);
+    const onUp = (ue: MouseEvent) => {
+      window.removeEventListener('mouseup', onUp, true);
+      pointerSelectingRef.current = false;
+      host.classList.remove(styles.selectingText);
+      // Released outside the pages (toolbar, sidebar): the pages' mouseup never fires.
+      if (!host.contains(ue.target as Node)) finishPointerSelectionRef.current();
+    };
+    window.addEventListener('mouseup', onUp, true);
+  };
+
+  const handlePagesMouseUp = (e: React.MouseEvent) => {
+    if (draggingNoteId !== null || e.button !== 0 || isInsidePopup(e.target)) return;
+    finishPointerSelection();
+  };
+
+  // Keep the popup in step with keyboard changes to the selection (Shift+arrows, Shift+End, ...),
+  // and offer it for a selection made with the keyboard alone.
+  useEffect(() => {
+    if (!ready) return;
+    let frame = 0;
+    const onSelectionChange = () => {
+      if (pointerSelectingRef.current) return; // mouseup handles mouse drags
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const parts = captureSelection();
+        setSelectionPopup(parts.length === 0 ? null : { ...parts[0], parts });
+      });
+    };
+    document.addEventListener('selectionchange', onSelectionChange);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener('selectionchange', onSelectionChange);
+    };
+  }, [ready, captureSelection]);
+
+  /** The top-most highlight under a page point (highlights do not take the pointer themselves). */
+  const highlightAt = (point: PagePoint | null): Annotation | null => {
+    if (!point) return null;
+    const hits = annotations.filter((a) =>
+      a.type === 'highlight' && a.page_number === point.pageIndex + 1 &&
+      a.rects.some((r) =>
+        point.x >= Math.min(r.x1, r.x2) && point.x <= Math.max(r.x1, r.x2) &&
+        point.y >= Math.min(r.y1, r.y2) && point.y <= Math.max(r.y1, r.y2)));
+    return hits.length > 0 ? hits[hits.length - 1] : null;
   };
 
   const handlePagesClick = (e: React.MouseEvent) => {
@@ -501,13 +643,22 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       return;
     }
     const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) setActiveAnnotationId(null);
+    if (!sel || sel.isCollapsed) {
+      const hit = tool === 'highlight' ? null : highlightAt(pagePointFromEvent(e.clientX, e.clientY, e.target));
+      setActiveAnnotationId(hit?.id ?? null);
+    }
   };
 
   const handlePagesContextMenu = (e: React.MouseEvent) => {
     if (isInsidePopup(e.target)) return;
     e.preventDefault();
     const point = pagePointFromEvent(e.clientX, e.clientY, e.target);
+    const sel = window.getSelection();
+    const hit = !sel || sel.isCollapsed ? highlightAt(point) : null;
+    if (hit) {
+      openAnnotationMenu(hit, e);
+      return;
+    }
     const selectionText = window.getSelection()?.toString().trim() ?? '';
     setContextMenu({
       x: Math.min(window.innerWidth - 200, e.clientX),
@@ -984,15 +1135,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
               {anno.rects.map((r, i) => (
                 <div
                   key={`${anno.id}-${i}`}
-                  className={`${styles.highlightRect} ${isActive ? styles.highlightRectActive : ''} ${tool === 'highlight' ? styles.passThrough : ''}`}
+                  className={`${styles.highlightRect} ${isActive ? styles.highlightRectActive : ''}`}
                   style={{ ...css({ x0: r.x1, y0: r.y1, x1: r.x2, y1: r.y2 }), backgroundColor: color }}
-                  title={anno.selected_text || 'Highlight'}
-                  data-viewer-popup=""
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (anno.id !== undefined) setActiveAnnotationId(anno.id);
-                  }}
-                  onContextMenu={(e) => openAnnotationMenu(anno, e)}
                 />
               ))}
             </React.Fragment>
@@ -1044,7 +1188,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
                   type="button"
                   className={styles.selectionColorBtn}
                   style={{ backgroundColor: hc.color }}
-                  onClick={() => createHighlight(pageIndex, selectionPopup.rects, selectionPopup.text, hc.color)}
+                  onClick={() => highlightParts(selectionPopup.parts, hc.color)}
                   title={`Highlight with ${hc.name}`}
                   aria-label={`Highlight with ${hc.name}`}
                 />
@@ -1055,7 +1199,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
               className={styles.selectionActionBtn}
               onClick={() => {
                 const r0 = selectionPopup.rects[0];
-                setNoteEditor({ mode: 'create', point: { pageIndex, x: r0.x0, y: r0.y0 }, text: `"${selectionPopup.text}"\n\n` });
+                setNoteEditor({ mode: 'create', point: { pageIndex, x: r0.x0, y: r0.y0 }, text: `"${selectionPopup.parts.map((p) => p.text).join('\n')}"\n\n` });
                 setSelectionPopup(null);
               }}
               title="Add Note from Selection"
@@ -1067,7 +1211,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
               type="button"
               className={styles.selectionActionBtn}
               onClick={() => {
-                navigator.clipboard?.writeText(selectionPopup.text).catch(() => {});
+                navigator.clipboard?.writeText(selectionPopup.parts.map((p) => p.text).join('\n')).catch(() => {});
                 setSelectionPopup(null);
               }}
               title="Copy Selected Text"
@@ -1208,6 +1352,14 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
             tabIndex={0}
             aria-label="PDF document"
             style={{ cursor: viewerCursor }}
+            onMouseDown={(e) => {
+              // A click on the padding around the pages (not on the scrollbar) dismisses the selection.
+              const el = e.currentTarget;
+              if (e.button !== 0 || e.target !== el) return;
+              if (e.nativeEvent.offsetX >= el.clientWidth || e.nativeEvent.offsetY >= el.clientHeight) return;
+              window.getSelection()?.removeAllRanges();
+              setSelectionPopup(null);
+            }}
           >
             {load.status === 'empty' && (
               <div className={styles.viewerStatus} role="status">
@@ -1248,7 +1400,9 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
 
             {ready && (
               <div
+                ref={pagesHostRef}
                 className={`${styles.pagesHost} ${tool === 'highlight' ? styles.pagesHighlightTool : ''}`}
+                onMouseDown={handlePagesMouseDown}
                 onMouseUp={handlePagesMouseUp}
                 onClick={handlePagesClick}
                 onContextMenu={handlePagesContextMenu}

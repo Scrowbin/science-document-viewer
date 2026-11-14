@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist';
 import { pdfjsLib } from './pdfAssets';
 import { getPageRuns, getPageTextContent, type TextLayerInfo } from './textIndex';
+import { attachTextLayerSelection } from './textLayerSelection';
 import type { PageSize } from './usePdfDocument';
 import type { ViewerLinkService } from './linkService';
 import styles from './PdfViewer.module.css';
@@ -83,6 +84,7 @@ export const PdfPage: React.FC<PdfPageProps> = ({
     let cancelled = false;
     let textLayer: InstanceType<typeof pdfjsLib.TextLayer> | null = null;
     let linkLayer: InstanceType<typeof pdfjsLib.AnnotationLayer> | null = null;
+    let detachSelection: (() => void) | null = null;
 
     (async () => {
       const [content, runs] = await Promise.all([
@@ -98,6 +100,7 @@ export const PdfPage: React.FC<PdfPageProps> = ({
       textLayerRef.current = textLayer;
       await textLayer.render();
       if (cancelled) return;
+      detachSelection = attachTextLayerSelection(textEl);
       const divs = textLayer.textDivs as HTMLElement[];
       if (divs.length === runs.length) {
         onTextLayer(pageIndex, { divs, pageEl });
@@ -137,6 +140,7 @@ export const PdfPage: React.FC<PdfPageProps> = ({
 
     return () => {
       cancelled = true;
+      detachSelection?.();
       textLayer?.cancel();
       textLayerRef.current = null;
       textEl.replaceChildren();

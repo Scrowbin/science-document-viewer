@@ -180,6 +180,21 @@ QDRANT_URL = os.getenv('QDRANT_URL', 'http://localhost:6333')
 QDRANT_PREFER_GRPC = os.getenv('QDRANT_PREFER_GRPC', 'false').lower() == 'true'
 QDRANT_GRPC_PORT = int(os.getenv('QDRANT_GRPC_PORT', '6334'))
 QDRANT_STORAGE_PATH = os.path.join(BASE_DIR, os.getenv('QDRANT_STORAGE_PATH', 'media/qdrant_db'))
+# Upload preview: when page 1 names an arXiv id or DOI, fetch the published record (5 s timeouts,
+# local result kept on any failure). 'false' keeps metadata extraction fully offline.
+METADATA_ONLINE_LOOKUP = os.getenv('METADATA_ONLINE_LOOKUP', 'true').lower() == 'true'
+
+# `manage.py test` gets its own throwaway media folder and Qdrant store, so tests never add
+# files to media/documents or vectors to the real index (nor fight a running server for its lock).
+if len(sys.argv) > 1 and sys.argv[1] == 'test':
+    import atexit
+    import shutil
+    import tempfile
+    METADATA_ONLINE_LOOKUP = False  # tests never call arXiv/Crossref
+    _TEST_STORAGE = tempfile.mkdtemp(prefix='scidoc_test_')
+    MEDIA_ROOT = Path(_TEST_STORAGE) / 'media'
+    QDRANT_STORAGE_PATH = os.path.join(_TEST_STORAGE, 'qdrant_db')
+    atexit.register(shutil.rmtree, _TEST_STORAGE, ignore_errors=True)
 RAG_MIN_SIMILARITY_SCORE = float(os.getenv('RAG_MIN_SIMILARITY_SCORE', '0.80'))
 # 'dense' (default; best on QASPER in the retrieval experiment) | 'rrf_legacy' (previous dense + whitespace-BM25 RRF k=60)
 RAG_RETRIEVAL_MODE = os.getenv('RAG_RETRIEVAL_MODE', 'dense')
