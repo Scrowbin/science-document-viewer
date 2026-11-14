@@ -37,6 +37,7 @@ import argparse
 import gc
 import importlib.util
 import json
+import os
 import statistics
 import time
 from collections import defaultdict
@@ -44,6 +45,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 ROOT = Path(__file__).resolve().parents[4]
 P2_PATH = ROOT / "eval" / "phases" / "phase_2_retrieval" / "scripts" / "evaluate_retrieval.py"
@@ -93,6 +96,11 @@ def device_name() -> str:
     try:
         import torch
         if torch.cuda.is_available():
+            count = torch.cuda.device_count()
+            if count >= 2:
+                d0 = torch.cuda.get_device_name(0)
+                d1 = torch.cuda.get_device_name(1)
+                return f"2x GPU (cuda:0 {d0} [embed], cuda:1 {d1} [rerank])"
             return f"cuda:{torch.cuda.get_device_name(0)}"
     except Exception:
         pass
@@ -100,12 +108,16 @@ def device_name() -> str:
 
 
 class Reranker:
-    def __init__(self, label: str, name: str):
+    def __init__(self, label: str, name: str, device: Optional[str] = None):
         from sentence_transformers import CrossEncoder
         import torch
-        dev = "cuda" if torch.cuda.is_available() else "cpu"
+        if device is None:
+            device = os.environ.get("EVAL_RERANK_DEVICE")
+            if not device:
+                device = "cuda:1" if torch.cuda.device_count() >= 2 else ("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = device
         self.label, self.name = label, name
-        self.model = CrossEncoder(name, max_length=RERANK_MAX_LEN, device=dev)
+        self.model = CrossEncoder(name, max_length=RERANK_MAX_LEN, device=device)
         self.model.predict([("warm up", "warm up passage")] * 4, show_progress_bar=False)
         self.cache: Dict[Tuple[str, int], float] = {}
 
@@ -117,8 +129,27 @@ class Reranker:
         ms: Optional[float] = None
         if todo:
             t0 = time.perf_counter()
-            scores = self.model.predict([(question, texts[i]) for i in todo], batch_size=32,
-                                        show_progress_bar=False)
+            curr_batch = 32
+            scores = None
+            while curr_batch >= 1:
+                try:
+                    scores = self.model.predict([(question, texts[i]) for i in todo], batch_size=curr_batch,
+                                                show_progress_bar=False)
+                    break
+                except Exception as e:
+                    err = str(e).lower()
+                    if "out of memory" in err or "cuda oom" in err:
+                        import torch
+                        if torch.cuda.is_available():
+                            torch.cuda.empty_cache()
+                        if curr_batch == 1:
+                            raise
+                        next_batch = max(1, curr_batch // 2)
+                        print(f"    [Reranker OOM recovery] CUDA OOM with batch_size={curr_batch}. "
+                              f"Retrying with batch_size={next_batch}...", flush=True)
+                        curr_batch = next_batch
+                    else:
+                        raise
             ms = (time.perf_counter() - t0) * 1000 if len(todo) == len(head) else None
             for i, s in zip(todo, scores):
                 self.cache[(qkey, i)] = float(s)
@@ -205,7 +236,8 @@ def write_report(summary: Dict[str, Any], path: Path) -> None:
 
 # ----------------------------------------------------------------------------- main loop
 def run_cohort(cohort: str, embedders: List[str], rerankers: List[str], limit: Optional[int],
-               seed: Optional[int]) -> Dict[str, Any]:
+               seed: Optional[int], embed_device: Optional[str] = None,
+               rerank_device: Optional[str] = None) -> Dict[str, Any]:
     print(f"\n{'=' * 70}\nPhase 3 hybrid + reranking: cohort [{cohort}]\n{'=' * 70}", flush=True)
     groups = rr.group_items(rr.load_cohort(cohort))
     papers = sorted(groups)
@@ -249,7 +281,7 @@ def run_cohort(cohort: str, embedders: List[str], rerankers: List[str], limit: O
                 pools[pid], pid, "", it.get("retrieval_evidence", []), tau=p2.TAU))
 
     tag = cohort.lower().replace("-", "_")
-    rer = {lab: Reranker(lab, RERANKERS[lab]) for lab in rerankers}
+    rer = {lab: Reranker(lab, RERANKERS[lab], device=rerank_device) for lab in rerankers}
     fout = open(pq_path, "a", encoding="utf-8")
 
     def emit(arm: str, emb: str, base: str, reranker: Optional[str], pid: str, qid: str,
@@ -298,11 +330,14 @@ def run_cohort(cohort: str, embedders: List[str], rerankers: List[str], limit: O
             texts = [u["text"] for u in us]
             h = p2.hashlib.md5("\x00".join(texts).encode()).hexdigest()[:8]
             um = p2.normalize_l2(rp.cached_embed(model_name, texts, False,
-                                                 f"{tag}_{p2.safe_pid(pid)}_{STRATEGY}_{emb}_{h}"))
+                                                 f"{tag}_{p2.safe_pid(pid)}_{STRATEGY}_{emb}_{h}",
+                                                 device=embed_device))
             items = groups[pid]
             questions = [it["question"] for it in items]
             qh = p2.hashlib.md5("\x00".join(questions).encode()).hexdigest()[:8]
-            qv = p2.normalize_l2(rp.cached_embed(model_name, questions, True, f"{tag}_{p2.safe_pid(pid)}_{emb}_q{qh}"))
+            qv = p2.normalize_l2(rp.cached_embed(model_name, questions, True,
+                                                 f"{tag}_{p2.safe_pid(pid)}_{emb}_q{qh}",
+                                                 device=embed_device))
             for i, (it, q) in enumerate(zip(items, qv)):
                 qid = p2.make_qid(pid, i, it)
                 if rq[(pid, qid)] <= 0:
@@ -375,6 +410,10 @@ def main() -> None:
     ap.add_argument("--skip-rerank", action="store_true")
     ap.add_argument("--limit", type=int, help="papers per cohort (smoke test)")
     ap.add_argument("--seed", type=int)
+    ap.add_argument("--embed-device", default=None,
+                    help="Device for embedders (e.g. cuda:0, cpu; default: auto-detected)")
+    ap.add_argument("--rerank-device", default=None,
+                    help="Device for rerankers (e.g. cuda:1, cpu; default: auto-detected)")
     a = ap.parse_args()
     embedders = [e.strip() for e in a.embedders.split(",") if e.strip()]
     for e in embedders:
@@ -384,8 +423,38 @@ def main() -> None:
     for r in rerankers:
         if r not in RERANKERS:
             ap.error(f"unknown reranker {r!r}; choose from {sorted(RERANKERS)}")
+
+    # Resolve devices and display hardware status
+    try:
+        import torch
+        n_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    except ImportError:
+        n_gpus = 0
+
+    if a.embed_device:
+        embed_device = a.embed_device
+    else:
+        embed_device = os.environ.get("EVAL_EMBED_DEVICE") or ("cuda:0" if n_gpus > 0 else "cpu")
+
+    if a.rerank_device:
+        rerank_device = a.rerank_device
+    else:
+        rerank_device = os.environ.get("EVAL_RERANK_DEVICE") or ("cuda:1" if n_gpus >= 2 else ("cuda:0" if n_gpus > 0 else "cpu"))
+
+    if n_gpus > 0:
+        import torch
+        print(f"[Hardware Setup] CUDA available: {n_gpus} GPU(s) found.", flush=True)
+        for i in range(n_gpus):
+            mem = torch.cuda.get_device_properties(i).total_memory / (1024**3)
+            print(f"  GPU {i}: {torch.cuda.get_device_name(i)} ({mem:.1f} GiB VRAM)", flush=True)
+        print(f"  Active mapping: Embedders -> {embed_device} | Rerankers -> {rerank_device}\n", flush=True)
+    else:
+        print("[Hardware Setup] Running on CPU.\n", flush=True)
+
     cohorts = COHORTS if a.cohort == "all" else [a.cohort]
-    combined = {c: run_cohort(c, embedders, rerankers, a.limit, a.seed) for c in cohorts}
+    combined = {c: run_cohort(c, embedders, rerankers, a.limit, a.seed,
+                              embed_device=embed_device, rerank_device=rerank_device)
+                for c in cohorts}
     name = "summary.json" if not a.limit else f"summary_smoke_{a.limit}.json"
     (ARTIFACTS_DIR / name).write_text(json.dumps(combined, indent=2), encoding="utf-8")
     print(f"\nPhase 3 complete -> {ARTIFACTS_DIR / name}")
