@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 import requests
 from dotenv import load_dotenv
@@ -169,24 +170,104 @@ def data_extractor(path):
         except Exception as e:
             print(f"GROBID failed: {e}")
 
-    # Tier 2: heuristic PDF parser — maps raw keys to standard schema
+    # Tier 2: layout heuristic PDF parser — maps raw keys to standard schema
     try:
         raw = auto_extract_metadata(path)
         if raw and raw.get("title"):
+            pages = raw.get("pages") or []
+            first_page = pages[0]["text"] if pages else ""
+            arxiv_id = _page_one_arxiv_id(first_page)
+            doi = raw.get("doi") or ""
             year = raw.get("year")
-            urls = raw.get("urls") or []
-            return {
+            if arxiv_id and not year:
+                year = 2000 + int(arxiv_id[:2])
+            meta = {
                 "title": raw.get("title", ""),
                 "short_title": (raw.get("title") or "")[:100],
                 "authors": raw.get("authors") or [],
                 "date": str(year) if year else "",
-                "doi": raw.get("doi") or "",
-                "url": urls[0] if urls else "",
+                "doi": doi,
+                "url": _best_url(raw.get("urls") or [], doi, arxiv_id),
                 "extra": raw.get("abstract") or "",
-                "repository": "Local Upload",
+                "repository": "arXiv" if arxiv_id else "Local Upload",
                 "tags": raw.get("keywords") or [],
             }
+            return _enrich_online(meta, arxiv_id, _page_one_doi(first_page))
     except Exception as e:
         print(f"Auto extractor failed: {e}")
 
     return None
+
+
+# ─── Online enrichment (exact record from arXiv / Crossref when page 1 names one) ───
+
+_ARXIV_ON_PAGE_RE = re.compile(r"arXiv\s*:\s*(\d{4}\.\d{4,5})(?:v\d+)?", re.IGNORECASE)
+_DOI_ON_PAGE_RE = re.compile(r"\b(10\.\d{4,9}/[-._;()/:A-Z0-9]+)", re.IGNORECASE)
+_URL_NOISE_RE = re.compile(r"orcid\.org|creativecommons\.org|mailto:|github\.com/.+/issues|twitter\.com|x\.com/", re.IGNORECASE)
+
+
+def _page_one_arxiv_id(text):
+    m = _ARXIV_ON_PAGE_RE.search(text or "")
+    return m.group(1) if m else None
+
+
+def _page_one_doi(text):
+    m = _DOI_ON_PAGE_RE.search(text or "")
+    return m.group(1).rstrip(".,;:)]}") if m else None
+
+
+def _best_url(urls, doi, arxiv_id):
+    """A link to the paper itself, not to an author's ORCID or a licence page."""
+    if doi:
+        return f"https://doi.org/{doi}"
+    if arxiv_id:
+        return f"https://arxiv.org/abs/{arxiv_id}"
+    for u in urls:
+        if not _URL_NOISE_RE.search(u):
+            return u
+    return ""
+
+
+def _title_words(t):
+    return set(re.findall(r"[a-z0-9]{3,}", (t or "").lower()))
+
+
+def _same_paper(local_title, online_title):
+    a, b = _title_words(local_title), _title_words(online_title)
+    if not a or not b:
+        return False
+    return len(a & b) / min(len(a), len(b)) >= 0.5
+
+
+def _enrich_online(meta, arxiv_id, doi):
+    """Replace heuristic fields with the published record when page 1 carries an arXiv id or
+    a DOI and the record's title matches the PDF's. Any network failure keeps the local result."""
+    from django.conf import settings
+    if not getattr(settings, "METADATA_ONLINE_LOOKUP", True) or not (arxiv_id or doi):
+        return meta
+    online = None
+    try:
+        if arxiv_id:
+            from ..services.pdf_metadata_service import fetch_arxiv_metadata
+            online = fetch_arxiv_metadata(arxiv_id, timeout=5)
+        if not online and doi:
+            from ..services.crossref_service import fetch_metadata_from_doi
+            online = fetch_metadata_from_doi(doi, timeout=5)
+    except Exception as e:
+        print(f"Online metadata lookup failed: {e}")
+        online = None
+    if not online or not online.get("title") or not _same_paper(meta["title"], online["title"]):
+        return meta
+    merged = dict(meta)
+    for key in ("title", "short_title", "authors", "date", "doi", "url", "repository", "item_type", "language"):
+        if online.get(key):
+            value = online[key]
+            if isinstance(value, str):  # Crossref titles may carry markup: Al<sub>2</sub>O<sub>3</sub>
+                value = " ".join(re.sub(r"<[^>]+>", "", value).split())
+            merged[key] = value
+    if online.get("extra"):
+        merged["extra"] = online["extra"]
+    if not merged.get("tags") and online.get("tags"):
+        merged["tags"] = online["tags"]
+    merged["metadata_source"] = "arXiv" if arxiv_id and online.get("repository") == "arXiv" else "Crossref"
+    return merged

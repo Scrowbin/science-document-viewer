@@ -1279,7 +1279,7 @@ def reindex_document(
     return rag
 
 
-def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Optional[str]:
+def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str, api_key: str = "") -> Optional[str]:
     """Calls Ollama /api/generate and returns response text or None."""
     try:
         read_timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
@@ -1292,15 +1292,47 @@ def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str) -> Opti
                 "options": {"temperature": getattr(settings, "OLLAMA_TEMPERATURE", 0.0),
                             "num_ctx": getattr(settings, "OLLAMA_NUM_CTX", 4096)},
             },
+            headers={"Authorization": f"Bearer {api_key}"} if api_key else None,
             timeout=(3.0, read_timeout),
         )
         if resp.status_code == 200:
             data = resp.json()
             answer = data.get("response", "").strip()
             return answer if answer else None
+        logger.info(f"Ollama at {ollama_url} returned HTTP {resp.status_code}")
     except Exception as e:
         logger.info(f"Ollama offline/failed: {e}")
     return None
+
+
+def _is_local_url(url: str) -> bool:
+    from urllib.parse import urlparse
+    return (urlparse(url).hostname or "") in ("localhost", "127.0.0.1", "::1")
+
+
+def _llm_endpoints() -> List[Tuple[str, str, str]]:
+    """(url, model, api_key) to try in order: OLLAMA_BASE_URL, then the optional OLLAMA_FALLBACK_URL."""
+    primary = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+    endpoints = [(primary, getattr(settings, "OLLAMA_MODEL", "llama3.2:3b"), getattr(settings, "OLLAMA_API_KEY", ""))]
+    fallback = (getattr(settings, "OLLAMA_FALLBACK_URL", "") or "").rstrip("/")
+    if fallback and fallback != primary:
+        endpoints.append((fallback, getattr(settings, "OLLAMA_FALLBACK_MODEL", endpoints[0][1]), ""))
+    return endpoints
+
+
+def _generate(prompt: str) -> Tuple[Optional[str], str]:
+    """Generate with the first endpoint that answers. Returns (text or None, model label for the UI)."""
+    endpoints = _llm_endpoints()
+    for i, (url, model_name, api_key) in enumerate(endpoints):
+        text = _generate_with_ollama(prompt, model_name, url, api_key)
+        if text:
+            if i:
+                logger.warning(f"LLM answered by fallback endpoint {url} ({model_name})")
+            where = "Local RAG" if _is_local_url(url) else "Remote GPU"
+            return text, f"{model_name} ({where})"
+        if i + 1 < len(endpoints):
+            logger.warning(f"LLM endpoint {url} gave no answer; trying {endpoints[i + 1][0]}")
+    return None, ""
 
 
 def build_answer_prompt(question: str, doc_title: str, docs: List[Document], refusal_message: str) -> str:
@@ -1394,14 +1426,11 @@ def query_document(
             "locations": doc.metadata.get("locations"),
         })
 
-    ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
-    model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
-
     prompt = build_answer_prompt(question, doc_title, [doc for doc, _ in top_chunks], REFUSAL_MESSAGE)
 
-    answer = _generate_with_ollama(prompt, model_name, ollama_url)
+    answer, model_label = _generate(prompt)
     if answer:
-        return {"answer": answer, "sources": sources, "model": f"{model_name} (Local RAG)"}
+        return {"answer": answer, "sources": sources, "model": model_label}
 
     # Grounded synthesis fallback
     snippets = []
@@ -1462,9 +1491,6 @@ def summarize_document(
             "locations": doc.metadata.get("locations"),
         })
 
-    ollama_url = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434")
-    model_name = getattr(settings, "OLLAMA_MODEL", "llama3.2:3b")
-
     context_str = "\n\n".join(doc.page_content for doc, _ in rep_chunks)
     prompt = (
         f'Summarize the document "{doc_title or "Selected Paper"}" into 3 clear markdown sections:\n'
@@ -1472,9 +1498,9 @@ def summarize_document(
         f"Document Excerpts:\n{context_str}\n\nSummary:"
     )
 
-    summary = _generate_with_ollama(prompt, model_name, ollama_url)
+    summary, model_label = _generate(prompt)
     if summary:
-        return {"summary": summary, "sources": sources, "model": f"{model_name} (Local RAG)"}
+        return {"summary": summary, "sources": sources, "model": model_label}
 
     # Grounded fallback
     doc_name = doc_title or "this document"

@@ -126,6 +126,32 @@ python manage.py ollama_status          # resident models + Ollama process memor
 ```
 If memory runs short, restart Ollama or let the model unload (`keep_alive`, 5 minutes by default) between sessions. The app does not unload models itself, because that would change generation behaviour.
 
+### 3.1. Demo option: run the LLM on a Kaggle GPU
+
+On CPU an answer takes about 30 s. For a live demo the LLM can run on a Kaggle GPU instead, using [`demo/kaggle_llm_server.ipynb`](demo/kaggle_llm_server.ipynb). Everything else (database, PDFs, embeddings, Qdrant, retrieval) stays local.
+
+**Privacy:** in this mode the prompt leaves the machine. The prompt contains the question and the retrieved excerpts of the document. Use public papers for demos.
+
+1. **Create an ngrok account.** On [ngrok](https://dashboard.ngrok.com) (free), note your authtoken and your free static domain (Domains, e.g. `something.ngrok-free.app`).
+2. **Set up the Kaggle notebook.** Create a notebook from `demo/kaggle_llm_server.ipynb` and set:
+   - **Accelerator:** GPU.
+   - **Internet:** On.
+   - **Secrets** (Add-ons → Secrets): `NGROK_AUTHTOKEN`, `NGROK_DOMAIN` and `OLLAMA_API_KEY` (a long random string). Optionally add `OLLAMA_MODEL`; it defaults to `llama3.2:3b`.
+3. **Start it.** Run it with **Save Version → Save & Run All** so it keeps running without a browser tab. It runs for up to 11.5 h and uses the weekly GPU quota. The log prints the public URL and a self-test.
+4. **Point the backend at it.** Add to `backend/.env`:
+   ```env
+   OLLAMA_BASE_URL=https://something.ngrok-free.app
+   OLLAMA_API_KEY=<same value as the Kaggle secret>
+   OLLAMA_FALLBACK_URL=http://localhost:11434   # tried automatically if Kaggle is unreachable
+   OLLAMA_FALLBACK_MODEL=llama3.2:3b
+   ```
+5. **Check and restart.** Restart the backend. `python manage.py ollama_status` should list the model on the Kaggle GPU.
+
+How it behaves during the demo:
+- **Model label:** answers show "llama3.2:3b (Remote GPU)", or "(Local RAG)" when the local fallback answered.
+- **Fallback:** if neither endpoint answers, the app shows the retrieved excerpts, as before.
+- **Turning it off:** remove the four lines from `.env` to go back to fully local operation.
+
 ---
 
 ## 4. Frontend Setup (React 19 + TypeScript + Vite)

@@ -273,24 +273,15 @@
   border-radius: 2px;
   opacity: 0.4;
   mix-blend-mode: multiply;
-  pointer-events: auto;
-  cursor: pointer;
+  /* Text under a highlight stays selectable; clicks find highlights by position. */
+  pointer-events: none;
   transition: opacity 0.15s ease;
-}
-
-.highlightRect:hover {
-  opacity: 0.6;
 }
 
 .highlightRectActive {
   opacity: 0.6;
   outline: 2px solid var(--accent-blue);
   outline-offset: 1px;
-}
-
-/* While the highlight tool is active, drags over existing highlights select text. */
-.passThrough {
-  pointer-events: none;
 }
 
 .pagesHighlightTool .pdfTextLayer {
@@ -1136,4 +1127,29 @@
 .viewerNoticeErrorIcon {
   color: #ef4444;
   flex-shrink: 0;
+}
+
+/*
+ * While a mouse selection is being dragged, highlights, note pins and link areas let the
+ * pointer through, so crossing them does not make the browser jump the selection.
+ * The gaps between pages are not selectable for the same reason.
+ */
+.selectingText .overlayLayer *,
+.selectingText .linkLayer,
+.selectingText .linkLayer * {
+  pointer-events: none !important;
+}
+
+.pagesColumn {
+  user-select: none;
+}
+
+/* Popup and overlay labels are never part of a text selection (or of Copy). */
+.overlayLayer {
+  user-select: none;
+}
+
+/* Links are clicked, not dragged; a drag from a link selects text instead. */
+.linkLayer a {
+  -webkit-user-drag: none;
 }

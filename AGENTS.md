@@ -8,7 +8,8 @@ Guide for AI agents working on the **Scientific Document Manager** (a Zotero-sty
 2. Keep this file short and generic. Record finished work in a short "Current status"
    section (no result numbers); history lives in git, results in `eval/README.md`.
 3. Monorepo layout: `backend/` (Django 5 + DRF), `frontend/` (React 19 + TS + Vite, CSS Modules,
-   no Tailwind), `eval/` (experiments), `archive/` (superseded material, not used by active code).
+   no Tailwind), `eval/` (experiments), `demo/` (Kaggle GPU LLM server for live demos),
+   `THESIS/` (faculty rules and audit notes), `archive/` (superseded material, not used by active code).
 4. Keep the production application unchanged unless a specific bug requires a fix.
 5. Prioritise finishing experiments, explaining findings and the thesis over repository tidiness.
 
@@ -138,7 +139,7 @@ Never edit tables by hand: change `models.py`, then `python manage.py makemigrat
 ```powershell
 # backend/ (venv active)
 python manage.py check
-python manage.py test apps.documents.tests apps.documents.tests_app apps.users.tests
+python manage.py test apps.documents.tests apps.documents.tests_app apps.documents.tests_upload apps.documents.tests_extraction apps.users.tests
 
 # frontend/
 npm run lint
@@ -155,7 +156,9 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   RAG assistant are implemented. PDFs are served through a permission-checked API endpoint;
   MinIO/presigned URLs are a later option (`docs/design/FILE_STORAGE_PLAN.md`).
 * `backend/apps/documents/services/` is imported by the Phase 2–4 evaluation scripts; keep its
-  behaviour unchanged until Phase 4 is done. Known fixes are in `docs/design/RAG_SERVICE_REVIEW.md`. Planned FR-16 (context retry, default
+  behaviour unchanged until Phase 4 is done. Known fixes are in `docs/design/RAG_SERVICE_REVIEW.md`.
+  Approved exception: optional remote LLM endpoint + local fallback (`OLLAMA_API_KEY`,
+  `OLLAMA_FALLBACK_URL`; unset = unchanged) for demos on a Kaggle GPU (`SETUP.md` 3.1). Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is

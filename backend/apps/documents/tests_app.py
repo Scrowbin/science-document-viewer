@@ -274,6 +274,66 @@ class UploadTitleTests(_MediaTestCase):
         apply_meta.assert_called_once()
         self.trigger.assert_called_once()
 
+    def test_upload_with_overlong_extracted_names_succeeds(self):
+        # Extracted keywords/authors can contain whole paragraphs; they used to fail in the
+        # database (HTTP 500, no message) and leave an orphan document behind.
+        junk = "Vietnam\nAbstract:\nOptical Character Recognition " + "x" * 400
+        resp = self.client.post("/api/v1/documents/", {
+            "title": "Paper With Junk Metadata",
+            "author_names": ["Ada Lovelace", "A" * 400 + " " + "B" * 400, "  "],
+            "tag_names": ["OCR", junk, "OCR"],
+            "domain_names": [junk],
+            "file": SimpleUploadedFile("junk.pdf", PDF_BYTES, content_type="application/pdf"),
+        }, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.data)
+        doc = Document.objects.get(id=resp.data["id"])
+        tags = list(doc.tags.values_list("name", flat=True))
+        self.assertEqual(len(tags), 2)
+        self.assertTrue(all(len(t) <= 100 and "\n" not in t for t in tags))
+        self.assertEqual(doc.authors.count(), 2)
+
+    def test_keyword_block_stops_before_abstract(self):
+        from apps.documents.data_extractor.manual_pdf_parser import extract_keywords
+        text = ("Keywords: OCR, Vietnamese Document Analysis, Handwriting recognition\n"
+                "Posted Date: July 7th, 2026\nDOI: https://doi.org/10.1/x\n\n"
+                "Abstract: Optical Character Recognition (OCR) is an important technology, "
+                "however Vietnamese OCR remains challenging because of diacritics, blur, "
+                "low resolution and compression.\n1. INTRODUCTION\n")
+        self.assertEqual(extract_keywords(text), ["OCR", "Vietnamese Document Analysis", "Handwriting recognition"])
+
+    def test_layout_text_helpers(self):
+        from apps.documents.data_extractor import manual_pdf_parser as mp
+        self.assertEqual(mp._fix_accents("Gr¨onroos and Bok´anyi, Artiﬁcial"), "Grönroos and Bokányi, Artificial")
+        self.assertEqual(mp._join_title_lines(["Large Lan-", "guage Models"]), "Large Language Models")
+        self.assertEqual(mp._join_title_lines(["A Pre-", "trained Model"]), "A Pre-trained Model")
+        self.assertEqual(mp._smart_title_case("LORA: LOW-RANK ADAPTATION OF LARGE LANGUAGE MODELS"),
+                         "LORA: Low-Rank Adaptation of Large Language Models")
+        self.assertTrue(mp._looks_like_name("Jan von Cosel"))
+        self.assertTrue(mp._AFFILIATION_RE.search("Research Article"))
+        self.assertFalse(mp._looks_like_name("II. Fabrication"))
+        self.assertIsNone(mp._plausible_metadata_title("c6_thermalspec_thf_2.eps"))
+
+    def test_online_enrichment_only_for_the_same_paper(self):
+        from django.test import override_settings
+        from apps.documents.data_extractor import data_extractor as de
+        local = {"title": "Attention Is All You Need", "authors": ["Ashish Vaswani"], "tags": ["NLP"],
+                 "date": "2017", "doi": "", "url": "", "extra": "", "repository": "arXiv", "short_title": ""}
+        same = {"title": "Attention Is All You Need", "authors": ["Ashish Vaswani", "Noam Shazeer"],
+                "date": "2017-06-12", "repository": "arXiv", "url": "https://arxiv.org/abs/1706.03762"}
+        other = {"title": "A Completely Different Paper About Proteins", "authors": ["Someone Else"]}
+        with override_settings(METADATA_ONLINE_LOOKUP=True):
+            with patch("apps.documents.services.pdf_metadata_service.fetch_arxiv_metadata", return_value=same):
+                merged = de._enrich_online(dict(local), "1706.03762", None)
+            self.assertEqual(merged["authors"], ["Ashish Vaswani", "Noam Shazeer"])
+            self.assertEqual(merged["tags"], ["NLP"])
+            with patch("apps.documents.services.crossref_service.fetch_metadata_from_doi", return_value=other):
+                kept = de._enrich_online(dict(local), None, "10.1/x")
+            self.assertEqual(kept["authors"], ["Ashish Vaswani"])
+        # Tests run with lookups off: no network call at all.
+        with patch("apps.documents.services.pdf_metadata_service.fetch_arxiv_metadata") as fetch:
+            de._enrich_online(dict(local), "1706.03762", None)
+            fetch.assert_not_called()
+
 
 class HierarchicalChunksTests(_MediaTestCase):
     def test_hierarchical_chunks_grouped_by_parent(self):

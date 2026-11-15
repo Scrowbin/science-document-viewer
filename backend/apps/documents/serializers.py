@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.urls import reverse
 from .models import (
     Author, Tag, Domain, Document, DocumentAuthor,
@@ -142,9 +143,9 @@ class DocumentDetailSerializer(FileUrlMixin, serializers.ModelSerializer):
         return 'NONE'
 
 class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
-    author_names = serializers.ListField(child=serializers.CharField(), required=False, write_only=True)
-    tag_names = serializers.ListField(child=serializers.CharField(), required=False, write_only=True)
-    domain_names = serializers.ListField(child=serializers.CharField(), required=False, write_only=True)
+    author_names = serializers.ListField(child=serializers.CharField(allow_blank=True), required=False, write_only=True)
+    tag_names = serializers.ListField(child=serializers.CharField(allow_blank=True), required=False, write_only=True)
+    domain_names = serializers.ListField(child=serializers.CharField(allow_blank=True), required=False, write_only=True)
 
     class Meta:
         model = Document
@@ -199,6 +200,40 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You cannot add documents to this collection.")
         return value
 
+    @staticmethod
+    def _clean_names(values, max_length):
+        """Trimmed, whitespace-collapsed, de-duplicated names cut to the column length.
+
+        Extracted metadata can contain stray text (line breaks, whole sentences); a name
+        longer than its column would otherwise fail in the database with an HTTP 500.
+        """
+        cleaned = []
+        for v in values or []:
+            name = " ".join(str(v).split())[:max_length].strip()
+            if name and name not in cleaned:
+                cleaned.append(name)
+        return cleaned
+
+    def validate_author_names(self, value):
+        # Each part (first/last name) must fit its column: last name is the final word.
+        # De-duplicate after cutting: two long names can become the same author, which
+        # would break the unique (document, author) link with an HTTP 500.
+        out = []
+        for name in self._clean_names(value, 300):
+            parts = name.rsplit(" ", 1)
+            first = parts[0][:Author._meta.get_field("first_name").max_length].strip() if len(parts) > 1 else ""
+            last = parts[-1][:Author._meta.get_field("last_name").max_length]
+            full = f"{first} {last}".strip()
+            if full not in out:
+                out.append(full)
+        return out
+
+    def validate_tag_names(self, value):
+        return self._clean_names(value, Tag._meta.get_field("name").max_length)
+
+    def validate_domain_names(self, value):
+        return self._clean_names(value, Domain._meta.get_field("name").max_length)
+
     def validate_file(self, value):
         if not value:
             return value
@@ -233,8 +268,17 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
         if uploaded_file:
             validated_data['file_size'] = uploaded_file.size
 
-        document = Document.objects.create(**validated_data)
-        self._set_m2m(document, author_names, tag_names, domain_names)
+        # One transaction: a failure while linking authors/tags must not leave a document behind,
+        # and the PDF already written to storage is removed again.
+        document = None
+        try:
+            with transaction.atomic():
+                document = Document.objects.create(**validated_data)
+                self._set_m2m(document, author_names, tag_names, domain_names)
+        except Exception:
+            if document is not None and document.file:
+                document.file.storage.delete(document.file.name)
+            raise
         return document
 
     def update(self, instance, validated_data):
@@ -246,16 +290,25 @@ class DocumentCreateUpdateSerializer(serializers.ModelSerializer):
         if uploaded_file:
             validated_data['file_size'] = uploaded_file.size
 
-        document = super().update(instance, validated_data)
+        old_file_name = instance.file.name if instance.file else ""
+        try:
+            with transaction.atomic():
+                document = super().update(instance, validated_data)
 
-        if author_names is not None or tag_names is not None or domain_names is not None:
-            self._set_m2m(
-                document,
-                author_names=author_names,
-                tag_names=tag_names,
-                domain_names=domain_names,
-                is_update=True
-            )
+                if author_names is not None or tag_names is not None or domain_names is not None:
+                    self._set_m2m(
+                        document,
+                        author_names=author_names,
+                        tag_names=tag_names,
+                        domain_names=domain_names,
+                        is_update=True
+                    )
+        except Exception:
+            # The rolled-back row still points at the old PDF; drop the newly written one.
+            new_file_name = instance.file.name if instance.file else ""
+            if uploaded_file and new_file_name and new_file_name != old_file_name:
+                instance.file.storage.delete(new_file_name)
+            raise
         return document
 
     def _set_m2m(self, document, author_names=None, tag_names=None, domain_names=None, is_update=False):
