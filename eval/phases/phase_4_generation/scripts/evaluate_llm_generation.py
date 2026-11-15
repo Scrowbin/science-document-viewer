@@ -556,10 +556,16 @@ def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
     return res
 
 
-def judge_runs(judge_model: str, models: List[str]) -> None:
+def judge_runs(judge_model: str, models: List[str], cohort: Optional[str] = None,
+               condition: Optional[str] = None) -> None:
     judge_ready(judge_model)
+    target_cohort = cohort.lower().replace("-", "_") if cohort and cohort != "all" else None
     for pq in sorted(ART.glob("*/*/per_query.jsonl")):
         if "_smoke_" in pq.parent.name:
+            continue
+        if target_cohort and pq.parent.parent.name != target_cohort:
+            continue
+        if condition and not pq.parent.name.startswith(condition):
             continue
         jp = pq.parent / "judge.jsonl"
         done = set()
@@ -587,6 +593,13 @@ def judge_runs(judge_model: str, models: List[str]) -> None:
 
 
 def combined_summary() -> None:
+    for pq in sorted(ART.glob("*/*/per_query.jsonl")):
+        if "_smoke_" in pq.parent.name:
+            continue
+        try:
+            summarise_dir(pq.parent, MODELS)
+        except Exception:
+            pass
     out: Dict[str, Any] = {}
     for s in sorted(ART.glob("*/*/summary.json")):
         if "_smoke_" in s.parent.name:
@@ -615,6 +628,7 @@ def main() -> None:
     ap.add_argument("--judge-validate", action="store_true", help="run the judge on the 100 human-labelled answers")
     ap.add_argument("--judge-model", default=JUDGE_MODEL,
                     help="gemini-* uses the Gemini API (key GEMINI_API in .env); any other name runs through Ollama")
+    ap.add_argument("--summary-only", action="store_true", help="only build combined summary from existing artifacts")
     a = ap.parse_args()
     models = [m.strip() for m in a.models.split(",") if m.strip()]
     if a.judge_validate:
@@ -625,9 +639,9 @@ def main() -> None:
         for c in (COHORTS if a.cohort == "all" else [a.cohort]):
             run_generation(c, a.condition, a.pipeline, models, a.limit)
     if a.judge:
-        judge_runs(a.judge_model, models)
-    if not (a.judge_validate or a.condition or a.judge):
-        ap.error("nothing to do: give --condition, --judge-validate and/or --judge")
+        judge_runs(a.judge_model, models, a.cohort, a.condition)
+    if not (a.judge_validate or a.condition or a.judge or a.summary_only):
+        ap.error("nothing to do: give --condition, --judge-validate, --judge, or --summary-only")
     combined_summary()
 
 
