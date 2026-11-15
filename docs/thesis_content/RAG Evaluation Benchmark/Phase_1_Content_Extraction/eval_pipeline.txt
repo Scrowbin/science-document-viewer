@@ -1,0 +1,24 @@
+It compares:
+
+pymupdf_layout, pymupdf_plain, pypdf, pdfminer.six, pdfplumber and GROBID.
+
+ON:
+
+Evidence Recall (≥0.80)
+Text LCS (%)
+Hit@1
+Hit@2
+Hit@5
+Retrieval LCS (%)
+Latency (ms/page)
+
+Performance is measured by:
+
+Latency per page
+
+It also is plugged into a test retrieval test to try out retrieval accuracy
+
+Using datasets:
+
+QASPER
+OHR_Bench (main)

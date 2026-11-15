@@ -592,6 +592,103 @@ def judge_runs(judge_model: str, models: List[str], cohort: Optional[str] = None
         summarise_dir(pq.parent, MODELS)
 
 
+def export_judge_file(out_file: Path, models: List[str], cohort: Optional[str] = None,
+                      condition: Optional[str] = None) -> int:
+    target_cohort = cohort.lower().replace("-", "_") if cohort and cohort != "all" else None
+    count = 0
+    out_file = Path(out_file)
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_file, "w", encoding="utf-8") as f_out:
+        for pq in sorted(ART.glob("*/*/per_query.jsonl")):
+            if "_smoke_" in pq.parent.name:
+                continue
+            if target_cohort and pq.parent.parent.name != target_cohort:
+                continue
+            if condition and not pq.parent.name.startswith(condition):
+                continue
+            jp = pq.parent / "judge.jsonl"
+            done = set()
+            if jp.exists():
+                done = {(j["model"], j["paper_id"], j["question_id"]) for j in map(json.loads, open(jp, encoding="utf-8"))}
+            rows = [json.loads(line) for line in open(pq, encoding="utf-8")]
+            todo = [r for r in rows if (r["model"], r["paper_id"], r["question_id"]) not in done and r["model"] in models]
+            if not todo:
+                continue
+            c = rows[0]["cohort"]
+            qs = {q["question_id"]: q for q in load_questions(c, None)}
+            ctxs = ({k: v for k, v in ((f"{q['paper_id']}|{q['question_id']}", gold_context(q)) for q in qs.values())}
+                    if rows[0]["condition"] == "gold" else build_retrieved_contexts(c, list(qs.values()), rows[0]["pipeline"]))
+            for r in todo:
+                ctx = "\n\n".join(d["text"] for d in ctxs.get(f"{r['paper_id']}|{r['question_id']}", []))
+                prompt = JUDGE_PROMPT.format(context=ctx[:24000], question=r["question"], answer=r["answer"] or "(empty answer)")
+                item = {
+                    "rel_dir": str(pq.parent.relative_to(ART)),
+                    "model": r["model"],
+                    "paper_id": r["paper_id"],
+                    "question_id": r["question_id"],
+                    "question": r["question"],
+                    "answer": r["answer"],
+                    "context": ctx[:24000],
+                    "prompt": prompt,
+                    "custom_id": f"{pq.parent.relative_to(ART)}|{r['model']}|{r['paper_id']}|{r['question_id']}",
+                }
+                f_out.write(json.dumps(item, ensure_ascii=False) + "\n")
+                count += 1
+    print(f"Exported {count} unjudged queries to {out_file}", flush=True)
+    return count
+
+
+def import_judge_file(in_file: Path) -> int:
+    in_file = Path(in_file)
+    if not in_file.exists():
+        raise SystemExit(f"Import file does not exist: {in_file}")
+    by_dir: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    count = 0
+    for line in open(in_file, encoding="utf-8"):
+        line = line.strip()
+        if not line:
+            continue
+        r = json.loads(line)
+        rel_dir = r.get("rel_dir")
+        model = r.get("model")
+        paper_id = r.get("paper_id")
+        question_id = r.get("question_id")
+        if not rel_dir and "custom_id" in r:
+            parts = r["custom_id"].split("|")
+            if len(parts) >= 4:
+                rel_dir, model, paper_id, question_id = parts[0], parts[1], parts[2], parts[3]
+        if not rel_dir or not model:
+            continue
+        label = normalise_label(r.get("label", "INVALID"))
+        reason = str(r.get("reason", ""))[:300]
+        by_dir[rel_dir].append({
+            "model": model,
+            "paper_id": paper_id,
+            "question_id": question_id,
+            "label": label,
+            "reason": reason,
+            "judge_model": r.get("judge_model", "imported"),
+        })
+        count += 1
+
+    for rel_dir, entries in by_dir.items():
+        out_dir = ART / rel_dir
+        jp = out_dir / "judge.jsonl"
+        done = set()
+        if jp.exists():
+            done = {(j["model"], j["paper_id"], j["question_id"]) for j in map(json.loads, open(jp, encoding="utf-8"))}
+        with open(jp, "a", encoding="utf-8") as f:
+            for e in entries:
+                key = (e["model"], e["paper_id"], e["question_id"])
+                if key not in done:
+                    f.write(json.dumps(e, ensure_ascii=False) + "\n")
+                    done.add(key)
+        summarise_dir(out_dir, MODELS)
+    combined_summary()
+    print(f"Imported {count} judge labels across {len(by_dir)} directories and refreshed summaries.", flush=True)
+    return count
+
+
 def combined_summary() -> None:
     for pq in sorted(ART.glob("*/*/per_query.jsonl")):
         if "_smoke_" in pq.parent.name:
@@ -629,8 +726,16 @@ def main() -> None:
     ap.add_argument("--judge-model", default=JUDGE_MODEL,
                     help="gemini-* uses the Gemini API (key GEMINI_API in .env); any other name runs through Ollama")
     ap.add_argument("--summary-only", action="store_true", help="only build combined summary from existing artifacts")
+    ap.add_argument("--export-judge-file", type=Path, help="export unjudged answers to a JSONL file for batch scoring")
+    ap.add_argument("--import-judge-file", type=Path, help="import judged labels from a JSONL file and rebuild summaries")
     a = ap.parse_args()
     models = [m.strip() for m in a.models.split(",") if m.strip()]
+    if a.export_judge_file:
+        export_judge_file(a.export_judge_file, models, a.cohort, a.condition)
+        return
+    if a.import_judge_file:
+        import_judge_file(a.import_judge_file)
+        return
     if a.judge_validate:
         judge_validate(a.judge_model, a.limit)
     if a.condition:
@@ -641,7 +746,7 @@ def main() -> None:
     if a.judge:
         judge_runs(a.judge_model, models, a.cohort, a.condition)
     if not (a.judge_validate or a.condition or a.judge or a.summary_only):
-        ap.error("nothing to do: give --condition, --judge-validate, --judge, or --summary-only")
+        ap.error("nothing to do: give --condition, --judge-validate, --judge, --summary-only, or --export-judge-file")
     combined_summary()
 
 
