@@ -114,7 +114,8 @@ Script `phases/phase_3_hybrid_reranking/scripts/evaluate_hybrid_reranking.py`; n
 
 Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook `eval/kaggle/phase4_llm_generation.ipynb` (installs Ollama on the GPU).
 
-- **Models:** llama3.2:3b (application), qwen2.5:1.5b, phi4-mini, qwen3:4b (`think: false`), gemma3:4b. Prompt `rag_service.build_answer_prompt`; temperature 0, `num_ctx` 4096, `num_predict` 256, seed 42.
+- **Models:** llama3.2:3b (application), qwen2.5:1.5b, phi4-mini, qwen3:4b-instruct-2507-q4_K_M, gemma3:4b.
+  - qwen3: the plain `qwen3:4b` tag now resolves to the thinking-only 2507 build, which ignored `think: false` and wrote its reasoning into the answer (run of 2026-11-17); the non-thinking instruct build of the same size replaces it. Prompt `rag_service.build_answer_prompt`; temperature 0, `num_ctx` 4096, `num_predict` 256, seed 42.
   - Prompt change on 2026-11-14, before any Phase 4 run: the language line was shortened to "Respond in the same language as the user's question." (its Vietnamese example was removed). All Phase 4 runs use this version. The preliminary study (7.1) used its own copy of the prompt, which has no language line.
 - **Conditions:**
   - `gold`: the evidence passages;
@@ -122,10 +123,15 @@ Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook 
   - No similarity gate (the 0.80 cutoff is calibrated for e5 only). The gold − retrieved gap is the loss due to retrieval.
 - **Questions:** C-RET references are rebuilt from QASPER JSON with `is_atomic_eligible` (all 567 have one); PeerQA uses `answer_free_form`.
 - **Metrics:** Token F1 (refusals 0), refusal rate, containment proxy, boolean accuracy, latency and tokens/s, per answer type.
-- **LLM-as-judge:** Gemini (`gemini-2.5-flash` by default, `--judge-model` to change) through the Gemini API, key in the environment variable `GEMINI_API` (read from `.env` at the repo root or `backend/`, or a Kaggle secret). JSON output with one of the 6 labels, judged only against the given context; retries with backoff on rate limits. Used only for evaluation (public papers), never by the application. Any non-`gemini` model name runs through Ollama instead.
+- **LLM-as-judge:** Claude Opus 5.5 (`claude-opus-5-5`), used outside the script: `--export-validation-file` / `--export-judge-file` write the judge prompts (the same `JUDGE_PROMPT`, answers blinded: no model name, no human label), the judge returns `{key, label, reason}` per line, and `--import-validation-file` / `--import-judge-file` score and store the labels. JSON output with one of the 6 labels, judged only against the given context. Used only for evaluation (public papers), never by the application.
+  - Changed on 2026-11-17 from Gemini: every call of the free Gemini API returned HTTP 429 (rate limit), so no label was produced. The Gemini/Ollama path (`--judge-model`) is still in the script.
   - `--judge-validate` first runs it on the **100 human-labelled answers** of the preliminary study (round 1: 60, round 2: 40, final labels) and reports the share of answers where the judge's label equals the human label, on 6 labels and on 3 classes (grounded / not grounded / refusal), plus a confusion table.
   - Judge labels are reported only together with this agreement.
-- **Status:** smoke-tested locally (gold and retrieved conditions, judge validation and judge pass); full runs pending.
+  - **Validation result (Claude Opus 5.5, 2026-11-17; `artifacts/judge_validation.json`):** 100 answers, 0 invalid outputs; same label as the human on 80/100 (6 labels) and 93/100 (3 classes); round 1 47/60, round 2 33/40. The disagreements are concentrated on three questions (REV-01, REV-09, REV-11): on 9 answers the human said REFUSAL_VALID and the judge MISSING_INFO - UNJUSTIFIED_REFUSAL (the judge read the context as containing the answer), and 3 UNSUPPORTED answers about REV-01 were judged SUPPORTED for the same reason. The judge therefore tends to count borderline refusals as unjustified; refusal labels are reported with this caveat. One human reviewer, so the human labels are not a gold standard either.
+- **Status (2026-11-17):**
+  - First Kaggle run: only PeerQA `gold` is valid (llama3.2:3b, qwen2.5:1.5b, phi4-mini, gemma3:4b). The datasets were not attached, so C-RET had 0 questions and PeerQA `retrieved` sent 166/181 questions an empty context; qwen3 leaked its reasoning. These outputs are kept in `artifacts/_invalid_run_2026-11-17/` (see its README) and are not used.
+  - The script now stops when the QASPER JSON or the PeerQA PDFs are missing or a context is empty (`--allow-missing-context` skips and reports them instead), and records `context_tokens` and a `reasoning_leak` flag. The notebook checks both datasets before running.
+  - Pending: rerun of C-RET (gold, retrieved), PeerQA retrieved, and qwen3 on PeerQA gold; then judge validation and judge pass.
 
 ### 7.1 Preliminary study (CPU, gold evidence)
 

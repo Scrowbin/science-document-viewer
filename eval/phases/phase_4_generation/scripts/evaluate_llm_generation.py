@@ -55,6 +55,7 @@ import csv
 import importlib.util
 import json
 import os
+import re
 import time
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -76,8 +77,14 @@ P3_PATH = (
 )
 OLLAMA = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
 
-MODELS = ["llama3.2:3b", "qwen2.5:1.5b", "phi4-mini", "qwen3:4b", "gemma3:4b"]
-THINKING_MODELS = ("qwen3",)  # sent think=false
+# qwen3: the plain `qwen3:4b` tag now points to the thinking-only 2507 build, which ignores
+# think=false and writes its reasoning into the answer (run of 2026-11-17). The instruct-2507
+# build of the same size does not think at all.
+MODELS = ["llama3.2:3b", "qwen2.5:1.5b", "phi4-mini", "qwen3:4b-instruct-2507-q4_K_M", "gemma3:4b"]
+THINKING_MODELS = ("qwen3",)  # hybrid qwen3 tags are sent think=false (not the instruct build)
+REASONING_START = re.compile(
+    r"^\s*(first,|okay,|ok,|alright,|let me|let's|i need to|we need to|the user|hmm)", re.IGNORECASE
+)
 JUDGE_MODEL = os.environ.get("JUDGE_MODEL", "gemini-2.5-flash")
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
@@ -113,6 +120,7 @@ man9 = _load(
     "phase9_manifest", P9 / "scripts" / "generate_sample_manifest_250.py"
 )  # is_atomic_eligible
 from apps.documents.services.rag_service import build_answer_prompt  # noqa: E402
+from apps.documents.services.chunkers import estimate_tokens  # noqa: E402
 from langchain_core.documents import Document  # noqa: E402
 
 REFUSAL = gen9.REFUSAL_MESSAGE
@@ -154,7 +162,7 @@ def ollama_generate(
         "options": options,
         "keep_alive": "30m",
     }
-    if any(model.startswith(t) for t in THINKING_MODELS):
+    if any(model.startswith(t) for t in THINKING_MODELS) and "instruct" not in model:
         body["think"] = False
     if fmt:
         body["format"] = fmt
@@ -166,8 +174,9 @@ def ollama_generate(
             r.raise_for_status()
             d = r.json()
             ec, ed = d.get("eval_count") or 0, d.get("eval_duration") or 0
+            text = re.sub(r"<think>.*?</think>", "", d.get("response") or "", flags=re.DOTALL)
             return {
-                "text": (d.get("response") or "").strip(),
+                "text": text.strip(),
                 "wall_s": round(time.perf_counter() - t0, 3),
                 "eval_count": ec,
                 "prompt_eval_count": d.get("prompt_eval_count"),
@@ -242,6 +251,12 @@ def load_questions(cohort: str, limit: Optional[int]) -> List[Dict[str, Any]]:
         f"{cohort}: {len(out)} questions with references (skipped {dict(skipped)})",
         flush=True,
     )
+    if not out or skipped.get("question_not_in_qasper_json"):
+        raise SystemExit(
+            f"{cohort}: {skipped.get('question_not_in_qasper_json', 0)} questions not found in the QASPER "
+            "JSON (eval/data/qasper_official/qasper-*-v0.3.json missing?) or no questions at all. "
+            "Attach the dataset and retry."
+        )
     return out
 
 
@@ -415,6 +430,7 @@ def run_generation(
     pipeline: Optional[str],
     models: List[str],
     limit: Optional[int],
+    allow_missing: bool = False,
 ) -> Dict[str, Any]:
     qs = load_questions(cohort, limit)
     out_dir = (
@@ -429,11 +445,27 @@ def run_generation(
     if limit:
         out_dir = out_dir.with_name(out_dir.name + f"_smoke_{limit}")
     out_dir.mkdir(parents=True, exist_ok=True)
+    if condition == "retrieved" and "PEERQA" in cohort:
+        papers = sorted({q["paper_id"] for q in qs})
+        found = p2.report_peerqa_pdf_coverage(papers)
+        if found < 0.9 * len(papers) and not allow_missing:
+            raise SystemExit(
+                f"{cohort}: PDFs for only {found}/{len(papers)} papers (eval/pdfs/peerqa). "
+                "Attach the PeerQA PDF dataset, or pass --allow-missing-context."
+            )
     contexts = (
         {f"{q['paper_id']}|{q['question_id']}": gold_context(q) for q in qs}
         if condition == "gold"
         else build_retrieved_contexts(cohort, qs, pipeline)
     )
+    empty = [q for q in qs if not contexts.get(f"{q['paper_id']}|{q['question_id']}")]
+    if empty:
+        msg = f"{cohort} / {condition}: {len(empty)}/{len(qs)} questions have an empty context"
+        if not allow_missing:
+            raise SystemExit(msg + "; the model would only be asked to refuse. Fix the data, "
+                             "or pass --allow-missing-context to skip them.")
+        print(f"  WARNING: {msg}; skipped", flush=True)
+        qs = [q for q in qs if q not in empty]
     pq = out_dir / "per_query.jsonl"
     done = set()
     if pq.exists():
@@ -485,7 +517,8 @@ def run_generation(
                     "answer": res["text"],
                     "error": res["error"],
                     "context_units": len(docs),
-                    "context_tokens": sum(d.get("tokens", 0) for d in docs),
+                    "context_tokens": sum(d.get("tokens") or estimate_tokens(d["text"]) for d in docs),
+                    "reasoning_leak": bool(REASONING_START.match(res["text"])),
                     "wall_s": res["wall_s"],
                     "tokens_per_s": res["tokens_per_s"],
                     "prompt_eval_count": res["prompt_eval_count"],
@@ -812,6 +845,39 @@ def judge_validate(judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
                 "reason": reason,
             }
         )
+    return score_validation(rows, judge_model, limit)
+
+
+def export_validation_file(out_file: Path) -> None:
+    """The 100 human-labelled answers as blinded judge prompts (no human label, no model name)."""
+    items = human_labelled_answers()
+    with open(out_file, "w", encoding="utf-8") as f:
+        for n, it in enumerate(items):
+            prompt = JUDGE_PROMPT.format(
+                context=it["context"][:24000], question=it["question"],
+                answer=it["answer"] or "(empty answer)",
+            )
+            f.write(json.dumps({"key": n, "prompt": prompt}, ensure_ascii=False) + "\n")
+    print(f"Wrote {len(items)} blinded judge prompts to {out_file}", flush=True)
+
+
+def import_validation_file(in_file: Path, judge_model: str) -> Dict[str, Any]:
+    """Labels for export_validation_file's prompts: JSONL {"key", "label", "reason"}."""
+    items = human_labelled_answers()
+    got = {}
+    for line in open(in_file, encoding="utf-8"):
+        if line.strip():
+            d = json.loads(line)
+            got[int(d["key"])] = (normalise_label(d.get("label", "")), str(d.get("reason", ""))[:300])
+    rows = []
+    for n, it in enumerate(items):
+        label, reason = got.get(n, ("INVALID", "no label"))
+        rows.append({**{k: it[k] for k in ("round", "id", "model", "human")},
+                     "judge": label, "reason": reason})
+    return score_validation(rows, judge_model, None)
+
+
+def score_validation(rows: List[Dict[str, Any]], judge_model: str, limit: Optional[int]) -> Dict[str, Any]:
     h, j = [r["human"] for r in rows], [r["judge"] for r in rows]
     hc, jc = [collapse(x) for x in h], [collapse(x) for x in j]
     conf: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
@@ -1112,6 +1178,11 @@ def main() -> None:
     ap.add_argument("--models", default=",".join(MODELS))
     ap.add_argument("--limit", type=int, help="papers per cohort (smoke test)")
     ap.add_argument(
+        "--allow-missing-context",
+        action="store_true",
+        help="skip questions whose context is empty instead of stopping (report the count)",
+    )
+    ap.add_argument(
         "--judge",
         action="store_true",
         help="label all generated answers with the judge model",
@@ -1125,6 +1196,16 @@ def main() -> None:
         "--judge-model",
         default=JUDGE_MODEL,
         help="gemini-* uses the Gemini API (key GEMINI_API in .env); any other name runs through Ollama",
+    )
+    ap.add_argument(
+        "--export-validation-file",
+        type=Path,
+        help="write the 100 human-labelled answers as blinded judge prompts (JSONL) for an external judge",
+    )
+    ap.add_argument(
+        "--import-validation-file",
+        type=Path,
+        help="score an external judge's labels for --export-validation-file (use with --judge-model)",
     )
     ap.add_argument(
         "--summary-only",
@@ -1143,6 +1224,12 @@ def main() -> None:
     )
     a = ap.parse_args()
     models = [m.strip() for m in a.models.split(",") if m.strip()]
+    if a.export_validation_file:
+        export_validation_file(a.export_validation_file)
+        return
+    if a.import_validation_file:
+        import_validation_file(a.import_validation_file, a.judge_model)
+        return
     if a.export_judge_file:
         export_judge_file(a.export_judge_file, models, a.cohort, a.condition)
         return
@@ -1157,7 +1244,7 @@ def main() -> None:
                 "--condition retrieved needs --pipeline (choose it from the Phase 3 results)"
             )
         for c in COHORTS if a.cohort == "all" else [a.cohort]:
-            run_generation(c, a.condition, a.pipeline, models, a.limit)
+            run_generation(c, a.condition, a.pipeline, models, a.limit, a.allow_missing_context)
     if a.judge:
         judge_runs(a.judge_model, models, a.cohort, a.condition)
     if not (a.judge_validate or a.condition or a.judge or a.summary_only):

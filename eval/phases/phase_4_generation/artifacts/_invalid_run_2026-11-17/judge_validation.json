@@ -1,0 +1,830 @@
+{
+  "judge_model": "gemini-flash-latest",
+  "n": 100,
+  "agreement_6_labels": 0.0,
+  "agreement_3_classes": 0.0,
+  "classes_3": "grounded = SUPPORTED/PARTIAL; not_grounded = UNSUPPORTED/CONTRADICTED; refusal = REFUSAL_VALID/UNJUSTIFIED_REFUSAL",
+  "confusion_human_rows_judge_cols": {
+    "REFUSAL_VALID": {
+      "INVALID": 16
+    },
+    "UNSUPPORTED": {
+      "INVALID": 12
+    },
+    "CONTRADICTED": {
+      "INVALID": 6
+    },
+    "SUPPORTED": {
+      "INVALID": 44
+    },
+    "MISSING_INFO - PARTIAL": {
+      "INVALID": 4
+    },
+    "MISSING_INFO - UNJUSTIFIED_REFUSAL": {
+      "INVALID": 18
+    }
+  },
+  "invalid_outputs": 100,
+  "rows": [
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "qwen2.5:0.5b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "llama3.2:1b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "llama3.2:3b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "llama3.2:1b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "llama3.2:1b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-01/Model_Delta",
+      "model": "phi4-mini",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-01/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-02/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-02/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-03/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-03/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-04/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-04/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-05/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-05/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-06/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-06/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-07/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-07/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-08/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-08/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-09/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-09/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-10/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-10/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-11/Model_Delta",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-11/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-12/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-12/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-13/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-13/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-14/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-14/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-15/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-15/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-16/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-16/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-17/Model_Delta",
+      "model": "phi4-mini",
+      "human": "UNSUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-17/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-18/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-18/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-19/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-19/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-20/Model_Delta",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    },
+    {
+      "round": 2,
+      "id": "REV-20/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "INVALID",
+      "reason": "HTTP 429"
+    }
+  ]
+}

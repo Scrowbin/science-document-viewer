@@ -1,0 +1,100 @@
+{"key": 0, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context describes the underlying formalism of the theorem provers as type-logical grammars, so it contains the answer."}
+{"key": 1, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context describes the underlying formalism of the theorem provers as type-logical grammars, so it contains the answer."}
+{"key": 2, "label": "SUPPORTED", "reason": "The context presents type-logical grammars as the underlying formalism of the theorem provers."}
+{"key": 3, "label": "CONTRADICTED", "reason": "The context frames the task as drunk-texting prediction applied to tweets, i.e. it treats drunk tweets as drunk-texting."}
+{"key": 4, "label": "CONTRADICTED", "reason": "The claim that the authors do not equate the two conflicts with the context, which calls predicting drunk tweets drunk-texting prediction."}
+{"key": 5, "label": "SUPPORTED", "reason": "The context introduces drunk-texting prediction as identifying whether a tweet was written by a drunk user, equating the two."}
+{"key": 6, "label": "SUPPORTED", "reason": "The context states Open IE is run on hits from the Sentence corpus S, described with exactly these details."}
+{"key": 7, "label": "SUPPORTED", "reason": "The context states the tuple KB is built by running Open IE on sentences retrieved from corpus S."}
+{"key": 8, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context explicitly says Open IE v4 is run on hits retrieved from the Sentence corpus S."}
+{"key": 9, "label": "SUPPORTED", "reason": "The four listed dialects (EGY, LEV, GLF, NOR) are stated in the context alongside MSA."}
+{"key": 10, "label": "SUPPORTED", "reason": "The four listed dialects (EGY, LEV, GLF, NOR) are stated in the context alongside MSA."}
+{"key": 11, "label": "SUPPORTED", "reason": "The four listed dialects (EGY, LEV, GLF, NOR) are stated in the context alongside MSA."}
+{"key": 12, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context names the LDC training corpus and the NIST MT03/04/05/06/08 validation and test sets."}
+{"key": 13, "label": "MISSING_INFO - PARTIAL", "reason": "Correct about MT03 validation but omits the LDC training data and the MT04/05/06/08 test sets given in the context."}
+{"key": 14, "label": "MISSING_INFO - PARTIAL", "reason": "Grounded but mentions only MT03, omitting the LDC training corpus and the test sets listed in the context."}
+{"key": 15, "label": "SUPPORTED", "reason": "The context describes the SEAME Mandarin-English code-switching corpus."}
+{"key": 16, "label": "SUPPORTED", "reason": "The context describes the SEAME Mandarin-English code-switching corpus."}
+{"key": 17, "label": "SUPPORTED", "reason": "The context describes the SEAME Mandarin-English code-switching corpus."}
+{"key": 18, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context explicitly lists the five baselines."}
+{"key": 19, "label": "SUPPORTED", "reason": "All five baselines and their descriptions are taken directly from the context."}
+{"key": 20, "label": "SUPPORTED", "reason": "All five baselines listed match the context."}
+{"key": 21, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states Text2Visual provides visual components conveying the S-V-O text meanings, which answers the question."}
+{"key": 22, "label": "UNSUPPORTED", "reason": "The name SimplerVoice and the claim that it generates a visual description are not stated in the context."}
+{"key": 23, "label": "SUPPORTED", "reason": "The answer restates the context that visual components convey the S-V-O text meanings."}
+{"key": 24, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states JESSI was trained only on the datasets given in the shared task, which answers the question."}
+{"key": 25, "label": "MISSING_INFO - PARTIAL", "reason": "The answer only says the datasets are in the context without stating that they were the datasets given by the shared task, which the context does say."}
+{"key": 26, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states JESSI used only the datasets given by the shared task, so a refusal is not justified."}
+{"key": 27, "label": "CONTRADICTED", "reason": "The answer claims the first word of each question was used to build the indicator set, whereas the context says queries were selected if their first word was in a manually constructed indicator set."}
+{"key": 28, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context describes the dataset construction in detail (Google queries, Wikipedia filtering, three-step annotation)."}
+{"key": 29, "label": "CONTRADICTED", "reason": "The answer describes a corpus of scientific articles, news and personal experiences, which conflicts with the context's construction from Google search queries paired with Wikipedia pages."}
+{"key": 30, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states they use a reference corpus of 21,093 tokens with correct lemmas."}
+{"key": 31, "label": "SUPPORTED", "reason": "The context directly states Nefnir was evaluated against a reference corpus of 21,093 tokens and their correct lemmas."}
+{"key": 32, "label": "SUPPORTED", "reason": "The reference corpus of 21,093 tokens and lemmas is stated in the context."}
+{"key": 33, "label": "UNSUPPORTED", "reason": "The context is only a section title and says nothing about metrics, so the whole answer is unsupported."}
+{"key": 34, "label": "REFUSAL_VALID", "reason": "The context is only a section title and contains no information about problems with existing metrics."}
+{"key": 35, "label": "REFUSAL_VALID", "reason": "The context is only a section title and contains no information about problems with existing metrics."}
+{"key": 36, "label": "UNSUPPORTED", "reason": "The claim that UD data was used to build the Flair embeddings is not stated in the context."}
+{"key": 37, "label": "MISSING_INFO - PARTIAL", "reason": "The listed items restate the context but leave out Czech Wikipedia, the data used for the FastText embeddings."}
+{"key": 38, "label": "MISSING_INFO - PARTIAL", "reason": "The LINDAT/CLARIN corpora are correct but the answer omits Czech Wikipedia, which was used for the UD FastText embeddings."}
+{"key": 39, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states diversity is measured by the number of distinct n-grams, normalized to [0, 1]."}
+{"key": 40, "label": "SUPPORTED", "reason": "The context states the number of distinct n-grams is used to evaluate diversity."}
+{"key": 41, "label": "SUPPORTED", "reason": "Distinct n-grams normalized to [0, 1] by the total number of generated tokens is stated in the context."}
+{"key": 42, "label": "SUPPORTED", "reason": "All five systems and their descriptions match the context."}
+{"key": 43, "label": "SUPPORTED", "reason": "The five systems match the context, and the closing remark is consistent with the context's focus on massive message datasets."}
+{"key": 44, "label": "SUPPORTED", "reason": "All five systems listed are named in the context."}
+{"key": 45, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states the challenge: mBERT embeddings do not represent similar semantic phenomena similarly and are not directly usable for zero-shot cross-lingual tasks."}
+{"key": 46, "label": "UNSUPPORTED", "reason": "The second and third challenges (deeper analysis of tasks, contextual neutrality) are not stated in the context."}
+{"key": 47, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states the challenge that mBERT embeddings do not represent similar semantic phenomena similarly across languages."}
+{"key": 48, "label": "UNSUPPORTED", "reason": "The context does not name the BIBREF3 model as a Multi-cascaded Deep Model; McM appears to be the authors' own model."}
+{"key": 49, "label": "SUPPORTED", "reason": "The context states they re-implement the model proposed in BIBREF3 as their baseline."}
+{"key": 50, "label": "SUPPORTED", "reason": "The context states the baseline is the re-implemented BIBREF3 model, chosen for its proven performance on multilingual text classification."}
+{"key": 51, "label": "SUPPORTED", "reason": "The context names the previous work's model as the Ternary Trans-CNN model."}
+{"key": 52, "label": "SUPPORTED", "reason": "Model name, authors, convolution layers, filter sizes and dense layer sizes all match the context."}
+{"key": 53, "label": "SUPPORTED", "reason": "All architectural details (filters 15/12/10, kernel size 3, dense layers 64 and 3) are stated in the context."}
+{"key": 54, "label": "SUPPORTED", "reason": "The context says the platform ingests a variety of formats including PDFs and Microsoft Word."}
+{"key": 55, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context explicitly states the platform supports PDFs and Microsoft Word documents."}
+{"key": 56, "label": "SUPPORTED", "reason": "The answer restates the context's description of supported formats and conversion to plain text."}
+{"key": 57, "label": "UNSUPPORTED", "reason": "The listed genres (Pop, R&B, Soul, Hip Hop) and their attribution to Roberto Carlos appear nowhere in the context."}
+{"key": 58, "label": "REFUSAL_VALID", "reason": "The context mentions 14 genres shown in a table but does not name them."}
+{"key": 59, "label": "REFUSAL_VALID", "reason": "The context mentions 14 genres shown in a table but does not name them."}
+{"key": 60, "label": "SUPPORTED", "reason": "The context describes the underlying formalism of the theorem provers as type-logical grammars."}
+{"key": 61, "label": "SUPPORTED", "reason": "The context presents type-logical grammars as the formalism underlying the theorem provers being described."}
+{"key": 62, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context frames drunk-tweet identification as the 'drunk-texting prediction' task, so it does address the question."}
+{"key": 63, "label": "CONTRADICTED", "reason": "The context defines drunk-texting prediction as identifying drunk tweets, effectively equating the two, contrary to the answer."}
+{"key": 64, "label": "SUPPORTED", "reason": "The context states Open IE was run on hits retrieved from the Sentence corpus S."}
+{"key": 65, "label": "SUPPORTED", "reason": "The context states Open IE was run on hits retrieved from the Sentence corpus S."}
+{"key": 66, "label": "SUPPORTED", "reason": "The four dialects listed are given in the context alongside MSA."}
+{"key": 67, "label": "SUPPORTED", "reason": "All five listed varieties, including MSA, are stated in the context as the dataset's dialects."}
+{"key": 68, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context names the LDC corpus training data and the NIST MT03/04/05/06/08 validation and test sets."}
+{"key": 69, "label": "CONTRADICTED", "reason": "The context says MT03 is only the validation set, with MT04-06 and MT08 as the test sets."}
+{"key": 70, "label": "SUPPORTED", "reason": "The context describes SEAME as a Mandarin-English code-switching speech corpus."}
+{"key": 71, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states the corpus is Mandarin-English code-switching speech."}
+{"key": 72, "label": "SUPPORTED", "reason": "All five baselines listed match those in the context."}
+{"key": 73, "label": "SUPPORTED", "reason": "All five baselines listed match those in the context."}
+{"key": 74, "label": "SUPPORTED", "reason": "The context says Text2Visual provides visual components conveying the meaning of S-V-O text, which connects images and text."}
+{"key": 75, "label": "SUPPORTED", "reason": "The context says Text2Visual provides visual components conveying the meaning of S-V-O text, which implies connecting images and text."}
+{"key": 76, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states JESSI was trained only on the datasets given by the shared task, which answers the question at least in part."}
+{"key": 77, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states JESSI was trained only on the datasets given by the shared task, which answers the question at least in part."}
+{"key": 78, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context describes in detail how the dataset was built from Google queries, Wikipedia pages and a three-step annotation."}
+{"key": 79, "label": "SUPPORTED", "reason": "Every step described (query gathering, heuristic filtering, Wikipedia top-five filter, three-step annotation, cost) matches the context."}
+{"key": 80, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states they use a reference corpus of 21,093 tokens with correct lemmas, sampled from two larger corpora."}
+{"key": 81, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states they use a reference corpus of 21,093 tokens with correct lemmas, sampled from two larger corpora."}
+{"key": 82, "label": "UNSUPPORTED", "reason": "The context contains only a section title and says nothing about problems with existing metrics."}
+{"key": 83, "label": "REFUSAL_VALID", "reason": "The context is only a section title and does not contain any information about problems with existing metrics."}
+{"key": 84, "label": "SUPPORTED", "reason": "The answer correctly reports the LINDAT/CLARIN corpora for word2vec and Czech Wikipedia for FastText, and correctly notes that the data for Flair is not specified."}
+{"key": 85, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context names the data used: Czech corpora from LINDAT/CLARIN for word2vec and Czech Wikipedia for FastText."}
+{"key": 86, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context says diversity is measured by the number of distinct n-grams, normalized by the total number of generated tokens."}
+{"key": 87, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context says diversity is measured by the number of distinct n-grams, normalized by the total number of generated tokens."}
+{"key": 88, "label": "UNSUPPORTED", "reason": "The answer lists Google's Chrome Naive Bayes software as a separate fifth system, but the context says CLD2 and CLD3 are its implementations, not an additional tested system."}
+{"key": 89, "label": "SUPPORTED", "reason": "The answer lists exactly the five systems named in the context."}
+{"key": 90, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states the challenge: mBERT embeddings do not represent similar semantic phenomena similarly, so they are not directly usable for zero-shot cross-lingual tasks."}
+{"key": 91, "label": "MISSING_INFO - UNJUSTIFIED_REFUSAL", "reason": "The context states the challenge: mBERT embeddings do not represent similar semantic phenomena similarly, so they are not directly usable for zero-shot cross-lingual tasks."}
+{"key": 92, "label": "UNSUPPORTED", "reason": "The context never describes BIBREF3 as a multi-cascaded deep model for bilingual SMS classification."}
+{"key": 93, "label": "SUPPORTED", "reason": "The context states that the model proposed in BIBREF3 is re-implemented and used as the baseline."}
+{"key": 94, "label": "SUPPORTED", "reason": "The context says Mathur et al. proposed a Ternary Trans-CNN model."}
+{"key": 95, "label": "SUPPORTED", "reason": "All architectural details, the training data and the reported metrics match the context."}
+{"key": 96, "label": "SUPPORTED", "reason": "The context states the platform ingests a variety of formats, including PDFs and Microsoft Word."}
+{"key": 97, "label": "SUPPORTED", "reason": "The context states the platform ingests a variety of formats, including PDFs and Microsoft Word."}
+{"key": 98, "label": "REFUSAL_VALID", "reason": "The context says 14 genres were selected but lists them only in a table that is not included, so the genres are not given."}
+{"key": 99, "label": "REFUSAL_VALID", "reason": "The context says 14 genres were selected but lists them only in a table that is not included, so the genres are not given."}
