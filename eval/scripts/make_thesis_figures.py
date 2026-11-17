@@ -138,7 +138,10 @@ def phase2_ndcg(cohort="c_ret"):
             m = c.get("common_means") or c["means"]
             out[(c["chunker"], c["model_label"])] = m["ndcg_10"]
         return out, str(summ.relative_to(ROOT))
-    log = PH / "phase_2_retrieval/artifacts/kaggle_full_run.log"
+    # The 2026-11-15 run (gemma with its model-card prompts, PeerQA with all PDFs) replaces the first run.
+    log = PH / "phase_2_retrieval/artifacts/kaggle_full_run_2026-11-15.log"
+    if not log.exists():
+        log = PH / "phase_2_retrieval/artifacts/kaggle_full_run.log"
     txt = log.read_text(encoding="utf-8")
     block = txt.split("Cohort [C-RET]")[1].split("Cohort [")[0] if cohort == "c_ret" else txt.split("Cohort [PEERQA-PDF]")[1]
     out = {(m.group(1), m.group(2)): float(m.group(3))

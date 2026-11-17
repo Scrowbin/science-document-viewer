@@ -78,23 +78,31 @@ Academic documents only (77 documents, 1,152 questions; computed from `per_query
 
 Script `phases/phase_2_retrieval/scripts/evaluate_retrieval.py` (Kaggle notebook `retrieval-benchmark-full`; log `phases/phase_2_retrieval/artifacts/kaggle_full_run.log`). 3 chunkers (`hierarchical` 200/40 → parents; `section_overlap` 400/80; `fixed_size` 400) × 5 embedders (e5-small-v2, snowflake-arctic-embed-s, modernbert-embed-base, embeddinggemma-300m, Qwen3-Embedding-0.6B), dense retrieval.
 
-C-RET, 566 questions with a relevant unit (source: the run log; replace with `artifacts/c_ret/summary.json` once downloaded):
+Full run of 2026-11-15 (executed notebook `eval/kaggle/ran_notebooks/phase_2_retrieval-benchmark-full.ipynb`; numbers from its log, extracted to `artifacts/kaggle_full_run_2026-11-15.log`; replace with `artifacts/<cohort>/summary.json` once downloaded). gemma now uses its model-card prompts (`title: none | text: `); the earlier gemma run without them is superseded.
 
-| nDCG@10 | e5 | arctic | modernbert | gemma* | qwen |
+C-RET, 566 questions with a relevant unit (text from QASPER JSON):
+
+| nDCG@10 | e5 | arctic | modernbert | gemma | qwen |
 |---|---|---|---|---|---|
-| hierarchical | 0.703 | 0.711 | 0.713 | 0.719 | **0.721** |
-| fixed_size | 0.620 | 0.637 | 0.637 | 0.689 | 0.662 |
-| section_overlap | 0.585 | 0.577 | 0.592 | 0.627 | 0.586 |
+| hierarchical | 0.703 | 0.711 | 0.713 | **0.744** | 0.721 |
+| fixed_size | 0.620 | 0.637 | 0.637 | 0.688 | 0.662 |
+| section_overlap | 0.585 | 0.577 | 0.592 | 0.647 | 0.586 |
 
-\* gemma ran with an empty document prompt; the model card uses `title: none | text: ` (fixed in `rag_service.MODEL_PREFIX_SPECS`; rerun pending).
+PEERQA-PDF, 107/107 PDFs extracted with PyMuPDF, 288 questions (283–285 with a relevant unit, depending on the chunker); qwen was not run on this cohort in Phase 2 (its `dense` result is in Phase 3):
 
-- **PeerQA: pending.** The first full run found PDFs for only 8/107 papers (26 questions). The loader now searches `eval/pdfs/peerqa` recursively and prints the coverage; rerun with `eval/kaggle/phase2_peerqa_gemma_rerun.ipynb`.
+| nDCG@10 | e5 | arctic | modernbert | gemma |
+|---|---|---|---|---|
+| hierarchical | **0.722** | 0.705 | 0.718 | 0.719 |
+| fixed_size | 0.486 | 0.495 | 0.513 | 0.543 |
+| section_overlap | 0.433 | 0.437 | 0.479 | 0.484 |
+
 - **Theory vs result.**
-  - Hierarchical (small-to-big) is best for every embedder (+0.03 to +0.08 over the best flat chunker), as expected; part of the gain comes from the larger scored unit.
-  - Section-aware chunking does **not** beat fixed size, unlike the expectation; short sections give small chunks with little context (plausible, not tested).
-  - With hierarchical chunking the embedders are within 0.018 (vs 0.069 with fixed size): chunking matters more than the embedder.
-  - Larger models are slightly better at much higher cost: on the Kaggle GPU the hierarchical combination took about 1,650 s for Qwen3 vs about 120 s for e5 (from the log; includes indexing all units).
-- **Choice for Phase 3:** hierarchical; embedders e5 (application default, cheapest), qwen (best), gemma (near-best, best on flat chunks), modernbert (long context).
+  - Hierarchical (small-to-big) is best for every embedder on both datasets, as expected: +0.06 to +0.08 over the best flat chunker on C-RET and +0.18 to +0.24 on PeerQA. Part of the gain comes from the larger scored unit (a parent section counts as relevant if it contains the evidence). The larger gap on PeerQA fits its longer papers and reviewer questions that need surrounding context (plausible, not tested).
+  - Section-aware chunking does **not** beat fixed size, unlike the expectation, on either dataset; short sections give small chunks with little context (plausible, not tested).
+  - With hierarchical chunking the embedders are close: within 0.041 on C-RET and 0.017 on PeerQA, against 0.068 / 0.057 with fixed size. Chunking matters more than the embedder.
+  - The best embedder differs by dataset (gemma on C-RET, e5 on PeerQA), so no embedder is clearly best.
+  - Larger models cost much more: on the Kaggle GPU the hierarchical combination took about 1,630 s for Qwen3 vs about 120 s for e5 and 350 s for gemma on C-RET (from the log; includes indexing all units).
+- **Choice for Phase 3:** hierarchical; embedders e5 (application default, cheapest), qwen (largest), gemma (best on C-RET), modernbert (long context).
 
 ## 6. Phase 3: keyword retrieval, fusion and reranking
 
@@ -108,7 +116,34 @@ Script `phases/phase_3_hybrid_reranking/scripts/evaluate_hybrid_reranking.py`; n
 - Plus `bm25` alone (regex tokenizer with stopwords). 29 arms; C-RET and PEERQA-PDF.
 - Outputs `artifacts/<cohort>/{per_query.jsonl,summary.json,REPORT.md}`: means on the common question set, top-10 parent ids per arm, fusion latency, reranker latency (only from calls that scored all 30 pairs; cached reranker scores are reused across embedders). Resumable.
 - **Expectations:** BM25 alone below dense on QASPER (questions share few words with the evidence) but closer on PeerQA; fusion at least as good as the better input, most useful for weaker embedders; rerankers improve the top ranks at a large latency cost (especially bge-reranker-v2-m3).
-- **Results: pending.** The arm with the best nDCG@10 on both datasets, weighed against CPU latency, becomes the `--pipeline` of Phase 4.
+Full run of 2026-11-15 on 2× Tesla T4 (executed notebook `eval/kaggle/ran_notebooks/phase_3_retrieval-upgrade-benchmark-full.ipynb`, commit 8976fce: embedders on GPU 0, rerankers on GPU 1). The log gives only the best arm per cohort; the per-arm values below are read from the figures of the run (slides of 2026-11-15) and match every value in the logs; replace with `artifacts/<cohort>/summary.json` once downloaded. Means over the common question set: C-RET 566, PEERQA-PDF 284. Each `dense` value equals Phase 2 hierarchical.
+
+nDCG@10, C-RET (BM25 alone 0.646):
+
+| Embedder | dense | rrf | convex | dense+minilm | convex+minilm | dense+bgem3 | convex+bgem3 |
+|---|---|---|---|---|---|---|---|
+| e5 | 0.703 | 0.704 | 0.709 | 0.733 | 0.734 | 0.744 | 0.744 |
+| qwen | 0.721 | 0.715 | 0.737 | 0.734 | 0.734 | 0.746 | 0.745 |
+| gemma | 0.744 | 0.731 | 0.744 | 0.734 | 0.733 | 0.743 | 0.743 |
+| modernbert | 0.713 | 0.713 | 0.726 | 0.734 | 0.734 | **0.747** | 0.745 |
+
+nDCG@10, PEERQA-PDF (BM25 alone 0.718):
+
+| Embedder | dense | rrf | convex | dense+minilm | convex+minilm | dense+bgem3 | convex+bgem3 |
+|---|---|---|---|---|---|---|---|
+| e5 | 0.722 | 0.745 | 0.747 | 0.730 | 0.744 | 0.739 | 0.754 |
+| qwen | 0.674 | 0.719 | 0.715 | 0.719 | 0.741 | 0.733 | 0.755 |
+| gemma | 0.719 | 0.738 | 0.742 | 0.735 | 0.744 | 0.746 | **0.757** |
+| modernbert | 0.718 | 0.735 | 0.743 | 0.734 | 0.740 | 0.745 | 0.756 |
+
+Retrieval latency per question, p50 on the T4 GPUs (C-RET / PeerQA): `dense` 0.04 / 0.08 ms, BM25 1.7 / 0.9 ms, `rrf` and `convex` 1.8–1.9 / 1.2–1.3 ms, `+minilm` about 74 / 106 ms, `+bgem3` about 1,530 / 1,990 ms. The `dense` time is the similarity search only: the question embedding is computed in one batch before timing, so it is not included in any arm. Reranker times are measured once and shared across embedders.
+
+- **Theory vs result.**
+  - BM25 alone is below every dense embedder on C-RET (0.646 vs 0.703–0.744), as expected, and on PeerQA it is level with them (0.718 vs 0.718–0.722; above qwen's 0.674), also as expected: reviewer questions reuse the paper's terms.
+  - Fusion: `convex` is at least as good as `dense` for every embedder on both datasets (+0.000 to +0.016 on C-RET, +0.023 to +0.041 on PeerQA) and helps the weaker embedders most, as expected. `rrf` is **not** always at least as good as the better input: on C-RET it is below `dense` for gemma (−0.013) and qwen (−0.006). RRF weights both lists equally, and BM25 is much weaker than dense on C-RET (plausible, not tested); `convex` gives BM25 a weight of 0.3.
+  - Rerankers: `bge-reranker-v2-m3` gives the best or near-best value for every embedder and brings them together (0.743–0.747 on C-RET, 0.754–0.757 on PeerQA), as expected. MiniLM helps the weaker embedders but **lowers** gemma on C-RET (0.744 → 0.734). MiniLM was trained on short MS MARCO passages and scores only the first 512 tokens of each pair (plausible, not tested).
+  - The gains are small relative to the cost: on C-RET the best arm (0.747) is 0.003 above gemma `dense` at roughly 1.5 s more per question; on PeerQA `gemma:convex+bgem3` is 0.038 above gemma `dense`.
+- **Choice for Phase 4:** `gemma:dense` (C-RET 0.744, 0.003 below the best arm; PeerQA 0.719). It needs no BM25 index and no reranker, so the only change from the production pipeline is the embedder, and its retrieval cost is the lowest. `gemma:convex` (0.744 / 0.742) is the alternative when questions reuse the paper's wording (PeerQA-like), at about 1 ms more; `+bgem3` is not worth about 1.5–2 s per question for these gains.
 
 ## 7. Phase 4: answer generation
 
@@ -131,7 +166,7 @@ Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook 
 - **Status (2026-11-17):**
   - First Kaggle run: only PeerQA `gold` is valid (llama3.2:3b, qwen2.5:1.5b, phi4-mini, gemma3:4b). The datasets were not attached, so C-RET had 0 questions and PeerQA `retrieved` sent 166/181 questions an empty context; qwen3 leaked its reasoning. These outputs are kept in `artifacts/_invalid_run_2026-11-17/` (see its README) and are not used.
   - The script now stops when the QASPER JSON or the PeerQA PDFs are missing or a context is empty (`--allow-missing-context` skips and reports them instead), and records `context_tokens` and a `reasoning_leak` flag. The notebook checks both datasets before running.
-  - Pending: rerun of C-RET (gold, retrieved), PeerQA retrieved, and qwen3 on PeerQA gold; then judge validation and judge pass.
+  - Pending: rerun of C-RET (gold, retrieved), PeerQA retrieved, and qwen3 on PeerQA gold; then the judge pass (judge validation is done, see above).
 
 ### 7.1 Preliminary study (CPU, gold evidence)
 

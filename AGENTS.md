@@ -163,7 +163,8 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is
   only a future extension in the thesis (`docs/design/DEPLOYMENT_PLAN.md`).
-* Evaluation (four phases, `eval/README.md`): Phase 1 extraction (OHR-Bench) and Phase 2
-  chunking × embedding (QASPER C-RET) are done; Phase 2 PeerQA/gemma rerun, Phase 3 (BM25,
-  fusion, reranking) and Phase 4 (LLMs, gold vs retrieved, LLM judge) run on Kaggle
-  (`eval/kaggle/`). The 16-configuration combination run was dropped (archived).
+* Evaluation (four phases, `eval/README.md`): Phase 1 extraction (OHR-Bench), Phase 2
+  chunking × embedding (C-RET and PeerQA) and Phase 3 (BM25, fusion, reranking) are done;
+  Phase 4 (LLMs, gold vs retrieved) needs a Kaggle rerun (`eval/kaggle/`), then the judge pass
+  (Claude Opus 5.5 on exported, blinded prompts; validated on the 100 human labels).
+  The 16-configuration combination run was dropped (archived).
