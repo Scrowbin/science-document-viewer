@@ -1,0 +1,214 @@
+{
+  "c_ret": {
+    "gold": {},
+    "retrieved_gemma_dense": {}
+  },
+  "peerqa_pdf": {
+    "gold": {
+      "llama3.2:3b": {
+        "n": 181,
+        "token_f1": 0.0359,
+        "refusal_rate": 0.8508,
+        "containment": 0.6055,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.25,
+        "latency_s_p95": 0.68,
+        "tokens_per_s_p50": 84.4,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0359,
+            "refusal_rate": 0.8508
+          }
+        }
+      },
+      "qwen2.5:1.5b": {
+        "n": 181,
+        "token_f1": 0.1225,
+        "refusal_rate": 0.5414,
+        "containment": 0.5618,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.18,
+        "latency_s_p95": 1.09,
+        "tokens_per_s_p50": 135.3,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.1225,
+            "refusal_rate": 0.5414
+          }
+        }
+      },
+      "phi4-mini": {
+        "n": 181,
+        "token_f1": 0.0567,
+        "refusal_rate": 0.8177,
+        "containment": 0.6627,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.34,
+        "latency_s_p95": 1.6,
+        "tokens_per_s_p50": 61.7,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0567,
+            "refusal_rate": 0.8177
+          }
+        }
+      },
+      "qwen3:4b": {
+        "n": 181,
+        "token_f1": 0.1353,
+        "refusal_rate": 0.0276,
+        "containment": 0.4354,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 4.47,
+        "latency_s_p95": 4.78,
+        "tokens_per_s_p50": 58.9,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.1353,
+            "refusal_rate": 0.0276
+          }
+        }
+      },
+      "gemma3:4b": {
+        "n": 181,
+        "token_f1": 0.0456,
+        "refusal_rate": 0.8564,
+        "containment": 0.9647,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.41,
+        "latency_s_p95": 1.06,
+        "tokens_per_s_p50": 62.4,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0456,
+            "refusal_rate": 0.8564
+          }
+        }
+      }
+    },
+    "retrieved_gemma_dense": {
+      "llama3.2:3b": {
+        "n": 181,
+        "token_f1": 0.0024,
+        "refusal_rate": 0.9834,
+        "containment": 0.4863,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.21,
+        "latency_s_p95": 0.78,
+        "tokens_per_s_p50": 80.2,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0024,
+            "refusal_rate": 0.9834
+          }
+        }
+      },
+      "qwen2.5:1.5b": {
+        "n": 181,
+        "token_f1": 0.0427,
+        "refusal_rate": 0.7403,
+        "containment": 0.1462,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.12,
+        "latency_s_p95": 1.12,
+        "tokens_per_s_p50": 141.2,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0427,
+            "refusal_rate": 0.7403
+          }
+        }
+      },
+      "phi4-mini": {
+        "n": 181,
+        "token_f1": 0.0009,
+        "refusal_rate": 0.9945,
+        "containment": 0.3333,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.26,
+        "latency_s_p95": 0.97,
+        "tokens_per_s_p50": 63.1,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0009,
+            "refusal_rate": 0.9945
+          }
+        }
+      },
+      "qwen3:4b": {
+        "n": 181,
+        "token_f1": 0.0548,
+        "refusal_rate": 0.326,
+        "containment": 0.0748,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 4.41,
+        "latency_s_p95": 5.36,
+        "tokens_per_s_p50": 59.0,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0548,
+            "refusal_rate": 0.326
+          }
+        }
+      },
+      "gemma3:4b": {
+        "n": 181,
+        "token_f1": 0.0013,
+        "refusal_rate": 0.9834,
+        "containment": 0.8784,
+        "boolean_accuracy": null,
+        "errors": 0,
+        "latency_s_p50": 0.33,
+        "latency_s_p95": 1.09,
+        "tokens_per_s_p50": 62.2,
+        "by_type": {
+          "abstractive": {
+            "n": 181,
+            "token_f1": 0.0013,
+            "refusal_rate": 0.9834
+          }
+        }
+      }
+    },
+    "gap_gold_minus_retrieved_gemma_dense": {
+      "llama3.2:3b": {
+        "token_f1": 0.0335,
+        "refusal_rate": -0.1326
+      },
+      "qwen2.5:1.5b": {
+        "token_f1": 0.0798,
+        "refusal_rate": -0.1989
+      },
+      "phi4-mini": {
+        "token_f1": 0.0558,
+        "refusal_rate": -0.1768
+      },
+      "qwen3:4b": {
+        "token_f1": 0.0805,
+        "refusal_rate": -0.2984
+      },
+      "gemma3:4b": {
+        "token_f1": 0.0443,
+        "refusal_rate": -0.127
+      }
+    }
+  }
+}
