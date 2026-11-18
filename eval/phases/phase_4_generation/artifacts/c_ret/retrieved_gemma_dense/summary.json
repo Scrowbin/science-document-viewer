@@ -1,0 +1,145 @@
+{
+  "dir": "retrieved_gemma_dense",
+  "models": {
+    "llama3.2:3b": {
+      "n": 567,
+      "token_f1": 0.153,
+      "refusal_rate": 0.4356,
+      "containment": 0.8655,
+      "boolean_accuracy": "29/86",
+      "errors": 0,
+      "latency_s_p50": 1.06,
+      "latency_s_p95": 3.08,
+      "tokens_per_s_p50": 69.5,
+      "by_type": {
+        "extractive": {
+          "n": 342,
+          "token_f1": 0.1997,
+          "refusal_rate": 0.3567
+        },
+        "abstractive": {
+          "n": 139,
+          "token_f1": 0.112,
+          "refusal_rate": 0.5396
+        },
+        "boolean": {
+          "n": 86,
+          "token_f1": 0.0331,
+          "refusal_rate": 0.5814
+        }
+      }
+    },
+    "qwen2.5:1.5b": {
+      "n": 567,
+      "token_f1": 0.2178,
+      "refusal_rate": 0.0988,
+      "containment": 0.8465,
+      "boolean_accuracy": "40/86",
+      "errors": 0,
+      "latency_s_p50": 0.69,
+      "latency_s_p95": 2.05,
+      "tokens_per_s_p50": 128.7,
+      "by_type": {
+        "extractive": {
+          "n": 342,
+          "token_f1": 0.2725,
+          "refusal_rate": 0.0643
+        },
+        "abstractive": {
+          "n": 139,
+          "token_f1": 0.1831,
+          "refusal_rate": 0.0863
+        },
+        "boolean": {
+          "n": 86,
+          "token_f1": 0.0568,
+          "refusal_rate": 0.2558
+        }
+      }
+    },
+    "phi4-mini": {
+      "n": 567,
+      "token_f1": 0.1704,
+      "refusal_rate": 0.5309,
+      "containment": 0.8872,
+      "boolean_accuracy": "17/86",
+      "errors": 0,
+      "latency_s_p50": 1.19,
+      "latency_s_p95": 3.14,
+      "tokens_per_s_p50": 55.3,
+      "by_type": {
+        "extractive": {
+          "n": 342,
+          "token_f1": 0.2276,
+          "refusal_rate": 0.4415
+        },
+        "abstractive": {
+          "n": 139,
+          "token_f1": 0.1117,
+          "refusal_rate": 0.6187
+        },
+        "boolean": {
+          "n": 86,
+          "token_f1": 0.0379,
+          "refusal_rate": 0.7442
+        }
+      }
+    },
+    "qwen3:4b-instruct-2507-q4_K_M": {
+      "n": 567,
+      "token_f1": 0.1849,
+      "refusal_rate": 0.2575,
+      "containment": 0.8325,
+      "boolean_accuracy": "37/86",
+      "errors": 0,
+      "latency_s_p50": 2.03,
+      "latency_s_p95": 4.94,
+      "tokens_per_s_p50": 55.3,
+      "by_type": {
+        "extractive": {
+          "n": 342,
+          "token_f1": 0.2403,
+          "refusal_rate": 0.1901
+        },
+        "abstractive": {
+          "n": 139,
+          "token_f1": 0.1531,
+          "refusal_rate": 0.3165
+        },
+        "boolean": {
+          "n": 86,
+          "token_f1": 0.0159,
+          "refusal_rate": 0.4302
+        }
+      }
+    },
+    "gemma3:4b": {
+      "n": 567,
+      "token_f1": 0.1049,
+      "refusal_rate": 0.6437,
+      "containment": 0.9472,
+      "boolean_accuracy": "13/86",
+      "errors": 0,
+      "latency_s_p50": 1.28,
+      "latency_s_p95": 3.15,
+      "tokens_per_s_p50": 58.5,
+      "by_type": {
+        "extractive": {
+          "n": 342,
+          "token_f1": 0.1433,
+          "refusal_rate": 0.5994
+        },
+        "abstractive": {
+          "n": 139,
+          "token_f1": 0.0696,
+          "refusal_rate": 0.6691
+        },
+        "boolean": {
+          "n": 86,
+          "token_f1": 0.0096,
+          "refusal_rate": 0.7791
+        }
+      }
+    }
+  }
+}

@@ -55,24 +55,6 @@
         }
       }
     },
-    "qwen3:4b": {
-      "n": 181,
-      "token_f1": 0.1353,
-      "refusal_rate": 0.0276,
-      "containment": 0.4354,
-      "boolean_accuracy": null,
-      "errors": 0,
-      "latency_s_p50": 4.47,
-      "latency_s_p95": 4.78,
-      "tokens_per_s_p50": 58.9,
-      "by_type": {
-        "abstractive": {
-          "n": 181,
-          "token_f1": 0.1353,
-          "refusal_rate": 0.0276
-        }
-      }
-    },
     "gemma3:4b": {
       "n": 181,
       "token_f1": 0.0456,
