@@ -1,0 +1,28 @@
+{
+  "source": "Phase 3 full run of 2026-11-15 on 2x Tesla T4 (eval/kaggle/ran_notebooks/phase_3_retrieval-upgrade-benchmark-full.ipynb, commit 8976fce). The notebook log prints only the best arm per cohort; these per-arm values were read from the run's figures (heatmaps and latency chart shown in the slides of 2026-11-15) and match every value in the logs. Replace with artifacts/<cohort>/summary.json once downloaded from Kaggle.",
+  "metric": "nDCG@10, mean over the common question set (C-RET 566, PEERQA-PDF 284)",
+  "latency_note": "p50 per question in ms on the T4 GPUs; dense = similarity search only (question embeddings computed in a batch before timing); reranker latency measured once and shared across embedders",
+  "arms": ["dense", "rrf", "convex", "dense+minilm", "convex+minilm", "dense+bgem3", "convex+bgem3"],
+  "cohorts": {
+    "c_ret": {
+      "bm25": 0.6464,
+      "ndcg_10": {
+        "e5":         [0.7029, 0.7038, 0.7092, 0.7328, 0.7336, 0.7441, 0.7443],
+        "qwen":       [0.7212, 0.7152, 0.7371, 0.7341, 0.7337, 0.7457, 0.7448],
+        "gemma":      [0.7439, 0.7311, 0.7441, 0.7336, 0.7325, 0.7430, 0.7429],
+        "modernbert": [0.7130, 0.7132, 0.7257, 0.7342, 0.7339, 0.7465, 0.7454]
+      },
+      "latency_ms_p50": {"dense": 0.04, "bm25": 1.66, "rrf": 1.9, "convex": 1.9, "+minilm": 74, "+bgem3": 1527}
+    },
+    "peerqa_pdf": {
+      "bm25": 0.7183,
+      "ndcg_10": {
+        "e5":         [0.7218, 0.7451, 0.7466, 0.7298, 0.7437, 0.7390, 0.7539],
+        "qwen":       [0.6737, 0.7194, 0.7148, 0.7187, 0.7405, 0.7325, 0.7552],
+        "gemma":      [0.7191, 0.7381, 0.7422, 0.7347, 0.7436, 0.7458, 0.7567],
+        "modernbert": [0.7178, 0.7354, 0.7427, 0.7343, 0.7402, 0.7450, 0.7559]
+      },
+      "latency_ms_p50": {"dense": 0.08, "bm25": 0.92, "rrf": 1.28, "convex": 1.25, "+minilm": 106, "+bgem3": 1990}
+    }
+  }
+}

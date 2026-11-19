@@ -27,7 +27,16 @@
             "token_f1": 0.0341,
             "refusal_rate": 0.6395
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 167,
+          "SUPPORTED": 234,
+          "MISSING_INFO - PARTIAL": 36,
+          "REFUSAL_VALID": 94,
+          "CONTRADICTED": 14,
+          "UNSUPPORTED": 22
+        },
+        "judge_n": 567
       },
       "qwen2.5:1.5b": {
         "n": 567,
@@ -55,7 +64,16 @@
             "token_f1": 0.0462,
             "refusal_rate": 0.6047
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 264,
+          "MISSING_INFO - PARTIAL": 68,
+          "REFUSAL_VALID": 69,
+          "UNSUPPORTED": 44,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 90,
+          "CONTRADICTED": 32
+        },
+        "judge_n": 567
       },
       "phi4-mini": {
         "n": 567,
@@ -83,7 +101,16 @@
             "token_f1": 0.0575,
             "refusal_rate": 0.6628
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 248,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 174,
+          "REFUSAL_VALID": 101,
+          "MISSING_INFO - PARTIAL": 24,
+          "CONTRADICTED": 6,
+          "UNSUPPORTED": 14
+        },
+        "judge_n": 567
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 567,
@@ -111,7 +138,16 @@
             "token_f1": 0.04,
             "refusal_rate": 0.4535
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 309,
+          "REFUSAL_VALID": 97,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 111,
+          "UNSUPPORTED": 19,
+          "CONTRADICTED": 8,
+          "MISSING_INFO - PARTIAL": 23
+        },
+        "judge_n": 567
       },
       "gemma3:4b": {
         "n": 567,
@@ -139,7 +175,16 @@
             "token_f1": 0.0,
             "refusal_rate": 0.9884
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 112,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 326,
+          "REFUSAL_VALID": 100,
+          "UNSUPPORTED": 2,
+          "MISSING_INFO - PARTIAL": 26,
+          "CONTRADICTED": 1
+        },
+        "judge_n": 567
       }
     },
     "retrieved_gemma_dense": {
@@ -169,7 +214,16 @@
             "token_f1": 0.0331,
             "refusal_rate": 0.5814
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 187,
+          "SUPPORTED": 227,
+          "UNSUPPORTED": 32,
+          "REFUSAL_VALID": 61,
+          "CONTRADICTED": 18,
+          "MISSING_INFO - PARTIAL": 42
+        },
+        "judge_n": 567
       },
       "qwen2.5:1.5b": {
         "n": 567,
@@ -197,7 +251,16 @@
             "token_f1": 0.0568,
             "refusal_rate": 0.2558
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 273,
+          "UNSUPPORTED": 75,
+          "MISSING_INFO - PARTIAL": 97,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 37,
+          "REFUSAL_VALID": 26,
+          "CONTRADICTED": 59
+        },
+        "judge_n": 567
       },
       "phi4-mini": {
         "n": 567,
@@ -225,7 +288,16 @@
             "token_f1": 0.0379,
             "refusal_rate": 0.7442
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 238,
+          "SUPPORTED": 204,
+          "MISSING_INFO - PARTIAL": 39,
+          "REFUSAL_VALID": 65,
+          "CONTRADICTED": 12,
+          "UNSUPPORTED": 9
+        },
+        "judge_n": 567
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 567,
@@ -253,7 +325,16 @@
             "token_f1": 0.0159,
             "refusal_rate": 0.4302
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 352,
+          "REFUSAL_VALID": 61,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 85,
+          "UNSUPPORTED": 25,
+          "MISSING_INFO - PARTIAL": 26,
+          "CONTRADICTED": 18
+        },
+        "judge_n": 567
       },
       "gemma3:4b": {
         "n": 567,
@@ -281,7 +362,16 @@
             "token_f1": 0.0096,
             "refusal_rate": 0.7791
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 154,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 305,
+          "REFUSAL_VALID": 60,
+          "MISSING_INFO - PARTIAL": 36,
+          "UNSUPPORTED": 5,
+          "CONTRADICTED": 7
+        },
+        "judge_n": 567
       }
     },
     "gap_gold_minus_retrieved_gemma_dense": {
@@ -325,7 +415,15 @@
             "token_f1": 0.0359,
             "refusal_rate": 0.8508
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 82,
+          "CONTRADICTED": 4,
+          "REFUSAL_VALID": 73,
+          "SUPPORTED": 20,
+          "UNSUPPORTED": 2
+        },
+        "judge_n": 181
       },
       "qwen2.5:1.5b": {
         "n": 181,
@@ -343,7 +441,16 @@
             "token_f1": 0.1225,
             "refusal_rate": 0.5414
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 38,
+          "UNSUPPORTED": 15,
+          "SUPPORTED": 50,
+          "CONTRADICTED": 7,
+          "REFUSAL_VALID": 61,
+          "MISSING_INFO - PARTIAL": 10
+        },
+        "judge_n": 181
       },
       "phi4-mini": {
         "n": 181,
@@ -361,7 +468,16 @@
             "token_f1": 0.0567,
             "refusal_rate": 0.8177
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 74,
+          "SUPPORTED": 31,
+          "REFUSAL_VALID": 72,
+          "MISSING_INFO - PARTIAL": 2,
+          "UNSUPPORTED": 1,
+          "CONTRADICTED": 1
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -379,7 +495,15 @@
             "token_f1": 0.0456,
             "refusal_rate": 0.8564
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 83,
+          "REFUSAL_VALID": 72,
+          "SUPPORTED": 21,
+          "CONTRADICTED": 1,
+          "MISSING_INFO - PARTIAL": 4
+        },
+        "judge_n": 181
       }
     },
     "retrieved_gemma_dense": {},

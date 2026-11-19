@@ -304,10 +304,8 @@ class RagService:
         """
         parents_collection = f"{collection_name}_parents"
         if recreate:
-            if self.client.collection_exists(collection_name):
-                self.client.delete_collection(collection_name)
-            if self.client.collection_exists(parents_collection):
-                self.client.delete_collection(parents_collection)
+            self._drop_collection(collection_name)
+            self._drop_collection(parents_collection)
 
         self.ensure_collection(collection_name)
         if not chunks:
@@ -434,18 +432,23 @@ class RagService:
         Deletes collection 'doc_{doc_id}' and companion 'doc_{doc_id}_parents'.
         """
         coll_name = f"doc_{doc_id}"
-        parents_coll = f"{coll_name}_parents"
-        try:
-            if self.client.collection_exists(coll_name):
-                self.client.delete_collection(coll_name)
-        except Exception as e:
-            logger.warning(f"Failed to delete Qdrant collection {coll_name}: {e}")
+        for name in (coll_name, f"{coll_name}_parents"):
+            try:
+                self._drop_collection(name)
+            except Exception as e:
+                logger.warning(f"Failed to delete Qdrant collection {name}: {e}")
 
-        try:
-            if self.client.collection_exists(parents_coll):
-                self.client.delete_collection(parents_coll)
-        except Exception as e:
-            logger.warning(f"Failed to delete Qdrant collection {parents_coll}: {e}")
+    def _drop_collection(self, name: str) -> None:
+        """
+        Deletes a collection, removing its points first. In embedded (local) mode on Windows,
+        delete_collection can leave storage.sqlite on disk (file still open), and a collection
+        recreated under the same name then reloads the old points; emptying it first prevents that.
+        """
+        if not self.client.collection_exists(name):
+            return
+        from qdrant_client.models import Filter, FilterSelector
+        self.client.delete(collection_name=name, points_selector=FilterSelector(filter=Filter()), wait=True)
+        self.client.delete_collection(name)
 
     def search_dense(
         self,

@@ -103,6 +103,7 @@ PEERQA-PDF, 107/107 PDFs extracted with PyMuPDF, 288 questions (283–285 with a
   - The best embedder differs by dataset (gemma on C-RET, e5 on PeerQA), so no embedder is clearly best.
   - Larger models cost much more: on the Kaggle GPU the hierarchical combination took about 1,630 s for Qwen3 vs about 120 s for e5 and 350 s for gemma on C-RET (from the log; includes indexing all units).
 - **Choice for Phase 3:** hierarchical; embedders e5 (application default, cheapest), qwen (largest), gemma (best on C-RET), modernbert (long context).
+- **Heading detection changed after this phase (2026-11-19, app only).** PeerQA-PDF sections above were extracted with the original PyMuPDF heading rules, which also took pseudo-code steps, figure axis numbers and superscript affiliations as headings and missed lettered appendix headings. The app now uses stricter rules (`extract_sections_from_pdf(strict_headings=True)`); on 75 PDFs (the app's uploads and 60 PeerQA papers) they gave 1,327 sections instead of 4,363, with no real heading lost in a manual check of the removed titles. The Phase 2 scripts pass `strict_headings=False`, so the numbers above are reproducible; retrieval with the new rules was **not** evaluated. C-RET is unaffected (its text comes from the QASPER JSON).
 
 ## 6. Phase 3: keyword retrieval, fusion and reranking
 

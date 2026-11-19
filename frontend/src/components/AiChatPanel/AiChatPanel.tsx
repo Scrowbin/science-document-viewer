@@ -460,7 +460,9 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
                 const isActive =
                   src.chunk_id != null && activeCitationChunkId != null && activeCitationChunkId === src.chunk_id;
                 const hasSection = src.section && !src.section.toLowerCase().startsWith('page ');
-                const label = `Page ${src.page}${hasSection ? ` • ${src.section}` : ''}`;
+                // Show the page where the passage (and its highlight) starts, not where its section starts.
+                const shownPage = src.locations?.find((l) => Number.isInteger(l.page) && l.rects?.length)?.page ?? src.page;
+                const label = `Page ${shownPage}${hasSection ? ` • ${src.section}` : ''}`;
                 return (
                   <button
                     key={`${src.chunk_id ?? 'src'}-${sIdx}`}
@@ -472,7 +474,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
                     title={
                       src.snippet
                         ? `${src.section || `Page ${src.page}`}\n"${src.snippet}"\nClick to show and highlight this passage in the PDF`
-                        : `Show page ${src.page} in the PDF`
+                        : `Show page ${shownPage} in the PDF`
                     }
                   >
                     <FaBookOpen aria-hidden="true" style={{ fontSize: 10 }} />

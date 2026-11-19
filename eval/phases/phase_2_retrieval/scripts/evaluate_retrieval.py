@@ -249,7 +249,7 @@ def load_qasper_sections(paper_id: str, split: str = "train") -> tuple:
         p = ROOT / "eval" / "pdfs" / pdf_dir / f"{paper_id}.pdf"
         if p.exists() and p.stat().st_size > 1000:
             try:
-                sec = extract_sections_from_pdf(str(p))
+                sec = extract_sections_from_pdf(str(p), strict_headings=False)
                 if sec:
                     return sec, "pdf"
             except Exception:
@@ -312,7 +312,7 @@ def load_peerqa_sections(paper_id: str, text_only: bool = False) -> tuple:
     pdf = None if text_only else peerqa_pdf_path(paper_id)
     if pdf is not None:
         try:
-            sec = extract_sections_from_pdf(str(pdf))
+            sec = extract_sections_from_pdf(str(pdf), strict_headings=False)
             if sec:
                 return sec, "pdf"
         except Exception:

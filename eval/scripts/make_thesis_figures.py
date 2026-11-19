@@ -149,10 +149,10 @@ def phase2_ndcg(cohort="c_ret"):
     return out, str(log.relative_to(ROOT))
 
 
-def fig_retrieval_grid():
-    """Phase 2: nDCG@10 for 3 chunkers x 5 embedders on C-RET."""
-    nd, src = phase2_ndcg("c_ret")
-    models = ["e5", "arctic", "modernbert", "gemma", "qwen"]
+def fig_retrieval_grid(cohort="c_ret"):
+    """Phase 2: nDCG@10 for 3 chunkers x the embedders run on the cohort (C-RET: 5, PeerQA: 4)."""
+    nd, src = phase2_ndcg(cohort)
+    models = [m for m in ["e5", "arctic", "modernbert", "gemma", "qwen"] if any(k[1] == m for k in nd)]
     chunkers = [("hierarchical", "hierarchical"), ("fixed_size", "fixed_size"), ("section_overlap", "section_overlap")]
     fig, ax = plt.subplots(figsize=(7.2, 3.6))
     y = np.arange(len(models))[::-1]
@@ -166,11 +166,50 @@ def fig_retrieval_grid():
                 ax.text(vi + 0.008, yi, f"{vi:.3f}", va="center", fontsize=7, color=INK)
     ax.set_yticks(y, [P2_LABELS[m] for m in models])
     ax.set_xlim(0, 0.82)
-    ax.set_xlabel("nDCG@10 (C-RET, 335 bài báo; truy xuất dense)")
+    ax.set_xlabel("nDCG@10 (C-RET, 335 bài báo; truy xuất dense)" if cohort == "c_ret"
+                  else "nDCG@10 (PeerQA, 107 bài báo, văn bản trích xuất từ PDF; truy xuất dense)")
     ax.grid(axis="y", visible=False)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=7.5)
     print("  phase 2 source:", src)
-    save(fig, "fig5_3_retrieval_grid.png")
+    save(fig, "fig5_3_retrieval_grid.png" if cohort == "c_ret" else "fig5_4_retrieval_grid_peerqa.png")
+
+
+# ----------------------------------------------------------------------------- phase 3: fusion and reranking
+def fig_phase3_tradeoff():
+    """Phase 3: nDCG@10 against retrieval latency (log scale) for the 29 arms, per cohort."""
+    d = J(PH / "phase_3_hybrid_reranking/artifacts/ndcg_latency_from_run_figures_2026-11-15.json")
+    fam = {"dense": ("dense", C[0]), "rrf": ("rrf / convex", C[1]), "convex": ("rrf / convex", C[1]),
+           "dense+minilm": ("+ MiniLM", C[2]), "convex+minilm": ("+ MiniLM", C[2]),
+           "dense+bgem3": ("+ bge-reranker-v2-m3", C[4]), "convex+bgem3": ("+ bge-reranker-v2-m3", C[4])}
+    fig, axes = plt.subplots(1, 2, figsize=(7.4, 3.5), sharey=True)
+    for ax, (key, title) in zip(axes, [("c_ret", "C-RET (566 câu hỏi)"), ("peerqa_pdf", "PeerQA (284 câu hỏi)")]):
+        c = d["cohorts"][key]
+        lat = c["latency_ms_p50"]
+        seen = set()
+        for emb, vals in c["ndcg_10"].items():
+            for arm, v in zip(d["arms"], vals):
+                base = arm.split("+")[0]
+                x = lat[base] + (lat["+minilm"] if "minilm" in arm else lat["+bgem3"] if "bgem3" in arm else 0)
+                name, col = fam[arm]
+                ax.scatter(x, v, s=22, color=col, edgecolor=SURF, linewidth=0.8, zorder=3,
+                           label=name if name not in seen else None)
+                seen.add(name)
+                if emb == "gemma" and arm == "dense":
+                    ax.scatter(x, v, s=90, facecolor="none", edgecolor=INK, linewidth=1.0, zorder=4)
+                    ax.annotate("embeddinggemma\ndense (chọn)", (x, v), xytext=(8, -26), textcoords="offset points",
+                                fontsize=7, color=INK, arrowprops={"arrowstyle": "-", "color": INK2, "lw": 0.6})
+        ax.scatter(lat["bm25"], c["bm25"], s=22, marker="s", color=GREY, edgecolor=SURF, linewidth=0.8, zorder=3,
+                   label="BM25")
+        ax.set_xscale("log")
+        ax.set_title(title, fontsize=9, color=INK)
+        ax.set_xlabel("Độ trễ truy xuất (ms, thang log, GPU T4)")
+    axes[0].set_ylabel("nDCG@10")
+    h, lab = axes[0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="upper center", ncol=5, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.92))
+    fig.savefig(OUT / "fig5_5_phase3_tradeoff.png", dpi=300)
+    plt.close(fig)
+    print("wrote fig5_5_phase3_tradeoff.png")
 
 
 # ----------------------------------------------------------------------------- generation (preliminary study)
@@ -226,5 +265,7 @@ if __name__ == "__main__":
     fig_qasper()
     fig_extraction()
     fig_retrieval_grid()
+    fig_retrieval_grid("peerqa_pdf")
+    fig_phase3_tradeoff()
     fig_generation()
     fig_human()

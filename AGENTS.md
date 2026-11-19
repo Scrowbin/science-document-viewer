@@ -158,7 +158,11 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
 * `backend/apps/documents/services/` is imported by the Phase 2–4 evaluation scripts; keep its
   behaviour unchanged until Phase 4 is done. Known fixes are in `docs/design/RAG_SERVICE_REVIEW.md`.
   Approved exception: optional remote LLM endpoint + local fallback (`OLLAMA_API_KEY`,
-  `OLLAMA_FALLBACK_URL`; unset = unchanged) for demos on a Kaggle GPU (`SETUP.md` 3.1). Planned FR-16 (context retry, default
+  `OLLAMA_FALLBACK_URL`; unset = unchanged) for demos on a Kaggle GPU (`SETUP.md` 3.1).
+  Approved exception: stricter PDF heading detection in the app (`extract_sections_from_pdf(strict_headings=True)`,
+  rejects pseudo-code/axis-number/affiliation lines, accepts bold appendix headings); the Phase 2 scripts pass
+  `strict_headings=False` to reproduce the evaluated rules. Bug fix: Qdrant collections are emptied before
+  deletion (`RagService._drop_collection`), because on Windows embedded Qdrant kept the old points on re-index. Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is

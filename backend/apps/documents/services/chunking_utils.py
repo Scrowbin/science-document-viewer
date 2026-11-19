@@ -386,11 +386,48 @@ def _line_map_fields(
     return {"line_map": rows, "page_sizes": {p: page_sizes[p] for p in pages if p in page_sizes}}
 
 
-def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
+_NUM_PREFIX = re.compile(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*\.?|[IVX]+(?:\s*[.\-:]|(?=\s)))")
+
+
+def _plausible_heading(first_line: str, spans: List[Dict[str, Any]]) -> bool:
+    """
+    Rejects lines the original heading rules accept by mistake:
+    pseudo-code steps ('1: Fix ...'), figure axis numbers ('0 25'), lowercase sentences
+    ('2 additional choices ...') and affiliations with a superscript number ('1 University of ...').
+    """
+    title = _NUM_PREFIX.sub("", first_line, count=1).strip()
+    if title.lower() in KNOWN_ACADEMIC_HEADINGS or first_line.strip().lower() in KNOWN_ACADEMIC_HEADINGS:
+        return True
+    if not title or title == first_line.strip():
+        return False  # no real number/roman prefix (e.g. 'In fact, ...' matched via its leading 'I')
+    if not re.match(r"[A-Z][A-Za-z\-]+\b", title) or not re.search(r"[A-Za-z]{3,}", title):
+        return False
+    if len(spans) >= 2 and re.fullmatch(r"[0-9]{1,2}", spans[0]["text"].strip()):
+        sizes = [s.get("size", 0) for s in spans[1:]]
+        if sizes and spans[0].get("size", 0) < 0.85 * max(sizes):
+            return False  # superscript footnote/affiliation marker
+    return True
+
+
+def _appendix_heading(first_line: str, spans: List[Dict[str, Any]]) -> bool:
+    """Bold appendix headings such as 'A. Expanded Related Work' (letter prefix, whole line bold)."""
+    return (
+        bool(re.match(r"^[A-Z]\.\s+[A-Z][A-Za-z\-]+", first_line))
+        and len(first_line) < 85
+        and bool(spans)
+        and all(s.get("flags", 0) & 16 for s in spans)
+    )
+
+
+def extract_sections_from_pdf(pdf_path: str, strict_headings: bool = True) -> List[Dict[str, Any]]:
     """
     Extracts structured academic sections from a PDF using layout-aware PyMuPDF.
     Handles split section numbers (e.g. '1\\nIntroduction'), known headings,
     and multi-level section numbering while preserving page boundaries.
+
+    strict_headings (app default) also rejects pseudo-code steps, axis numbers, lowercase
+    sentences and superscript affiliations as headings, and accepts bold appendix headings
+    ('A. Title'). strict_headings=False reproduces the rules used in the Phase 2-3 evaluation.
     """
     if not os.path.exists(pdf_path):
         raise FileNotFoundError(f"PDF file not found at: {pdf_path}")
@@ -459,6 +496,12 @@ def extract_sections_from_pdf(pdf_path: str) -> List[Dict[str, Any]]:
                     # Typographic bold heuristic on numbered or short title block
                     elif any(s.get("flags", 0) & 2 for l in b.get("lines", [])[:1] for s in l.get("spans", [])):
                         if re.match(r"^(?:[0-9]{1,2}(?:\.[0-9]{1,2})*|[I|V|X]+)\.?", first_line):
+                            is_heading = True
+                    if strict_headings:
+                        first_spans = [s for l in b.get("lines", [])[:1] for s in l.get("spans", []) if s.get("text", "").strip()]
+                        if is_heading and not _plausible_heading(first_line, first_spans):
+                            is_heading = False
+                        elif not is_heading and page_num > 1 and _appendix_heading(first_line, first_spans):
                             is_heading = True
 
                 if is_heading:

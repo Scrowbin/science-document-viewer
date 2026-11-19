@@ -17,7 +17,15 @@
           "token_f1": 0.0359,
           "refusal_rate": 0.8508
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 82,
+        "CONTRADICTED": 4,
+        "REFUSAL_VALID": 73,
+        "SUPPORTED": 20,
+        "UNSUPPORTED": 2
+      },
+      "judge_n": 181
     },
     "qwen2.5:1.5b": {
       "n": 181,
@@ -35,7 +43,16 @@
           "token_f1": 0.1225,
           "refusal_rate": 0.5414
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 38,
+        "UNSUPPORTED": 15,
+        "SUPPORTED": 50,
+        "CONTRADICTED": 7,
+        "REFUSAL_VALID": 61,
+        "MISSING_INFO - PARTIAL": 10
+      },
+      "judge_n": 181
     },
     "phi4-mini": {
       "n": 181,
@@ -53,7 +70,16 @@
           "token_f1": 0.0567,
           "refusal_rate": 0.8177
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 74,
+        "SUPPORTED": 31,
+        "REFUSAL_VALID": 72,
+        "MISSING_INFO - PARTIAL": 2,
+        "UNSUPPORTED": 1,
+        "CONTRADICTED": 1
+      },
+      "judge_n": 181
     },
     "gemma3:4b": {
       "n": 181,
@@ -71,7 +97,15 @@
           "token_f1": 0.0456,
           "refusal_rate": 0.8564
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 83,
+        "REFUSAL_VALID": 72,
+        "SUPPORTED": 21,
+        "CONTRADICTED": 1,
+        "MISSING_INFO - PARTIAL": 4
+      },
+      "judge_n": 181
     }
   }
 }
