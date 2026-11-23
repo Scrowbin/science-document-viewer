@@ -26,6 +26,8 @@ export interface AiChatPanelProps {
   onJumpToPage: (pageNumber: number, source?: ChatSource) => void;
   activeCitationChunkId?: string | null;
   onClose?: () => void;
+  /** Removes the citation highlight from the PDF (used when the chat is cleared). */
+  onClearCitation?: () => void;
 }
 
 const STARTER_PROMPTS = [
@@ -122,7 +124,7 @@ function describeRequestError(info: RagErrorInfo, kind: ChatRequestKind): string
     case 'server':
       return `${what} failed on the server${info.status ? ` (HTTP ${info.status})` : ''}${
         info.detail ? `: ${info.detail}` : '.'
-      } Check that Ollama is running.`;
+      }`;
     default:
       return `${what} failed${info.status ? ` (HTTP ${info.status})` : ''}${info.detail ? `: ${info.detail}` : '.'}`;
   }
@@ -191,6 +193,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   onJumpToPage,
   activeCitationChunkId,
   onClose,
+  onClearCitation,
 }) => {
   const chat = useChatSessions();
   const { messages, pending } = chat.getSession(doc.id);
@@ -234,7 +237,8 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   const docId = doc.id;
 
   /** Citation click: the first source on that page carries the passage to highlight. */
-  const sourceForPage = (sources: ChatSource[] | undefined, page: number) => sources?.find((s) => s.page === page);
+  const sourceForPage = (sources: ChatSource[] | undefined, page: number) =>
+    sources?.find((s) => s.page === page) ?? sources?.find((s) => s.locations?.some((l) => l.page === page));
 
   const runRequest = async (kind: 'chat' | 'summary', userText: string, question?: string) => {
     if (submittingRef.current || isBusy || inputDisabled) return;
@@ -329,10 +333,20 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
     const controller = chat.beginRequest(docId, 'reindex');
     try {
       const res = await ragApi.reindexDocument(docId, { signal: controller.signal });
+      // The default re-index is queued (202 PENDING); status polling unlocks the assistant when it ends.
+      const queued = res.status === 'PENDING' || res.status === 'INDEXING';
       const ok = res.status === 'INDEXED';
-      chat.setRagStatus(docId, ok ? 'INDEXED' : 'FAILED');
+      chat.setRagStatus(docId, queued ? 'PENDING' : ok ? 'INDEXED' : 'FAILED');
       chat.appendMessages(docId, [
-        ok
+        queued
+          ? {
+              id: nextId('notice'),
+              role: 'assistant',
+              content: 'Re-indexing started. Asking unlocks automatically when it finishes.',
+              isNotice: true,
+              timestamp: getFormattedTime(),
+            }
+          : ok
           ? {
               id: nextId('notice'),
               role: 'assistant',
@@ -442,7 +456,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
           <div className={styles.degradedBanner} role="note">
             <FaCircleExclamation aria-hidden="true" />
             <span>
-              The local model did not answer in time (60 s), so this is not a generated answer: below are the most
+              The language model did not answer in time, so this is not a generated answer: below are the most
               relevant excerpts from the paper, with their sources.
             </span>
           </div>
@@ -454,7 +468,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
 
         {msg.sources && msg.sources.length > 0 && (
           <div className={styles.sourcesSection}>
-            <span className={styles.sourcesSectionLabel}>Sources · click to show in the PDF</span>
+            <span className={styles.sourcesSectionLabel}>Retrieved passages · click to show in the PDF</span>
             <div className={styles.sourcesBadgeRow}>
               {msg.sources.map((src: ChatSource, sIdx: number) => {
                 const isActive =
@@ -468,7 +482,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
                     key={`${src.chunk_id ?? 'src'}-${sIdx}`}
                     type="button"
                     className={`${styles.pageCitationBadge} ${isActive ? styles.pageCitationBadgeActive : ''}`}
-                    onClick={() => onJumpToPage(src.page, src)}
+                    onClick={() => onJumpToPage(shownPage, src)}
                     aria-pressed={isActive}
                     aria-label={`Jump to source: ${label}`}
                     title={
@@ -499,7 +513,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   const pendingHint =
     pending?.kind === 'reindex'
       ? 'Re-indexing can take a minute on CPU. You can keep reading meanwhile.'
-      : `${pending?.kind === 'summary' ? 'Summaries' : 'Answers'} usually take up to ~30 s on a CPU-only server. If the model does not answer within 60 s, the most relevant excerpts are shown instead.`;
+      : `${pending?.kind === 'summary' ? 'Summaries' : 'Answers'} take a few seconds on a GPU and about 30 s on CPU. If the model does not answer in time, the most relevant excerpts are shown instead.`;
   const pendingAfterStop =
     pending !== null && pending.kind !== 'reindex' && pending.startedAt - lastStoppedAt < MODEL_BUSY_AFTER_STOP_MS;
 
@@ -553,7 +567,10 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
           <button
             type="button"
             className={styles.headerActionBtn}
-            onClick={() => chat.clearMessages(docId)}
+            onClick={() => {
+              chat.clearMessages(docId);
+              onClearCitation?.();
+            }}
             disabled={isBusy || messages.length === 0}
             title="Clear chat history"
             aria-label="Clear chat history"

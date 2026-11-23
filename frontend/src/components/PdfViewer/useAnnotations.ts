@@ -48,11 +48,15 @@ export function toPdfRects(rects: Rect[] | undefined): Rect[] {
     }));
 }
 
-/** Deleting something the server no longer has is a success, not a failure. */
-function deleteOnServer(serverId: AnnotationId): Promise<void> {
-  return annotationsApi.deleteAnnotation(serverId).catch((err: unknown) => {
-    if (axios.isAxiosError(err) && err.response?.status === 404) return;
-    throw err;
+/**
+ * Deleting something the server no longer has is a success. A 404 can also mean the annotation
+ * still exists but belongs to someone else, so check the document before treating it as gone.
+ */
+function deleteOnServer(docId: string, serverId: AnnotationId): Promise<void> {
+  return annotationsApi.deleteAnnotation(serverId).catch(async (err: unknown) => {
+    if (!axios.isAxiosError(err) || err.response?.status !== 404) throw err;
+    const remaining = await annotationsApi.getDocumentAnnotations(docId);
+    if (remaining.some((a) => a.id === serverId)) throw err;
   });
 }
 
@@ -225,7 +229,7 @@ export function useAnnotations(docId: string) {
         return prev.filter((a) => a.id === undefined || !set.has(a.id));
       });
       void Promise.allSettled(
-        ids.map((id) => withServerId(id, deleteOnServer)),
+        ids.map((id) => withServerId(id, (serverId) => deleteOnServer(docId, serverId))),
       ).then((results) => {
         const failedIds = new Set(ids.filter((_, i) => results[i].status === 'rejected'));
         if (failedIds.size === 0) return;
@@ -239,7 +243,7 @@ export function useAnnotations(docId: string) {
         );
       });
     },
-    [withServerId, restore, report],
+    [docId, withServerId, restore, report],
   );
 
   const remove = useCallback((id: AnnotationId) => removeMany([id]), [removeMany]);

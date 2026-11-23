@@ -162,7 +162,10 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   Approved exception: stricter PDF heading detection in the app (`extract_sections_from_pdf(strict_headings=True)`,
   rejects pseudo-code/axis-number/affiliation lines, accepts bold appendix headings); the Phase 2 scripts pass
   `strict_headings=False` to reproduce the evaluated rules. Bug fix: Qdrant collections are emptied before
-  deletion (`RagService._drop_collection`), because on Windows embedded Qdrant kept the old points on re-index. Planned FR-16 (context retry, default
+  deletion (`RagService._drop_collection`), because on Windows embedded Qdrant kept the old points on re-index.
+  Demo-path fixes (app call paths only; evaluation calls are unchanged): sources and prompts use the passage page,
+  `hybrid_search(exclude_references=True)` from `query_document`, suggested questions skip the similarity gate,
+  shorter primary LLM timeout when a fallback exists, no silent embedding-model fallback. Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is

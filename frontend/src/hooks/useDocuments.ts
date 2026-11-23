@@ -217,7 +217,7 @@ export interface UseDocumentsReturn {
   isUploading: boolean;
   uploadPreviewMeta: LookupDoiResult | null;
   handleUpdateUploadMeta: <K extends keyof LookupDoiResult>(field: K, val: LookupDoiResult[K]) => void;
-  handleConfirmUpload: (overrides?: Partial<LookupDoiResult>) => Promise<Document | null>;
+  handleConfirmUpload: (overrides?: Partial<LookupDoiResult>, collectionId?: string | null) => Promise<Document | null>;
   handleCancelUpload: () => void;
 }
 
@@ -620,6 +620,13 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
       setUploadPreviewMeta(meta);
     } catch (err) {
       if (controller.signal.aborted) return;
+      // 400 = the server rejected the file itself (not a PDF, damaged, too large): nothing to import.
+      if ((err as { response?: { status?: number } }).response?.status === 400) {
+        showToast(describeApiError(err, 'This file cannot be imported'), 'error');
+        setUploadModalFile(null);
+        setUploadPreviewMeta(null);
+        return;
+      }
       console.warn('PDF metadata extraction failed:', err);
       setUploadPreviewMeta(emptyUploadMeta(file));
       setUploadExtractionFailed(true);
@@ -628,7 +635,7 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
         setIsExtractingUpload(false);
       }
     }
-  }, []);
+  }, [showToast]);
 
   const handleUpdateUploadMeta = useCallback(<K extends keyof LookupDoiResult>(field: K, val: LookupDoiResult[K]) => {
     setUploadPreviewMeta((prev) => (prev ? { ...prev, [field]: val } : prev));
@@ -643,7 +650,10 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     setUploadExtractionFailed(false);
   }, []);
 
-  const handleConfirmUpload = useCallback(async (overrides?: Partial<LookupDoiResult>): Promise<Document | null> => {
+  const handleConfirmUpload = useCallback(async (
+    overrides?: Partial<LookupDoiResult>,
+    collectionId?: string | null,
+  ): Promise<Document | null> => {
     if (!uploadModalFile || !uploadPreviewMeta) return null;
     // Ref guard: a double click fires twice before React re-renders the disabled button.
     if (isUploadingRef.current) return null;
@@ -654,6 +664,7 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     const formData = new FormData();
     formData.append('file', uploadModalFile);
     formData.append('title', meta.title);
+    if (collectionId) formData.append('primary_collection', collectionId);
     if (meta.short_title) formData.append('short_title', meta.short_title);
     if (meta.doi) formData.append('doi', meta.doi);
     if (meta.url) formData.append('url', meta.url);

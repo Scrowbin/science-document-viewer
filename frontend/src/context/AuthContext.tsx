@@ -120,20 +120,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     } catch (err) {
       clearStoredAuth();
-      setAuthState({ ...LOGGED_OUT, error: apiErrorMessage(err, 'Registration failed') });
+      // The username is derived from the Full Name field, so report username errors in those terms.
+      const nameRejected = isAxiosError(err) && !!(err.response?.data as Record<string, unknown> | undefined)?.username;
+      setAuthState({
+        ...LOGGED_OUT,
+        error: nameRejected
+          ? 'This full name is already taken or cannot be used. Please enter a different name.'
+          : apiErrorMessage(err, 'Registration failed'),
+      });
       return false;
     }
   }, []);
 
   /** Log out current user (calls server-side blacklist & clears storage) */
   const logout = useCallback(async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      // Ignore errors on logout
-    }
+    // Leave the session immediately; the server-side blacklist call finishes in the background.
+    const blacklist = authApi.logout();
     clearStoredAuth();
     setAuthState(LOGGED_OUT);
+    await blacklist;
   }, []);
 
   const requestPasswordReset = useCallback(async () => PASSWORD_RESET_UNAVAILABLE, []);

@@ -38,6 +38,7 @@ export function useFind(
 ) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<FindResult>(EMPTY);
+  const [stepCount, setStepCount] = useState(0);
   const normalized = normalizeText(query);
 
   useEffect(() => {
@@ -53,7 +54,13 @@ export function useFind(
           continue;
         }
         if (cancelled) return;
-        for (const [s, e] of findAllInIndex(index, normalized, MAX_MATCHES - matches.length)) {
+        // Page text rejoins words hyphenated at a line end ("state-" + "of" -> "stateof").
+        const variants = normalized.includes('-') ? [normalized, normalized.replace(/-/g, '')] : [normalized];
+        const hits = variants
+          .flatMap((v) => findAllInIndex(index, v, MAX_MATCHES - matches.length))
+          .sort((a, b) => a[0] - b[0])
+          .filter((hit, k, all) => k === 0 || hit[0] >= all[k - 1][1]);
+        for (const [s, e] of hits) {
           matches.push({ pageIndex: i, ranges: normRangeToItemRanges(index, s, e) });
         }
       }
@@ -75,6 +82,7 @@ export function useFind(
   const searching = normalized !== '' && !fresh;
 
   const step = useCallback((delta: number) => {
+    setStepCount((c) => c + 1);
     setResult((prev) => {
       const n = prev.matches.length;
       if (n === 0) return prev;
@@ -84,5 +92,5 @@ export function useFind(
   const next = useCallback(() => step(1), [step]);
   const prev = useCallback(() => step(-1), [step]);
 
-  return { query, setQuery, matches, currentIndex, searching, next, prev };
+  return { query, setQuery, matches, currentIndex, stepCount, searching, next, prev };
 }

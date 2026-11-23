@@ -7,6 +7,8 @@ import {
   type PageRect,
 } from '../../utils/citationGeometry';
 import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
+import { documentsApi } from '../../api/documentsApi';
+import { describeApiError } from '../../hooks/useDocuments';
 import { resolveFileUrl } from './pdfAssets';
 import { usePdfDocument, type PdfSource } from './usePdfDocument';
 import { useZoom, type ZoomMode } from './useZoom';
@@ -56,6 +58,8 @@ import {
 
 export interface PdfViewerProps {
   document: Document;
+  /** Called after a PDF was uploaded for a metadata-only entry. */
+  onFileAttached?: (docId: string) => void | Promise<void>;
 }
 
 type SidebarTab = 'annotations' | 'ai';
@@ -66,18 +70,25 @@ interface SidebarLayout {
   tab: SidebarTab;
 }
 
+/** Sidebar layout for this browser session (module level: survives the viewer unmounting). */
+let savedLayout: SidebarLayout | null = null;
+
 /**
  * Public component. Layout preferences (sidebar width/collapse/tab) survive document switches;
  * everything document-specific lives in `PdfViewerInner`, which is keyed on the document id so
  * popups, menus, citations, find state and annotations reset on document change.
  */
-export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc }) => {
-  const [layout, setLayout] = useState<SidebarLayout>(() => ({
+export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc, onFileAttached }) => {
+  const [layout, setLayout] = useState<SidebarLayout>(() => savedLayout ?? {
     collapsed: typeof window !== 'undefined' ? window.innerWidth < 850 : false,
     customWidth: null,
     tab: 'annotations',
-  }));
-  return <PdfViewerInner key={doc.id} doc={doc} layout={layout} setLayout={setLayout} />;
+  });
+  // The viewer unmounts on the Library tab; keep the panel as the user left it.
+  useEffect(() => {
+    savedLayout = layout;
+  }, [layout]);
+  return <PdfViewerInner key={doc.id} doc={doc} layout={layout} setLayout={setLayout} onFileAttached={onFileAttached} />;
 };
 
 // ─── Per-document view memory (page + zoom survive tab switches) ────────────
@@ -147,7 +158,10 @@ interface InnerProps {
   doc: Document;
   layout: SidebarLayout;
   setLayout: React.Dispatch<React.SetStateAction<SidebarLayout>>;
+  onFileAttached?: (docId: string) => void | Promise<void>;
 }
+
+const NO_ANNOTATIONS: Annotation[] = [];
 
 const toStoredRect = (r: PageRect): Rect => ({ x1: r.x0, y1: r.y0, x2: r.x1, y2: r.y1, space: 'pdf' });
 
@@ -157,9 +171,17 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return !!el.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || el.isContentEditable;
 }
 
-const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
+const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAttached }) => {
   // ─── Source & loading ──────────────────────────────────────────────────────
+  /** A PDF opened from disk is a read-only preview: notes and AI stay with the library document. */
   const [localFileOverride, setLocalFileOverride] = useState<string | null>(null);
+  const [localFileName, setLocalFileName] = useState('');
+  const isLocalPreview = !!localFileOverride;
+  const readOnlyReason = isLocalPreview
+    ? 'This is a preview of a local file. Import it to your library to annotate it.'
+    : doc.userPermission === 'VIEW'
+      ? 'You have view-only access to this document, so you cannot add highlights or notes.'
+      : null;
   const [retryToken, setRetryToken] = useState(0);
   const effectiveFile = localFileOverride || doc.file || null;
   const fileUrl = effectiveFile ? resolveFileUrl(effectiveFile) : null;
@@ -207,7 +229,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
 
   const viewRef = useRef<SavedView | null>(null);
   useEffect(() => {
-    if (ready) viewRef.current = { pageIndex: currentPageIndex, zoom: zoom.zoom, mode: zoom.mode };
+    if (ready && !isLocalPreview) viewRef.current = { pageIndex: currentPageIndex, zoom: zoom.zoom, mode: zoom.mode };
   });
   const docIdForView = doc.id;
   useEffect(() => () => {
@@ -296,12 +318,30 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     return () => cancelAnimationFrame(frame);
   }, [ready, initialView, scrollToPage]);
 
+  // Focus the document when it opens, so Ctrl+F and the zoom keys reach the viewer, not the browser.
+  useEffect(() => {
+    if (!ready) return;
+    const active = window.document.activeElement;
+    if (active && active !== window.document.body && isEditableTarget(active)) return;
+    scrollAreaRef.current?.focus({ preventScroll: true });
+  }, [ready]);
+
   // Internal PDF links (references, figures, sections) and named actions.
+  const [linkBackStack, setLinkBackStack] = useState<Array<{ top: number; left: number }>>([]);
+  const goBackFromLink = useCallback(() => {
+    setLinkBackStack((stack) => {
+      const last = stack[stack.length - 1];
+      if (last) scrollAreaRef.current?.scrollTo({ top: last.top, left: last.left });
+      return stack.slice(0, -1);
+    });
+  }, []);
   const [linkService] = useState(() => new ViewerLinkService());
   useEffect(() => {
     linkService.connect({
       doc: ready?.doc ?? null,
       navigate: (t: LinkTarget) => {
+        const area = scrollAreaRef.current;
+        if (area) setLinkBackStack((stack) => [...stack.slice(-19), { top: area.scrollTop, left: area.scrollLeft }]);
         setCurrentPageIndex(t.pageIndex);
         scrollToPage(t.pageIndex, t.y, t.x);
       },
@@ -324,7 +364,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const [tool, setTool] = useState<Tool>('select');
   const [selectedColor, setSelectedColor] = useState<string>(DEFAULT_HIGHLIGHT_COLOR);
   const {
-    annotations,
+    annotations: storedAnnotations,
     create,
     update,
     remove,
@@ -332,6 +372,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     error: annotationError,
     dismissError: dismissAnnotationError,
   } = useAnnotations(doc.id);
+
+  const annotations = isLocalPreview ? NO_ANNOTATIONS : storedAnnotations;
 
   // Sync errors stay visible for a while, then clear themselves.
   useEffect(() => {
@@ -373,6 +415,10 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const createHighlight = useCallback(
     (pageIndex: number, rects: PageRect[], text: string, color: string) => {
       if (rects.length === 0 || !text) return;
+      if (readOnlyReason) {
+        showNotice(readOnlyReason);
+        return;
+      }
       const id = create({
         page_number: pageIndex + 1,
         type: 'highlight',
@@ -384,11 +430,15 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       setSelectionPopup(null);
       window.getSelection()?.removeAllRanges();
     },
-    [create],
+    [create, readOnlyReason, showNotice],
   );
 
   const createNote = useCallback(
     (point: PagePoint, comment: string, color: string = DEFAULT_NOTE_COLOR) => {
+      if (readOnlyReason) {
+        showNotice(readOnlyReason);
+        return;
+      }
       const id = create({
         page_number: point.pageIndex + 1,
         type: 'note',
@@ -398,7 +448,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       });
       setActiveAnnotationId(id);
     },
-    [create],
+    [create, readOnlyReason, showNotice],
   );
 
   const copyAnnotation = useCallback((anno: Annotation) => {
@@ -637,6 +687,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   const handlePagesClick = (e: React.MouseEvent) => {
     if (isInsidePopup(e.target)) return;
     if (tool === 'note') {
+      if (noteEditor?.text.trim()) return; // never discard a typed note because of a stray click
       const point = pagePointFromEvent(e.clientX, e.clientY, e.target);
       if (!point) return;
       setNoteEditor({ mode: 'create', point, text: '' });
@@ -850,11 +901,11 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     const m = find.matches[find.currentIndex];
     if (!m) return;
     const rect = findRects.get(m.pageIndex)?.find((x) => x.index === find.currentIndex)?.rects[0];
-    const key = `${find.currentIndex}|${find.matches.length}|${rect ? 1 : 0}`;
+    const key = `${find.query}|${find.stepCount}|${find.currentIndex}|${find.matches.length}|${rect ? 1 : 0}`;
     if (lastFindRevealRef.current === key) return;
     lastFindRevealRef.current = key;
     revealRect(m.pageIndex, rect);
-  }, [find.currentIndex, find.matches, findRects, revealRect]);
+  }, [find.query, find.stepCount, find.currentIndex, find.matches, findRects, revealRect]);
 
   // ─── AI citations ──────────────────────────────────────────────────────────
   const [citation, setCitation] = useState<CitationState | null>(null);
@@ -887,6 +938,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       setNotice(null);
 
       if (!src) {
+        setCitation(null); // no passage for this page: don't leave the previous highlight showing
         goToPage(pageNum);
         return;
       }
@@ -981,10 +1033,9 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   }, [ready, citation, textLayers]);
 
   const citationFirst = useMemo(() => {
-    for (const [pageIndex, rects] of [...citationRects.entries()].sort((a, b) => a[0] - b[0])) {
-      if (rects.length) return { pageIndex, rect: rects.reduce((a, b) => (b.y0 < a.y0 ? b : a)) };
-    }
-    return null;
+    // Rects are in reading order: in two-column pages the passage may not start at the topmost rect.
+    const first = [...citationRects.entries()].filter(([, rects]) => rects.length > 0).sort((a, b) => a[0] - b[0])[0];
+    return first ? { pageIndex: first[0], rect: first[1][0] } : null;
   }, [citationRects]);
 
   // Once the matched passage is measurable, bring it into view (once per citation).
@@ -1002,7 +1053,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     const key = e.key.toLowerCase();
 
     if (e.key === 'Escape') {
-      const hadSomething = !!(contextMenu || selectionPopup || noteEditor || findOpen || activeAnnotationId !== null);
+      const hadSomething = !!(contextMenu || selectionPopup || noteEditor || findOpen || activeAnnotationId !== null || citation);
+      setCitation(null);
       setContextMenu(null);
       setSelectionPopup(null);
       setNoteEditor(null);
@@ -1012,6 +1064,11 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       return;
     }
     if (isEditableTarget(e.target)) return;
+    if (e.altKey && e.key === 'ArrowLeft' && linkBackStack.length > 0) {
+      e.preventDefault();
+      goBackFromLink();
+      return;
+    }
     // Shortcuts below apply to the document area, not the AI/notes sidebar.
     if (sidebarRef.current?.contains(e.target as Node)) return;
 
@@ -1040,7 +1097,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
       // Never let the app-wide "delete selected document" shortcut fire while reading.
       e.preventDefault();
       e.stopPropagation();
-      if (activeAnnotationId !== null) deleteAnnotation(activeAnnotationId);
+      // Backspace is too easy to hit while reading; only Delete removes the active annotation.
+      if (e.key === 'Delete' && activeAnnotationId !== null) deleteAnnotation(activeAnnotationId);
       return;
     }
     const target = activeAnnotationId !== null ? annotations.find((a) => a.id === activeAnnotationId) : undefined;
@@ -1071,10 +1129,42 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLocalFileOverride(URL.createObjectURL(file));
+    setLocalFileName(file.name);
+    setCurrentPageIndex(0);
+    scrollAreaRef.current?.scrollTo({ top: 0, left: 0 });
+    setTool('select');
+    setActiveAnnotationId(null);
     setCitation(null);
     setSelectionPopup(null);
     setNoteEditor(null);
+    setLayout((l) => (l.tab === 'ai' ? { ...l, tab: 'annotations' } : l));
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const closeLocalPreview = () => {
+    setLocalFileOverride(null);
+    setLocalFileName('');
+    setCurrentPageIndex(0);
+    scrollAreaRef.current?.scrollTo({ top: 0, left: 0 });
+    setSelectionPopup(null);
+  };
+
+  // ─── Attach a PDF to a metadata-only entry (uploads it and starts indexing) ──
+  const attachInputRef = useRef<HTMLInputElement | null>(null);
+  const [isAttaching, setIsAttaching] = useState(false);
+  const handleAttachFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setIsAttaching(true);
+    try {
+      await documentsApi.attachFile(doc.id, file);
+      await onFileAttached?.(doc.id);
+    } catch (err) {
+      showNotice(describeApiError(err, 'Could not attach this PDF'));
+    } finally {
+      setIsAttaching(false);
+    }
   };
 
   // ─── Per-page overlay ──────────────────────────────────────────────────────
@@ -1175,13 +1265,13 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
           <div
             className={styles.selectionPopup}
             style={{
-              left: `${((selectionPopup.rects[0].x0 + selectionPopup.rects[0].x1) / 2) * scale}px`,
+              left: `${Math.max(120, Math.min((ready?.sizes[pageIndex]?.width ?? 0) * scale - 120, ((selectionPopup.rects[0].x0 + selectionPopup.rects[0].x1) / 2) * scale))}px`,
               top: `${Math.max(10, selectionPopup.rects[0].y0 * scale - 8)}px`,
             }}
             data-viewer-popup=""
             onMouseDown={(e) => e.preventDefault()}
           >
-            <div className={styles.selectionColorsGroup}>
+            {!readOnlyReason && <div className={styles.selectionColorsGroup}>
               {HIGHLIGHT_COLORS.map((hc) => (
                 <button
                   key={hc.color}
@@ -1193,8 +1283,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
                   aria-label={`Highlight with ${hc.name}`}
                 />
               ))}
-            </div>
-            <button
+            </div>}
+            {!readOnlyReason && <button
               type="button"
               className={styles.selectionActionBtn}
               onClick={() => {
@@ -1206,7 +1296,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
             >
               <FaNoteSticky style={{ color: '#3b82f6' }} />
               <span>Note</span>
-            </button>
+            </button>}
             <button
               type="button"
               className={styles.selectionActionBtn}
@@ -1225,7 +1315,10 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
         {noteEditor?.point.pageIndex === pageIndex && (
           <div
             className={styles.notePopoverModal}
-            style={{ left: `${noteEditor.point.x * scale + 10}px`, top: `${noteEditor.point.y * scale}px` }}
+            style={{
+              left: `${Math.max(4, Math.min((ready?.sizes[pageIndex]?.width ?? 0) * scale - 300, noteEditor.point.x * scale + 10))}px`,
+              top: `${Math.max(4, Math.min((ready?.sizes[pageIndex]?.height ?? 0) * scale - 230, noteEditor.point.y * scale))}px`,
+            }}
             data-viewer-popup=""
             onClick={(e) => e.stopPropagation()}
           >
@@ -1268,10 +1361,15 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
   return (
     <div className={styles.pdfViewerWrapper} ref={viewerWrapperRef} onKeyDown={handleKeyDown}>
       <input ref={fileInputRef} type="file" accept="application/pdf" style={{ display: 'none' }} onChange={handleOpenLocalPdfFile} />
+      <input ref={attachInputRef} type="file" accept="application/pdf" style={{ display: 'none' }} onChange={(e) => void handleAttachFile(e)} />
 
       <ViewerToolbar
         tool={tool}
         onToolChange={(t) => {
+          if (readOnlyReason && t !== 'select') {
+            showNotice(readOnlyReason);
+            return;
+          }
           setTool(t);
           setSelectionPopup(null);
         }}
@@ -1311,6 +1409,26 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
             />
           )}
 
+          {isLocalPreview && (
+            <div className={styles.citationNotice} role="status">
+              <FaFolderOpen className={styles.citationNoticeIcon} />
+              <span>Previewing local file “{localFileName}”. Notes and the AI assistant stay with “{doc.title}”.</span>
+              <button type="button" className={styles.btnSecondary} onClick={closeLocalPreview}>
+                Back to document
+              </button>
+            </div>
+          )}
+          {linkBackStack.length > 0 && (
+            <div className={styles.citationNotice} role="status">
+              <span>Followed a link in the paper.</span>
+              <button type="button" className={styles.btnSecondary} onClick={goBackFromLink} title="Back to where you were (Alt+Left)">
+                Back
+              </button>
+              <button type="button" className={styles.citationNoticeClose} onClick={() => setLinkBackStack([])} aria-label="Dismiss" title="Dismiss">
+                <FaXmark />
+              </button>
+            </div>
+          )}
           {annotationError && (
             <div className={`${styles.citationNotice} ${styles.viewerNoticeError}`} role="alert" key={`anno-err-${annotationError.id}`}>
               <FaTriangleExclamation className={styles.viewerNoticeErrorIcon} />
@@ -1368,8 +1486,8 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
                   This entry only has bibliographic metadata. Attach the paper's PDF to read it and use the AI assistant.
                 </div>
                 <div className={styles.viewerStatusActions}>
-                  <button type="button" className={styles.btnPrimary} onClick={() => fileInputRef.current?.click()} title="Upload the original PDF for this paper">
-                    <FaFolderOpen /> Attach PDF
+                  <button type="button" className={styles.btnPrimary} disabled={isAttaching} onClick={() => attachInputRef.current?.click()} title="Upload the original PDF for this paper">
+                    <FaFolderOpen /> {isAttaching ? 'Uploading…' : 'Attach PDF'}
                   </button>
                 </div>
               </div>
@@ -1479,7 +1597,13 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
                 </div>
               </div>
 
-              {layout.tab === 'ai' ? (
+              {layout.tab === 'ai' && isLocalPreview ? (
+                <div className={styles.viewerStatus} role="status">
+                  <div className={styles.viewerStatusText}>
+                    The AI assistant answers from “{doc.title}”. Go back to the document, or import this file to ask about it.
+                  </div>
+                </div>
+              ) : layout.tab === 'ai' ? (
                 <div className={styles.aiSidebarBody}>
                   <AiChatPanel
                     key={doc.id}
@@ -1487,6 +1611,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout }) => {
                     onJumpToPage={jumpToPage}
                     activeCitationChunkId={citation?.chunkId}
                     onClose={() => setLayout((l) => ({ ...l, collapsed: true }))}
+                    onClearCitation={() => setCitation(null)}
                   />
                 </div>
               ) : (

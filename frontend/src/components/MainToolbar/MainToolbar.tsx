@@ -73,8 +73,8 @@ export const MainToolbar: React.FC<MainToolbarProps> = ({
           ref={searchRef}
           type="text"
           className={styles.searchInput}
-          placeholder="Search title, creator, tags..."
-          aria-label="Search documents by title, creator, tag or domain"
+          placeholder="Search title, creator, tags, DOI..."
+          aria-label="Search documents by title, creator, tag, domain, DOI or abstract"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           onKeyDown={(e) => {

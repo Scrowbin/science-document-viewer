@@ -173,6 +173,14 @@ export const documentsApi = {
     return mapDjangoDocToFrontend(res.data);
   },
 
+  /** Upload a PDF for an existing entry; the backend replaces the file and re-indexes it. */
+  async attachFile(id: string | number, file: File): Promise<Document> {
+    const form = new FormData();
+    form.append('file', file);
+    const res = await apiClient.patch<DjangoDocumentRaw>(`/documents/${id}/`, form, { timeout: 120_000 });
+    return mapDjangoDocToFrontend(res.data);
+  },
+
   /**
    * Assign or move document to a primary collection (or null to unfile).
    */

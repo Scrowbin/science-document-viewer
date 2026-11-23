@@ -57,6 +57,16 @@ class Command(BaseCommand):
                               f"vram {m.get('size_vram', 0) / 2**20:,.0f} MB, expires {m.get('expires_at')}")
         if not models:
             self.stdout.write("no model resident")
+        configured = getattr(settings, "OLLAMA_MODEL", "")
+        try:
+            tags = requests.get(f"{url}/api/tags", headers=headers, timeout=10).json().get("models", [])
+            names = [t.get("name") for t in tags]
+            if configured in names:
+                self.stdout.write(self.style.SUCCESS(f"configured model {configured}: available at {url}"))
+            else:
+                self.stderr.write(f"WARNING: configured model {configured} is NOT available at {url} (has: {names})")
+        except (requests.RequestException, ValueError) as e:
+            self.stderr.write(f"WARNING: could not list models at {url}: {e}")
         mb = ollama_tree_working_set_mb()
         if mb is None:
             self.stdout.write("psutil not installed: process memory not measured")

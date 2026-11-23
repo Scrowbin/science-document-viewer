@@ -994,6 +994,17 @@ def _first_pages_copy(src_path, max_pages):
         return None
 
 
+def _is_readable_pdf(path):
+    """True when the file opens as a PDF with at least one page (a %PDF- header alone is not enough)."""
+    try:
+        import pymupdf
+        with pymupdf.open(path) as pdf:
+            return pdf.page_count > 0
+    except Exception as e:
+        logger.warning("[PDF-EXTRACT] File could not be opened as a PDF: %s", e)
+        return False
+
+
 class PdfMetadataExtractView(views.APIView):
     """
     Extracts metadata from an uploaded PDF without saving to the database.
@@ -1047,6 +1058,17 @@ class PdfMetadataExtractView(views.APIView):
             for c in uploaded_file.chunks():
                 tmp.write(c)
             tmp_path = tmp.name
+
+        if not _is_readable_pdf(tmp_path):
+            logger.warning("[PDF-EXTRACT] [ERROR] File has a PDF header but cannot be opened.")
+            try:
+                os.remove(tmp_path)
+            except OSError as e:
+                logger.warning("[PDF-EXTRACT] Could not remove temp file: %s", e)
+            return Response(
+                {"detail": "This PDF is damaged or cannot be read."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         head_path = None
         try:

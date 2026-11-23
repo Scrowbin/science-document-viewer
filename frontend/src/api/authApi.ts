@@ -1,4 +1,5 @@
-import apiClient from './client';
+import axios from 'axios';
+import apiClient, { API_BASE_URL, DEFAULT_TIMEOUT_MS } from './client';
 import type { LoginCredentials, RegisterData, User } from '../types/auth';
 
 export interface TokenResponse {
@@ -60,6 +61,7 @@ export const authApi = {
       username,
       email: data.email,
       password: data.password,
+      institution: data.institution?.trim() || '',
     });
 
     const { user: registeredUser, tokens } = res.data;
@@ -96,23 +98,17 @@ export const authApi = {
   },
 
   /**
-   * Logout and clear tokens (blacklists refresh token on backend if online).
+   * Blacklists the current refresh token on the backend. Reads the token synchronously, so the caller
+   * can clear local storage right away. Sent without the access token, which may already have expired.
    */
   async logout(): Promise<void> {
     const refreshToken = localStorage.getItem('scidocs_refresh_token') || sessionStorage.getItem('scidocs_refresh_token');
-    if (refreshToken) {
-      try {
-        await apiClient.post('/auth/logout/', { refresh: refreshToken });
-      } catch {
-        // Silently ignore network / offline errors during logout
-      }
+    if (!refreshToken) return;
+    try {
+      await axios.post(`${API_BASE_URL}/auth/logout/`, { refresh: refreshToken }, { timeout: DEFAULT_TIMEOUT_MS });
+    } catch {
+      // Silently ignore network / offline errors during logout
     }
-    localStorage.removeItem('scidocs_auth_token');
-    localStorage.removeItem('scidocs_refresh_token');
-    localStorage.removeItem('scidocs_auth_user');
-    sessionStorage.removeItem('scidocs_auth_token');
-    sessionStorage.removeItem('scidocs_refresh_token');
-    sessionStorage.removeItem('scidocs_auth_user');
   },
 };
 

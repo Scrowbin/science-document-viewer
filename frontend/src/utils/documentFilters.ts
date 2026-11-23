@@ -20,7 +20,12 @@ export function sortDocuments(
       const tB = b.lastRead ? Date.parse(b.lastRead) : NaN;
       const hasA = !Number.isNaN(tA);
       const hasB = !Number.isNaN(tB);
-      if (!hasA && !hasB) return collator.compare(a.title, b.title);
+      if (!hasA && !hasB) {
+        // Never-read documents: newest upload first, so a new import is easy to find.
+        const addedA = Date.parse(a.metadata?.dateAdded ?? '') || 0;
+        const addedB = Date.parse(b.metadata?.dateAdded ?? '') || 0;
+        return addedB - addedA || collator.compare(a.title, b.title);
+      }
       if (!hasA) return 1;
       if (!hasB) return -1;
       return (tA - tB) * sign || collator.compare(a.title, b.title);
@@ -96,7 +101,9 @@ export function filterDocuments(
       const matchCreator = doc.creator.toLowerCase().includes(q);
       const matchTags = doc.metadata.tags?.some((t) => t.toLowerCase().includes(q)) ?? false;
       const matchDomains = doc.metadata.domains?.some((d) => d.toLowerCase().includes(q)) ?? false;
-      return matchTitle || matchCreator || matchTags || matchDomains;
+      const matchDoi = doc.metadata.doi?.toLowerCase().includes(q) ?? false;
+      const matchAbstract = doc.metadata.extra?.toLowerCase().includes(q) ?? false;
+      return matchTitle || matchCreator || matchTags || matchDomains || matchDoi || matchAbstract;
     }
 
     return true;

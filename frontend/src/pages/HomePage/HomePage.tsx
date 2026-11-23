@@ -350,6 +350,16 @@ export function HomePage() {
     if (target) activateTab(target);
   }, [tabs, activateTab]);
 
+  // Tab titles follow renames made in the metadata panel.
+  const displayTabs = useMemo(
+    () =>
+      tabs.map((t) => {
+        const d = t.documentId ? documents.find((x) => x.id === t.documentId) : undefined;
+        return d ? { ...t, title: d.metadata.shortTitle || d.title } : t;
+      }),
+    [tabs, documents],
+  );
+
   const handleFocusSearch = useCallback(() => {
     searchInputRef.current?.focus();
     searchInputRef.current?.select();
@@ -386,11 +396,9 @@ export function HomePage() {
       if (!ok) return;
     }
     if (selectedIds.includes(doc.id)) clearSelection();
-    if (doc.inTrash) {
-      // Close any open viewer tab for a document that is about to disappear.
-      const tabId = `pdf-${doc.id}`;
-      if (tabs.some((t) => t.id === tabId)) handleCloseTab(tabId);
-    }
+    // Close any open viewer tab for a document that is leaving the library.
+    const tabId = `pdf-${doc.id}`;
+    if (tabs.some((t) => t.id === tabId)) handleCloseTab(tabId);
     await handleDeleteDocument(doc);
   }, [selectedIds, clearSelection, tabs, handleCloseTab, handleDeleteDocument]);
 
@@ -426,6 +434,7 @@ export function HomePage() {
       },
       onTrash: () => {
         clearSelection();
+        closeTabsForDocuments(ids);
         void handleBulkAction('trash', ids);
       },
       onRestore: () => {
@@ -695,7 +704,7 @@ export function HomePage() {
         <div className={styles.topBarWrapper}>
           <div className={styles.tabBarContainer}>
             <TabBar
-              tabs={tabs}
+              tabs={displayTabs}
               activeTabId={activeTabId}
               onSelectTab={handleSelectTab}
               onCloseTab={handleCloseTab}
@@ -880,7 +889,7 @@ export function HomePage() {
                 />
               </>
             ) : activePdfDoc ? (
-              <PdfViewer document={activePdfDoc} />
+              <PdfViewer document={activePdfDoc} onFileAttached={refreshDocument} />
             ) : selectedDocTab ? (
               <div className={styles.emptyViewer}>
                 <span>
@@ -964,7 +973,7 @@ export function HomePage() {
           metadata={uploadPreviewMeta}
           onMetadataChange={handleUpdateUploadMeta}
           onConfirm={(overrides) => {
-            void handleConfirmUpload(overrides).then((doc) => {
+            void handleConfirmUpload(overrides, selectedCollectionId).then((doc) => {
               if (doc) handleOpenPdf(doc);
             });
           }}

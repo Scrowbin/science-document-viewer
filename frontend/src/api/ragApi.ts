@@ -27,6 +27,7 @@ export interface RagAnswer {
 }
 
 const REFUSAL_MARKER = 'does not contain sufficient relevant information';
+const MAX_REFUSAL_CHARS = 180;
 /**
  * Model label the backend reports when Ollama gave no answer (timeout/offline) and it fell back
  * to retrieved excerpts (NFR-05). Used only when the response has no explicit `degraded` flag.
@@ -38,16 +39,22 @@ function normaliseAnswer(data: ChatResponse | SummaryResponse): RagAnswer {
     ('answer' in data && typeof data.answer === 'string' ? data.answer : undefined) ??
     ('summary' in data && typeof data.summary === 'string' ? data.summary : undefined) ??
     '';
-  const refused = typeof data.refused === 'boolean' ? data.refused : text.toLowerCase().includes(REFUSAL_MARKER);
+  // Only a reply that is essentially the refusal sentence is a refusal; a real answer may quote it.
+  const refused =
+    typeof data.refused === 'boolean'
+      ? data.refused
+      : text.toLowerCase().includes(REFUSAL_MARKER) && text.trim().length <= MAX_REFUSAL_CHARS;
   const sources = Array.isArray(data.sources) ? data.sources : [];
   const degraded =
     typeof data.degraded === 'boolean'
       ? data.degraded
       : !refused && sources.length > 0 && (data.model ?? '').trim().toLowerCase() === FALLBACK_MODEL_LABEL;
+  // The fallback label is internal: no language model produced this reply.
+  const isFallbackLabel = (data.model ?? '').trim().toLowerCase() === FALLBACK_MODEL_LABEL;
   return {
     answer: text,
     sources,
-    model: data.model,
+    model: isFallbackLabel ? (degraded ? 'Retrieved excerpts (no LLM)' : undefined) : data.model,
     refused,
     degraded,
   };

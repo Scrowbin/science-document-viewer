@@ -147,7 +147,9 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
-        sessionExpired();
+        // Only a rejected refresh token ends the session; a network or server error must not log the user out.
+        const refreshStatus = (refreshError as AxiosError).response?.status;
+        if (refreshStatus === 400 || refreshStatus === 401) sessionExpired();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

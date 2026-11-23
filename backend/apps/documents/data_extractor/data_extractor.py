@@ -179,7 +179,7 @@ def data_extractor(path):
             arxiv_id = _page_one_arxiv_id(first_page)
             doi = raw.get("doi") or ""
             year = raw.get("year")
-            if arxiv_id and not year:
+            if arxiv_id:  # the id encodes the submission date; other years on page 1 may be citations
                 year = 2000 + int(arxiv_id[:2])
             meta = {
                 "title": raw.get("title", ""),
@@ -188,7 +188,7 @@ def data_extractor(path):
                 "date": str(year) if year else "",
                 "doi": doi,
                 "url": _best_url(raw.get("urls") or [], doi, arxiv_id),
-                "extra": raw.get("abstract") or "",
+                "extra": re.sub(r"^abstract\s*[-—:.]\s*", "", " ".join((raw.get("abstract") or "").split()), flags=re.IGNORECASE),
                 "repository": "arXiv" if arxiv_id else "Local Upload",
                 "tags": raw.get("keywords") or [],
             }

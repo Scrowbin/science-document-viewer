@@ -572,6 +572,58 @@ def _plausible_metadata_title(meta_title):
     return t
 
 
+_ABSTRACT_LABEL_RE = re.compile(r"^\s*(?:abstract|a\s*b\s*s\s*t\s*r\s*a\s*c\s*t|summary)\s*[-—:.]?\s*", re.IGNORECASE)
+_AFTER_ABSTRACT_RE = re.compile(
+    r"^\s*(?:(?:\d{1,2}|[IVX]+)\s*[.:]?\s*)?(?:introduction|background)|^\s*(?:keywords?|index terms)", re.IGNORECASE
+)
+MAX_ABSTRACT_CHARS = 3500
+
+
+def _block_text_and_size(block):
+    lines, sizes = [], []
+    for line in block.get("lines", []):
+        text = "".join(s.get("text", "") for s in line.get("spans", [])).strip()
+        if text:
+            lines.append(text)
+            sizes.extend(s.get("size", 0) for s in line.get("spans", []) if s.get("text", "").strip())
+    joined = lines[0] if lines else ""
+    for next_line in lines[1:]:
+        # Rejoin a word split across lines, but keep real compounds ("English-" + "to-German").
+        if joined.endswith("-") and next_line[:1].islower() and "-" not in next_line.split()[0]:
+            joined = joined[:-1] + next_line
+        else:
+            joined += " " + next_line
+    return joined, (sorted(sizes)[len(sizes) // 2] if sizes else 0)
+
+
+def layout_abstract(page):
+    """Abstract from page 1 layout: after an 'Abstract' label, or the first long unlabelled paragraph."""
+    blocks = [_block_text_and_size(b) for b in page.get_text("dict").get("blocks", []) if b.get("type") == 0]
+    blocks = [b for b in blocks if b[0]]
+    start, first = None, ""
+    for i, (text, _) in enumerate(blocks):
+        if _ABSTRACT_LABEL_RE.match(text):
+            start, first = i, _ABSTRACT_LABEL_RE.sub("", text, count=1).strip()
+            break
+    if start is None:
+        for i, (text, _) in enumerate(blocks):
+            if _AFTER_ABSTRACT_RE.match(text):
+                break
+            if len(text.split()) >= 60:
+                start, first = i, text
+                break
+    if start is None:
+        return None
+    parts = [first] if first else []
+    size = blocks[start][1] if first else (blocks[start + 1][1] if start + 1 < len(blocks) else 0)
+    for text, block_size in blocks[start + 1:]:
+        if _AFTER_ABSTRACT_RE.match(text) or abs(block_size - size) > 0.6:
+            break
+        parts.append(text)
+    abstract = clean_text(" ".join(parts))
+    return abstract[:MAX_ABSTRACT_CHARS] if len(abstract.split()) >= 20 else None
+
+
 def auto_extract_metadata(path):
     try:
         doc = pymupdf.open(str(path))
@@ -593,11 +645,16 @@ def auto_extract_metadata(path):
         first_page_text = pages[0]["text"] if pages else ""
         metadata = dict(doc.metadata or {})
         layout_title, layout_authors = (None, [])
+        page_one_abstract = None
         if len(doc) > 0:
             try:
                 layout_title, layout_authors = layout_title_authors(doc[0])
             except Exception:
                 layout_title, layout_authors = (None, [])
+            try:
+                page_one_abstract = layout_abstract(doc[0])
+            except Exception:
+                page_one_abstract = None
     finally:
         doc.close()
 
@@ -607,11 +664,15 @@ def auto_extract_metadata(path):
     if not authors and metadata.get("author"):
         authors = [a for a in (_clean_author_name(x) for x in re.split(r",|;|\band\b", metadata["author"])) if _looks_like_name(a)]
 
+    abstract = extract_abstract(raw_text)
+    if not abstract or len(abstract) > MAX_ABSTRACT_CHARS:  # no end marker: the match ran past the abstract
+        abstract = page_one_abstract
+
     return {
         # Bibliographic metadata
         "title": title,
         "authors": authors,
-        "abstract": extract_abstract(raw_text),
+        "abstract": abstract,
         "keywords": extract_keywords(raw_text),
         "year": extract_year(first_page_text),
         # Identifiers

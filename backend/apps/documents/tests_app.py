@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -1065,6 +1065,12 @@ class MetadataEndpointTests(_MediaTestCase):
                 self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST, doi)
             fetch.assert_not_called()
 
+    def test_extract_rejects_damaged_pdf_with_valid_header(self):
+        upload = SimpleUploadedFile("broken.pdf", b"%PDF-1.7\n" + b"\x00garbage" * 200, content_type="application/pdf")
+        resp = self.client.post("/api/v1/metadata/extract-pdf/", {"file": upload}, format="multipart")
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("damaged", resp.data["detail"])
+
     def test_extract_size_cap_and_first_pages_only(self):
         import pymupdf
         upload = SimpleUploadedFile("p.pdf", PDF_BYTES, content_type="application/pdf")
@@ -1090,3 +1096,67 @@ class MetadataEndpointTests(_MediaTestCase):
                                     format="multipart")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(seen["pages"], 5)
+
+
+class DemoPathRegressionTests(SimpleTestCase):
+    """Answer sources, reference filtering and LLM fallback timing used on the demo path."""
+
+    @staticmethod
+    def _chunk(section="Results", page=3, loc_page=5, score=0.5):
+        from langchain_core.documents import Document as LCDocument
+        return (LCDocument(page_content="Passage text.", metadata={
+            "page": page, "loc_page_start": loc_page, "section": section, "dense_score": score,
+            "matched_child_id": "c1", "matched_child_text": "Passage text.",
+        }), score)
+
+    def _query(self, question, chunks, answer="Answer [Page 5]."):
+        from .services import rag_service as rs
+        rag = MagicMock()
+        rag.documents = [chunks[0][0]]
+        rag.hybrid_search.return_value = chunks
+        with patch.object(rs, "get_or_create_rag", return_value=rag), \
+                patch.object(rs, "screen_question", return_value=None), \
+                patch.object(rs, "_generate", return_value=(answer, "m (Remote GPU)")) as gen:
+            return rs.query_document(1, "x.pdf", question, "T"), rag, gen
+
+    def test_source_and_prompt_use_the_passage_page(self):
+        res, _, gen = self._query("What is the result?", [self._chunk(score=0.9)])
+        self.assertEqual(res["sources"][0]["page"], 5)
+        self.assertIn("Snippet (Page 5,", gen.call_args.args[0])
+
+    def test_references_excluded_unless_asked(self):
+        _, rag, _ = self._query("What is the result?", [self._chunk(score=0.9)])
+        self.assertTrue(rag.hybrid_search.call_args.kwargs["exclude_references"])
+        _, rag, _ = self._query("Which references discuss this?", [self._chunk(score=0.9)])
+        self.assertFalse(rag.hybrid_search.call_args.kwargs["exclude_references"])
+
+    def test_suggested_question_skips_similarity_gate_only(self):
+        res, _, _ = self._query("Explain the core methodology & architecture.", [self._chunk(score=0.5)])
+        self.assertTrue(res["sources"])
+        res, _, _ = self._query("Explain something unrelated.", [self._chunk(score=0.5)])
+        self.assertEqual(res["sources"], [])
+
+    def test_reference_section_names(self):
+        from .services.rag_service import is_reference_section
+        for name in ("References", "REFERENCES", "7. References", "Bibliography"):
+            self.assertTrue(is_reference_section(name), name)
+        for name in ("Related Work", "A. Expanded Related Work", "", None):
+            self.assertFalse(is_reference_section(name), name)
+
+    @override_settings(OLLAMA_BASE_URL="http://remote", OLLAMA_MODEL="m", OLLAMA_API_KEY="k",
+                       OLLAMA_FALLBACK_URL="http://localhost:11434", OLLAMA_FALLBACK_MODEL="f",
+                       OLLAMA_TIMEOUT=60, OLLAMA_PRIMARY_TIMEOUT=40)
+    def test_primary_timeout_leaves_time_for_fallback(self):
+        from .services import rag_service as rs
+        with patch.object(rs, "_generate_with_ollama", side_effect=[None, "ok"]) as call:
+            text, label = rs._generate("p")
+        self.assertEqual((text, label), ("ok", "f (Local RAG)"))
+        self.assertEqual(call.call_args_list[0].kwargs["read_timeout"], 40)
+        self.assertNotIn("read_timeout", call.call_args_list[1].kwargs)
+
+    def test_embedding_model_has_no_silent_fallback(self):
+        from .services import rag_service as rs
+        with patch.object(rs, "_shared_embedding_model", None), \
+                patch("sentence_transformers.SentenceTransformer", side_effect=OSError("missing")) as st:
+            self.assertIsNone(rs.get_embedding_model())
+        self.assertEqual(st.call_count, 1)

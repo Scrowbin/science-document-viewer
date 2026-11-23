@@ -22,6 +22,7 @@ Task 1D Infrastructure Finding:
 
 import logging
 import os
+import re
 import threading
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
@@ -747,6 +748,28 @@ _rag_instances: Dict[int, "DocumentRAG"] = {}
 _shared_embedding_model: Optional[Any] = None
 
 
+_REFERENCE_SECTION_RE = re.compile(r"^\s*(?:[0-9IVX]+\.?\s+)?(?:references|bibliography)\s*$", re.IGNORECASE)
+_ASKS_ABOUT_REFERENCES_RE = re.compile(r"\b(references?|bibliography|citations?|cited|cites?)\b", re.IGNORECASE)
+
+
+# The panel's suggested questions (AiChatPanel STARTER_PROMPTS). They are generic, so they score low
+# against any single passage; the model still answers only from the retrieved context.
+SUGGESTED_QUESTIONS = frozenset({
+    "What problem does this paper solve?",
+    "Explain the core methodology & architecture.",
+    "What are the key experimental benchmarks?",
+})
+
+
+def is_reference_section(section: Any) -> bool:
+    return bool(_REFERENCE_SECTION_RE.match(str(section or "")))
+
+
+def source_page(meta: Dict[str, Any]) -> int:
+    """Page where the passage itself starts; `page` holds the start of its section."""
+    return meta.get("loc_page_start") or meta.get("page", 1)
+
+
 def get_embedding_model() -> Any:
     global _shared_embedding_model
     if _shared_embedding_model is None:
@@ -756,12 +779,9 @@ def get_embedding_model() -> Any:
             from sentence_transformers import SentenceTransformer
             _shared_embedding_model = SentenceTransformer(model_name)
         except Exception as e:
-            logger.warning("Failed to load %s, falling back to all-MiniLM-L6-v2: %s", model_name, e)
-            try:
-                from sentence_transformers import SentenceTransformer
-                _shared_embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-            except Exception:
-                _shared_embedding_model = None
+            # No fallback model: vectors from another model are not comparable with the stored index.
+            logger.error("Failed to load embedding model %s: %s", model_name, e)
+            _shared_embedding_model = None
     return _shared_embedding_model
 
 
@@ -860,11 +880,14 @@ class DocumentRAG:
             [formatted_text], normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False
         )[0]
 
-    def hybrid_search(self, query: str, top_k: int = 5, mode: Optional[str] = None) -> List[Tuple[Document, float]]:
+    def hybrid_search(
+        self, query: str, top_k: int = 5, mode: Optional[str] = None, exclude_references: bool = False
+    ) -> List[Tuple[Document, float]]:
         """
         mode (default settings.RAG_RETRIEVAL_MODE):
           'dense'      : all children ranked by dense similarity (no BM25)
           'rrf_legacy' : top-50 dense + top-50 whitespace BM25, RRF k=60 (behaviour before dense became the default)
+        exclude_references: skip chunks of the reference list (used by the app, not by the evaluation).
         """
         if not self.documents:
             return []
@@ -957,6 +980,10 @@ class DocumentRAG:
             ranked_indices = sorted(
                 rrf_scores.keys(), key=lambda i: rrf_scores[i], reverse=True
             )
+
+        if exclude_references:
+            kept = [i for i in ranked_indices if not is_reference_section(self.documents[i].metadata.get("section"))]
+            ranked_indices = kept or ranked_indices
 
         # If hierarchical: Expand child hits to unique parent sections, windowing over-long parents
         if self.is_hierarchical:
@@ -1282,10 +1309,12 @@ def reindex_document(
     return rag
 
 
-def _generate_with_ollama(prompt: str, model_name: str, ollama_url: str, api_key: str = "") -> Optional[str]:
+def _generate_with_ollama(
+    prompt: str, model_name: str, ollama_url: str, api_key: str = "", read_timeout: Optional[int] = None
+) -> Optional[str]:
     """Calls Ollama /api/generate and returns response text or None."""
     try:
-        read_timeout = getattr(settings, "OLLAMA_TIMEOUT", 60)
+        read_timeout = read_timeout or getattr(settings, "OLLAMA_TIMEOUT", 60)
         resp = requests.post(
             f"{ollama_url}/api/generate",
             json={
@@ -1327,7 +1356,15 @@ def _generate(prompt: str) -> Tuple[Optional[str], str]:
     """Generate with the first endpoint that answers. Returns (text or None, model label for the UI)."""
     endpoints = _llm_endpoints()
     for i, (url, model_name, api_key) in enumerate(endpoints):
-        text = _generate_with_ollama(prompt, model_name, url, api_key)
+        # With a fallback, a hung primary must leave time for it within the browser's 120 s limit.
+        read_timeout = None
+        if i + 1 < len(endpoints):
+            read_timeout = min(getattr(settings, "OLLAMA_TIMEOUT", 60), getattr(settings, "OLLAMA_PRIMARY_TIMEOUT", 40))
+        text = (
+            _generate_with_ollama(prompt, model_name, url, api_key, read_timeout=read_timeout)
+            if read_timeout
+            else _generate_with_ollama(prompt, model_name, url, api_key)
+        )
         if text:
             if i:
                 logger.warning(f"LLM answered by fallback endpoint {url} ({model_name})")
@@ -1382,7 +1419,10 @@ def query_document(
             "refusal_reason": guard_reason,
         }
 
-    top_chunks = rag.hybrid_search(question, top_k=5)
+    # The reference list only counts as evidence when the question is about references.
+    top_chunks = rag.hybrid_search(
+        question, top_k=5, exclude_references=not _ASKS_ABOUT_REFERENCES_RE.search(question)
+    )
 
     min_similarity = getattr(settings, "RAG_MIN_SIMILARITY_SCORE", 0.80)
     top_dense_score = max(
@@ -1390,7 +1430,7 @@ def query_document(
         default=0.0,
     )
 
-    if not top_chunks or top_dense_score < min_similarity:
+    if not top_chunks or (top_dense_score < min_similarity and question.strip() not in SUGGESTED_QUESTIONS):
         logger.info(
             "Query relevance below threshold for doc %s (top_dense_score=%.4f < %.4f). Returning refusal response.",
             doc_id,
@@ -1402,6 +1442,12 @@ def query_document(
             "sources": [],
             "model": "Grounded Hybrid RAG (Local)",
         }
+
+    # Sources and the prompt name the page of the matched passage, so an inline [Page N] is correct.
+    top_chunks = [
+        (Document(page_content=doc.page_content, metadata={**doc.metadata, "page": source_page(doc.metadata)}), score)
+        for doc, score in top_chunks
+    ]
 
     sources = []
     for doc, score in top_chunks:
@@ -1464,13 +1510,15 @@ def summarize_document(
         }
 
     # Select representative chunks: start, quarter, mid, three-quarter, end
-    total = len(rag.documents)
+    # The reference list says nothing about the paper's content.
+    content_docs = [d for d in rag.documents if not is_reference_section(d.metadata.get("section"))] or rag.documents
+    total = len(content_docs)
     indices = sorted(set([0, total // 4, total // 2, 3 * total // 4, total - 1]))
-    rep_chunks = [(rag.documents[i], 1.0) for i in indices]
+    rep_chunks = [(content_docs[i], 1.0) for i in indices]
 
     sources = []
     for doc, _ in rep_chunks:
-        page = doc.metadata.get("page", 1)
+        page = source_page(doc.metadata)
         chunk_id = doc.metadata.get("matched_child_id", doc.metadata.get("chunk_id", f"summary-p{page}"))
         section = doc.metadata.get("section", "")
         # child_text has no "[heading]" prefix, so the viewer can match it against the page text
@@ -1507,9 +1555,9 @@ def summarize_document(
 
     # Grounded fallback
     doc_name = doc_title or "this document"
-    first = rag.documents[0].page_content.strip().replace("\n", " ")[:300]
-    mid = rag.documents[total // 2].page_content.strip().replace("\n", " ")[:300]
-    last = rag.documents[-1].page_content.strip().replace("\n", " ")[:300]
+    first = content_docs[0].page_content.strip().replace("\n", " ")[:300]
+    mid = content_docs[total // 2].page_content.strip().replace("\n", " ")[:300]
+    last = content_docs[-1].page_content.strip().replace("\n", " ")[:300]
 
     fallback = (
         f"### 1. Problem Statement & Overview\n{first}...\n\n"

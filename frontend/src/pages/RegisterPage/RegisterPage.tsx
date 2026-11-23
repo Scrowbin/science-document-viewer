@@ -289,14 +289,7 @@ export function RegisterPage() {
               required
             />
             <label htmlFor="terms" className={styles.termsText}>
-              I agree to the{' '}
-              <button type="button" className={styles.linkButton}>
-                Terms of Service
-              </button>{' '}
-              and{' '}
-              <button type="button" className={styles.linkButton}>
-                Academic Data Privacy Policy
-              </button>
+              I agree to the Terms of Service and Academic Data Privacy Policy
             </label>
           </div>
 

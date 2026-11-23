@@ -4,7 +4,7 @@ import type { Document, RagStatus } from '../types';
 import { ragApi } from '../api/ragApi';
 
 const POLL_INTERVAL_MS = 4000;
-/** Stop polling a document after this many consecutive failed checks (deleted, server down). */
+/** Stop polling a document after the server stops returning it this many times in a row (deleted). */
 const MAX_CONSECUTIVE_FAILURES = 5;
 
 /** Set once the batched endpoint answered 404 (older backend): use per-document refreshes. */
@@ -30,8 +30,9 @@ export interface RagStatusUpdate {
  * (deleted, no longer shared) are re-fetched individually. If the batched endpoint does not
  * exist (404) the hook falls back to refreshing every pending document.
  *
- * Polling stops on its own once every status has settled (INDEXED / FAILED), for a document
- * after MAX_CONSECUTIVE_FAILURES failed checks, and on unmount.
+ * Polling stops on its own once every status has settled (INDEXED / FAILED), for a document the
+ * server repeatedly no longer returns (MAX_CONSECUTIVE_FAILURES), and on unmount. A server outage
+ * does not count: polling continues so badges recover once the backend is back.
  */
 export function useRagStatusPolling(
   visibleDocuments: Document[],
@@ -91,8 +92,6 @@ export function useRagStatusPolling(
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           batchEndpointUnavailable = true;
           await refreshEach(active);
-        } else {
-          active.forEach((id) => noteResult(id, false));
         }
         return;
       }

@@ -40,6 +40,10 @@ export const AnnotationsList: React.FC<AnnotationsListProps> = ({ annotations, a
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 onSelect(anno);
+              } else if (e.key === 'Delete') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(anno);
               }
             }}
           >

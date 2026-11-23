@@ -10,8 +10,6 @@ import {
   FaEyeSlash,
   FaArrowRight,
   FaCircleExclamation,
-  FaArrowLeft,
-  FaGoogle,
 } from 'react-icons/fa6';
 
 
@@ -25,12 +23,12 @@ export function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Clear context error on unmount
-  useEffect(() => {
-    return () => {
-      clearError();
-    };
-  }, [clearError]);
+  // Errors are cleared when leaving through a link below, not on unmount: StrictMode's simulated
+  // unmount would otherwise erase the "session expired" message as soon as this page appears.
+  const leaveTo = (path: string) => {
+    clearError();
+    navigate(path);
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -167,7 +165,7 @@ export function LoginPage() {
             <button
               type="button"
               className={styles.linkButton}
-              onClick={() => navigate('/forgot-password')}
+              onClick={() => leaveTo('/forgot-password')}
             >
               Forgot password?
             </button>
@@ -190,41 +188,15 @@ export function LoginPage() {
           </button>
         </form>
 
-        {/* OAuth2 Single Sign-On (Deferred — implement oauth2 later) */}
-        <div className={styles.oauthSection}>
-          <div className={styles.divider}>
-            <span>or</span>
-          </div>
-          <button
-            type="button"
-            className={styles.oauthButton}
-            disabled
-            title="OAuth2 (Google/Institutional SSO) will be implemented in a later milestone"
-          >
-            <FaGoogle /> Continue with Google (OAuth2 &mdash; implement later)
-          </button>
-        </div>
-
-
         {/* Footer Navigation */}
         <div className={styles.footerText}>
           Don't have an account?{' '}
           <button
             type="button"
             className={styles.linkButton}
-            onClick={() => navigate('/register')}
+            onClick={() => leaveTo('/register')}
           >
             Create account
-          </button>
-        </div>
-
-        <div className={styles.guestReturnLink}>
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={() => navigate('/')}
-          >
-            <FaArrowLeft style={{ marginRight: 6 }} /> Continue to Library as Guest
           </button>
         </div>
       </div>
