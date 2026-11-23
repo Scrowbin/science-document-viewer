@@ -40,7 +40,19 @@ from .question_guard import screen_question
 
 logger = logging.getLogger(__name__)
 
-RETRIEVAL_MODES = ("dense", "rrf_legacy")
+RETRIEVAL_MODES = ("dense", "rrf_legacy", "convex")
+CONVEX_ALPHA = 0.7  # Phase 3: 0.7 * minmax(dense) + 0.3 * minmax(BM25) over all children
+_LEXICAL_STOPWORDS = frozenset({
+    "a", "an", "the", "in", "on", "of", "for", "to", "is", "are", "was",
+    "were", "and", "or", "that", "this", "it", "by", "with", "from", "as",
+    "what", "how", "why", "which", "does", "did", "do", "we", "our", "their",
+    "at", "be", "have", "has", "had", "not", "but", "also",
+})
+
+
+def tokenize_lexical(text: str) -> List[str]:
+    """Same tokenizer as the Phase 3 BM25 arm (eval_common.relevance.tokenize_regex)."""
+    return [t for t in re.findall(r"[A-Za-z0-9_\-\.\$\/]+", text.lower()) if t not in _LEXICAL_STOPWORDS and len(t) > 1]
 
 # Model dimension mapping
 MODEL_DIMENSIONS: Dict[str, int] = {
@@ -843,6 +855,7 @@ class DocumentRAG:
         # BM25 setup (rebuilt from child texts in self.content)
         tokenized_corpus = [text.lower().split() for text in self.content]
         self.bm25 = BM25Okapi(tokenized_corpus)
+        self._lexical_bm25: Optional[BM25Okapi] = None  # built on first 'convex' query
 
         # Dense embedding setup
         self._embedding_model: Optional[Any] = None
@@ -881,13 +894,21 @@ class DocumentRAG:
         )[0]
 
     def hybrid_search(
-        self, query: str, top_k: int = 5, mode: Optional[str] = None, exclude_references: bool = False
+        self,
+        query: str,
+        top_k: int = 5,
+        mode: Optional[str] = None,
+        exclude_references: bool = False,
+        context_fill: Optional[bool] = None,
     ) -> List[Tuple[Document, float]]:
         """
         mode (default settings.RAG_RETRIEVAL_MODE):
           'dense'      : all children ranked by dense similarity (no BM25)
           'rrf_legacy' : top-50 dense + top-50 whitespace BM25, RRF k=60 (behaviour before dense became the default)
+          'convex'     : 0.7 minmax(dense) + 0.3 minmax(BM25) over all children (Phase 3 arm, used by the chat)
         exclude_references: skip chunks of the reference list (used by the app, not by the evaluation).
+        context_fill: True keeps going when a parent does not fit, trimming it around the matched child to the
+        remaining budget (used by the app). None follows settings.RAG_CONTEXT_FILL.
         """
         if not self.documents:
             return []
@@ -897,7 +918,7 @@ class DocumentRAG:
             raise ValueError(f"Unknown RAG_RETRIEVAL_MODE {mode!r}; expected one of {RETRIEVAL_MODES}")
 
         num_docs = len(self.documents)
-        retrieve_k = num_docs if mode == "dense" else min(50, num_docs)
+        retrieve_k = num_docs if mode in ("dense", "convex") else min(50, num_docs)
 
         # 1. Dense retrieval via Qdrant (query_points filtered to document)
         rag_service = RagService.get_instance()
@@ -962,6 +983,22 @@ class DocumentRAG:
             # Dense order over all children; the returned score is the dense similarity
             ranked_indices = [int(i) for i in dense_top]
             rrf_scores: Dict[int, float] = {i: dense_scores_by_idx.get(i, 0.0) for i in ranked_indices}
+        elif mode == "convex":
+            if self._lexical_bm25 is None:
+                self._lexical_bm25 = BM25Okapi([tokenize_lexical(t) or ["_"] for t in self.content])
+            sparse = np.asarray(self._lexical_bm25.get_scores(tokenize_lexical(query)), dtype=float)
+            floor = min(dense_scores_by_idx.values()) if dense_scores_by_idx else 0.0
+            dense = np.array([dense_scores_by_idx.get(i, floor) for i in range(num_docs)], dtype=float)
+
+            def minmax(x: np.ndarray) -> np.ndarray:
+                lo, hi = x.min(), x.max()
+                return (x - lo) / max(hi - lo, 1e-6) if hi > lo else np.zeros_like(x)
+
+            fused = CONVEX_ALPHA * minmax(dense) + (1 - CONVEX_ALPHA) * minmax(sparse)
+            ranked_indices = [int(i) for i in np.argsort(fused)[::-1]]
+            rrf_scores = {i: float(fused[i]) for i in ranked_indices}
+            for i in ranked_indices:
+                dense_scores_by_idx.setdefault(i, floor)
         else:
             # 2. Sparse retrieval (BM25)
             bm25_scores = self.bm25.get_scores(query.lower().split())
@@ -1015,9 +1052,21 @@ class DocumentRAG:
                     used_tokens = p_tokens
 
                 if accum_tokens + used_tokens > token_budget and parent_results:
-                    if getattr(settings, "RAG_CONTEXT_FILL", False):
+                    if context_fill:
+                        # Trim this parent around the matched child to what is left of the budget.
+                        remaining = token_budget - accum_tokens
+                        child_words = len(str(child_doc.metadata.get("child_text", child_doc.page_content)).split())
+                        pad_words = int((remaining / 1.33 - child_words) / 2)
+                        if pad_words < 20:
+                            continue
+                        context_text, is_win = window_around_child(parent_text, char_start, char_end, pad_words=pad_words)
+                        used_tokens = estimate_tokens(context_text)
+                        if accum_tokens + used_tokens > token_budget:
+                            continue
+                    elif context_fill is None and getattr(settings, "RAG_CONTEXT_FILL", False):
                         continue  # fill: skip a parent that doesn't fit and keep going down the ranking
-                    break
+                    else:
+                        break
 
                 meta = dict(child_doc.metadata)
                 meta["parent_text"] = parent_text
@@ -1391,6 +1440,69 @@ def build_answer_prompt(question: str, doc_title: str, docs: List[Document], ref
     )
 
 
+def _answer_terms(answer: str, question: str) -> Dict[str, int]:
+    """Terms the answer adds beyond the question; numbers count most because they identify the evidence."""
+    asked = set(tokenize_lexical(question))
+    terms: Dict[str, int] = {}
+    for raw in tokenize_lexical(answer):
+        term = raw.strip(".-/")
+        if len(term) > 1 and term not in asked:
+            terms[term] = 3 if any(ch.isdigit() for ch in term) else 1
+    return terms
+
+
+def _support_score(text: str, terms: Dict[str, int]) -> int:
+    present = {t.strip(".-/") for t in tokenize_lexical(text)}
+    return sum(weight for term, weight in terms.items() if term in present)
+
+
+def align_sources_to_answer(
+    rag: Any, sources: List[Dict[str, Any]], top_chunks: List[Tuple[Document, float]], question: str, answer: str
+) -> List[Dict[str, Any]]:
+    """
+    The model reads whole parent sections, so the passage that supports the answer may differ from the child
+    that matched the question. Within what the model actually read, point each citation at the child sharing
+    the most answer terms, and list the best-supported citation first.
+    """
+    terms = _answer_terms(answer, question)
+    if not terms:
+        return sources
+    squash = lambda s: re.sub(r"\s+", " ", str(s)).strip()
+    scored = []
+    for order, (src, (doc, _)) in enumerate(zip(sources, top_chunks)):
+        best_score = _support_score(src.get("text", ""), terms)
+        best_child = None
+        context = squash(doc.page_content)
+        if src.get("parent_id"):
+            for child in rag.documents:
+                meta = child.metadata
+                if meta.get("parent_id") != src["parent_id"]:
+                    continue
+                text = str(meta.get("child_text") or child.page_content).strip()
+                if squash(text)[:80] not in context:
+                    continue  # the model did not read this passage
+                score = _support_score(text, terms)
+                if score > best_score:
+                    best_score, best_child = score, (meta, text)
+        if best_child:
+            meta, text = best_child
+            snippet = text.replace("\n", " ")
+            src = {
+                **src,
+                "page": source_page(meta),
+                "chunk_id": meta.get("chunk_id", src.get("chunk_id")),
+                "snippet": snippet[:180] + "..." if len(snippet) > 180 else snippet,
+                "text": text,
+                "char_start": meta.get("char_start"),
+                "char_end": meta.get("char_end"),
+                "page_start": meta.get("loc_page_start"),
+                "page_end": meta.get("loc_page_end"),
+                "locations": meta.get("locations"),
+            }
+        scored.append((-best_score, order, src))
+    return [src for _, _, src in sorted(scored, key=lambda row: row[:2])]
+
+
 def query_document(
     doc_id: int, file_path: str, question: str, doc_title: str = ""
 ) -> Dict[str, Any]:
@@ -1421,7 +1533,11 @@ def query_document(
 
     # The reference list only counts as evidence when the question is about references.
     top_chunks = rag.hybrid_search(
-        question, top_k=5, exclude_references=not _ASKS_ABOUT_REFERENCES_RE.search(question)
+        question,
+        top_k=5,
+        mode=getattr(settings, "RAG_CHAT_RETRIEVAL_MODE", "convex"),
+        exclude_references=not _ASKS_ABOUT_REFERENCES_RE.search(question),
+        context_fill=True,
     )
 
     min_similarity = getattr(settings, "RAG_MIN_SIMILARITY_SCORE", 0.80)
@@ -1479,7 +1595,8 @@ def query_document(
 
     answer, model_label = _generate(prompt)
     if answer:
-        return {"answer": answer, "sources": sources, "model": model_label}
+        return {"answer": answer, "sources": align_sources_to_answer(rag, sources, top_chunks, question, answer),
+                "model": model_label}
 
     # Grounded synthesis fallback
     snippets = []

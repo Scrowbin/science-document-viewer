@@ -166,6 +166,8 @@ LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'ollama')
 OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:3b')
 OLLAMA_TIMEOUT = int(os.getenv('OLLAMA_TIMEOUT', '60'))
+# Read timeout of the primary endpoint when a fallback is configured (both must fit the client's 120 s).
+OLLAMA_PRIMARY_TIMEOUT = int(os.getenv('OLLAMA_PRIMARY_TIMEOUT', '40'))
 # Demo option: OLLAMA_BASE_URL may point to a remote Ollama (e.g. a Kaggle GPU behind a tunnel,
 # demo/kaggle_llm_server.ipynb). OLLAMA_API_KEY is sent as a Bearer token to that endpoint;
 # if it gives no answer, OLLAMA_FALLBACK_URL (e.g. the local Ollama) is tried with OLLAMA_FALLBACK_MODEL.
@@ -198,6 +200,8 @@ if len(sys.argv) > 1 and sys.argv[1] == 'test':
 RAG_MIN_SIMILARITY_SCORE = float(os.getenv('RAG_MIN_SIMILARITY_SCORE', '0.80'))
 # 'dense' (default; best on QASPER in the retrieval experiment) | 'rrf_legacy' (previous dense + whitespace-BM25 RRF k=60)
 RAG_RETRIEVAL_MODE = os.getenv('RAG_RETRIEVAL_MODE', 'dense')
+# Retrieval used by the chat endpoint. 'convex' is the Phase 3 dense + BM25 arm; evaluation calls keep RAG_RETRIEVAL_MODE.
+RAG_CHAT_RETRIEVAL_MODE = os.getenv('RAG_CHAT_RETRIEVAL_MODE', 'convex')
 OLLAMA_TEMPERATURE = float(os.getenv('OLLAMA_TEMPERATURE', '0'))
 # Ollama context window, set explicitly (Ollama 0.40.13 default is 4096; real prompts peak ~2,300 tokens)
 OLLAMA_NUM_CTX = int(os.getenv('OLLAMA_NUM_CTX', '4096'))

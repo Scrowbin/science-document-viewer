@@ -1160,3 +1160,38 @@ class DemoPathRegressionTests(SimpleTestCase):
                 patch("sentence_transformers.SentenceTransformer", side_effect=OSError("missing")) as st:
             self.assertIsNone(rs.get_embedding_model())
         self.assertEqual(st.call_count, 1)
+
+    def test_citation_moves_to_the_passage_supporting_the_answer(self):
+        from langchain_core.documents import Document as LCDocument
+        from .services import rag_service as rs
+        first = LCDocument(page_content="General background on models.", metadata={
+            "parent_id": "p1", "child_text": "General background on models.", "chunk_id": "c1", "loc_page_start": 2})
+        second = LCDocument(page_content="The flip rate was 16.9 percent.", metadata={
+            "parent_id": "p1", "child_text": "The flip rate was 16.9 percent.", "chunk_id": "c2", "loc_page_start": 3})
+        unread = LCDocument(page_content="Another value is 16.9 here.", metadata={
+            "parent_id": "p1", "child_text": "Another value is 16.9 here.", "chunk_id": "c3", "loc_page_start": 9})
+        parent = LCDocument(page_content="General background on models. The flip rate was 16.9 percent.", metadata={})
+        source = {"parent_id": "p1", "text": "General background on models.", "chunk_id": "c1", "page": 2}
+        out = rs.align_sources_to_answer(
+            SimpleNamespace(documents=[first, second, unread]), [source], [(parent, 0.9)], "What is the flip rate?", "It is 16.9.")
+        self.assertEqual((out[0]["chunk_id"], out[0]["page"]), ("c2", 3))
+
+    def test_convex_mode_finds_exact_terms_and_dense_stays_default(self):
+        import numpy as np
+        from django.conf import settings
+        from langchain_core.documents import Document as LCDocument
+        from .services import rag_service as rs
+        self.assertEqual(settings.RAG_RETRIEVAL_MODE, "dense")
+        docs = [LCDocument(page_content=t, metadata={"chunk_id": f"c{i}"}) for i, t in enumerate(
+            ["alpha beta gamma", "delta epsilon zeta", "the Gemma4 model proposes additions"])]
+        embeddings = np.array([[1.0, 0.0], [0.5, 0.866], [0.95, 0.312]])
+        service = MagicMock()
+        service.search_dense.return_value = []
+        service.client.collection_exists.return_value = False
+        with patch.object(rs.RagService, "get_instance", return_value=service):
+            rag = rs.DocumentRAG(1, docs, embeddings=embeddings)
+            rag.embed = lambda *_a, **_k: np.array([1.0, 0.0])
+            dense = rag.hybrid_search("Gemma4 proposes", top_k=1, mode="dense")
+            convex = rag.hybrid_search("Gemma4 proposes", top_k=1, mode="convex")
+        self.assertEqual(dense[0][0].metadata["chunk_id"], "c0")
+        self.assertEqual(convex[0][0].metadata["chunk_id"], "c2")

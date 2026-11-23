@@ -165,7 +165,8 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   deletion (`RagService._drop_collection`), because on Windows embedded Qdrant kept the old points on re-index.
   Demo-path fixes (app call paths only; evaluation calls are unchanged): sources and prompts use the passage page,
   `hybrid_search(exclude_references=True)` from `query_document`, suggested questions skip the similarity gate,
-  shorter primary LLM timeout when a fallback exists, no silent embedding-model fallback. Planned FR-16 (context retry, default
+  shorter primary LLM timeout when a fallback exists, no silent embedding-model fallback. The chat retrieves with
+  `RAG_CHAT_RETRIEVAL_MODE=convex` plus budget fill and answer-aligned citations; `RAG_RETRIEVAL_MODE` stays `dense`. Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is
