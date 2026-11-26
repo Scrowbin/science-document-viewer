@@ -55,6 +55,7 @@ import csv
 import importlib.util
 import json
 import os
+import random
 import re
 import time
 from collections import Counter, defaultdict
@@ -645,6 +646,30 @@ Answer to check:
 
 Reply with JSON only: {{"label": "<one of the six labels>", "reason": "<one sentence>"}}"""
 
+JUDGE_BATCH_PROMPT = """You are checking whether multiple AI answers are grounded in a context taken from a scientific paper.
+Judge each answer INDEPENDENTLY and ONLY against the context below. Do not use outside knowledge.
+
+Labels (if several apply to an answer, use the first in this order):
+CONTRADICTED: at least one claim in the answer conflicts with the context.
+UNSUPPORTED: at least one substantive claim is not stated in or implied by the context (but does not contradict it).
+MISSING_INFO - UNJUSTIFIED_REFUSAL: the answer refuses or says the information is missing, but the context does contain the answer.
+MISSING_INFO - PARTIAL: grounded, but leaves out a key part of the answer that the context contains.
+REFUSAL_VALID: the answer refuses and the context really does not contain the answer.
+SUPPORTED: every substantive claim is stated in or follows from the context.
+
+Context:
+<<<
+{context}
+>>>
+
+Question: {question}
+
+Answers to check:
+{answers_block}
+
+Reply with JSON only, in this exact format:
+{{"results": [{{"id": "<answer id>", "label": "<one of the six labels>", "reason": "<one sentence>"}}]}}"""
+
 
 def load_env() -> None:
     """Read GEMINI_API from .env files: repo root, then backend/ (Django already loads backend/.env), then cwd."""
@@ -752,6 +777,92 @@ def judge_one(
         return normalise_label(d.get("label", "")), str(d.get("reason", ""))[:300]
     except (json.JSONDecodeError, AttributeError, TypeError):
         return "INVALID", res["text"][:200] or (res["error"] or "")
+
+
+def _parse_batch_judge_response(
+    raw_text: str, id_to_idx: Dict[str, int]
+) -> Dict[int, Tuple[str, str]]:
+    """Parse batched JSON judge output into {row_index: (label, reason)}."""
+    parsed: Dict[int, Tuple[str, str]] = {}
+    data = json.loads(raw_text)
+    if isinstance(data, dict):
+        if isinstance(data.get("results"), list):
+            items = data["results"]
+        else:
+            items = [
+                {"id": k, **(v if isinstance(v, dict) else {"label": v})}
+                for k, v in data.items()
+            ]
+    elif isinstance(data, list):
+        items = data
+    else:
+        return parsed
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        aid = str(item.get("id", "")).strip()
+        if aid not in id_to_idx:
+            continue
+        idx = id_to_idx[aid]
+        parsed[idx] = (
+            normalise_label(item.get("label", "")),
+            str(item.get("reason", ""))[:300],
+        )
+    return parsed
+
+
+def judge_batch(
+    judge_model: str,
+    context: str,
+    question: str,
+    rows: List[Dict[str, Any]],
+    seed: int = 42,
+) -> List[Tuple[str, str]]:
+    """Judge multiple models' answers for the same (context, question) in one blinded API call."""
+    if len(rows) == 1:
+        return [judge_one(judge_model, context, question, rows[0]["answer"])]
+
+    # Shuffle presentation order per question so model identity/order cannot bias the judge.
+    indices = list(range(len(rows)))
+    random.Random(f"{seed}:{rows[0]['paper_id']}:{rows[0]['question_id']}").shuffle(indices)
+    id_to_idx: Dict[str, int] = {}
+    blocks: List[str] = []
+    for pos, idx in enumerate(indices, 1):
+        aid = f"answer_{pos}"
+        id_to_idx[aid] = idx
+        ans = rows[idx]["answer"] or "(empty answer)"
+        blocks.append(f"[{aid}]\n<<<\n{ans}\n>>>")
+
+    prompt = JUDGE_BATCH_PROMPT.format(
+        context=context[:24000],
+        question=question,
+        answers_block="\n\n".join(blocks),
+    )
+    opts = {**JUDGE_OPTIONS, "num_predict": max(200, 120 * len(rows))}
+    res = (
+        gemini_generate(judge_model, prompt)
+        if is_gemini(judge_model)
+        else ollama_generate(judge_model, prompt, opts, fmt="json")
+    )
+    parsed: Dict[int, Tuple[str, str]] = {}
+    if res["text"]:
+        try:
+            parsed = _parse_batch_judge_response(res["text"], id_to_idx)
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            parsed = {}
+
+    # If the batch hit rate limits, propagate 429 so caller stops cleanly without extra calls.
+    if not parsed and "429" in (res.get("error") or ""):
+        return [("INVALID", res["error"])] * len(rows)
+
+    out: List[Tuple[str, str]] = []
+    for idx, r in enumerate(rows):
+        if idx in parsed and parsed[idx][0] != "INVALID":
+            out.append(parsed[idx])
+        else:
+            # Fall back to single-answer call for any missing or unparsed item in the batch.
+            out.append(judge_one(judge_model, context, question, r["answer"]))
+    return out
 
 
 def judge_ready(judge_model: str) -> None:
@@ -960,37 +1071,46 @@ def judge_runs(
                 cohort, list(qs.values()), rows[0]["pipeline"]
             )
         )
-        print(f"Judging {len(todo)} answers in {pq.parent}", flush=True)
+        groups: Dict[Tuple[str, str], List[Dict[str, Any]]] = defaultdict(list)
+        for r in todo:
+            groups[(r["paper_id"], r["question_id"])].append(r)
+        print(
+            f"Judging {len(todo)} answers across {len(groups)} (context, question) batches in {pq.parent}",
+            flush=True,
+        )
+        done_count = 0
         with open(jp, "a", encoding="utf-8") as f:
-            for n, r in enumerate(todo, 1):
+            for b_idx, ((pid, qid), group_rows) in enumerate(groups.items(), 1):
                 ctx = "\n\n".join(
-                    d["text"]
-                    for d in ctxs.get(f"{r['paper_id']}|{r['question_id']}", [])
+                    d["text"] for d in ctxs.get(f"{pid}|{qid}", [])
                 )
-                label, reason = judge_one(judge_model, ctx, r["question"], r["answer"])
-                if label == "INVALID" and "429" in reason:
+                results = judge_batch(
+                    judge_model, ctx, group_rows[0]["question"], group_rows
+                )
+                if any(lb == "INVALID" and "429" in rsn for lb, rsn in results):
                     print(
-                        f"  Gemini quota exhausted after {n - 1} judgements in {pq.parent.name}. "
+                        f"  Gemini quota exhausted after {done_count} judgements in {pq.parent.name}. "
                         "Re-run --judge tomorrow to resume.",
                         flush=True,
                     )
-
-                f.write(
-                    json.dumps(
-                        {
-                            "model": r["model"],
-                            "paper_id": r["paper_id"],
-                            "question_id": r["question_id"],
-                            "label": label,
-                            "reason": reason,
-                            "judge_model": judge_model,
-                        }
+                for r, (label, reason) in zip(group_rows, results):
+                    f.write(
+                        json.dumps(
+                            {
+                                "model": r["model"],
+                                "paper_id": r["paper_id"],
+                                "question_id": r["question_id"],
+                                "label": label,
+                                "reason": reason,
+                                "judge_model": judge_model,
+                            }
+                        )
+                        + "\n"
                     )
-                    + "\n"
-                )
-                if n % 50 == 0:
+                    done_count += 1
+                if b_idx % 20 == 0:
                     f.flush()
-                    print(f"    {n}/{len(todo)}", flush=True)
+                    print(f"    {done_count}/{len(todo)} ({b_idx}/{len(groups)} batches)", flush=True)
         summarise_dir(pq.parent, MODELS)
 
 
