@@ -81,6 +81,24 @@
       },
       "judge_n": 181
     },
+    "qwen3:4b-instruct-2507-q4_K_M": {
+      "n": 181,
+      "token_f1": 0.0569,
+      "refusal_rate": 0.779,
+      "containment": 0.6415,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.36,
+      "latency_s_p95": 1.82,
+      "tokens_per_s_p50": 59.7,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0569,
+          "refusal_rate": 0.779
+        }
+      }
+    },
     "gemma3:4b": {
       "n": 181,
       "token_f1": 0.0456,

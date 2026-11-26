@@ -45,19 +45,24 @@ const checkPostgres = () => {
 
     socket.on('error', () => {
       socket.destroy();
-      log('PostgreSQL', C.yellow, 'Port 5432 not responding. Attempting to start Windows Service...');
-      try {
-        execSync('net start postgresql-x64-16', { stdio: 'pipe' });
-        log('PostgreSQL', C.green, 'Successfully started postgresql-x64-16 service.');
-        resolve(true);
-      } catch (err) {
-        log(
-          'PostgreSQL',
-          C.red,
-          'Warning: Could not start PostgreSQL service automatically. If database operations fail, start PostgreSQL in services.msc or pgAdmin.'
-        );
-        resolve(false);
+      const isWin = process.platform === 'win32';
+      if (isWin) {
+        log('PostgreSQL', C.yellow, 'Port 5432 not responding. Attempting to start Windows Service...');
+        try {
+          execSync('net start postgresql-x64-16', { stdio: 'pipe' });
+          log('PostgreSQL', C.green, 'Successfully started postgresql-x64-16 service.');
+          resolve(true);
+          return;
+        } catch {
+          // Fall through to warning
+        }
       }
+      log(
+        'PostgreSQL',
+        C.red,
+        'Warning: PostgreSQL port 5432 is not responding. If database operations fail, start PostgreSQL (services.msc, pgAdmin, or systemctl).'
+      );
+      resolve(false);
     });
 
     socket.on('timeout', () => {
@@ -71,11 +76,22 @@ const checkPostgres = () => {
 
 // 2. Locate Python Interpreter
 const getPythonPath = () => {
-  const venvWindows = path.join(BACKEND_DIR, 'venv', 'Scripts', 'python.exe');
-  const venvUnix = path.join(BACKEND_DIR, 'venv', 'bin', 'python');
+  const isWin = process.platform === 'win32';
+  const candidates = [
+    path.join(BACKEND_DIR, 'venv', isWin ? 'Scripts/python.exe' : 'bin/python'),
+    path.join(ROOT_DIR, '.venv', isWin ? 'Scripts/python.exe' : 'bin/python'),
+  ];
+  if (process.env.VIRTUAL_ENV) {
+    const venvBin = path.join(
+      process.env.VIRTUAL_ENV,
+      isWin ? 'Scripts/python.exe' : 'bin/python'
+    );
+    candidates.unshift(venvBin);
+  }
 
-  if (fs.existsSync(venvWindows)) return venvWindows;
-  if (fs.existsSync(venvUnix)) return venvUnix;
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
   return 'python';
 };
 
@@ -119,6 +135,14 @@ async function startAll() {
   console.log(`${C.bright}${C.blue} 🚀 Scientific Document Manager — Unified Dev Runner ${C.reset}`);
   console.log(`${C.bright}${C.blue}======================================================${C.reset}\n`);
 
+  // Step 0: Ensure backend/.env exists
+  const envPath = path.join(BACKEND_DIR, '.env');
+  const envExamplePath = path.join(BACKEND_DIR, '.env.example');
+  if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
+    fs.copyFileSync(envExamplePath, envPath);
+    log('Backend', C.yellow, 'Created backend/.env from backend/.env.example.');
+  }
+
   // Step 1: Check PostgreSQL
   await checkPostgres();
 
@@ -143,6 +167,10 @@ async function startAll() {
   backendProc.on('error', (err) => log('Backend', C.red, `Failed to start backend: ${err.message}`));
 
   // Step 3: Launch Frontend
+  const frontendNodeModules = path.join(FRONTEND_DIR, 'node_modules');
+  if (!fs.existsSync(frontendNodeModules)) {
+    log('Frontend', C.yellow, 'Warning: frontend/node_modules not found. Running "npm install" may be required.');
+  }
   log('Frontend', C.magenta, 'Starting Vite dev server on http://localhost:5173 ...');
 
   const isWin = process.platform === 'win32';

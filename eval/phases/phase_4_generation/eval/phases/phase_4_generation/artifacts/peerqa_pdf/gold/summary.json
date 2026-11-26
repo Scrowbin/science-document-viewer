@@ -1,0 +1,129 @@
+{
+  "dir": "gold",
+  "models": {
+    "llama3.2:3b": {
+      "n": 181,
+      "token_f1": 0.0359,
+      "refusal_rate": 0.8508,
+      "containment": 0.6055,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.25,
+      "latency_s_p95": 0.68,
+      "tokens_per_s_p50": 84.4,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0359,
+          "refusal_rate": 0.8508
+        }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 82,
+        "CONTRADICTED": 4,
+        "REFUSAL_VALID": 73,
+        "SUPPORTED": 20,
+        "UNSUPPORTED": 2
+      },
+      "judge_n": 181
+    },
+    "qwen2.5:1.5b": {
+      "n": 181,
+      "token_f1": 0.1225,
+      "refusal_rate": 0.5414,
+      "containment": 0.5618,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.18,
+      "latency_s_p95": 1.09,
+      "tokens_per_s_p50": 135.3,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.1225,
+          "refusal_rate": 0.5414
+        }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 38,
+        "UNSUPPORTED": 15,
+        "SUPPORTED": 50,
+        "CONTRADICTED": 7,
+        "REFUSAL_VALID": 61,
+        "MISSING_INFO - PARTIAL": 10
+      },
+      "judge_n": 181
+    },
+    "phi4-mini": {
+      "n": 181,
+      "token_f1": 0.0567,
+      "refusal_rate": 0.8177,
+      "containment": 0.6627,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.34,
+      "latency_s_p95": 1.6,
+      "tokens_per_s_p50": 61.7,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0567,
+          "refusal_rate": 0.8177
+        }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 74,
+        "SUPPORTED": 31,
+        "REFUSAL_VALID": 72,
+        "MISSING_INFO - PARTIAL": 2,
+        "UNSUPPORTED": 1,
+        "CONTRADICTED": 1
+      },
+      "judge_n": 181
+    },
+    "qwen3:4b-instruct-2507-q4_K_M": {
+      "n": 181,
+      "token_f1": 0.0569,
+      "refusal_rate": 0.779,
+      "containment": 0.6415,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.36,
+      "latency_s_p95": 1.82,
+      "tokens_per_s_p50": 59.7,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0569,
+          "refusal_rate": 0.779
+        }
+      }
+    },
+    "gemma3:4b": {
+      "n": 181,
+      "token_f1": 0.0456,
+      "refusal_rate": 0.8564,
+      "containment": 0.9647,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.41,
+      "latency_s_p95": 1.06,
+      "tokens_per_s_p50": 62.4,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0456,
+          "refusal_rate": 0.8564
+        }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 83,
+        "REFUSAL_VALID": 72,
+        "SUPPORTED": 21,
+        "CONTRADICTED": 1,
+        "MISSING_INFO - PARTIAL": 4
+      },
+      "judge_n": 181
+    }
+  }
+}

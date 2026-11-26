@@ -1,0 +1,95 @@
+{
+  "dir": "retrieved_gemma_convex",
+  "models": {
+    "llama3.2:3b": {
+      "n": 181,
+      "token_f1": 0.0314,
+      "refusal_rate": 0.8619,
+      "containment": 0.7719,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 1.02,
+      "latency_s_p95": 2.04,
+      "tokens_per_s_p50": 71.9,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0314,
+          "refusal_rate": 0.8619
+        }
+      }
+    },
+    "qwen2.5:1.5b": {
+      "n": 181,
+      "token_f1": 0.161,
+      "refusal_rate": 0.1934,
+      "containment": 0.7547,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 0.9,
+      "latency_s_p95": 2.41,
+      "tokens_per_s_p50": 127.2,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.161,
+          "refusal_rate": 0.1934
+        }
+      }
+    },
+    "phi4-mini": {
+      "n": 181,
+      "token_f1": 0.0682,
+      "refusal_rate": 0.7348,
+      "containment": 0.8021,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 1.24,
+      "latency_s_p95": 3.52,
+      "tokens_per_s_p50": 54.3,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0682,
+          "refusal_rate": 0.7348
+        }
+      }
+    },
+    "qwen3:4b-instruct-2507-q4_K_M": {
+      "n": 181,
+      "token_f1": 0.0824,
+      "refusal_rate": 0.6022,
+      "containment": 0.7535,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 1.43,
+      "latency_s_p95": 5.13,
+      "tokens_per_s_p50": 55.9,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.0824,
+          "refusal_rate": 0.6022
+        }
+      }
+    },
+    "gemma3:4b": {
+      "n": 181,
+      "token_f1": 0.076,
+      "refusal_rate": 0.6796,
+      "containment": 0.9301,
+      "boolean_accuracy": null,
+      "errors": 0,
+      "latency_s_p50": 1.39,
+      "latency_s_p95": 3.68,
+      "tokens_per_s_p50": 57.5,
+      "by_type": {
+        "abstractive": {
+          "n": 181,
+          "token_f1": 0.076,
+          "refusal_rate": 0.6796
+        }
+      }
+    }
+  }
+}
