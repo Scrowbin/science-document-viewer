@@ -57,3 +57,7 @@ eval/data/
 
 
 
+
+# LibreOffice / OnlyOffice lock files
+.~lock.*#
+~$*
