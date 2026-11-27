@@ -26,10 +26,10 @@ else câu hỏi hợp lệ
   activate Q
   Q --> RAG : Đoạn cha
   deactivate Q
-  alt độ tương đồng dense cao nhất < 0,80
+  alt độ tương đồng dense cao nhất < 0,30
     RAG --> API : Thông báo từ chối
   else đủ liên quan
-    RAG -> RAG : Sinh câu trả lời\n(Hình 4.5b)
+    RAG -> RAG : Sinh câu trả lời\n(Hình 4.7b)
     RAG --> API : Câu trả lời + nguồn
   end
 end

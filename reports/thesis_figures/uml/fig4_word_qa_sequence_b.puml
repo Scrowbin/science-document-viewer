@@ -29,7 +29,7 @@ else không phản hồi
 end
 RAG -> RAG : Gắn trích dẫn với đoạn\nkhớp câu trả lời nhất
 deactivate RAG
-...Câu trả lời hiển thị trong khung trợ lý AI (Hình 4.5a)...
+...Câu trả lời hiển thị trong khung trợ lý AI (Hình 4.7a)...
 U -> V : Nhấn vào trích dẫn [Page X]
 activate V
 V -> V : Mở trang, tô sáng\nđoạn được trích

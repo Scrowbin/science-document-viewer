@@ -8,7 +8,7 @@ node "Máy người dùng (CPU, 16 GB RAM)" <<device>> as PC {
   }
   node "Tiến trình Python: Django" <<executionEnvironment>> as PY {
     artifact "Backend Django + đường ống RAG"
-    artifact "Mô hình nhúng e5-small-v2"
+    artifact "Mô hình nhúng embeddinggemma-300m"
     artifact "Qdrant nhúng (media/qdrant_db)"
   }
   node "PostgreSQL 16" <<executionEnvironment>> as PG {
@@ -16,7 +16,7 @@ node "Máy người dùng (CPU, 16 GB RAM)" <<device>> as PC {
   }
   artifact "Tệp PDF (media/documents)" as FS
   node "Ollama (localhost)" <<executionEnvironment>> as OLL {
-    artifact "llama3.2:3b"
+    artifact "llama3.2:3b (dự phòng)"
   }
 }
 

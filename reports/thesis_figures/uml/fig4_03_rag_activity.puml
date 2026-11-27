@@ -5,19 +5,19 @@
 start
 :Trích xuất văn bản theo bố cục\n(PyMuPDF Layout);
 :Phân mảnh phân cấp:\nđoạn cha = đề mục, đoạn con ~200 token;
-:Nhúng đoạn con\n(e5-small-v2, tiền tố "passage:");
+:Nhúng đoạn con (embeddinggemma-300m,\ntiền tố "title: none | text:");
 :Ghi đoạn con (có vector) và\nđoạn cha (không vector) vào Qdrant;
 stop
 
 |Trả lời câu hỏi|
 start
 :Kiểm tra câu hỏi (bộ lọc phạm vi);
-:Truy xuất convex trên đoạn con:\ndense (tiền tố "query:") + BM25,\nbỏ qua mục tài liệu tham khảo;
+:Truy xuất convex trên đoạn con:\ndense (tiền tố "task: search result | query:")\n+ BM25,\nbỏ qua mục tài liệu tham khảo;
 :Mở rộng sang đoạn cha, lấp đầy ngân sách\n(≤ 5 đơn vị, ≤ 1.600 token);
-if (Độ tương đồng dense cao nhất?) then ([≥ 0,80])
+if (Độ tương đồng dense cao nhất?) then ([≥ 0,30])
   :Sinh câu trả lời bằng LLM;
   :Gắn trích dẫn với đoạn\nkhớp câu trả lời nhất;
-else ([< 0,80])
+else ([< 0,30])
   :Trả lời từ chối;
 endif
 stop
