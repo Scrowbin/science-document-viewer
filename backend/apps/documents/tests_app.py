@@ -1130,6 +1130,7 @@ class DemoPathRegressionTests(SimpleTestCase):
         _, rag, _ = self._query("Which references discuss this?", [self._chunk(score=0.9)])
         self.assertFalse(rag.hybrid_search.call_args.kwargs["exclude_references"])
 
+    @override_settings(RAG_MIN_SIMILARITY_SCORE=0.80)  # score 0.5 must fall below the gate
     def test_suggested_question_skips_similarity_gate_only(self):
         res, _, _ = self._query("Explain the core methodology & architecture.", [self._chunk(score=0.5)])
         self.assertTrue(res["sources"])
