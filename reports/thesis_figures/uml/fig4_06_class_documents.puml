@@ -1,0 +1,38 @@
+@startuml fig4_06_class_documents
+!include _style.iuml
+hide circle
+hide methods
+left to right direction
+
+class Document {
+  - id: int
+  - title: string
+  - doi: string
+  - file: file
+  - rag_status: PENDING/INDEXING/INDEXED/FAILED
+  - in_trash: bool
+}
+class DocumentAuthor {
+  - author_order: int
+}
+class Author {
+  - first_name: string
+  - last_name: string
+}
+class Tag {
+  - name: string
+}
+class Domain {
+  - name: string
+}
+class RelatedDocument {
+  - relation_type: string
+}
+
+Document "1" -- "0..*" DocumentAuthor
+Author "1" -- "0..*" DocumentAuthor
+Document "0..*" -- "0..*" Tag : được gắn
+Document "0..*" -- "0..*" Domain : thuộc
+Document "1" -- "0..*" RelatedDocument : tài liệu 1
+Document "1" -- "0..*" RelatedDocument : tài liệu 2
+@enduml

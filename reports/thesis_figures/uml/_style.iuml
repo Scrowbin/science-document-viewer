@@ -1,0 +1,11 @@
+' Shared style for the thesis diagrams: Times New Roman like the body text, black and white for printing.
+skinparam dpi 200
+skinparam defaultFontName "Times New Roman"
+skinparam defaultFontSize 13
+skinparam monochrome true
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam ArrowColor black
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0

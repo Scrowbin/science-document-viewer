@@ -206,8 +206,8 @@ This thesis makes two contributions:
 | **Hình 4.2** | Kiến trúc tổng thể của hệ thống | Chương 4 |
 | **Hình 4.3** | Đường ống RAG: lập chỉ mục và trả lời câu hỏi | Chương 4 |
 | **Hình 4.4** | Mô hình triển khai của bản thử nghiệm | Chương 4 |
-| **Hình 4.5** | Sơ đồ dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích | Chương 4 |
-| **Hình 4.6** | Sơ đồ dữ liệu (2): tài liệu, tác giả và phân loại | Chương 4 |
+| **Hình 4.5** | Sơ đồ lớp dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích | Chương 4 |
+| **Hình 4.6** | Sơ đồ lớp dữ liệu (2): tài liệu, tác giả và phân loại | Chương 4 |
 | **Hình 4.7** | Quy trình tải lên và lập chỉ mục tài liệu | Chương 4 |
 | **Hình 4.8** | Trạng thái lập chỉ mục của tài liệu | Chương 4 |
 | **Hình 4.9** | Luồng xử lý một câu hỏi | Chương 4 |
@@ -232,7 +232,7 @@ This thesis makes two contributions:
 | **Bảng 3.3** | Cách tính các chỉ số | Chương 3 |
 | **Bảng 4.1** | Yêu cầu chức năng | Chương 4 |
 | **Bảng 4.2** | Yêu cầu phi chức năng | Chương 4 |
-| **Bảng 4.3** | Các thành phần chạy trên máy cục bộ | Chương 4 |
+| **Bảng 4.3** | Các thành phần của bản thử nghiệm | Chương 4 |
 | **Bảng 4.4** | Các giới hạn về khả năng mở rộng của bản thử nghiệm | Chương 4 |
 | **Bảng 4.5** | Hai bộ sưu tập Qdrant của mỗi tài liệu | Chương 4 |
 | **Bảng 4.6** | Các trường siêu dữ liệu | Chương 4 |
@@ -659,7 +659,7 @@ Bảng 4.2 liệt kê các yêu cầu phi chức năng.
 | Mã | Nhóm | Yêu cầu |
 | :--- | :--- | :--- |
 | **NFR-01** | Hiệu năng | Chạy trên một máy chỉ dùng CPU (16 GB RAM, không GPU); phục vụ một người dùng tại một thời điểm, không đặt mục tiêu về số người dùng đồng thời |
-| **NFR-02** | Riêng tư | Tệp PDF, văn bản và vector chỉ được lưu trên máy cục bộ; không gửi nội dung tài liệu tới dịch vụ AI của bên thứ ba (chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài) |
+| **NFR-02** | Riêng tư | Tệp PDF, văn bản và vector chỉ được lưu trên máy cục bộ; không gửi nội dung tài liệu tới dịch vụ AI của bên thứ ba (chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài). Ngoại lệ có chủ đích: khi bật máy chủ mô hình trên GPU để demo (Mục 4.3.2), các đoạn được truy xuất được gửi tới máy chủ đó |
 | **NFR-03** | Bám ngữ cảnh | Trợ lý chỉ trả lời dựa trên ngữ cảnh truy xuất; từ chối khi độ tương đồng cao nhất dưới ngưỡng (0,80) |
 | **NFR-04** | Phạm vi hội thoại | Lịch sử hỏi đáp chỉ tồn tại trong phiên, được giữ riêng cho từng tài liệu và không được lưu lại khi đăng xuất hoặc tải lại trang |
 | **NFR-05** | Chịu lỗi | Khi Ollama không phản hồi (quá 60 giây), trả về các trích đoạn liên quan nhất kèm nguồn thay vì báo lỗi |
@@ -670,28 +670,9 @@ Bảng 4.2 liệt kê các yêu cầu phi chức năng.
 
 ## 4.2. Phân tích Use Case
 
-```mermaid
-graph LR
-    Guest["Khách"]
-    User["Nhà nghiên cứu"]
-    subgraph SYS["Hệ thống quản lý tài liệu và trợ lý RAG"]
-        UC01(["UC-01: Đăng ký, đăng nhập"])
-        UC02(["UC-02: Tải lên PDF"])
-        UC03(["UC-03: Tra cứu DOI"])
-        UC04(["UC-04: Quản lý thư mục, thẻ"])
-        UC05(["UC-05: Sửa siêu dữ liệu"])
-        UC06(["UC-06: Đọc và chú thích PDF"])
-        UC07(["UC-07: Hỏi đáp với trợ lý AI"])
-        UC08(["UC-08: Mở trang được trích dẫn"])
-        UC09(["UC-09: Tóm tắt tài liệu"])
-        UC10(["UC-10: Xem các đoạn đã phân mảnh"])
-    end
-    Guest --> UC01
-    User --> UC01 & UC02 & UC03 & UC04 & UC05
-    User --> UC06 & UC07 & UC09 & UC10
-    UC02 -.->|include| UC05
-    UC07 -.->|extend| UC08
-```
+Hình 4.1 là sơ đồ Use Case tổng quát. Nhà nghiên cứu kế thừa use case của Khách (quan hệ tổng quát hóa). Khi tải lên, người dùng luôn xem và sửa siêu dữ liệu được trích xuất («include»). Mở trang được trích dẫn là bước tùy chọn sau khi nhận câu trả lời («extend»).
+
+![Hình 4.1: Sơ đồ Use Case tổng quát](reports/thesis_figures/fig4_01_use_case.png)
 
 *Hình 4.1: Sơ đồ Use Case tổng quát.*
 
@@ -703,81 +684,31 @@ graph LR
 
 Hệ thống gồm hai phần chạy trên cùng một máy: **giao diện web** (React, chạy trong trình duyệt) và **backend**. Backend dùng kiến trúc **khối đơn mô-đun hóa (modular monolith)**: một tiến trình Django chứa các mô-đun người dùng, thư mục, tài liệu và đường ống RAG; việc lập chỉ mục chạy trong luồng nền của chính tiến trình đó. Vi dịch vụ, hàng đợi Celery và Redis không được dùng vì làm tăng độ phức tạp vận hành mà một bản thử nghiệm khái niệm không cần; cái giá là khả năng mở rộng (Mục 4.3.3).
 
-```mermaid
-graph TB
-    subgraph FE["Giao diện web: React 19 + TypeScript (trình duyệt)"]
-        UI["Bố cục 3 cột: thư viện, bảng tài liệu, thuộc tính"]
-        PDF["Trình đọc PDF.js + chú thích"]
-        CHAT["Khung trợ lý AI"]
-    end
-    subgraph BE["Backend: Django 5 + DRF"]
-        AUTH["users: xác thực JWT"]
-        COLL["collections_app: thư mục, chia sẻ"]
-        DOCS["documents: tài liệu, siêu dữ liệu, chú thích, quyền"]
-        RAG["Đường ống RAG"]
-    end
-    subgraph ST["Lưu trữ và suy luận"]
-        DB[("CSDL quan hệ")]
-        FS[("Tệp PDF")]
-        QD[("Qdrant nhúng")]
-        OL["Ollama (LLM)"]
-    end
-    EXT["Crossref / OpenAlex"]
-    FE -->|REST + JWT| BE
-    DOCS --> DB & FS
-    DOCS --> RAG
-    RAG --> QD
-    RAG --> OL
-    DOCS -->|tra cứu DOI| EXT
-```
+Hình 4.2 là sơ đồ thành phần của hệ thống. Giao diện web chỉ phụ thuộc vào giao diện REST mà backend cung cấp. Bên trong backend, mô-đun `documents` dùng đường ống RAG, cơ sở dữ liệu, kho tệp và dịch vụ tra cứu DOI. Mũi tên nét đứt «use» là quan hệ phụ thuộc; vòng tròn là giao diện được cung cấp.
+
+![Hình 4.2: Kiến trúc tổng thể của hệ thống](reports/thesis_figures/fig4_02_components.png)
 
 *Hình 4.2: Kiến trúc tổng thể của hệ thống.*
 
 Bên trong mô-đun RAG, quá trình lập chỉ mục và quá trình trả lời câu hỏi dùng chung mô hình nhúng và kho vector:
 
-```mermaid
-graph LR
-    subgraph IDX["Lập chỉ mục (luồng nền)"]
-        A["PDF"] --> B["Trích xuất theo bố cục<br/>(PyMuPDF Layout)"]
-        B --> C["Phân mảnh phân cấp<br/>đoạn cha = đề mục, đoạn con ~200 token"]
-        C --> D["Nhúng đoạn con<br/>(e5-small-v2, tiền tố passage:)"]
-    end
-    D --> V[("Qdrant: đoạn con có vector<br/>+ đoạn cha không vector")]
-    subgraph QA["Trả lời câu hỏi"]
-        Q["Câu hỏi"] --> G["Bộ lọc câu hỏi"]
-        G --> E["Nhúng câu hỏi<br/>(tiền tố query:)"]
-        E --> R["Truy xuất dense trên đoạn con"]
-        R --> P["Mở rộng sang đoạn cha<br/>(≤ 5 đơn vị, ≤ 1.600 token)"]
-        P --> T{"Độ tương đồng<br/>cao nhất ≥ 0,80?"}
-        T -->|có| L["Ollama sinh câu trả lời"]
-        T -->|không| X["Từ chối"]
-    end
-    V --> R
-    V --> P
-```
+![Hình 4.3: Đường ống RAG: lập chỉ mục và trả lời câu hỏi](reports/thesis_figures/fig4_03_rag_activity.png)
 
 *Hình 4.3: Đường ống RAG: lập chỉ mục và trả lời câu hỏi.*
 
 ### 4.3.2. Mô hình triển khai: chạy cục bộ trên một máy
 
-Bản thử nghiệm chạy toàn bộ trên một máy chỉ dùng CPU. Người dùng mở giao diện web trong trình duyệt; giao diện gọi REST API của backend Django trên cùng máy, và backend gọi Ollama qua địa chỉ nội bộ (`localhost`). Nội dung tài liệu không rời khỏi máy; chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài (Crossref, OpenAlex) và chỉ gửi định danh của bài báo.
+Bản thử nghiệm chạy toàn bộ trên một máy chỉ dùng CPU (Hình 4.4). Người dùng mở giao diện web trong trình duyệt; giao diện gọi REST API của backend Django trên cùng máy, và backend gọi Ollama qua địa chỉ nội bộ (`localhost`). Ở cấu hình mặc định, nội dung tài liệu không rời khỏi máy; chỉ chức năng tra cứu DOI gọi dịch vụ bên ngoài (Crossref, OpenAlex) và chỉ gửi định danh của bài báo.
 
-```mermaid
-graph LR
-    subgraph PC["Một máy (chỉ dùng CPU)"]
-        B["Trình duyệt<br/>(giao diện React)"] -->|REST + JWT| D["Django API + đường ống RAG<br/>+ e5-small-v2 + Qdrant nhúng"]
-        D --> DB[("PostgreSQL")]
-        D --> F[("Tệp PDF")]
-        D --> O["Ollama + llama3.2:3b<br/>(localhost)"]
-    end
-    D -->|tra cứu DOI| EXT["Crossref / OpenAlex"]
-```
+Khi demo, backend có thể gọi thêm một máy chủ Ollama chạy trên GPU của Kaggle (mô hình `qwen3:4b-instruct-2507`, qua đường hầm HTTPS có khóa API), và chuyển sang Ollama cục bộ nếu máy chủ này không trả lời trong 40 giây. Khi dùng máy chủ này, câu hỏi, tiêu đề, tên đề mục và các đoạn được truy xuất được gửi ra ngoài máy, nên chỉ dùng với bài báo công khai. Cấu hình này là tùy chọn; khi không đặt, ứng dụng chạy như mô tả ở trên.
+
+![Hình 4.4: Mô hình triển khai của bản thử nghiệm](reports/thesis_figures/fig4_04_deployment.png)
 
 *Hình 4.4: Mô hình triển khai của bản thử nghiệm.*
 
 Bảng 4.3 nêu cách chạy từng thành phần.
 
-*Bảng 4.3: Các thành phần chạy trên máy cục bộ.*
+*Bảng 4.3: Các thành phần của bản thử nghiệm.*
 
 | Thành phần | Cách chạy |
 | :--- | :--- |
@@ -785,7 +716,7 @@ Bảng 4.3 nêu cách chạy từng thành phần.
 | Backend | Django 5 + DRF; đường ống RAG, mô hình nhúng `intfloat/e5-small-v2` và Qdrant nhúng chạy trong cùng tiến trình |
 | Cơ sở dữ liệu | PostgreSQL 16 |
 | Tệp | PDF trong `media/documents/`, dữ liệu Qdrant trong `media/qdrant_db/` |
-| Mô hình ngôn ngữ | Ollama với `llama3.2:3b`, chỉ nhận kết nối từ `localhost` |
+| Mô hình ngôn ngữ | Ollama với `llama3.2:3b`, chỉ nhận kết nối từ `localhost`; tùy chọn khi demo: Ollama trên GPU của Kaggle với `qwen3:4b-instruct-2507`, Ollama cục bộ làm dự phòng |
 
 Tài khoản và quyền chia sẻ (chủ sở hữu, EDIT, COMMENT, VIEW) được quản lý trong backend, nên chúng chỉ áp dụng giữa các tài khoản dùng chung một backend. Với mô hình một máy, những người dùng ở các máy khác nhau chưa thể chia sẻ một thư viện. Tệp PDF không được phục vụ qua đường dẫn tĩnh công khai mà qua điểm cuối `/api/v1/documents/{id}/file/`, có kiểm tra JWT và quyền xem tài liệu.
 
@@ -815,101 +746,15 @@ Các giới hạn này là lựa chọn có chủ đích: chúng giữ hệ th�
 
 ### 4.4.1. Cơ sở dữ liệu quan hệ
 
-Cơ sở dữ liệu gồm 15 bảng được định nghĩa bằng Django ORM (PostgreSQL 16). Để dễ đọc, sơ đồ được tách thành hai phần: người dùng, thư mục và quyền (Hình 4.5); tài liệu và phân loại (Hình 4.6).
+Cơ sở dữ liệu gồm 15 bảng được định nghĩa bằng Django ORM (PostgreSQL 16). Để dễ đọc, sơ đồ lớp được tách thành hai phần: người dùng, thư mục và quyền (Hình 4.5); tài liệu và phân loại (Hình 4.6). Mỗi lớp tương ứng với một bảng; số ở hai đầu mỗi quan hệ là bội số (ví dụ `1` và `0..*`), và hình thoi đặc là quan hệ hợp thành (chú thích bị xóa cùng tài liệu). Sơ đồ chỉ ghi các thuộc tính chính.
 
-```mermaid
-erDiagram
-    User ||--o{ Collection : "sở hữu"
-    Collection |o--o{ Collection : "thư mục cha"
-    User ||--o{ Document : "sở hữu"
-    Collection ||--o{ DocumentCollection : ""
-    Document ||--o{ DocumentCollection : ""
-    Collection ||--o{ CollectionShare : "chia sẻ"
-    User ||--o{ CollectionShare : "được chia sẻ"
-    Document ||--o{ DocumentShare : "chia sẻ"
-    User ||--o{ DocumentShare : "được chia sẻ"
-    Document ||--o{ Annotation : "có"
-    User ||--o{ Annotation : "tạo"
-    User ||--o{ Note : "viết"
-    Document |o--o{ Note : "gắn với"
-    User {
-        int id PK
-        string username
-        string email
-    }
-    Collection {
-        int id PK
-        int owner_id FK
-        int parent_id FK
-        string name
-    }
-    CollectionShare {
-        int collection_id FK
-        int shared_with_user_id FK
-        string permission "VIEW/COMMENT/EDIT"
-    }
-    DocumentShare {
-        int document_id FK
-        int shared_with_user_id FK
-        string permission "VIEW/COMMENT/EDIT"
-    }
-    Annotation {
-        int document_id FK
-        int user_id FK
-        int page_number
-        string type
-        json rects
-    }
-    Note {
-        int user_id FK
-        int document_id FK
-        string title
-        text content
-    }
-```
+![Hình 4.5: Sơ đồ lớp dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích](reports/thesis_figures/fig4_05_class_users.png)
 
-*Hình 4.5: Sơ đồ dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích.*
+*Hình 4.5: Sơ đồ lớp dữ liệu (1): người dùng, thư mục, chia sẻ và chú thích.*
 
-```mermaid
-erDiagram
-    Document ||--o{ DocumentAuthor : ""
-    Author ||--o{ DocumentAuthor : ""
-    Document ||--o{ DocumentTag : ""
-    Tag ||--o{ DocumentTag : ""
-    Document ||--o{ DocumentDomain : ""
-    Domain ||--o{ DocumentDomain : ""
-    Document ||--o{ RelatedDocument : "liên quan"
-    Document {
-        int id PK
-        int owner_id FK
-        int primary_collection_id FK
-        string title
-        string doi
-        file file
-        string rag_status "PENDING/INDEXING/INDEXED/FAILED"
-        bool in_trash
-    }
-    DocumentAuthor {
-        int author_order
-    }
-    Author {
-        string first_name
-        string last_name
-    }
-    Tag {
-        string name
-    }
-    Domain {
-        string name
-    }
-    RelatedDocument {
-        int document_1_id FK
-        int document_2_id FK
-        string relation_type
-    }
-```
+![Hình 4.6: Sơ đồ lớp dữ liệu (2): tài liệu, tác giả và phân loại](reports/thesis_figures/fig4_06_class_documents.png)
 
-*Hình 4.6: Sơ đồ dữ liệu (2): tài liệu, tác giả và phân loại.*
+*Hình 4.6: Sơ đồ lớp dữ liệu (2): tài liệu, tác giả và phân loại.*
 
 Bảng `Document` chứa trực tiếp các trường siêu dữ liệu (loại tài liệu, kho lưu trữ, DOI, URL, ngày, ngôn ngữ, giấy phép, phiên bản, khóa trích dẫn...). Quan hệ nhiều-nhiều với tác giả, thẻ, lĩnh vực và thư mục đi qua các bảng trung gian; bảng `DocumentAuthor` giữ thứ tự tác giả.
 
@@ -932,75 +777,29 @@ Bảng 4.5 mô tả hai bộ sưu tập này.
 
 ### 4.5.1. Tải lên và lập chỉ mục
 
-Việc tải lên gồm hai bước: trích siêu dữ liệu để người dùng xem và sửa, rồi lưu tài liệu và lập chỉ mục trong luồng nền. Trạng thái lập chỉ mục được hiển thị trên bảng tài liệu (Hình 4.7).
+Việc tải lên gồm hai bước: trích siêu dữ liệu để người dùng xem và sửa, rồi lưu tài liệu và lập chỉ mục trong luồng nền. Hình 4.7 trình bày trình tự tải lên và lập chỉ mục; giao diện hỏi lại trạng thái cho đến khi việc lập chỉ mục kết thúc và hiển thị trạng thái trên bảng tài liệu. Hình 4.8 là sơ đồ trạng thái lập chỉ mục của một tài liệu.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor U as Nhà nghiên cứu
-    participant UI as Giao diện
-    participant API as Backend
-    participant W as Luồng nền (RAG)
-    participant Q as Qdrant
-    U->>UI: Chọn tệp PDF
-    UI->>API: Trích siêu dữ liệu
-    API-->>UI: Tiêu đề, tác giả, tóm tắt, DOI
-    U->>UI: Sửa và bấm Lưu
-    UI->>API: Gửi tệp + siêu dữ liệu
-    API->>API: Kiểm tra %PDF và ≤ 50 MB, lưu tệp và bản ghi (PENDING)
-    API-->>UI: Tài liệu đã tạo
-    API->>W: Bắt đầu lập chỉ mục
-    W->>W: Trích xuất, phân mảnh, nhúng (INDEXING)
-    W->>Q: Ghi đoạn con và đoạn cha
-    W->>API: Cập nhật INDEXED (hoặc FAILED)
-```
+![Hình 4.7: Quy trình tải lên và lập chỉ mục tài liệu](reports/thesis_figures/fig4_07_upload_sequence.png)
 
 *Hình 4.7: Quy trình tải lên và lập chỉ mục tài liệu.*
 
-```mermaid
-stateDiagram-v2
-    [*] --> PENDING: Lưu tài liệu
-    PENDING --> INDEXING: Luồng nền bắt đầu
-    INDEXING --> INDEXED: Thành công
-    INDEXING --> FAILED: Lỗi trích xuất / nhúng
-    FAILED --> INDEXING: Lập chỉ mục lại
-    INDEXED --> INDEXING: Lập chỉ mục lại
-```
+![Hình 4.8: Trạng thái lập chỉ mục của tài liệu](reports/thesis_figures/fig4_08_index_state.png)
 
 *Hình 4.8: Trạng thái lập chỉ mục của tài liệu.*
 
 ### 4.5.2. Hỏi đáp với trợ lý AI
 
-Mỗi câu hỏi đi qua các bước kiểm tra trước khi đến mô hình sinh (Hình 4.9). Ba điểm có thể dừng sớm: bộ lọc câu hỏi, ngưỡng tương đồng, và nhánh dự phòng khi Ollama không phản hồi.
+Mỗi câu hỏi đi qua các bước kiểm tra trước khi đến mô hình sinh (Hình 4.9). Có bốn điểm dừng sớm: không có quyền đọc, bộ lọc câu hỏi, ngưỡng tương đồng, và nhánh dự phòng khi không mô hình nào phản hồi. Khi có cấu hình máy chủ mô hình trên GPU (Mục 4.3.2), máy chủ này được gọi trước với thời gian chờ 40 giây, rồi đến Ollama cục bộ (60 giây).
 
-```mermaid
-flowchart TD
-    A["Câu hỏi"] --> B{"Có quyền đọc<br/>tài liệu?"}
-    B -->|không| B1["Lỗi 403"]
-    B -->|có| C{"Bộ lọc câu hỏi:<br/>tục tĩu / nhạy cảm<br/>về ứng dụng?"}
-    C -->|có| C1["Từ chối, không truy xuất"]
-    C -->|không| D["Truy xuất dense,<br/>mở rộng sang đoạn cha"]
-    D --> E{"Độ tương đồng<br/>cao nhất ≥ 0,80?"}
-    E -->|không| E1["Từ chối, không gọi LLM"]
-    E -->|có| F["Lời nhắc: chỉ dùng ngữ cảnh,<br/>từ chối nếu không đủ"]
-    F --> G{"Ollama phản hồi<br/>trong 60 giây?"}
-    G -->|có| H["Câu trả lời + nguồn [Page X]"]
-    G -->|không| G1["Trả về các trích đoạn<br/>liên quan nhất + nguồn"]
-```
+![Hình 4.9: Luồng xử lý một câu hỏi](reports/thesis_figures/fig4_09_question_activity.png)
 
 *Hình 4.9: Luồng xử lý một câu hỏi.*
 
 ### 4.5.3. Điều hướng trích dẫn
 
-```mermaid
-sequenceDiagram
-    actor U as Nhà nghiên cứu
-    participant C as Khung trợ lý AI
-    participant V as Trình đọc PDF
-    U->>C: Nhấp nguồn [Page X]
-    C->>V: Cuộn tới trang X, đề mục được trích
-    V->>V: Hiện tên đề mục và tô sáng đoạn được trích
-```
+Hình 4.10 trình bày trình tự khi người dùng nhấp vào một nguồn dưới câu trả lời.
+
+![Hình 4.10: Điều hướng từ câu trả lời tới đoạn được trích dẫn](reports/thesis_figures/fig4_10_citation_sequence.png)
 
 *Hình 4.10: Điều hướng từ câu trả lời tới đoạn được trích dẫn.*
 
@@ -1015,16 +814,7 @@ Giao diện theo bố cục 3 cột của Zotero (Hình 4.11):
 
 Tài liệu được mở trong các tab kiểu trình duyệt (`Ctrl+1..9` để chuyển tab).
 
-```mermaid
-graph LR
-    subgraph TAB["Thanh tab: Thư viện | Bài báo A | Bài báo B"]
-        direction LR
-        L["Cột trái<br/>Thư viện<br/>Cây thư mục<br/>Thẻ"]
-        M["Cột giữa<br/>Thanh công cụ + tìm kiếm<br/>Bảng tài liệu"]
-        R["Cột phải<br/>Siêu dữ liệu<br/>hoặc Chú thích / Trợ lý AI"]
-    end
-    L --- M --- R
-```
+![Hình 4.11: Bố cục giao diện 3 cột](reports/thesis_figures/fig4_11_layout.png)
 
 *Hình 4.11: Bố cục giao diện 3 cột.*
 

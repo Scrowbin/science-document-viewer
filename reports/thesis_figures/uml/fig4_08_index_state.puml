@@ -1,0 +1,12 @@
+@startuml fig4_08_index_state
+!include _style.iuml
+hide empty description
+[*] --> PENDING : Lưu tài liệu
+PENDING --> INDEXING : Luồng nền bắt đầu
+INDEXING --> INDEXED : Thành công
+INDEXING --> FAILED : Lỗi trích xuất / nhúng
+FAILED --> PENDING : Lập chỉ mục lại
+INDEXED --> PENDING : Lập chỉ mục lại
+INDEXED --> [*] : Xóa tài liệu
+FAILED --> [*] : Xóa tài liệu
+@enduml

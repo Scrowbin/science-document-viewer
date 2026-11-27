@@ -1,0 +1,49 @@
+@startuml fig4_05_class_users
+!include _style.iuml
+hide circle
+hide methods
+
+class User {
+  - id: int
+  - username: string
+  - email: string
+}
+class Collection {
+  - id: int
+  - name: string
+}
+class Document {
+  - id: int
+  - title: string
+}
+class DocumentCollection
+class CollectionShare {
+  - permission: VIEW/COMMENT/EDIT
+}
+class DocumentShare {
+  - permission: VIEW/COMMENT/EDIT
+}
+class Annotation {
+  - page_number: int
+  - type: string
+  - rects: json
+}
+class Note {
+  - title: string
+  - content: text
+}
+
+User "1" --> "0..*" Collection : sở hữu
+Collection "0..*" --> "0..1" Collection : thư mục cha
+User "1" --> "0..*" Document : sở hữu
+Collection "1" -- "0..*" DocumentCollection
+Document "1" -- "0..*" DocumentCollection
+Collection "1" -- "0..*" CollectionShare : chia sẻ
+User "1" -- "0..*" CollectionShare : được chia sẻ
+Document "1" -- "0..*" DocumentShare : chia sẻ
+User "1" -- "0..*" DocumentShare : được chia sẻ
+Document "1" *-- "0..*" Annotation : có
+User "1" --> "0..*" Annotation : tạo
+User "1" --> "0..*" Note : viết
+Document "0..1" -- "0..*" Note : gắn với
+@enduml

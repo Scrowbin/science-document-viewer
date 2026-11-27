@@ -1,0 +1,41 @@
+@startuml fig4_word_qa_sequence_a
+!include _style.iuml
+autonumber
+actor "Nhà nghiên cứu" as U
+participant "Khung trợ lý AI" as C
+participant "Backend API" as API
+participant "Dịch vụ RAG" as RAG
+database "Qdrant" as Q
+
+U -> C : Nhập câu hỏi
+activate C
+C -> API : Gửi câu hỏi + document_id
+activate API
+API -> API : Xác thực JWT, kiểm tra quyền\n(409 nếu chưa lập chỉ mục xong)
+API -> RAG : query_document(câu hỏi)
+activate RAG
+RAG -> RAG : Sàng lọc câu hỏi
+alt câu hỏi bị chặn
+  RAG --> API : Thông báo từ chối
+else câu hỏi hợp lệ
+  RAG -> Q : Truy xuất convex (dense + BM25)
+  activate Q
+  Q --> RAG : Đoạn con + điểm
+  deactivate Q
+  RAG -> Q : Lấy đoạn cha (≤ 5 đơn vị,\n≤ 1.600 token)
+  activate Q
+  Q --> RAG : Đoạn cha
+  deactivate Q
+  alt độ tương đồng dense cao nhất < 0,80
+    RAG --> API : Thông báo từ chối
+  else đủ liên quan
+    RAG -> RAG : Sinh câu trả lời\n(Hình 4.5b)
+    RAG --> API : Câu trả lời + nguồn
+  end
+end
+deactivate RAG
+API --> C : Kết quả
+deactivate API
+C --> U : Hiển thị câu trả lời\nvà trích dẫn
+deactivate C
+@enduml

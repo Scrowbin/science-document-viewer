@@ -1,0 +1,38 @@
+@startuml fig4_word_qa_sequence_b
+!include _style.iuml
+autonumber
+actor "Nhà nghiên cứu" as U
+participant "Dịch vụ RAG" as RAG
+participant "Máy chủ mô hình\nchính (GPU khi demo)" as LLM
+participant "Ollama cục bộ\n(dự phòng)" as FB
+participant "Trình đọc PDF" as V
+
+activate RAG
+RAG -> LLM : Lời nhắc (câu hỏi + ngữ cảnh),\nchờ tối đa 40 s
+activate LLM
+alt có câu trả lời
+  LLM --> RAG : Câu trả lời
+  deactivate LLM
+else không phản hồi
+  LLM --> RAG : Hết thời gian chờ
+  deactivate LLM
+  RAG -> FB : Lời nhắc, chờ tối đa 60 s
+  activate FB
+  alt có câu trả lời
+    FB --> RAG : Câu trả lời
+    deactivate FB
+  else không phản hồi
+    FB --> RAG : Hết thời gian chờ
+    deactivate FB
+    RAG -> RAG : Lấy 3 trích đoạn liên quan\nnhất làm câu trả lời
+  end
+end
+RAG -> RAG : Gắn trích dẫn với đoạn\nkhớp câu trả lời nhất
+deactivate RAG
+...Câu trả lời hiển thị trong khung trợ lý AI (Hình 4.5a)...
+U -> V : Nhấn vào trích dẫn [Page X]
+activate V
+V -> V : Mở trang, tô sáng\nđoạn được trích
+V --> U : Đoạn được trích
+deactivate V
+@enduml

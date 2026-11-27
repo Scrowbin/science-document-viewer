@@ -1,0 +1,79 @@
+@startuml fig4_word_class
+!include _style.iuml
+hide circle
+hide methods
+
+enum RagStatus <<enumeration>> {
+  PENDING
+  INDEXING
+  INDEXED
+  FAILED
+}
+enum PermissionType <<enumeration>> {
+  VIEW
+  COMMENT
+  EDIT
+}
+enum AnnotationType <<enumeration>> {
+  highlight
+  note
+  underline
+}
+
+class User {
+  - id: int
+  - username: string
+  - email: string
+}
+class Collection {
+  - id: int
+  - name: string
+}
+class Document {
+  - id: int
+  - title: string
+  - doi: string
+  - rag_status: RagStatus
+}
+class CollectionShare {
+  - permission: PermissionType
+}
+class DocumentShare {
+  - permission: PermissionType
+}
+class Annotation {
+  - id: int
+  - page_number: int
+  - type: AnnotationType
+  - selected_text: string
+}
+class Note {
+  - id: int
+  - title: string
+  - content: string
+}
+class Tag {
+  - id: int
+  - name: string
+}
+class Author {
+  - id: int
+  - first_name: string
+  - last_name: string
+}
+
+User "1" --> "0..*" Collection : sở hữu
+Collection "0..*" --> "0..1" Collection : thư mục cha
+User "1" --> "0..*" Document : sở hữu
+Collection "0..*" -- "0..*" Document : chứa
+Collection "1" -- "0..*" CollectionShare : chia sẻ qua
+User "1" -- "0..*" CollectionShare : người nhận
+Document "1" -- "0..*" DocumentShare : chia sẻ qua
+User "1" -- "0..*" DocumentShare : người nhận
+Document "1" *-- "0..*" Annotation : có
+User "1" --> "0..*" Annotation : tạo
+Document "0..1" -- "0..*" Note : gắn với
+User "1" --> "0..*" Note : viết
+Document "0..*" -- "0..*" Tag : được gắn
+Document "0..*" -- "0..*" Author : tác giả
+@enduml

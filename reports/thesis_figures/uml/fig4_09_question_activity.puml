@@ -1,0 +1,37 @@
+@startuml fig4_09_question_activity
+!include _style.iuml
+start
+:Nhận câu hỏi;
+if (Quyền đọc tài liệu?) then ([không có])
+  :Trả lỗi 403;
+  stop
+else ([có])
+endif
+if (Bộ lọc câu hỏi?) then ([tục tĩu hoặc nhạy cảm\nvề ứng dụng])
+  :Từ chối, không truy xuất;
+  stop
+else ([hợp lệ])
+endif
+:Truy xuất convex, mở rộng sang đoạn cha;
+if (Độ tương đồng dense cao nhất?) then ([< 0,80])
+  :Từ chối, không gọi LLM;
+  stop
+else ([≥ 0,80])
+endif
+:Tạo lời nhắc: chỉ dùng ngữ cảnh,\ntừ chối nếu không đủ;
+:Gọi máy chủ mô hình chính\n(GPU khi demo: chờ tối đa 40 s);
+if (Có câu trả lời?) then ([có])
+elseif (Có máy chủ dự phòng?) then ([không có câu trả lời,\ncó dự phòng])
+  :Gọi Ollama cục bộ (chờ tối đa 60 s);
+  if (Có câu trả lời?) then ([không])
+    :Trả về các trích đoạn liên quan nhất + nguồn;
+    stop
+  else ([có])
+  endif
+else ([không có dự phòng])
+  :Trả về các trích đoạn liên quan nhất + nguồn;
+  stop
+endif
+:Gắn trích dẫn [Page X] với câu trả lời;
+stop
+@enduml

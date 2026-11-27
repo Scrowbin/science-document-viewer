@@ -276,7 +276,7 @@ P4_CATS = [("Có căn cứ", ["SUPPORTED"]), ("Đúng một phần", ["MISSING_I
 def fig_phase4_labels():
     """Phase 4: share of judge labels per model, gold vs retrieved (embeddinggemma dense), both datasets."""
     s = J(P4)
-    fig, axes = plt.subplots(2, 2, figsize=(10, 5.2), sharex=True)
+    fig, axes = plt.subplots(2, 2, figsize=(6.3, 6.0), sharex=True)
     y = np.arange(len(P4_MODELS))[::-1]
     for ax, (cohort, cond, title) in zip(axes.flat, P4_PANELS):
         d = s[cohort][cond]
@@ -285,21 +285,21 @@ def fig_phase4_labels():
             v = np.array([sum(d[m]["judge_labels"].get(k, 0) for k in keys) / d[m]["judge_n"] for m, _ in P4_MODELS])
             ax.barh(y, v, left=left, color=C[j], label=lab, edgecolor=SURF, linewidth=1.5, height=0.62)
             for yi, l0, vi in zip(y, left, v):
-                if vi >= 0.08:
-                    ax.text(l0 + vi / 2, yi, f"{vi:.0%}", ha="center", va="center", fontsize=7,
+                if vi >= 0.12:
+                    ax.text(l0 + vi / 2, yi, f"{vi:.0%}", ha="center", va="center", fontsize=6.5,
                             color="white" if j in (0, 1) else INK)
             left += v
         n = d[P4_MODELS[0][0]]["judge_n"]
-        ax.set_title(f"{title} ({n} câu hỏi)", fontsize=9, color=INK)
+        ax.set_title(f"{title}\n({n} câu hỏi)", fontsize=8.5, color=INK)
         ax.set_yticks(y, [name for _, name in P4_MODELS])
         ax.set_xlim(0, 1)
         ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         ax.grid(axis="y", visible=False)
     for ax in axes[1]:
-        ax.set_xlabel("Tỷ lệ câu trả lời theo nhãn của mô hình chấm")
+        ax.set_xlabel("Tỷ lệ câu trả lời")
     h, lab = axes[0, 0].get_legend_handles_labels()
-    fig.legend(h, lab, loc="upper center", ncol=5, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.legend(h, lab, loc="upper center", ncol=3, fontsize=8, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.9))
     fig.savefig(OUT / "fig5_12_phase4_labels.png", dpi=300)
     plt.close(fig)
     print("wrote fig5_12_phase4_labels.png")
@@ -308,7 +308,7 @@ def fig_phase4_labels():
 def fig_phase4_gap():
     """Phase 4: Token F1 and refusal rate per model, gold vs retrieved context (embeddinggemma dense)."""
     s = J(P4)
-    fig, axes = plt.subplots(2, 2, figsize=(10, 4.6))
+    fig, axes = plt.subplots(2, 2, figsize=(6.3, 5.0))
     y = np.arange(len(P4_MODELS))[::-1]
     for r, (cohort, name) in enumerate([("c_ret", "C-RET"), ("peerqa_pdf", "PeerQA")]):
         for c, (key, xlabel, fmt) in enumerate([("token_f1", "Token F1", "{:.2f}"), ("refusal_rate", "Tỷ lệ từ chối", "{:.0%}")]):
@@ -329,8 +329,8 @@ def fig_phase4_gap():
             else:
                 ax.set_xlim(0, 0.3)
     h, lab = axes[0, 0].get_legend_handles_labels()
-    fig.legend(h, lab, loc="upper center", ncol=2, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.legend(h, lab, loc="upper center", ncol=2, fontsize=8, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
     fig.savefig(OUT / "fig5_13_phase4_gold_vs_retrieved.png", dpi=300)
     plt.close(fig)
     print("wrote fig5_13_phase4_gold_vs_retrieved.png")

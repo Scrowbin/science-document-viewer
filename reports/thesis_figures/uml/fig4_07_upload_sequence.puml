@@ -1,0 +1,59 @@
+@startuml fig4_07_upload_sequence
+!include _style.iuml
+autonumber
+actor "Nhà nghiên cứu" as U
+participant "Giao diện" as UI
+participant "Backend" as API
+database "CSDL" as DB
+participant "Luồng nền (RAG)" as W
+database "Qdrant" as Q
+
+U -> UI : Chọn tệp PDF
+activate UI
+UI -> API : Trích siêu dữ liệu
+activate API
+API --> UI : Tiêu đề, tác giả, tóm tắt, DOI
+deactivate API
+UI --> U : Hiển thị siêu dữ liệu để sửa
+deactivate UI
+
+U -> UI : Sửa và bấm Lưu
+activate UI
+UI -> API : Gửi tệp + siêu dữ liệu
+activate API
+API -> API : Kiểm tra %PDF và ≤ 50 MB, lưu tệp
+API -> DB : Tạo bản ghi (PENDING)
+activate DB
+DB --> API
+deactivate DB
+API ->> W : Bắt đầu lập chỉ mục (bất đồng bộ)
+activate W
+API --> UI : Tài liệu đã tạo
+deactivate API
+UI --> U : Hiển thị tài liệu (PENDING)
+deactivate UI
+
+W -> DB : Cập nhật INDEXING
+activate DB
+DB --> W
+deactivate DB
+W -> W : Trích xuất, phân mảnh, nhúng
+W -> Q : Ghi đoạn con và đoạn cha
+activate Q
+Q --> W
+deactivate Q
+W -> DB : Cập nhật INDEXED (hoặc FAILED)
+activate DB
+DB --> W
+deactivate DB
+deactivate W
+
+loop cho đến khi INDEXED hoặc FAILED
+  UI -> API : Hỏi trạng thái lập chỉ mục
+  activate UI
+  activate API
+  API --> UI : rag_status
+  deactivate API
+  deactivate UI
+end
+@enduml

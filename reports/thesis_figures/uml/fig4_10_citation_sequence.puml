@@ -1,0 +1,15 @@
+@startuml fig4_10_citation_sequence
+!include _style.iuml
+actor "Nhà nghiên cứu" as U
+participant "Khung trợ lý AI" as C
+participant "Trình đọc PDF" as V
+U -> C : Nhấp nguồn [Page X]
+activate C
+C -> V : Cuộn tới trang X, đề mục được trích
+activate V
+V -> V : Hiện tên đề mục và tô sáng đoạn được trích
+V --> C
+deactivate V
+C --> U : Đoạn được trích hiện trên trang
+deactivate C
+@enduml

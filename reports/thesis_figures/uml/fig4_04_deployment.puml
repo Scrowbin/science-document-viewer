@@ -1,0 +1,37 @@
+@startuml fig4_04_deployment
+!include _style.iuml
+left to right direction
+
+node "Máy người dùng (CPU, 16 GB RAM)" <<device>> as PC {
+  node "Trình duyệt" <<executionEnvironment>> as BR {
+    artifact "Ứng dụng React (Vite)"
+  }
+  node "Tiến trình Python: Django" <<executionEnvironment>> as PY {
+    artifact "Backend Django + đường ống RAG"
+    artifact "Mô hình nhúng e5-small-v2"
+    artifact "Qdrant nhúng (media/qdrant_db)"
+  }
+  node "PostgreSQL 16" <<executionEnvironment>> as PG {
+    artifact "Cơ sở dữ liệu ứng dụng"
+  }
+  artifact "Tệp PDF (media/documents)" as FS
+  node "Ollama (localhost)" <<executionEnvironment>> as OLL {
+    artifact "llama3.2:3b"
+  }
+}
+
+node "Kaggle Notebook, GPU\n(tùy chọn khi demo)" <<device>> as KG {
+  node "Ollama sau đường hầm ngrok" <<executionEnvironment>> as OLR {
+    artifact "qwen3:4b-instruct-2507"
+  }
+}
+
+node "Crossref / OpenAlex" <<device>> as EXT
+
+BR -- PY : HTTP\nREST + JWT
+PY -- PG : TCP
+PY -- FS
+PY -- OLL : HTTP localhost
+PY -- OLR : HTTPS + khóa API
+PY -- EXT : HTTPS\ntra cứu DOI
+@enduml

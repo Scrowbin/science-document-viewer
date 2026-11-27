@@ -1,0 +1,41 @@
+@startuml fig4_02_components
+!include _style.iuml
+skinparam componentStyle uml2
+
+package "Giao diện web (React 19 + TypeScript, trình duyệt)" <<subsystem>> {
+  [Bố cục 3 cột] as UI
+  [Trình đọc PDF.js + chú thích] as PDF
+  [Khung trợ lý AI] as CHAT
+  [API client (Axios, JWT)] as APIC
+}
+
+package "Backend (Django 5 + DRF)" <<subsystem>> {
+  interface "REST API /api/v1" as REST
+  [users: xác thực JWT] as AUTH
+  [collections_app: thư mục, chia sẻ] as COLL
+  [documents: tài liệu, chú thích, quyền] as DOCS
+  [rag_service: đường ống RAG] as RAG
+  REST -- AUTH
+  REST -- COLL
+  REST -- DOCS
+}
+
+database "PostgreSQL" as DB
+artifact "Tệp PDF" as FS
+database "Qdrant nhúng" as QD
+[Ollama (LLM)] as OL
+node "Crossref / OpenAlex" <<external>> as EXT
+
+UI ..> APIC : <<use>>
+PDF ..> APIC : <<use>>
+CHAT ..> APIC : <<use>>
+APIC ..> REST : <<use>>
+AUTH ..> DB : <<use>>
+COLL ..> DB : <<use>>
+DOCS ..> DB : <<use>>
+DOCS ..> FS : <<use>>
+DOCS ..> RAG : <<use>>
+DOCS ..> EXT : <<use>>\ntra cứu DOI
+RAG ..> QD : <<use>>
+RAG ..> OL : <<use>>
+@enduml

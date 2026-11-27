@@ -1,0 +1,39 @@
+@startsalt fig4_11_layout
+!include _style.iuml
+{+
+  { [Thư viện] | [Bài báo A] | [Bài báo B] }
+  {+
+    {
+      <b>Thư viện
+      Tất cả
+      Đọc gần đây
+      Chưa phân loại
+      Thùng rác
+      ..
+      <b>Thư mục
+      {T
+        + Thư mục 1
+        ++ Thư mục con
+        + Thư mục 2
+      }
+      ..
+      <b>Thẻ
+    } |
+    {
+      { "Tìm kiếm (Ctrl+F)   " | [Thêm tài liệu] }
+      {#
+        <b>Tiêu đề | <b>Tác giả | <b>Năm | <b>Trạng thái
+        Bài báo A | Tác giả A | 2017 | Indexed
+        Bài báo B | Tác giả B | 2021 | Indexing
+      }
+    } |
+    {
+      <b>Siêu dữ liệu
+      Tiêu đề: | "Bài báo A        "
+      Tác giả: | "Tác giả A        "
+      ..
+      hoặc: Chú thích / Trợ lý AI
+    }
+  }
+}
+@endsalt

@@ -1,0 +1,36 @@
+@startuml fig4_word_use_case
+!include _style.iuml
+left to right direction
+actor "Khách" as Guest
+actor "Nhà nghiên cứu" as User
+Guest <|-- User
+
+rectangle "Hệ thống quản lý tài liệu và trợ lý RAG" {
+  usecase "UC-01: Đăng nhập và\ntruy cập thư viện" as UC01
+  usecase "UC-02: Tải lên PDF và\ntrích metadata" as UC02
+  usecase "Sửa siêu dữ liệu" as EDIT
+  usecase "UC-03: Nhập tài liệu bằng DOI" as UC03
+  usecase "UC-04: Đọc và chú thích" as UC04
+  usecase "UC-05: Chia sẻ tài liệu\ncho người dùng khác" as UC05
+  usecase "UC-06: Hỏi đáp AI có trích dẫn" as UC06
+  usecase "Mở trang được trích dẫn" as CITE
+  usecase "Quản lý thư mục, thẻ" as ORG
+  usecase "Lọc và tìm kiếm thư viện" as FIND
+  usecase "Tóm tắt tài liệu" as SUM
+  usecase "Xem các đoạn đã phân mảnh" as CHUNK
+}
+
+Guest -- UC01
+User -- UC02
+User -- EDIT
+User -- UC03
+User -- UC04
+User -- UC05
+User -- UC06
+User -- ORG
+User -- FIND
+User -- SUM
+User -- CHUNK
+UC02 ..> EDIT : <<include>>
+UC06 <.. CITE : <<extend>>
+@enduml
