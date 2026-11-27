@@ -80,7 +80,7 @@ Các nhà nghiên cứu và sinh viên phải xử lý khối lượng lớn tà
    - **Trích xuất (OHR-Bench, 706 tài liệu, 6.916 câu hỏi):** PyMuPDF có độ phủ bằng chứng cao nhất (0,747) và nhanh nhất (khoảng 2,5 ms/trang); GROBID thấp hơn rõ rệt (0,494), kể cả trên tài liệu học thuật;
    - **Phân mảnh × mô hình nhúng (QASPER: 335 bài báo, 567 câu hỏi; PeerQA: 107 bài báo, 288 câu hỏi):** phân mảnh phân cấp small-to-big tốt nhất với mọi mô hình nhúng trên cả hai bộ dữ liệu (nDCG@10 0,703–0,744 trên QASPER); khi dùng phân mảnh này, các mô hình nhúng gần nhau, nên chiến lược phân mảnh quan trọng hơn mô hình nhúng;
    - **Truy xuất từ khóa, kết hợp và xếp hạng lại (29 cấu hình):** BM25 kém hơn truy xuất dense trên QASPER nhưng ngang trên PeerQA; kết hợp lồi và cross-encoder bge-reranker-v2-m3 tăng nDCG@10 tối đa 0,003 (QASPER) và 0,038 (PeerQA) so với embeddinggemma dense, với chi phí đến 2 giây mỗi câu hỏi, nên đường ống được chọn là embeddinggemma dense;
-   - **Mô hình sinh câu trả lời** (năm mô hình nhỏ, với bằng chứng chuẩn và với ngữ cảnh truy xuất; độ bám ngữ cảnh chấm bằng Claude Opus 5.5, cho cùng nhãn với người đánh giá ở 93/100 câu trả lời theo ba nhóm) đang được chạy; kết quả sẽ được bổ sung.
+   - **Mô hình sinh câu trả lời** (năm mô hình nhỏ, với bằng chứng chuẩn và với ngữ cảnh truy xuất; độ bám ngữ cảnh chấm bằng Claude Opus 5.5, cho cùng nhãn với người đánh giá ở 93/100 câu trả lời theo ba nhóm; 18.700 câu trả lời được chấm): `qwen3:4b` có tỷ lệ câu trả lời có căn cứ cao nhất với ngữ cảnh truy xuất (62,1% trên QASPER, 34,8% trên PeerQA); `qwen2.5:1.5b` có Token F1 cao nhất nhưng nhiều câu trả lời không căn cứ nhất, nên Token F1 không thay được đánh giá độ bám ngữ cảnh; đường ống truy xuất ít ảnh hưởng đến kết quả sinh. Mô hình được chọn là `qwen3:4b`.
 
 ### Abstract in English
 Researchers and students handle large numbers of PDF papers. Reference managers such as Zotero and Mendeley organise libraries well but do not help with reading content, while cloud large-language-model services raise concerns about manuscript confidentiality, hallucination and cost.
@@ -95,7 +95,8 @@ This thesis makes two contributions:
 2. **Evaluation:** The RAG pipeline was evaluated in four consecutive phases; results were compared with what theory predicts and methods were selected per component:
    - **Extraction (OHR-Bench, 706 documents, 6,916 questions):** PyMuPDF has the highest evidence coverage (0.747) and is the fastest (about 2.5 ms/page); GROBID is clearly lower (0.494), also on academic documents;
    - **Chunking × embedding (QASPER, 335 papers, 567 questions; 15 combinations):** small-to-big hierarchical chunking is best with all five embedding models (nDCG@10 0.703–0.721); with it, the embedding models are almost tied, so the chunking strategy matters more than the embedding model;
-   - **Keyword retrieval, fusion and reranking** (BM25, RRF, convex fusion, two cross-encoders on four embedding models) and **answer generation** (five small LLMs with gold evidence and with retrieved contexts, groundedness labelled by a larger LLM validated against human labels) are designed and implemented; their results will be added.
+   - **Keyword retrieval, fusion and reranking (29 configurations):** BM25 is below dense retrieval on QASPER but level on PeerQA; convex fusion and the bge-reranker-v2-m3 cross-encoder raise nDCG@10 by at most 0.003 (QASPER) and 0.038 (PeerQA) over embeddinggemma dense, at up to 2 seconds per question, so embeddinggemma dense was selected;
+   - **Answer generation** (five small LLMs with gold evidence and with retrieved contexts; 18,700 answers labelled for groundedness by Claude Opus 5.5, which agreed with the human reviewer on 93/100 answers in three classes): qwen3:4b has the highest share of supported answers with retrieved context (62.1% on QASPER, 34.8% on PeerQA); qwen2.5:1.5b has the highest token F1 but the most unsupported answers, so token F1 cannot replace a groundedness check; the retrieval pipeline has little effect on generation. qwen3:4b was selected.
 
 ---
 
@@ -115,6 +116,8 @@ This thesis makes two contributions:
   - 1.3. Đối tượng và phạm vi nghiên cứu
   - 1.4. Phương pháp nghiên cứu
   - 1.5. Ý nghĩa khoa học và thực tiễn của đề tài
+    - 1.5.1. Ý nghĩa khoa học
+    - 1.5.2. Ý nghĩa thực tiễn
 - **CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ TỔNG QUAN NGHIÊN CỨU**
   - 2.1. Các hệ thống quản lý tài liệu nghiên cứu
   - 2.2. Retrieval-Augmented Generation (RAG)
@@ -215,6 +218,8 @@ This thesis makes two contributions:
 | **Hình 5.3** | nDCG@10 của 15 tổ hợp phân mảnh × mô hình nhúng trên C-RET (335 bài báo, 566 câu hỏi có đơn vị liên quan; truy xuất dense) | Chương 5 |
 | **Hình 5.4** | Token F1, tỷ lệ từ chối và độ trễ của năm mô hình sinh trong đánh giá sơ bộ (500 câu hỏi, 250 bài báo, ngữ cảnh là bằng chứng chuẩn, CPU) | Chương 5 |
 | **Hình 5.5** | Phân bố nhãn đánh giá thủ công (20 câu trả lời mỗi mô hình, năm mô hình, một người đánh giá; chỉ mang tính minh họa) | Chương 5 |
+| **Hình 5.6** | Phân bố nhãn của mô hình chấm theo mô hình sinh, với bằng chứng chuẩn và với ngữ cảnh truy xuất (embeddinggemma `dense`), trên C-RET và PeerQA | Chương 5 |
+| **Hình 5.7** | Token F1 và tỷ lệ từ chối của từng mô hình với bằng chứng chuẩn và với ngữ cảnh truy xuất (embeddinggemma `dense`) | Chương 5 |
 
 ---
 
@@ -238,7 +243,10 @@ This thesis makes two contributions:
 | **Bảng 5.5** | nDCG@10 của giai đoạn 3 trên C-RET (BM25 riêng lẻ: 0,646) | Chương 5 |
 | **Bảng 5.6** | nDCG@10 của giai đoạn 3 trên PeerQA (BM25 riêng lẻ: 0,718) | Chương 5 |
 | **Bảng 5.7** | Kết quả đánh giá sơ bộ mô hình sinh với bằng chứng chuẩn | Chương 5 |
-| **Bảng 5.8** | Tổng hợp lựa chọn qua các giai đoạn | Chương 5 |
+| **Bảng 5.8** | Kết quả giai đoạn 4 trên C-RET (567 câu hỏi) | Chương 5 |
+| **Bảng 5.9** | Kết quả giai đoạn 4 trên PeerQA (181 câu hỏi có câu trả lời của tác giả) | Chương 5 |
+| **Bảng 5.10** | Tỷ lệ câu trả lời có căn cứ (SUPPORTED) theo đường ống truy xuất | Chương 5 |
+| **Bảng 5.11** | Tổng hợp lựa chọn qua các giai đoạn | Chương 5 |
 | **Bảng 6.1** | Tóm tắt kết quả các giai đoạn đánh giá | Chương 6 |
 | **Bảng A.1** | Các trường siêu dữ liệu và nơi lưu trữ | Phụ lục A |
 | **Bảng B.1** | Payload của điểm trong bộ sưu tập `doc_{id}` | Phụ lục B |
@@ -344,12 +352,12 @@ Nghiên cứu, phân tích, thiết kế và phát triển một **bản thử n
 
 ## 1.5. Ý nghĩa khoa học và thực tiễn của đề tài
 
-### 1. Ý nghĩa Khoa học
+### 1.5.1. Ý nghĩa khoa học
 - Cung cấp kết quả thực nghiệm có thể tái lập về hiệu quả và chi phí của các thành phần trong đường ống RAG trên tài liệu khoa học, trên phần cứng chỉ dùng CPU.
 - Cho thấy phân mảnh phân cấp small-to-big hiệu quả khi ngữ cảnh được ghép đúng cách, và lợi ích của truy xuất lai phụ thuộc vào phần còn lại của đường ống.
 - Minh họa cách lựa chọn phương pháp dựa trên cả kết quả đo, lý thuyết và chi phí, thay vì chỉ dựa vào điểm số cao nhất.
 
-### 2. Ý nghĩa Thực tiễn
+### 1.5.2. Ý nghĩa thực tiễn
 - Xây dựng một bản thử nghiệm khái niệm của phần mềm quản lý tài liệu nghiên cứu có trợ lý AI hỏi đáp trên nội dung tài liệu.
 - Cho thấy trợ lý có thể chạy trên hạ tầng tự vận hành, chỉ dùng CPU, không gửi tài liệu tới dịch vụ AI của bên thứ ba; đồng thời chỉ ra rõ những thay đổi cần thiết trước khi có thể phục vụ nhiều người dùng.
 
@@ -389,8 +397,8 @@ Phân mảnh quyết định đơn vị văn bản được lập chỉ mục v�
 - **Phân cấp (small-to-big):** dùng đoạn con nhỏ để so khớp, nhưng đưa đoạn cha lớn hơn chứa nó vào ngữ cảnh (LlamaIndex, n.d.). Cách này kết hợp độ chính xác của đoạn nhỏ với ngữ cảnh đầy đủ của đoạn lớn.
 
 ### 2.3.3. Mô hình nhúng
-Mô hình nhúng biến câu hỏi và đoạn văn thành vector, sao cho các văn bản có nghĩa gần nhau có vector gần nhau; độ liên quan được đo bằng độ tương đồng cosine giữa hai vector, như trong mô hình không gian vector cổ điển (Salton et al., 1975; Manning et al., 2008). Các mô hình nhúng hiện nay dựa trên kiến trúc Transformer (Vaswani et al., 2017), phần lớn theo dạng bộ mã hóa của BERT (Devlin et al., 2019). Các mô hình dùng cho truy xuất thường có dạng mã hóa hai nhánh (*bi-encoder*; Reimers & Gurevych, 2019; Karpukhin et al., 2020): câu hỏi và đoạn văn được mã hóa độc lập, nên các đoạn văn có thể được mã hóa trước một lần. Khi chọn mô hình, cần cân nhắc:
-- **Mục tiêu huấn luyện:** mô hình được huấn luyện tương phản (hàm mất mát InfoNCE; van den Oord et al., 2018; Chen et al., 2020) trên các cặp câu hỏi – đoạn văn (Wang et al., 2022; Xiao et al., 2024; Merrick et al., 2024) thường tốt hơn mô hình câu tổng quát. Nhiều mô hình yêu cầu tiền tố riêng cho câu hỏi và đoạn văn. Mô hình được huấn luyện cho một tác vụ khác, như tương đồng giữa các bài báo, có thể không phù hợp với việc tìm đoạn trả lời câu hỏi.
+Mô hình nhúng biến câu hỏi và đoạn văn thành vector, sao cho các văn bản có nghĩa gần nhau có vector gần nhau; độ liên quan được đo bằng độ tương đồng cosine giữa hai vector, như trong mô hình không gian vector cổ điển (Manning et al., 2008; Salton et al., 1975). Các mô hình nhúng hiện nay dựa trên kiến trúc Transformer (Vaswani et al., 2017), phần lớn theo dạng bộ mã hóa của BERT (Devlin et al., 2019). Các mô hình dùng cho truy xuất thường có dạng mã hóa hai nhánh (*bi-encoder*; Karpukhin et al., 2020; Reimers & Gurevych, 2019): câu hỏi và đoạn văn được mã hóa độc lập, nên các đoạn văn có thể được mã hóa trước một lần. Khi chọn mô hình, cần cân nhắc:
+- **Mục tiêu huấn luyện:** mô hình được huấn luyện tương phản (hàm mất mát InfoNCE; Chen et al., 2020; van den Oord et al., 2018) trên các cặp câu hỏi – đoạn văn (Merrick et al., 2024; Wang et al., 2022; Xiao et al., 2024) thường tốt hơn mô hình câu tổng quát. Nhiều mô hình yêu cầu tiền tố riêng cho câu hỏi và đoạn văn. Mô hình được huấn luyện cho một tác vụ khác, như tương đồng giữa các bài báo, có thể không phù hợp với việc tìm đoạn trả lời câu hỏi.
 - **Kích thước và độ dài ngữ cảnh:** mô hình lớn hơn với cửa sổ ngữ cảnh dài, chẳng hạn nhờ mã hóa vị trí xoay (RoPE; Su et al., 2024) trong ModernBERT (Warner et al., 2024), thường chính xác hơn nhưng chậm hơn và tốn bộ nhớ hơn; mô hình có cửa sổ ngắn sẽ cắt bỏ phần cuối của đoạn văn dài.
 
 ### 2.3.4. Chiến lược truy xuất
@@ -410,9 +418,11 @@ Mô hình ngôn ngữ nhận câu hỏi cùng ngữ cảnh đã truy xuất và 
 
 ## 2.4. Các chỉ số đánh giá
 
-- **nDCG@k** (Järvelin & Kekäläinen, 2002): đo chất lượng xếp hạng; đơn vị liên quan ở vị trí càng cao thì điểm càng lớn:
+- **nDCG@k** (Järvelin & Kekäläinen, 2002): đo chất lượng xếp hạng; đơn vị liên quan ở vị trí càng cao thì điểm càng lớn (phương trình 2.1):
 
-$$\text{DCG}@k = \sum_{i=1}^k \frac{2^{rel_i} - 1}{\log_2(i + 1)}, \quad \text{nDCG}@k = \frac{\text{DCG}@k}{\text{IDCG}@k}$$
+$$\text{DCG}@k = \sum_{i=1}^k \frac{2^{rel_i} - 1}{\log_2(i + 1)}, \quad \text{nDCG}@k = \frac{\text{DCG}@k}{\text{IDCG}@k} \tag{2.1}$$
+
+  trong đó $rel_i$ là độ liên quan của đơn vị ở vị trí $i$ (1 nếu liên quan, 0 nếu không), và $\text{IDCG}@k$ là giá trị DCG@k của thứ tự xếp hạng lý tưởng, nên nDCG@k nằm trong khoảng 0–1.
 
 - **MRR@k:** nghịch đảo thứ hạng của đơn vị liên quan đầu tiên, lấy trung bình trên các câu hỏi.
 - **Recall@k và Hit@k:** tỷ lệ đơn vị liên quan nằm trong k vị trí đầu, và việc có ít nhất một đơn vị liên quan trong k vị trí đầu hay không. Recall@10 cho biết các vị trí đầu, nơi ngữ cảnh được lấy ra, có chứa bằng chứng hay không.
@@ -458,12 +468,14 @@ Các phương pháp được so sánh và lựa chọn trên cùng các bài bá
 
 ### 3.2.2. Môi trường thực nghiệm
 
+Bảng 3.1 liệt kê các môi trường chạy thực nghiệm.
+
+*Bảng 3.1: Môi trường thực nghiệm.*
+
 | Môi trường | Cấu hình | Dùng cho |
 | :--- | :--- | :--- |
 | Máy cục bộ | AMD Ryzen 7 7735HS (8 nhân / 16 luồng), 16 GB RAM, không GPU, Windows 11, Python 3.11, Ollama | Ứng dụng; giai đoạn 1; đánh giá sơ bộ mô hình sinh |
 | Kaggle Notebooks | GPU của Kaggle, Python 3.13; Ollama được cài trong notebook cho giai đoạn 4 | Giai đoạn 2–4 |
-
-*Bảng 3.1: Môi trường thực nghiệm.*
 
 Giai đoạn 2–4 chạy trên GPU để hoàn thành trong thời gian của đồ án. Độ trễ đo trên GPU vì vậy **không phải** độ trễ của ứng dụng, vốn chạy trên CPU (Mục 4.3.3); các con số này chỉ dùng để so sánh tương đối giữa các phương pháp trong cùng một lần chạy. Chi phí thực tế trên CPU được lấy từ đánh giá sơ bộ trên máy cục bộ.
 
@@ -473,6 +485,8 @@ Giai đoạn 2–4 chạy trên GPU để hoàn thành trong thời gian của �
 
 Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu khi một thành phần chưa được đánh giá ở giai đoạn đang xét.
 
+*Bảng 3.2: Cấu hình hiện tại của ứng dụng.*
+
 | Thành phần | Cấu hình của ứng dụng (mốc tham chiếu) |
 | :--- | :--- |
 | Trích xuất | PyMuPDF Layout (`extract_sections_from_pdf`) |
@@ -481,8 +495,6 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
 | Truy xuất | dense (cosine) |
 | Ghép ngữ cảnh | tối đa 5 đơn vị, 1.600 token ước lượng; đoạn cha dài hơn 800 token được cắt quanh đoạn con khớp (±200 từ) |
 | Mô hình sinh | `llama3.2:3b` qua Ollama, nhiệt độ 0, `num_ctx` 4096 |
-
-*Bảng 3.2: Cấu hình hiện tại của ứng dụng.*
 
 ### 3.3.1. Giai đoạn 1: Trích xuất văn bản PDF
 - **Phương pháp:** PyMuPDF Layout (sắp xếp khối văn bản theo vị trí), PyMuPDF thường, pypdf, pdfminer.six, pdfplumber và GROBID (dịch vụ phân tích cấu trúc bằng học máy).
@@ -501,7 +513,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
   - `hierarchical`: đoạn con 200 token, chồng lấp 40; các đoạn con được xếp hạng rồi mở rộng sang đoạn cha (đề mục) chứa chúng;
   - `section_overlap`: phân mảnh đệ quy trong từng đề mục, 400 token, chồng lấp 80;
   - `fixed_size`: 400 token trên toàn văn, không xét đề mục.
-- **Mô hình nhúng (5 mô hình):** `intfloat/e5-small-v2` (33M tham số), `Snowflake/snowflake-arctic-embed-s` (33M), `nomic-ai/modernbert-embed-base` (149M), `google/embeddinggemma-300m` (300M) và `Qwen/Qwen3-Embedding-0.6B` (600M) (Wang et al., 2022; Merrick et al., 2024; Warner et al., 2024; Vera et al., 2025; Zhang et al., 2025b). Mỗi mô hình dùng đúng tiền tố hoặc chỉ dẫn cho câu hỏi và đoạn văn theo hướng dẫn của nhà phát triển.
+- **Mô hình nhúng (5 mô hình):** `intfloat/e5-small-v2` (33M tham số), `Snowflake/snowflake-arctic-embed-s` (33M), `nomic-ai/modernbert-embed-base` (149M), `google/embeddinggemma-300m` (300M) và `Qwen/Qwen3-Embedding-0.6B` (600M) (Merrick et al., 2024; Vera et al., 2025; Wang et al., 2022; Warner et al., 2024; Zhang et al., 2025b). Mỗi mô hình dùng đúng tiền tố hoặc chỉ dẫn cho câu hỏi và đoạn văn theo hướng dẫn của nhà phát triển.
 - **Thiết kế:** 3 × 5 = 15 tổ hợp, truy xuất dense (cosine), xếp hạng 20 đơn vị đầu.
 - **Dữ liệu:** C-RET (335 bài, 567 câu hỏi) và PeerQA (107 bài, 288 câu hỏi).
 - **Chỉ số:** nDCG@5/10, MRR@5/10, MAP@10/20, Recall@5/10/20, P@1/5/10, Hit@1/5/10; tốc độ lập chỉ mục và độ trễ mã hóa câu hỏi (trên GPU).
@@ -514,7 +526,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
   - dense (mốc, trùng với kết quả giai đoạn 2);
   - RRF giữa dense và BM25 (Cormack et al., 2009), $k = 60$, mỗi danh sách lấy 50 đoạn đầu;
   - kết hợp lồi: điểm = 0,7 · min-max(dense) + 0,3 · min-max(BM25), chuẩn hóa trên mọi đoạn của bài báo;
-  - xếp hạng lại 30 đoạn con đầu của dense và của kết hợp lồi bằng hai mô hình cross-encoder: `cross-encoder/ms-marco-MiniLM-L6-v2` (nhỏ) và `BAAI/bge-reranker-v2-m3` (lớn hơn, đa ngôn ngữ) (Nogueira & Cho, 2019; Chen et al., 2024).
+  - xếp hạng lại 30 đoạn con đầu của dense và của kết hợp lồi bằng hai mô hình cross-encoder: `cross-encoder/ms-marco-MiniLM-L6-v2` (nhỏ) và `BAAI/bge-reranker-v2-m3` (lớn hơn, đa ngôn ngữ) (Chen et al., 2024; Nogueira & Cho, 2019).
 - **Một phương pháp không phụ thuộc mô hình nhúng:** BM25 riêng lẻ (Robertson & Zaragoza, 2009), tách từ theo biểu thức chính quy và loại bỏ từ dừng.
 - **Thiết kế:** 4 mô hình nhúng × 7 cách truy xuất + BM25 = 29 cấu hình.
 - **Chỉ số:** như giai đoạn 2, cộng thêm độ trễ của bước kết hợp và của bước xếp hạng lại.
@@ -522,7 +534,7 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
 - **Tiêu chí lựa chọn:** nDCG@10 trên QASPER và PeerQA, độ trễ cộng thêm (đo trên GPU của Kaggle, dùng để so sánh các cấu hình với nhau) và mức độ đơn giản khi đưa vào hệ thống. Cấu hình được chọn là đường ống truy xuất của giai đoạn 4.
 
 ### 3.3.4. Giai đoạn 4: Mô hình ngôn ngữ sinh câu trả lời
-- **Mô hình (qua Ollama, bản lượng tử hóa giống ứng dụng):** `llama3.2:3b` (mô hình của ứng dụng), `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b-instruct-2507` (bản không suy luận) và `gemma3:4b` (Meta AI, 2024; Qwen Team, 2024, 2025; Microsoft, 2025; Gemma Team, 2025).
+- **Mô hình (qua Ollama, bản lượng tử hóa giống ứng dụng):** `llama3.2:3b` (mô hình của ứng dụng), `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b-instruct-2507` (bản không suy luận) và `gemma3:4b` (Gemma Team, 2025; Meta AI, 2024; Microsoft, 2025; Qwen Team, 2024, 2025).
 - **Hai loại ngữ cảnh:**
   - *bằng chứng chuẩn*: các đoạn bằng chứng của câu hỏi, để đo riêng khâu sinh;
   - *ngữ cảnh truy xuất*: ngữ cảnh mà ứng dụng sẽ tạo bằng đường ống được chọn ở giai đoạn 3 (tối đa 5 đơn vị, 1.600 token). Không dùng ngưỡng từ chối theo độ tương đồng, vì ngưỡng 0,80 của ứng dụng chỉ được hiệu chỉnh cho e5.
@@ -549,6 +561,8 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
 
 Ý nghĩa của các chỉ số được trình bày ở Mục 2.4. Bảng 3.3 nêu cách tính cụ thể.
 
+*Bảng 3.3: Cách tính các chỉ số.*
+
 | Chỉ số | Cách tính |
 | :--- | :--- |
 | **Độ phủ bằng chứng, LCS (giai đoạn 1)** | Trên văn bản của trang chứa bằng chứng: bằng chứng được phủ nếu ≥ 80% từ của nó xuất hiện; LCS theo từ, chia cho độ dài bằng chứng |
@@ -558,8 +572,6 @@ Cấu hình hiện tại của ứng dụng (Bảng 3.2) là mốc tham chiếu 
 | **Tỷ lệ chứa** | Tỷ lệ từ có nội dung (dài hơn 2 ký tự, không phải từ dừng) của câu trả lời xuất hiện trong ngữ cảnh |
 | **Nhãn độ bám ngữ cảnh** | Sáu nhãn ở Mục 3.3.4, do người đánh giá (đánh giá sơ bộ) hoặc mô hình chấm (giai đoạn 4) |
 | **Chi phí** | Thời gian xử lý mỗi trang, tốc độ lập chỉ mục, độ trễ (P50/P95) |
-
-*Bảng 3.3: Cách tính các chỉ số.*
 
 Hai lưu ý khi đọc kết quả:
 - **Token F1 đo mức trùng từ, không đo tính đúng.** Độ liên quan và tỷ lệ chứa cũng dựa trên mức trùng từ, không phải đánh giá ngữ nghĩa.
@@ -583,11 +595,11 @@ Hai lưu ý khi đọc kết quả:
 - Bản thử nghiệm khái niệm của ứng dụng quản lý tài liệu tích hợp RAG, với bộ kiểm thử backend tự động đều vượt qua.
 - Giai đoạn 1 (trích xuất, OHR-Bench) và giai đoạn 2 (15 tổ hợp phân mảnh × mô hình nhúng trên QASPER).
 - Đánh giá sơ bộ mô hình sinh với bằng chứng chuẩn trên CPU, kèm 100 câu trả lời được người đánh giá gán nhãn.
-- Mã nguồn và notebook cho giai đoạn 3 và 4.
+- Giai đoạn 3 (29 cấu hình truy xuất trên C-RET và PeerQA) và giai đoạn 4 (năm mô hình sinh, bằng chứng chuẩn và bốn đường ống truy xuất, 18.700 câu trả lời được chấm).
 
 ### 3.6.2. Các nội dung tiếp theo
-- Chạy lại phần PeerQA của giai đoạn 2 với đầy đủ PDF, và chạy lại embeddinggemma với chỉ dẫn cho đoạn văn theo hướng dẫn của nhà phát triển.
-- Chạy giai đoạn 3, chọn đường ống truy xuất, rồi chạy giai đoạn 4 và bổ sung kết quả.
+- Đo độ trễ của mô hình sinh được chọn trên CPU của máy cục bộ.
+- Đưa các lựa chọn của giai đoạn 3 và 4 vào cấu hình mặc định của ứng dụng.
 
 ### 3.6.3. Giới hạn
 - QASPER chỉ gồm bài báo NLP/ML tiếng Anh; PeerQA là phép kiểm tra nhỏ trên một kiểu câu hỏi khác.
@@ -613,6 +625,10 @@ Hệ thống có hai tác nhân:
 
 ### 4.1.2. Yêu cầu chức năng
 
+Bảng 4.1 liệt kê các yêu cầu chức năng của hệ thống.
+
+*Bảng 4.1: Yêu cầu chức năng.*
+
 | Mã | Yêu cầu | Mô tả |
 | :--- | :--- | :--- |
 | **FR-01** | Xác thực | Đăng ký, đăng nhập bằng JWT (access 15 phút, refresh 7 ngày), thu hồi token khi đăng xuất |
@@ -632,11 +648,13 @@ Hệ thống có hai tác nhân:
 | **FR-15** | Xem các đoạn đã phân mảnh | Xem danh sách đoạn, số token và đề mục cha của tài liệu |
 | **FR-16** | Mở rộng ngữ cảnh khi thiếu căn cứ (dự kiến) | Khi mô hình trả lời rằng ngữ cảnh không đủ, truy xuất các mục xếp hạng tiếp theo chưa được dùng và hỏi lại. Ba chế độ: `strict` (mặc định, không truy xuất thêm), `once` (thêm một vòng), `loop` (lặp đến khi mô hình trả lời được, hết mục hoặc đạt số vòng tối đa) |
 
-*Bảng 4.1: Yêu cầu chức năng.*
-
 FR-16 là chức năng dự kiến, chưa được triển khai trong bản hiện tại; mỗi vòng truy xuất thêm làm tăng thời gian trả lời khoảng 30 giây trên CPU và cần được đánh giá trước khi bật (Mục 6.3).
 
 ### 4.1.3. Yêu cầu phi chức năng
+
+Bảng 4.2 liệt kê các yêu cầu phi chức năng.
+
+*Bảng 4.2: Yêu cầu phi chức năng.*
 
 | Mã | Nhóm | Yêu cầu |
 | :--- | :--- | :--- |
@@ -647,8 +665,6 @@ FR-16 là chức năng dự kiến, chưa được triển khai trong bản hi�
 | **NFR-05** | Chịu lỗi | Khi Ollama không phản hồi (quá 60 giây), trả về các trích đoạn liên quan nhất kèm nguồn thay vì báo lỗi |
 | **NFR-06** | Giao diện | Bố cục 3 cột kiểu Zotero, bảng thuộc tính rộng tối thiểu 320 px, phím tắt (`Ctrl+1..9`, `Ctrl+F`, `Delete`) |
 | **NFR-07** | Phạm vi câu hỏi | Từ chối câu hỏi tục tĩu hoặc nhạy cảm về chính ứng dụng (mật khẩu, cấu hình, dữ liệu người dùng khác) |
-
-*Bảng 4.2: Yêu cầu phi chức năng.*
 
 ---
 
@@ -759,6 +775,10 @@ graph LR
 
 *Hình 4.4: Mô hình triển khai của bản thử nghiệm.*
 
+Bảng 4.3 nêu cách chạy từng thành phần.
+
+*Bảng 4.3: Các thành phần chạy trên máy cục bộ.*
+
 | Thành phần | Cách chạy |
 | :--- | :--- |
 | Giao diện | Ứng dụng React 19 + TypeScript do Vite phục vụ, mở trong trình duyệt |
@@ -767,8 +787,6 @@ graph LR
 | Tệp | PDF trong `media/documents/`, dữ liệu Qdrant trong `media/qdrant_db/` |
 | Mô hình ngôn ngữ | Ollama với `llama3.2:3b`, chỉ nhận kết nối từ `localhost` |
 
-*Bảng 4.3: Các thành phần chạy trên máy cục bộ.*
-
 Tài khoản và quyền chia sẻ (chủ sở hữu, EDIT, COMMENT, VIEW) được quản lý trong backend, nên chúng chỉ áp dụng giữa các tài khoản dùng chung một backend. Với mô hình một máy, những người dùng ở các máy khác nhau chưa thể chia sẻ một thư viện. Tệp PDF không được phục vụ qua đường dẫn tĩnh công khai mà qua điểm cuối `/api/v1/documents/{id}/file/`, có kiểm tra JWT và quyền xem tài liệu.
 
 **Hướng mở rộng.** Hệ thống có thể được tách thành một ứng dụng máy tính chỉ chứa giao diện, cài trên máy người dùng, và một máy chủ dùng chung chạy backend, cơ sở dữ liệu, kho vector và các mô hình. Mô hình này cho phép nhiều người dùng chia sẻ thư viện và không đòi hỏi máy người dùng đủ mạnh để chạy mô hình ngôn ngữ. Đổi lại, nó cần kết nối HTTPS, giới hạn tần suất và giám sát, lưu trữ tệp tách khỏi ổ đĩa của máy chủ ứng dụng, và người dùng phải tin tưởng bên vận hành máy chủ. Các giới hạn ở Mục 4.3.3 vẫn còn nguyên khi chuyển sang mô hình này (Mục 6.3).
@@ -776,6 +794,8 @@ Tài khoản và quyền chia sẻ (chủ sở hữu, EDIT, COMMENT, VIEW) đư�
 ### 4.3.3. Giới hạn về khả năng mở rộng
 
 Hệ thống là một **bản thử nghiệm khái niệm** và **không có khả năng mở rộng** ở dạng hiện tại. Thiết kế hiện tại chính là thiết kế một máy đã được dùng trong thực nghiệm; nó đủ để minh họa hệ thống, không đủ để phục vụ người dùng thực, kể cả khi được đặt trên một máy chủ dùng chung. Bảng 4.4 liệt kê các nguyên nhân.
+
+*Bảng 4.4: Các giới hạn về khả năng mở rộng của bản thử nghiệm.*
 
 | Giới hạn | Nguyên nhân trong thiết kế hiện tại | Hệ quả | Điều cần có để mở rộng |
 | :--- | :--- | :--- | :--- |
@@ -786,8 +806,6 @@ Hệ thống là một **bản thử nghiệm khái niệm** và **không có kh
 | Lưu trữ | Tệp PDF trên một ổ đĩa | Không dự phòng; dung lượng ổ đĩa giới hạn thư viện | Lưu trữ đối tượng (S3/MinIO) |
 | Một máy | Mọi thành phần trên một máy | Một điểm lỗi duy nhất; không cập nhật mà không gián đoạn | Cân bằng tải, nhiều bản sao ứng dụng, cơ sở dữ liệu được quản lý |
 | Vận hành và bảo mật | Chưa có giám sát, kiểm thử tải hay đánh giá bảo mật ngoài JWT, phân quyền và bộ lọc câu hỏi | Không biết sức chịu tải; chưa phù hợp với tài liệu mật của người dùng thực | Giám sát, kiểm thử tải, đánh giá bảo mật, mã hóa dữ liệu lưu trữ |
-
-*Bảng 4.4: Các giới hạn về khả năng mở rộng của bản thử nghiệm.*
 
 Các giới hạn này là lựa chọn có chủ đích: chúng giữ hệ thống đơn giản để tập trung vào chất lượng của đường ống RAG, là trọng tâm của đề tài. Đổi lại, các kết luận về chi phí trong Chương 5 chỉ áp dụng cho một người dùng tại một thời điểm.
 
@@ -899,12 +917,14 @@ Bảng `Document` chứa trực tiếp các trường siêu dữ liệu (loại 
 
 Dữ liệu cho trợ lý AI được lưu trong Qdrant (Qdrant, 2024), chạy ở chế độ nhúng trong tiến trình backend (chế độ này chỉ cho phép một tiến trình, Mục 4.3.3). Để thực hiện phân mảnh phân cấp mà không lặp lại văn bản đoạn cha trong từng vector con, mỗi tài liệu có hai bộ sưu tập:
 
+Bảng 4.5 mô tả hai bộ sưu tập này.
+
+*Bảng 4.5: Hai bộ sưu tập Qdrant của mỗi tài liệu.*
+
 | Bộ sưu tập | Nội dung | Dùng để |
 | :--- | :--- | :--- |
 | `doc_{id}` | Vector 384 chiều của các đoạn con (khoảng 200 token, chồng lấp 40), kèm số trang, tên đề mục, mã đoạn cha | Tìm kiếm theo độ tương đồng |
 | `doc_{id}_parents` | Không có vector; lưu nguyên văn từng đề mục (đoạn cha) | Đọc đoạn cha theo khóa khi mở rộng ngữ cảnh |
-
-*Bảng 4.5: Hai bộ sưu tập Qdrant của mỗi tài liệu.*
 
 ---
 
@@ -1010,14 +1030,16 @@ graph LR
 
 Bảng siêu dữ liệu hiển thị 22 trường, được khai báo trong một tệp cấu hình (`metadataConfig.ts`) thay vì viết cứng trong giao diện:
 
+Bảng 4.6 liệt kê các trường theo nhóm.
+
+*Bảng 4.6: Các trường siêu dữ liệu.*
+
 | Nhóm | Trường |
 | :--- | :--- |
 | Mô tả | Tiêu đề, tiêu đề rút gọn, loại tài liệu, tác giả, ngày, thể loại, ngôn ngữ |
 | Định danh và nguồn | DOI, URL, kho lưu trữ, mã trong kho, vị trí lưu trữ, phiên bản, giấy phép, khóa trích dẫn |
 | Phân loại | Thẻ (tự do), lĩnh vực (chuẩn hóa), nhóm tài liệu, màu nhóm |
 | Hệ thống | Ngày thêm, ngày sửa (chỉ đọc), ghi chú thêm |
-
-*Bảng 4.6: Các trường siêu dữ liệu.*
 
 Thẻ là nhãn tự do do người dùng đặt (ví dụ `transformer`, `cần-đọc`), còn lĩnh vực là danh mục ngành chuẩn hóa (ví dụ `Natural Language Processing`).
 
@@ -1062,7 +1084,7 @@ Chương 4 đã trình bày yêu cầu (15 chức năng đã triển khai, 1 ch�
 
 ---
 
-Chương này trình bày kết quả của bốn giai đoạn đánh giá (Mục 3.3). Mỗi mục gồm: kỳ vọng theo lý thuyết, kết quả đo được, đối chiếu giữa hai bên, và lựa chọn cho giai đoạn tiếp theo. Mọi kết quả là giá trị trung bình mô tả trên tập dữ liệu được nêu kèm; kết quả từ những tập dữ liệu hoặc môi trường khác nhau không được so sánh trực tiếp với nhau. Số liệu được lấy từ các tệp kết quả trong `eval/phases/`, và các biểu đồ được sinh lại bằng `eval/scripts/make_thesis_figures.py`. Các phần còn chờ kết quả được đánh dấu **[Chờ kết quả]**.
+Chương này trình bày kết quả của bốn giai đoạn đánh giá (Mục 3.3). Mỗi mục gồm: kỳ vọng theo lý thuyết, kết quả đo được, đối chiếu giữa hai bên, và lựa chọn cho giai đoạn tiếp theo. Mọi kết quả là giá trị trung bình mô tả trên tập dữ liệu được nêu kèm; kết quả từ những tập dữ liệu hoặc môi trường khác nhau không được so sánh trực tiếp với nhau. Số liệu được lấy từ các tệp kết quả trong `eval/phases/`, và các biểu đồ được sinh lại bằng `eval/scripts/make_thesis_figures.py`.
 
 ---
 
@@ -1083,16 +1105,18 @@ Ba đặc trưng này ảnh hưởng trực tiếp đến thiết kế đường
 
 ### 5.1.2. Tập dữ liệu dùng cho từng giai đoạn
 
+Bảng 5.1 tóm tắt tập dữ liệu và số câu hỏi dùng ở mỗi giai đoạn.
+
+*Bảng 5.1: Tập dữ liệu dùng cho từng giai đoạn.*
+
 | Giai đoạn | Tập dữ liệu | Số tài liệu | Số câu hỏi |
 | :--- | :--- | :---: | :---: |
 | 1. Trích xuất | OHR-Bench (7 lĩnh vực, PDF có lớp văn bản) | 706 | 6.916 |
 | 2. Phân mảnh × mô hình nhúng | C-RET (QASPER Train, toàn văn QASPER) | 335 | 567 |
 | 2. Phân mảnh × mô hình nhúng | PeerQA (PDF) | 107 | 288 |
 | 3. Từ khóa, kết hợp, xếp hạng lại | C-RET và PeerQA, như giai đoạn 2 | 335 / 107 | 567 / 288 |
-| 4. Mô hình sinh | C-RET; PeerQA (câu hỏi có câu trả lời của tác giả) | 335 / 107 | 567 / [Chờ kết quả] |
+| 4. Mô hình sinh | C-RET; PeerQA (câu hỏi có câu trả lời của tác giả) | 335 / 107 | 567 / 181 |
 | Đánh giá sơ bộ mô hình sinh | QASPER Train, không trùng C-RET | 250 | 500 |
-
-*Bảng 5.1: Tập dữ liệu dùng cho từng giai đoạn.*
 
 ---
 
@@ -1102,9 +1126,13 @@ Ba đặc trưng này ảnh hưởng trực tiếp đến thiết kế đường
 - Các thư viện trích xuất văn bản thô và theo bố cục đọc trực tiếp lớp văn bản của PDF, nên được kỳ vọng lấy lại gần như toàn bộ chữ, và khác nhau chủ yếu ở thứ tự đọc và tốc độ.
 - GROBID phân tích cấu trúc bài báo bằng học máy, nên được kỳ vọng tốt trên bài báo khoa học nhưng chậm hơn nhiều và có thể bỏ những phần không thuộc thân bài (bảng, chú thích, phần đầu và cuối trang).
 
+Hình 5.2 và Bảng 5.2 trình bày kết quả đo.
+
 ![Hình 5.2: So sánh các bộ trích xuất PDF trên OHR-Bench](reports/thesis_figures/fig5_2_extraction_ohr.png)
 
 *Hình 5.2: So sánh các bộ trích xuất PDF trên OHR-Bench (706 tài liệu, 6.916 câu hỏi): độ phủ bằng chứng, LCS theo loại nguồn bằng chứng và thời gian xử lý mỗi trang.*
+
+*Bảng 5.2: Kết quả trích xuất trên OHR-Bench (nguồn: `phase_1_extraction/artifacts/summary.json`).*
 
 | Bộ trích xuất | Độ phủ bằng chứng | LCS (%) | Hit@1 | Hit@5 | ms/trang |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -1114,8 +1142,6 @@ Ba đặc trưng này ảnh hưởng trực tiếp đến thiết kế đường
 | pdfminer.six | 0,717 | 72,5 | 0,715 | 0,909 | 53,6 |
 | pdfplumber | 0,705 | 73,9 | 0,711 | 0,907 | 88,9 |
 | GROBID | 0,494 | 54,3 | 0,577 | 0,775 | 143,3 |
-
-*Bảng 5.2: Kết quả trích xuất trên OHR-Bench (nguồn: `phase_1_extraction/artifacts/summary.json`).*
 
 **Đối chiếu.**
 - **Các thư viện đọc lớp văn bản cho kết quả gần nhau, PyMuPDF dẫn đầu và nhanh nhất.** Độ phủ bằng chứng nằm trong khoảng 0,705–0,747; PyMuPDF nhanh hơn pypdf khoảng 12 lần và pdfplumber khoảng 35 lần. Kết quả phù hợp với kỳ vọng rằng khác biệt giữa các thư viện này nhỏ.
@@ -1138,9 +1164,13 @@ Giai đoạn 2–4 dùng toàn văn có cấu trúc của QASPER (và văn bản
 - **Phân mảnh phân cấp (small-to-big)** so khớp bằng đoạn con nhỏ nhưng trả về đoạn cha đầy đủ ngữ cảnh, nên được kỳ vọng tốt hơn phân mảnh phẳng; phân mảnh theo đề mục được kỳ vọng tốt hơn kích thước cố định vì tôn trọng ranh giới nội dung.
 - **Mô hình nhúng lớn hơn** (Qwen3-Embedding 600M, embeddinggemma 300M, ModernBERT 149M) được kỳ vọng chính xác hơn các mô hình nhỏ (e5, arctic, 33M), với chi phí tính toán cao hơn.
 
+Hình 5.3 và Bảng 5.3 trình bày kết quả trên C-RET.
+
 ![Hình 5.3: nDCG@10 theo chiến lược phân mảnh và mô hình nhúng](reports/thesis_figures/fig5_3_retrieval_grid.png)
 
 *Hình 5.3: nDCG@10 của 15 tổ hợp phân mảnh × mô hình nhúng trên C-RET (335 bài báo, 566 câu hỏi có đơn vị liên quan; truy xuất dense).*
+
+*Bảng 5.3: Kết quả giai đoạn 2 trên C-RET (nguồn: lần chạy đầy đủ trên Kaggle ngày 15/11/2026, `eval/kaggle/ran_notebooks/phase_2_retrieval-benchmark-full.ipynb`).*
 
 | Phân mảnh | Mô hình nhúng | nDCG@10 | MRR@10 | Recall@10 | P@5 |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -1160,11 +1190,13 @@ Giai đoạn 2–4 dùng toàn văn có cấu trúc của QASPER (và văn bản
 | `section_overlap` | e5-small-v2 | 0,585 | 0,527 | 0,858 | 0,196 |
 | `section_overlap` | snowflake-arctic-embed-s | 0,577 | 0,527 | 0,835 | 0,191 |
 
-*Bảng 5.3: Kết quả giai đoạn 2 trên C-RET (nguồn: lần chạy đầy đủ trên Kaggle ngày 15/11/2026, `eval/kaggle/ran_notebooks/phase_2_retrieval-benchmark-full.ipynb`).*
-
 embeddinggemma được chạy với chỉ dẫn theo hướng dẫn của nhà phát triển (`title: none | text: ` cho đoạn văn); lần chạy trước dùng chuỗi rỗng và đã được thay thế.
 
 **PeerQA.** Văn bản được trích xuất từ PDF bằng PyMuPDF (đủ 107/107 bài báo); 288 câu hỏi, trong đó 283–285 câu có đơn vị liên quan tùy chiến lược phân mảnh. Qwen3-Embedding không được chạy trên PeerQA ở giai đoạn 2; kết quả dense của nó có ở giai đoạn 3.
+
+Bảng 5.4 trình bày kết quả trên PeerQA.
+
+*Bảng 5.4: Kết quả giai đoạn 2 trên PeerQA (107 bài báo, văn bản trích xuất từ PDF; cùng lần chạy).*
 
 | Phân mảnh | Mô hình nhúng | nDCG@10 | MRR@10 | Recall@10 | P@5 |
 | :--- | :--- | :---: | :---: | :---: | :---: |
@@ -1180,8 +1212,6 @@ embeddinggemma được chạy với chỉ dẫn theo hướng dẫn của nhà 
 | `section_overlap` | ModernBERT-embed-base | 0,479 | 0,591 | 0,512 | 0,315 |
 | `section_overlap` | snowflake-arctic-embed-s | 0,437 | 0,527 | 0,474 | 0,297 |
 | `section_overlap` | e5-small-v2 | 0,433 | 0,551 | 0,456 | 0,290 |
-
-*Bảng 5.4: Kết quả giai đoạn 2 trên PeerQA (107 bài báo, văn bản trích xuất từ PDF; cùng lần chạy).*
 
 **Đối chiếu.**
 1. **Phân mảnh phân cấp tốt nhất với mọi mô hình nhúng trên cả hai bộ dữ liệu, phù hợp với lý thuyết.** nDCG@10 cao hơn chiến lược phẳng tốt nhất từ 0,06 đến 0,08 trên C-RET và từ 0,18 đến 0,24 trên PeerQA. *Lưu ý về cách chấm:* đơn vị được chấm của `hierarchical` là cả đoạn cha, lớn hơn đoạn phẳng, nên một phần lợi thế đến từ kích thước đơn vị (Mục 3.4). Khoảng cách lớn hơn trên PeerQA phù hợp với việc bài báo dài hơn và câu hỏi của người phản biện cần ngữ cảnh xung quanh; giải thích này chưa được kiểm tra riêng.
@@ -1206,6 +1236,10 @@ embeddinggemma được chạy với chỉ dẫn theo hướng dẫn của nhà 
 
 **Kết quả.** 29 cấu hình (BM25 riêng lẻ và bảy cách truy xuất cho mỗi mô hình nhúng), phân mảnh `hierarchical`, chạy trên 2 GPU Tesla T4 của Kaggle ngày 15/11/2026 (`eval/kaggle/ran_notebooks/phase_3_retrieval-upgrade-benchmark-full.ipynb`). Giá trị là trung bình trên tập câu hỏi chung: 566 câu (C-RET) và 284 câu (PeerQA). Cột `dense` trùng với kết quả `hierarchical` của giai đoạn 2.
 
+Bảng 5.5 và Bảng 5.6 trình bày nDCG@10 trên C-RET và PeerQA.
+
+*Bảng 5.5: nDCG@10 của giai đoạn 3 trên C-RET (BM25 riêng lẻ: 0,646).*
+
 | Mô hình nhúng | dense | rrf | convex | dense+minilm | convex+minilm | dense+bgem3 | convex+bgem3 |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | e5-small-v2 | 0,703 | 0,704 | 0,709 | 0,733 | 0,734 | 0,744 | 0,744 |
@@ -1213,7 +1247,7 @@ embeddinggemma được chạy với chỉ dẫn theo hướng dẫn của nhà 
 | embeddinggemma-300m | 0,744 | 0,731 | 0,744 | 0,734 | 0,733 | 0,743 | 0,743 |
 | ModernBERT-embed-base | 0,713 | 0,713 | 0,726 | 0,734 | 0,734 | **0,747** | 0,745 |
 
-*Bảng 5.5: nDCG@10 của giai đoạn 3 trên C-RET (BM25 riêng lẻ: 0,646).*
+*Bảng 5.6: nDCG@10 của giai đoạn 3 trên PeerQA (BM25 riêng lẻ: 0,718).*
 
 | Mô hình nhúng | dense | rrf | convex | dense+minilm | convex+minilm | dense+bgem3 | convex+bgem3 |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -1221,8 +1255,6 @@ embeddinggemma được chạy với chỉ dẫn theo hướng dẫn của nhà 
 | Qwen3-Embedding-0.6B | 0,674 | 0,719 | 0,715 | 0,719 | 0,741 | 0,733 | 0,755 |
 | embeddinggemma-300m | 0,719 | 0,738 | 0,742 | 0,735 | 0,744 | 0,746 | **0,757** |
 | ModernBERT-embed-base | 0,718 | 0,735 | 0,743 | 0,734 | 0,740 | 0,745 | 0,756 |
-
-*Bảng 5.6: nDCG@10 của giai đoạn 3 trên PeerQA (BM25 riêng lẻ: 0,718).*
 
 **Độ trễ truy xuất** (trung vị mỗi câu hỏi, trên GPU T4, C-RET / PeerQA):
 - `dense`: 0,04 / 0,08 ms;
@@ -1252,9 +1284,13 @@ Thời gian của `dense` chỉ gồm phép tìm theo độ tương đồng: vec
 
 Trước giai đoạn 4, năm mô hình nhỏ đã được đánh giá trên máy cục bộ (CPU) với **bằng chứng chuẩn** làm ngữ cảnh, trên tập sinh câu trả lời sơ bộ (500 câu hỏi, 250 bài báo). Thiết lập: nhiệt độ 0, tối đa 256 token đầu ra, lời nhắc yêu cầu từ chối khi ngữ cảnh không đủ thông tin.
 
+Hình 5.4 và Bảng 5.7 trình bày kết quả.
+
 ![Hình 5.4: So sánh các mô hình sinh (đánh giá sơ bộ)](reports/thesis_figures/fig5_10_generation.png)
 
 *Hình 5.4: Token F1, tỷ lệ từ chối và độ trễ của năm mô hình sinh trong đánh giá sơ bộ (500 câu hỏi, 250 bài báo, ngữ cảnh là bằng chứng chuẩn, CPU).*
+
+*Bảng 5.7: Kết quả đánh giá sơ bộ mô hình sinh với bằng chứng chuẩn.*
 
 | Mô hình | Token F1 | Tỷ lệ từ chối | Độ trễ P50 (CPU) |
 | :--- | :---: | :---: | :---: |
@@ -1263,8 +1299,6 @@ Trước giai đoạn 4, năm mô hình nhỏ đã được đánh giá trên m�
 | qwen2.5:0.5b | 0,232 | 10,0% | 3,9 s |
 | **llama3.2:3b** | 0,203 | 48,6% | 6,5 s |
 | llama3.2:1b | 0,135 | 58,8% | 5,1 s |
-
-*Bảng 5.7: Kết quả đánh giá sơ bộ mô hình sinh với bằng chứng chuẩn.*
 
 Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu trả lời (cùng 20 câu hỏi cho cả năm mô hình, ẩn danh mô hình, hai đợt; Hình 5.5). Ở đợt 2, bảy nhãn được điều chỉnh để thống nhất với quyết định của đợt 1 trên cùng câu hỏi. 100 câu trả lời này là dữ liệu kiểm tra mô hình chấm ở giai đoạn 4.
 
@@ -1285,15 +1319,77 @@ Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu 
 
 **Mô hình chấm.** Claude Opus 5.5 (`claude-opus-5-5`) chấm từng câu trả lời theo sáu nhãn, chỉ dựa vào ngữ cảnh được cung cấp. Lời nhắc chấm được xuất ra tệp và ẩn danh (không có tên mô hình sinh, không có nhãn của người đánh giá); nhãn được nhập lại và tính bằng cùng mã nguồn. Ban đầu đề tài dùng Gemini qua API miễn phí, nhưng mọi lần gọi đều bị giới hạn tần suất (HTTP 429) nên không có nhãn nào.
 
-**Kiểm tra mô hình chấm.** Trên 100 câu trả lời đã được người đánh giá gán nhãn (Mục 5.5.1), mô hình chấm cho cùng nhãn với người ở 80/100 câu (sáu nhãn) và 93/100 câu (ba nhóm: có căn cứ, không có căn cứ, từ chối); không có câu trả lời nào bị lỗi định dạng (`phase_4_generation/artifacts/judge_validation.json`). Phần lớn khác biệt tập trung ở ba câu hỏi: với 9 câu trả lời, người đánh giá cho là từ chối hợp lý (REFUSAL_VALID) còn mô hình chấm cho là ngữ cảnh có chứa câu trả lời (MISSING_INFO - UNJUSTIFIED_REFUSAL). Như vậy mô hình chấm có xu hướng coi các trường hợp từ chối ở ranh giới là không hợp lý; các nhãn về từ chối được báo cáo kèm lưu ý này. Nhãn của người cũng chỉ đến từ một người đánh giá nên không phải chuẩn tuyệt đối.
+**Kiểm tra mô hình chấm.** Hai lời nhắc chấm đã được dùng, và cả hai được kiểm tra trên 100 câu trả lời đã được người đánh giá gán nhãn (Mục 5.5.1):
+- **Lời nhắc chấm từng câu trả lời** (`JUDGE_PROMPT`): cho cùng nhãn với người ở 80/100 câu (sáu nhãn) và 93/100 câu (ba nhóm: có căn cứ, không có căn cứ, từ chối); không có lỗi định dạng (`phase_4_generation/artifacts/judge_validation.json`).
+- **Lời nhắc chấm theo nhóm** (`JUDGE_BATCH_PROMPT`): các câu trả lời của năm mô hình cho cùng một câu hỏi và cùng ngữ cảnh được chấm trong một lời nhắc, thứ tự được xáo trộn với `seed` cố định. Lời nhắc này cho cùng nhãn với người ở 82/100 câu (sáu nhãn) và 93/100 câu (ba nhóm), không có lỗi định dạng (`judge_validation_batched_claude-opus-5-5.json`).
 
-**Kết quả.** **[Chờ kết quả]** Với mỗi bộ dữ liệu, mỗi loại ngữ cảnh và mỗi mô hình: Token F1, tỷ lệ từ chối, tỷ lệ chứa, độ chính xác Có/Không, độ trễ (GPU) và phân bố nhãn độ bám ngữ cảnh; chênh lệch giữa bằng chứng chuẩn và ngữ cảnh truy xuất (`phase_4_generation/artifacts/summary.json`).
+Lời nhắc thứ nhất được dùng cho 6.394 câu trả lời (bằng chứng chuẩn và `dense` trên C-RET, bằng chứng chuẩn của bốn mô hình trên PeerQA); lời nhắc thứ hai cho 12.306 câu trả lời còn lại. Ở cả hai lời nhắc, phần lớn khác biệt với người đánh giá là các trường hợp từ chối ở ranh giới: người đánh giá cho là từ chối hợp lý (REFUSAL_VALID) còn mô hình chấm cho là ngữ cảnh có chứa câu trả lời (MISSING_INFO - UNJUSTIFIED_REFUSAL). Vì vậy tỷ lệ "từ chối không cần thiết" dưới đây có thể cao hơn thực tế. Nhãn của người cũng chỉ đến từ một người đánh giá nên không phải chuẩn tuyệt đối.
 
-**Đối chiếu và lựa chọn.** **[Chờ kết quả]** Chọn mô hình sinh cho ứng dụng dựa trên Token F1, tỷ lệ từ chối và độ bám ngữ cảnh, kèm độ trễ trên GPU.
+**Kết quả.** Tổng cộng 18.700 câu trả lời đã được sinh và chấm: năm mô hình, hai bộ dữ liệu (C-RET 567 câu hỏi, PeerQA 181 câu hỏi), bằng chứng chuẩn và bốn đường ống truy xuất. Không có lỗi sinh nào. Độ trễ đo trên GPU của Kaggle. Bảng 5.8 và Bảng 5.9 so sánh bằng chứng chuẩn với ngữ cảnh của đường ống được chọn ở giai đoạn 3 (embeddinggemma `dense`); Hình 5.6 và Hình 5.7 biểu diễn cùng số liệu.
+
+*Bảng 5.8: Kết quả giai đoạn 4 trên C-RET (567 câu hỏi); mỗi ô ghi "bằng chứng chuẩn → ngữ cảnh truy xuất (embeddinggemma `dense`)".*
+
+*Bảng 5.9: Kết quả giai đoạn 4 trên PeerQA (181 câu hỏi có câu trả lời của tác giả); mỗi ô ghi "bằng chứng chuẩn → ngữ cảnh truy xuất (embeddinggemma `dense`)".*
+
+| Mô hình | Token F1 | Tỷ lệ từ chối | Có căn cứ | Không căn cứ hoặc mâu thuẫn | Đúng câu Có/Không (86 câu) | Độ trễ P50 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `llama3.2:3b` | 0,196 → 0,153 | 45,9% → 43,6% | 41,3% → 40,0% | 6,3% → 8,8% | 24 → 29 | 0,40 → 1,06 s |
+| `qwen2.5:1.5b` | **0,250** → **0,218** | 27,7% → 9,9% | 46,6% → 48,1% | 13,4% → 23,6% | 23 → **40** | 0,26 → 0,69 s |
+| `phi4-mini` | 0,238 → 0,170 | 48,7% → 53,1% | 43,7% → 36,0% | 3,5% → 3,7% | 26 → 17 | 0,45 → 1,19 s |
+| **`qwen3:4b`** | 0,238 → 0,185 | 36,7% → 25,8% | **54,5%** → **62,1%** | 4,8% → 7,6% | **38** → 37 | 0,58 → 2,03 s |
+| `gemma3:4b` | 0,118 → 0,105 | 75,3% → 64,4% | 19,8% → 27,2% | 0,5% → 2,1% | 0 → 13 | 0,48 → 1,28 s |
+
+| Mô hình | Token F1 | Tỷ lệ từ chối | Có căn cứ | Không căn cứ hoặc mâu thuẫn | Độ trễ P50 |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `llama3.2:3b` | 0,036 → 0,040 | 85,1% → 82,3% | 11,0% → 12,2% | 3,3% → 3,3% | 0,25 → 1,00 s |
+| `qwen2.5:1.5b` | **0,122** → **0,164** | 54,1% → 18,8% | **27,6%** → 22,7% | 12,2% → 50,8% | 0,18 → 0,91 s |
+| `phi4-mini` | 0,057 → 0,062 | 81,8% → 76,8% | 17,1% → 16,6% | 1,1% → 4,4% | 0,34 → 1,21 s |
+| **`qwen3:4b`** | 0,057 → 0,080 | 77,9% → 58,6% | 19,9% → **34,8%** | 2,2% → 7,2% | 0,36 → 1,42 s |
+| `gemma3:4b` | 0,046 → 0,065 | 85,6% → 67,4% | 11,6% → 22,1% | 0,6% → 5,5% | 0,41 → 1,37 s |
+
+"Có căn cứ" là tỷ lệ nhãn SUPPORTED; "Không căn cứ hoặc mâu thuẫn" là tổng UNSUPPORTED và CONTRADICTED. `qwen3:4b` là `qwen3:4b-instruct-2507-q4_K_M`.
+
+![Hình 5.6: Phân bố nhãn độ bám ngữ cảnh ở giai đoạn 4](reports/thesis_figures/fig5_12_phase4_labels.png)
+
+*Hình 5.6: Phân bố nhãn của mô hình chấm theo mô hình sinh, với bằng chứng chuẩn và với ngữ cảnh truy xuất (embeddinggemma `dense`), trên C-RET và PeerQA.*
+
+![Hình 5.7: Token F1 và tỷ lệ từ chối với hai loại ngữ cảnh](reports/thesis_figures/fig5_13_phase4_gold_vs_retrieved.png)
+
+*Hình 5.7: Token F1 và tỷ lệ từ chối của từng mô hình với bằng chứng chuẩn và với ngữ cảnh truy xuất (embeddinggemma `dense`).*
+
+Bảng 5.10 so sánh bốn đường ống truy xuất theo tỷ lệ câu trả lời có căn cứ. `e5-small-v2 convex` là cấu hình truy xuất mà khung trợ lý AI của ứng dụng đang dùng.
+
+*Bảng 5.10: Tỷ lệ câu trả lời có căn cứ (SUPPORTED) theo đường ống truy xuất, ghi "C-RET / PeerQA".*
+
+| Mô hình | embeddinggemma `dense` | embeddinggemma `convex` | embeddinggemma `convex` + bge-reranker-v2-m3 | e5-small-v2 `convex` |
+| :--- | :---: | :---: | :---: | :---: |
+| `llama3.2:3b` | 40,0% / 12,2% | 43,2% / 9,9% | 41,8% / 13,3% | 40,2% / 11,6% |
+| `qwen2.5:1.5b` | 48,1% / 22,7% | 50,8% / 23,8% | 47,3% / 24,9% | 49,2% / 21,5% |
+| `phi4-mini` | 36,0% / 16,6% | 38,1% / 19,3% | 36,3% / 19,9% | 38,6% / 17,7% |
+| `qwen3:4b` | 62,1% / 34,8% | 62,8% / 31,5% | 62,8% / 36,5% | 61,2% / 32,6% |
+| `gemma3:4b` | 27,2% / 22,1% | 28,9% / 22,1% | 30,2% / 21,5% | 29,8% / 18,8% |
+| Cả năm mô hình | 42,7% / 21,7% | 44,8% / 21,3% | 43,7% / 23,2% | 43,8% / 20,4% |
+
+**Đối chiếu với lý thuyết.**
+- **Mô hình thế hệ mới bám ngữ cảnh tốt hơn: đúng với `qwen3:4b`, không đúng với `gemma3:4b`.** `qwen3:4b` có tỷ lệ câu trả lời có căn cứ cao nhất ở ba trong bốn trường hợp (54,5% và 62,1% trên C-RET, 34,8% với ngữ cảnh truy xuất trên PeerQA; với bằng chứng chuẩn trên PeerQA, `qwen2.5:1.5b` cao hơn), trong khi tỷ lệ không căn cứ hoặc mâu thuẫn chỉ 2,2–7,6%. Ngược lại, `gemma3:4b` từ chối nhiều nhất (64–86%); theo mô hình chấm, khoảng một nửa số câu trả lời của nó trên C-RET là từ chối không cần thiết, và nó không trả lời đúng câu Có/Không nào với bằng chứng chuẩn. Một thử nghiệm nhỏ (50 câu hỏi C-RET, bằng chứng chuẩn, `phase_4_generation/artifacts/gemma_refusal_probe/`) cho thấy khi nới lỏng câu yêu cầu từ chối trong lời nhắc, tỷ lệ từ chối của `gemma3:4b` giảm từ 72% xuống 52% và số câu Có/Không đúng tăng từ 0 lên 4/8. Vì vậy, mức từ chối cao của mô hình này gắn với cách nó tuân theo câu yêu cầu từ chối nghiêm ngặt của ứng dụng, không phải do thiếu thông tin trong ngữ cảnh.
+- **Token F1 cao không đi kèm độ bám ngữ cảnh cao**, giống đánh giá sơ bộ. `qwen2.5:1.5b` có Token F1 cao nhất và ít từ chối nhất, nhưng có tỷ lệ không căn cứ hoặc mâu thuẫn cao nhất: 23,6% trên C-RET và 50,8% trên PeerQA với ngữ cảnh truy xuất. Mô hình này trả lời cả khi ngữ cảnh không đủ, nên trùng từ với đáp án nhiều hơn nhưng thêm nhiều thông tin không có trong ngữ cảnh.
+- **Ngữ cảnh truy xuất làm giảm Token F1 trên C-RET như dự đoán (giảm 0,013–0,068), nhưng không làm tăng tỷ lệ từ chối** như dự đoán. Bốn trong năm mô hình từ chối ít hơn, và `qwen3:4b`, `gemma3:4b` có nhiều câu trả lời có căn cứ hơn. Một giải thích có số liệu hỗ trợ: tỷ lệ từ chối hợp lệ (mô hình chấm xác nhận ngữ cảnh không chứa câu trả lời) giảm từ 12–18% với bằng chứng chuẩn xuống 5–12% với ngữ cảnh truy xuất. Nghĩa là các đoạn bằng chứng chuẩn của QASPER đứng riêng thường thiếu thông tin, còn ngữ cảnh truy xuất là cả đề mục (đến 1.600 token) nên chứa thêm phần văn bản xung quanh. Token F1 giảm trong khi tỷ lệ có căn cứ không giảm cho thấy câu trả lời vẫn dựa trên ngữ cảnh nhưng diễn đạt khác đáp án tham chiếu; điều này chưa được kiểm tra riêng.
+- **Trên PeerQA, ngữ cảnh truy xuất cho Token F1 cao hơn và tỷ lệ từ chối thấp hơn bằng chứng chuẩn với cả năm mô hình;** tỷ lệ có căn cứ tăng rõ với `qwen3:4b` và `gemma3:4b`, gần như không đổi với `llama3.2:3b` và `phi4-mini`, còn `qwen2.5:1.5b` trả lời nhiều hơn nhưng phần lớn không có căn cứ. Bằng chứng chuẩn của PeerQA rất ngắn (trung vị 348 ký tự, so với 5.639 ký tự của ngữ cảnh truy xuất), gồm một vài câu được tác giả đánh dấu là liên quan và thường không đủ để trả lời. Vì vậy 34–40% câu trả lời với bằng chứng chuẩn là từ chối hợp lệ. Token F1 trên PeerQA rất thấp (0,03–0,17) vì câu trả lời của tác giả là văn bản tự do, dài và ít trùng từ với câu trả lời ngắn của mô hình.
+- **Đường ống truy xuất ít ảnh hưởng đến kết quả sinh** (Bảng 5.10). Tính chung năm mô hình, tỷ lệ có căn cứ của bốn đường ống chênh nhau tối đa 2,1 điểm phần trăm trên C-RET và 2,8 điểm trên PeerQA; không đường ống nào tốt nhất với mọi mô hình. Điều này phù hợp với giai đoạn 3, nơi các cấu hình này có nDCG@10 gần nhau (Mục 5.4), và ủng hộ lựa chọn embeddinggemma `dense` có chi phí thấp nhất. Lưu ý: trên C-RET, nhãn của `dense` dùng lời nhắc chấm từng câu, còn ba đường ống còn lại dùng lời nhắc chấm theo nhóm, nên chênh lệch nhỏ giữa chúng có thể một phần do lời nhắc.
+
+**Lựa chọn mô hình sinh: `qwen3:4b-instruct-2507`.**
+- Tỷ lệ câu trả lời có căn cứ cao nhất trên cả hai bộ dữ liệu với ngữ cảnh truy xuất (62,1% trên C-RET, 34,8% trên PeerQA), với tỷ lệ không căn cứ hoặc mâu thuẫn thấp (7,6% và 7,2%).
+- Đổi lại, đây là mô hình chậm nhất trên GPU (P50 khoảng 2 giây với ngữ cảnh truy xuất) và từ chối nhiều hơn `qwen2.5:1.5b`.
+- `qwen2.5:1.5b` không được chọn dù Token F1 cao nhất, vì tỷ lệ không căn cứ hoặc mâu thuẫn cao gấp ba (C-RET) đến bảy lần (PeerQA).
+- Ứng dụng dùng `qwen3:4b` khi chạy mô hình sinh trên GPU của Kaggle, và giữ `llama3.2:3b` làm mô hình dự phòng chạy trên CPU của máy cục bộ. Độ trễ của `qwen3:4b` trên CPU chưa được đo ở giai đoạn 4.
 
 ---
 
 ## 5.6. Tổng hợp lựa chọn
+
+Bảng 5.11 tổng hợp phương pháp được chọn cho từng thành phần.
+
+*Bảng 5.11: Tổng hợp lựa chọn qua các giai đoạn.*
 
 | Thành phần | Lựa chọn | Căn cứ |
 | :--- | :--- | :--- |
@@ -1301,9 +1397,7 @@ Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu 
 | Phân mảnh | `hierarchical` | Tốt nhất với mọi mô hình nhúng trên cả C-RET và PeerQA (Mục 5.3) |
 | Mô hình nhúng | embeddinggemma-300m | Cao nhất trên C-RET, ngang các mô hình khác trên PeerQA, chi phí trung bình (Mục 5.3, 5.4) |
 | Truy xuất | `dense` (không BM25, không xếp hạng lại) | Thấp hơn cấu hình cao nhất 0,003 trên C-RET với chi phí thấp nhất; `convex` là phương án thay thế (Mục 5.4) |
-| Mô hình sinh | [Chờ kết quả] | Giai đoạn 4 |
-
-*Bảng 5.8: Tổng hợp lựa chọn qua các giai đoạn.*
+| Mô hình sinh | `qwen3:4b-instruct-2507` (GPU); `llama3.2:3b` dự phòng trên CPU | Tỷ lệ câu trả lời có căn cứ cao nhất với ngữ cảnh truy xuất trên cả hai bộ dữ liệu, ít câu trả lời không căn cứ; chậm nhất trên GPU (Mục 5.5) |
 
 ---
 
@@ -1313,7 +1407,8 @@ Một người đánh giá đã gán nhãn độ bám ngữ cảnh cho 100 câu 
 - **Giai đoạn 1 dùng bộ dữ liệu khác các giai đoạn sau.** OHR-Bench gồm nhiều lĩnh vực, không chỉ bài báo khoa học; kết luận về bộ trích xuất được kiểm tra thêm trên riêng nhóm tài liệu học thuật.
 - **Giai đoạn 2–4 dùng toàn văn của QASPER thay vì văn bản trích xuất từ PDF** đối với QASPER, nên kết quả truy xuất không bao gồm sai số của khâu trích xuất trong ứng dụng.
 - **Các chỉ số tự động là xấp xỉ.** Độ liên quan và tỷ lệ chứa dựa trên mức trùng từ; Token F1 đo mức trùng từ với đáp án, không đo tính đúng sự thật.
-- **Mô hình chấm và đánh giá thủ công nhỏ.** Chỉ có một người đánh giá và 100 câu trả lời để kiểm tra mô hình chấm; mô hình chấm có xu hướng coi các trường hợp từ chối ở ranh giới là không hợp lý (Mục 5.5.2).
+- **Mô hình chấm và đánh giá thủ công nhỏ.** Chỉ có một người đánh giá và 100 câu trả lời để kiểm tra mô hình chấm; mô hình chấm có xu hướng coi các trường hợp từ chối ở ranh giới là không hợp lý. Hai lời nhắc chấm (từng câu và theo nhóm) được dùng cho các phần khác nhau của giai đoạn 4; cả hai có mức đồng thuận gần nhau với người đánh giá, nhưng chênh lệch nhỏ giữa các đường ống trên C-RET có thể một phần do lời nhắc (Mục 5.5.2).
+- **Mô hình sinh chỉ được đo trên GPU.** Độ trễ của giai đoạn 4 đo trên GPU của Kaggle; độ trễ của mô hình được chọn trên CPU của máy cục bộ chưa được đo.
 - **Môi trường.** Độ trễ của giai đoạn 2–4 đo trên GPU của Kaggle. Khi demo, mô hình sinh chạy trên GPU của Kaggle, nhưng khâu nhúng và truy xuất chạy trong backend trên máy cục bộ; độ trễ truy xuất vì vậy chỉ dùng để so sánh các cấu hình với nhau.
 - **Khả năng nhiễm dữ liệu huấn luyện.** Các mô hình có thể đã gặp các bài báo công khai này trong quá trình huấn luyện.
 
@@ -1332,7 +1427,13 @@ Các điểm khác kỳ vọng được ghi nhận kèm giải thích chưa đư
 - mô hình nhúng lớn nhất không phải tốt nhất, và mô hình tốt nhất khác nhau giữa hai bộ dữ liệu;
 - `rrf` và xếp hạng lại bằng MiniLM có lúc thấp hơn truy xuất dense.
 
-Giai đoạn 4 đang được chạy lại trên Kaggle; kết quả sẽ được bổ sung khi chạy xong.
+Giai đoạn 4 phù hợp với lý thuyết một phần:
+- `qwen3:4b` (thế hệ mới) bám ngữ cảnh tốt nhất, nhưng `gemma3:4b` (cũng thế hệ mới) từ chối quá nhiều với lời nhắc của ứng dụng;
+- Token F1 cao không đi kèm độ bám ngữ cảnh cao (`qwen2.5:1.5b`);
+- ngữ cảnh truy xuất làm giảm Token F1 trên C-RET nhưng không làm tăng tỷ lệ từ chối, vì bằng chứng chuẩn đứng riêng thường thiếu thông tin;
+- đường ống truy xuất ít ảnh hưởng đến kết quả sinh.
+
+Mô hình sinh được chọn là `qwen3:4b-instruct-2507`.
 
 ---
 
@@ -1355,14 +1456,16 @@ Giai đoạn 4 đang được chạy lại trên Kaggle; kết quả sẽ đư�
 ### 6.1.2. Về thực nghiệm
 Đề tài đánh giá đường ống RAG theo bốn giai đoạn nối tiếp nhau, đối chiếu kết quả với lý thuyết và chọn phương pháp cho từng thành phần (Chương 5):
 
+Bảng 6.1 tóm tắt kết quả chính và lựa chọn của từng giai đoạn.
+
+*Bảng 6.1: Tóm tắt kết quả các giai đoạn đánh giá.*
+
 | Giai đoạn | Kết quả chính | Lựa chọn |
 | :--- | :--- | :--- |
 | 1. Trích xuất (OHR-Bench) | PyMuPDF có độ phủ bằng chứng cao nhất (0,747) và nhanh nhất; GROBID thấp hơn rõ rệt (0,494), kể cả trên tài liệu học thuật | PyMuPDF Layout |
 | 2. Phân mảnh × mô hình nhúng (C-RET, PeerQA) | Phân cấp tốt nhất với mọi mô hình nhúng (nDCG@10 0,703–0,744 trên C-RET, 0,705–0,722 trên PeerQA); các mô hình nhúng gần nhau khi dùng phân cấp | `hierarchical`; bốn mô hình nhúng vào giai đoạn 3 |
 | 3. Từ khóa, kết hợp, xếp hạng lại | `convex` và bge-reranker-v2-m3 cải thiện nDCG@10 tối đa 0,003 (C-RET) và 0,038 (PeerQA) so với embeddinggemma dense, với chi phí đến 2 giây mỗi câu hỏi | embeddinggemma `dense` |
-| 4. Mô hình sinh | Đánh giá sơ bộ: Token F1 cao không đi kèm ít câu trả lời không căn cứ; giai đoạn 4: [Chờ kết quả] | [Chờ kết quả] |
-
-*Bảng 6.1: Tóm tắt kết quả các giai đoạn đánh giá.*
+| 4. Mô hình sinh (C-RET, PeerQA; 18.700 câu trả lời được chấm) | `qwen3:4b` có tỷ lệ câu trả lời có căn cứ cao nhất với ngữ cảnh truy xuất (62,1% trên C-RET, 34,8% trên PeerQA); `qwen2.5:1.5b` có Token F1 cao nhất nhưng nhiều câu trả lời không căn cứ nhất; đường ống truy xuất ít ảnh hưởng | `qwen3:4b-instruct-2507` |
 
 Các điểm khác kỳ vọng được ghi nhận kèm giải thích chưa được kiểm tra riêng: GROBID thấp hơn các thư viện khác trên OHR-Bench; phân mảnh theo đề mục không vượt phân mảnh kích thước cố định; mô hình nhúng lớn nhất không phải tốt nhất; `rrf` và MiniLM có lúc thấp hơn truy xuất dense.
 
@@ -1370,7 +1473,7 @@ Các điểm khác kỳ vọng được ghi nhận kèm giải thích chưa đư
 
 ## 6.2. Hạn chế
 
-1. **Giai đoạn 3 và 4 chưa có kết quả.** Kết luận hiện dựa trên giai đoạn 1–2 và đánh giá sơ bộ mô hình sinh.
+1. **Mô hình sinh được chọn chưa được đo trên CPU.** `qwen3:4b` được chọn dựa trên kết quả trên GPU của Kaggle; khi chạy hoàn toàn cục bộ, ứng dụng vẫn dùng `llama3.2:3b`.
 2. **Chọn và đánh giá trên cùng dữ liệu.** Các phương pháp được chọn và đánh giá trên cùng các bài báo QASPER (NLP/ML), nên kết quả không chứng minh khả năng tổng quát hóa.
 3. **Chỉ số tự động dựa trên mức trùng từ,** và đánh giá thủ công chỉ có một người đánh giá với số câu nhỏ.
 4. **Tốc độ sinh câu trả lời trên CPU chậm khi ngữ cảnh dài:** khoảng 30 giây mỗi câu với `llama3.2:3b`. Bộ nhớ của máy 16 GB gần đạt giới hạn khi chạy mô hình sinh.
@@ -1381,7 +1484,7 @@ Các điểm khác kỳ vọng được ghi nhận kèm giải thích chưa đư
 
 ## 6.3. Hướng phát triển
 
-1. **Hoàn thành giai đoạn 3 và 4,** chọn đường ống truy xuất và mô hình sinh cho ứng dụng, rồi cập nhật cấu hình của ứng dụng nếu lựa chọn khác cấu hình hiện tại.
+1. **Đưa các lựa chọn của giai đoạn 3 và 4 vào cấu hình mặc định của ứng dụng** (embeddinggemma `dense`, `qwen3:4b`), sau khi đo độ trễ của `qwen3:4b` trên CPU.
 2. **Rút ngắn ngữ cảnh hoặc dùng mô hình nhỏ hơn** để giảm thời gian sinh câu trả lời trên CPU.
 3. **Kiểm tra nguyên nhân kết quả của GROBID** (nội dung ngoài thân bài bị bỏ) và đánh giá bộ trích xuất của ứng dụng (có nhận diện đề mục) trên PDF của QASPER.
 4. **Mở rộng ngữ cảnh khi thiếu căn cứ (FR-16):** khi mô hình từ chối vì ngữ cảnh không đủ, truy xuất các mục xếp hạng tiếp theo chưa được dùng và hỏi lại, với ba chế độ `strict`, `once` và `loop` (có giới hạn số vòng). Cần đo trên tập câu hỏi của giai đoạn 4: tỷ lệ từ chối, Token F1, thời gian trả lời (mỗi vòng thêm khoảng 30 giây) và đánh giá thủ công các câu trả lời thay đổi, vì giảm từ chối có thể làm tăng câu trả lời không có căn cứ.
@@ -1487,6 +1590,10 @@ Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li
 
 Các trường siêu dữ liệu được khai báo trong `frontend/src/constants/metadataConfig.ts`; bảng thuộc tính hiển thị theo danh sách này thay vì viết cố định từng dòng. Cột "Lưu ở backend" cho biết trường tương ứng trong mô hình Django (`backend/apps/documents/models.py`); việc chuyển đổi tên trường nằm trong `frontend/src/api/documentsApi.ts`.
 
+Bảng A.1 liệt kê các trường và nơi lưu trữ.
+
+*Bảng A.1: Các trường siêu dữ liệu và nơi lưu trữ.*
+
 | STT | Khóa | Nhãn | Kiểu giao diện | Lưu ở backend | Ghi chú |
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | 1 | `title` | Title | `text` | `Document.title` | Tiêu đề bài báo |
@@ -1512,8 +1619,6 @@ Các trường siêu dữ liệu được khai báo trong `frontend/src/constant
 | 21 | `documentGroups` | Document Groups | `chips` | `Document.primary_collection` | Hiển thị tên thư mục chính của tài liệu; không có bảng riêng |
 | 22 | `groupColor` | Group Color | `color` | Không lưu | Giao diện dùng màu mặc định `#3b82f6` |
 
-*Bảng A.1: Các trường siêu dữ liệu và nơi lưu trữ.*
-
 ---
 
 ## Phụ lục B. Hai bộ sưu tập Qdrant của mỗi tài liệu
@@ -1524,6 +1629,10 @@ Qdrant chạy ở chế độ nhúng trong tiến trình backend và lưu dữ l
 - **Vector:** 384 chiều, khoảng cách cosine; mã hóa bằng `intfloat/e5-small-v2` với tiền tố `passage: `.
 - **Mã điểm:** UUIDv5 sinh tất định từ chuỗi `doc_{id}::{document_id}::{chunk_id}`, nên lập chỉ mục lại không tạo bản trùng.
 - **Chỉ mục payload:** `document_id`, `parent_id`, `paper_arxiv_id` (kiểu từ khóa).
+
+Bảng B.1 mô tả payload của mỗi điểm đoạn con.
+
+*Bảng B.1: Payload của điểm trong bộ sưu tập `doc_{id}`.*
 
 | Trường payload | Ý nghĩa |
 | :--- | :--- |
@@ -1538,12 +1647,14 @@ Qdrant chạy ở chế độ nhúng trong tiến trình backend và lưu dữ l
 | `strategy` | Chiến lược phân mảnh (`hierarchical`) |
 | `locations` (nếu có) | Tọa độ trên trang PDF, chỉ dùng để tô sáng trích dẫn, không dùng khi truy xuất |
 
-*Bảng B.1: Payload của điểm trong bộ sưu tập `doc_{id}`.*
-
 ### B.2. Bộ sưu tập đoạn cha `doc_{id}_parents`
 - **Vector:** không có (`vectors_config = {}`); văn bản đoạn cha chỉ được lưu một lần thay vì lặp lại trong từng đoạn con.
 - **Mã điểm:** UUIDv5 sinh từ chuỗi `doc_{id}_parents::{document_id}::{parent_id}`.
 - **Cách đọc:** sau khi truy xuất đoạn con, backend tính lại mã điểm của các đoạn cha liên quan và đọc chúng bằng `client.retrieve(...)` theo mã, không cần tìm kiếm.
+
+Bảng B.2 mô tả payload của mỗi điểm đoạn cha.
+
+*Bảng B.2: Payload của điểm trong bộ sưu tập `doc_{id}_parents`.*
 
 | Trường payload | Ý nghĩa |
 | :--- | :--- |
@@ -1554,13 +1665,15 @@ Qdrant chạy ở chế độ nhúng trong tiến trình backend và lưu dữ l
 | `token_count` | Số token ước lượng của đề mục |
 | `page_start`, `page_end`, `page_number` | Trang PDF |
 
-*Bảng B.2: Payload của điểm trong bộ sưu tập `doc_{id}_parents`.*
-
 ---
 
 ## Phụ lục C. Các điểm cuối REST API chính
 
 Mọi điểm cuối (trừ đăng ký, đăng nhập và làm mới token) yêu cầu JWT. Đăng nhập, đăng ký, hỏi đáp, tóm tắt và trích xuất siêu dữ liệu có giới hạn tần suất (trả về 429 khi vượt). Hỏi đáp và tóm tắt trả về 409 khi tài liệu chưa lập chỉ mục xong. Với tài liệu, quyền tối thiểu được khai báo trong `backend/apps/documents/permissions.py`: xem và hỏi đáp cần VIEW, tạo chú thích cần COMMENT, sửa cần EDIT; xóa, chuyển vào thùng rác, nhân bản, lập chỉ mục lại và quản lý chia sẻ chỉ dành cho chủ sở hữu.
+
+Bảng C.1 liệt kê các điểm cuối chính.
+
+*Bảng C.1: Các điểm cuối REST API chính.*
 
 | Nhóm | Phương thức | Điểm cuối | Quyền | Chức năng |
 | :--- | :---: | :--- | :--- | :--- |
@@ -1593,13 +1706,15 @@ Mọi điểm cuối (trừ đăng ký, đăng nhập và làm mới token) yêu
 | Trợ lý AI | `POST` | `/api/v1/documents/{id}/chat/` | VIEW | Hỏi đáp, trả về câu trả lời và nguồn trích dẫn |
 | | `POST` | `/api/v1/documents/{id}/summarize/` | VIEW | Tóm tắt tài liệu |
 
-*Bảng C.1: Các điểm cuối REST API chính.*
-
 ---
 
 ## Phụ lục D. Phím tắt
 
 Phím tắt toàn ứng dụng được tập trung trong `frontend/src/hooks/useKeyboardShortcuts.ts` và không hoạt động khi người dùng đang nhập liệu trong ô văn bản. Phím tắt của trình đọc PDF nằm trong `PdfViewer.tsx` và `useZoom.ts`, chỉ hoạt động khi con trỏ ở vùng tài liệu.
+
+Bảng D.1 liệt kê các phím tắt.
+
+*Bảng D.1: Các phím tắt được hỗ trợ.*
 
 | Phím tắt (Windows; macOS dùng `Cmd`) | Phạm vi | Chức năng |
 | :--- | :--- | :--- |
@@ -1614,13 +1729,13 @@ Phím tắt toàn ứng dụng được tập trung trong `frontend/src/hooks/us
 | `Ctrl + C` / `Ctrl + X` / `Ctrl + V` | Trình đọc PDF | Sao chép, cắt, dán chú thích đang chọn |
 | `Escape` | Trình đọc PDF, hộp thoại tải lên | Đóng menu, thanh tìm kiếm hoặc hộp thoại |
 
-*Bảng D.1: Các phím tắt được hỗ trợ.*
-
 ---
 
 ## Phụ lục E. Mã nguồn và tệp kết quả thực nghiệm
 
-Bảng dưới đây liệt kê tập lệnh và thư mục kết quả của từng giai đoạn (đường dẫn tính từ `eval/phases/`). Mỗi thư mục kết quả chứa `summary.json` (tóm tắt), `per_query.jsonl` (kết quả từng câu hỏi) và `REPORT.md`. Các biểu đồ ở Chương 5 được sinh lại bằng `eval/scripts/make_thesis_figures.py`.
+Bảng E.1 liệt kê tập lệnh và thư mục kết quả của từng giai đoạn (đường dẫn tính từ `eval/phases/`). Mỗi thư mục kết quả chứa `summary.json` (tóm tắt), `per_query.jsonl` (kết quả từng câu hỏi) và `REPORT.md`. Các biểu đồ ở Chương 5 được sinh lại bằng `eval/scripts/make_thesis_figures.py`.
+
+*Bảng E.1: Tập lệnh và tệp kết quả của các giai đoạn đánh giá.*
 
 | Giai đoạn | Tập lệnh | Thư mục kết quả |
 | :--- | :--- | :--- |
@@ -1629,8 +1744,6 @@ Bảng dưới đây liệt kê tập lệnh và thư mục kết quả của t�
 | 3. Từ khóa, kết hợp, xếp hạng lại | `phase_3_hybrid_reranking/scripts/evaluate_hybrid_reranking.py` | `phase_3_hybrid_reranking/artifacts/<tập dữ liệu>/` |
 | 4. Mô hình sinh | `phase_4_generation/scripts/evaluate_llm_generation.py` | `phase_4_generation/artifacts/<tập dữ liệu>/<loại ngữ cảnh>/`, `judge_validation.json` |
 | Đánh giá sơ bộ mô hình sinh | `phase_9_generation/scripts/evaluate_generation.py`, `evaluate_generation_extra_llms.py` | `phase_9_generation/artifacts/` (gồm nhãn đánh giá thủ công) |
-
-*Bảng E.1: Tập lệnh và tệp kết quả của các giai đoạn đánh giá.*
 
 Giai đoạn 2–4 được chạy trên Kaggle bằng các notebook trong `eval/kaggle/` (`phase2_peerqa_gemma_rerun.ipynb`, `phase3_hybrid_reranking.ipynb`, `phase4_llm_generation.ipynb`). Mỗi notebook sao chép kho mã, nạp QASPER và PDF của PeerQA, chạy thử trên vài bài báo rồi chạy đầy đủ, và nén thư mục kết quả để tải về đúng đường dẫn trong kho mã. Ví dụ:
 

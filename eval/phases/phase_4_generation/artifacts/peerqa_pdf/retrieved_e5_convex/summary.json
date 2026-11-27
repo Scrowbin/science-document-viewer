@@ -17,7 +17,16 @@
           "token_f1": 0.0354,
           "refusal_rate": 0.8508
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 62,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 92,
+        "SUPPORTED": 21,
+        "MISSING_INFO - PARTIAL": 2,
+        "UNSUPPORTED": 2,
+        "CONTRADICTED": 2
+      },
+      "judge_n": 181
     },
     "qwen2.5:1.5b": {
       "n": 181,
@@ -35,7 +44,16 @@
           "token_f1": 0.1582,
           "refusal_rate": 0.1823
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 15,
+        "UNSUPPORTED": 63,
+        "MISSING_INFO - PARTIAL": 11,
+        "CONTRADICTED": 34,
+        "SUPPORTED": 39,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 19
+      },
+      "judge_n": 181
     },
     "phi4-mini": {
       "n": 181,
@@ -53,7 +71,16 @@
           "token_f1": 0.0662,
           "refusal_rate": 0.768
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 63,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 76,
+        "SUPPORTED": 32,
+        "MISSING_INFO - PARTIAL": 4,
+        "UNSUPPORTED": 5,
+        "CONTRADICTED": 1
+      },
+      "judge_n": 181
     },
     "qwen3:4b-instruct-2507-q4_K_M": {
       "n": 181,
@@ -71,7 +98,16 @@
           "token_f1": 0.0823,
           "refusal_rate": 0.5967
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 60,
+        "CONTRADICTED": 4,
+        "UNSUPPORTED": 9,
+        "SUPPORTED": 59,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 48,
+        "MISSING_INFO - PARTIAL": 1
+      },
+      "judge_n": 181
     },
     "gemma3:4b": {
       "n": 181,
@@ -89,7 +125,16 @@
           "token_f1": 0.0615,
           "refusal_rate": 0.7348
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 60,
+        "SUPPORTED": 34,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 73,
+        "MISSING_INFO - PARTIAL": 9,
+        "CONTRADICTED": 3,
+        "UNSUPPORTED": 2
+      },
+      "judge_n": 181
     }
   }
 }

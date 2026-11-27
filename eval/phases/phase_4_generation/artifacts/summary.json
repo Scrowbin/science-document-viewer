@@ -214,7 +214,16 @@
             "token_f1": 0.0344,
             "refusal_rate": 0.5465
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 181,
+          "SUPPORTED": 228,
+          "REFUSAL_VALID": 72,
+          "MISSING_INFO - PARTIAL": 45,
+          "UNSUPPORTED": 23,
+          "CONTRADICTED": 18
+        },
+        "judge_n": 567
       },
       "qwen2.5:1.5b": {
         "n": 567,
@@ -242,7 +251,16 @@
             "token_f1": 0.0445,
             "refusal_rate": 0.2558
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - PARTIAL": 102,
+          "SUPPORTED": 279,
+          "REFUSAL_VALID": 31,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 30,
+          "UNSUPPORTED": 74,
+          "CONTRADICTED": 51
+        },
+        "judge_n": 567
       },
       "phi4-mini": {
         "n": 567,
@@ -270,7 +288,16 @@
             "token_f1": 0.0422,
             "refusal_rate": 0.7326
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 219,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 220,
+          "REFUSAL_VALID": 76,
+          "MISSING_INFO - PARTIAL": 25,
+          "UNSUPPORTED": 11,
+          "CONTRADICTED": 16
+        },
+        "judge_n": 567
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 567,
@@ -298,7 +325,16 @@
             "token_f1": 0.0184,
             "refusal_rate": 0.3953
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 347,
+          "CONTRADICTED": 13,
+          "REFUSAL_VALID": 70,
+          "UNSUPPORTED": 31,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 87,
+          "MISSING_INFO - PARTIAL": 19
+        },
+        "judge_n": 567
       },
       "gemma3:4b": {
         "n": 567,
@@ -326,7 +362,16 @@
             "token_f1": 0.027,
             "refusal_rate": 0.686
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 169,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 275,
+          "REFUSAL_VALID": 75,
+          "MISSING_INFO - PARTIAL": 27,
+          "UNSUPPORTED": 13,
+          "CONTRADICTED": 8
+        },
+        "judge_n": 567
       }
     },
     "retrieved_gemma_convex": {
@@ -356,7 +401,16 @@
             "token_f1": 0.0378,
             "refusal_rate": 0.5
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 162,
+          "SUPPORTED": 245,
+          "REFUSAL_VALID": 68,
+          "UNSUPPORTED": 32,
+          "MISSING_INFO - PARTIAL": 44,
+          "CONTRADICTED": 16
+        },
+        "judge_n": 567
       },
       "qwen2.5:1.5b": {
         "n": 567,
@@ -384,7 +438,16 @@
             "token_f1": 0.0504,
             "refusal_rate": 0.2442
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - PARTIAL": 93,
+          "SUPPORTED": 288,
+          "CONTRADICTED": 51,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 31,
+          "UNSUPPORTED": 75,
+          "REFUSAL_VALID": 29
+        },
+        "judge_n": 567
       },
       "phi4-mini": {
         "n": 567,
@@ -412,7 +475,16 @@
             "token_f1": 0.0415,
             "refusal_rate": 0.7209
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 216,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 216,
+          "MISSING_INFO - PARTIAL": 30,
+          "REFUSAL_VALID": 73,
+          "UNSUPPORTED": 19,
+          "CONTRADICTED": 13
+        },
+        "judge_n": 567
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 567,
@@ -440,7 +512,16 @@
             "token_f1": 0.0156,
             "refusal_rate": 0.3837
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 356,
+          "UNSUPPORTED": 34,
+          "REFUSAL_VALID": 60,
+          "MISSING_INFO - PARTIAL": 21,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 77,
+          "CONTRADICTED": 19
+        },
+        "judge_n": 567
       },
       "gemma3:4b": {
         "n": 567,
@@ -468,7 +549,16 @@
             "token_f1": 0.0138,
             "refusal_rate": 0.7326
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - PARTIAL": 30,
+          "SUPPORTED": 164,
+          "CONTRADICTED": 8,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 285,
+          "REFUSAL_VALID": 71,
+          "UNSUPPORTED": 9
+        },
+        "judge_n": 567
       }
     },
     "retrieved_gemma_convex_bgem3": {
@@ -498,7 +588,16 @@
             "token_f1": 0.0376,
             "refusal_rate": 0.5
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 161,
+          "SUPPORTED": 237,
+          "MISSING_INFO - PARTIAL": 55,
+          "REFUSAL_VALID": 68,
+          "CONTRADICTED": 17,
+          "UNSUPPORTED": 29
+        },
+        "judge_n": 567
       },
       "qwen2.5:1.5b": {
         "n": 567,
@@ -526,7 +625,16 @@
             "token_f1": 0.0605,
             "refusal_rate": 0.2674
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 268,
+          "CONTRADICTED": 57,
+          "REFUSAL_VALID": 30,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 27,
+          "MISSING_INFO - PARTIAL": 104,
+          "UNSUPPORTED": 81
+        },
+        "judge_n": 567
       },
       "phi4-mini": {
         "n": 567,
@@ -554,7 +662,16 @@
             "token_f1": 0.0414,
             "refusal_rate": 0.686
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 223,
+          "SUPPORTED": 206,
+          "REFUSAL_VALID": 75,
+          "UNSUPPORTED": 18,
+          "CONTRADICTED": 14,
+          "MISSING_INFO - PARTIAL": 31
+        },
+        "judge_n": 567
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 567,
@@ -582,7 +699,16 @@
             "token_f1": 0.019,
             "refusal_rate": 0.3837
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 356,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 78,
+          "UNSUPPORTED": 32,
+          "REFUSAL_VALID": 64,
+          "MISSING_INFO - PARTIAL": 20,
+          "CONTRADICTED": 17
+        },
+        "judge_n": 567
       },
       "gemma3:4b": {
         "n": 567,
@@ -610,7 +736,16 @@
             "token_f1": 0.0088,
             "refusal_rate": 0.7093
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 171,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 277,
+          "REFUSAL_VALID": 71,
+          "MISSING_INFO - PARTIAL": 29,
+          "UNSUPPORTED": 11,
+          "CONTRADICTED": 8
+        },
+        "judge_n": 567
       }
     },
     "retrieved_gemma_dense": {
@@ -987,7 +1122,16 @@
             "token_f1": 0.0569,
             "refusal_rate": 0.779
           }
-        }
+        },
+        "judge_labels": {
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 72,
+          "SUPPORTED": 36,
+          "UNSUPPORTED": 2,
+          "REFUSAL_VALID": 68,
+          "MISSING_INFO - PARTIAL": 1,
+          "CONTRADICTED": 2
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -1033,7 +1177,16 @@
             "token_f1": 0.0354,
             "refusal_rate": 0.8508
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 62,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 92,
+          "SUPPORTED": 21,
+          "MISSING_INFO - PARTIAL": 2,
+          "UNSUPPORTED": 2,
+          "CONTRADICTED": 2
+        },
+        "judge_n": 181
       },
       "qwen2.5:1.5b": {
         "n": 181,
@@ -1051,7 +1204,16 @@
             "token_f1": 0.1582,
             "refusal_rate": 0.1823
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 15,
+          "UNSUPPORTED": 63,
+          "MISSING_INFO - PARTIAL": 11,
+          "CONTRADICTED": 34,
+          "SUPPORTED": 39,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 19
+        },
+        "judge_n": 181
       },
       "phi4-mini": {
         "n": 181,
@@ -1069,7 +1231,16 @@
             "token_f1": 0.0662,
             "refusal_rate": 0.768
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 63,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 76,
+          "SUPPORTED": 32,
+          "MISSING_INFO - PARTIAL": 4,
+          "UNSUPPORTED": 5,
+          "CONTRADICTED": 1
+        },
+        "judge_n": 181
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 181,
@@ -1087,7 +1258,16 @@
             "token_f1": 0.0823,
             "refusal_rate": 0.5967
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 60,
+          "CONTRADICTED": 4,
+          "UNSUPPORTED": 9,
+          "SUPPORTED": 59,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 48,
+          "MISSING_INFO - PARTIAL": 1
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -1105,7 +1285,16 @@
             "token_f1": 0.0615,
             "refusal_rate": 0.7348
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 60,
+          "SUPPORTED": 34,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 73,
+          "MISSING_INFO - PARTIAL": 9,
+          "CONTRADICTED": 3,
+          "UNSUPPORTED": 2
+        },
+        "judge_n": 181
       }
     },
     "retrieved_gemma_convex": {
@@ -1125,7 +1314,16 @@
             "token_f1": 0.0314,
             "refusal_rate": 0.8619
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 67,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 89,
+          "SUPPORTED": 18,
+          "CONTRADICTED": 2,
+          "MISSING_INFO - PARTIAL": 4,
+          "UNSUPPORTED": 1
+        },
+        "judge_n": 181
       },
       "qwen2.5:1.5b": {
         "n": 181,
@@ -1143,7 +1341,16 @@
             "token_f1": 0.161,
             "refusal_rate": 0.1934
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 21,
+          "CONTRADICTED": 39,
+          "SUPPORTED": 43,
+          "UNSUPPORTED": 47,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 16,
+          "MISSING_INFO - PARTIAL": 15
+        },
+        "judge_n": 181
       },
       "phi4-mini": {
         "n": 181,
@@ -1161,7 +1368,16 @@
             "token_f1": 0.0682,
             "refusal_rate": 0.7348
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 67,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 66,
+          "CONTRADICTED": 3,
+          "SUPPORTED": 35,
+          "MISSING_INFO - PARTIAL": 5,
+          "UNSUPPORTED": 5
+        },
+        "judge_n": 181
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 181,
@@ -1179,7 +1395,15 @@
             "token_f1": 0.0824,
             "refusal_rate": 0.6022
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 63,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 46,
+          "SUPPORTED": 57,
+          "CONTRADICTED": 7,
+          "UNSUPPORTED": 8
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -1197,7 +1421,16 @@
             "token_f1": 0.076,
             "refusal_rate": 0.6796
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 61,
+          "SUPPORTED": 40,
+          "MISSING_INFO - PARTIAL": 12,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 62,
+          "CONTRADICTED": 5,
+          "UNSUPPORTED": 1
+        },
+        "judge_n": 181
       }
     },
     "retrieved_gemma_convex_bgem3": {
@@ -1217,7 +1450,16 @@
             "token_f1": 0.0432,
             "refusal_rate": 0.8011
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 55,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 89,
+          "SUPPORTED": 24,
+          "MISSING_INFO - PARTIAL": 3,
+          "CONTRADICTED": 4,
+          "UNSUPPORTED": 6
+        },
+        "judge_n": 181
       },
       "qwen2.5:1.5b": {
         "n": 181,
@@ -1235,7 +1477,16 @@
             "token_f1": 0.1687,
             "refusal_rate": 0.1657
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 45,
+          "UNSUPPORTED": 54,
+          "MISSING_INFO - PARTIAL": 23,
+          "CONTRADICTED": 28,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 16,
+          "REFUSAL_VALID": 15
+        },
+        "judge_n": 181
       },
       "phi4-mini": {
         "n": 181,
@@ -1253,7 +1504,16 @@
             "token_f1": 0.0678,
             "refusal_rate": 0.7182
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 58,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 72,
+          "SUPPORTED": 36,
+          "MISSING_INFO - PARTIAL": 6,
+          "CONTRADICTED": 5,
+          "UNSUPPORTED": 4
+        },
+        "judge_n": 181
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 181,
@@ -1271,7 +1531,16 @@
             "token_f1": 0.0977,
             "refusal_rate": 0.547
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 53,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 46,
+          "UNSUPPORTED": 11,
+          "SUPPORTED": 66,
+          "CONTRADICTED": 4,
+          "MISSING_INFO - PARTIAL": 1
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -1289,7 +1558,16 @@
             "token_f1": 0.0755,
             "refusal_rate": 0.6685
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 39,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 74,
+          "REFUSAL_VALID": 47,
+          "MISSING_INFO - PARTIAL": 13,
+          "CONTRADICTED": 4,
+          "UNSUPPORTED": 4
+        },
+        "judge_n": 181
       }
     },
     "retrieved_gemma_dense": {
@@ -1309,7 +1587,16 @@
             "token_f1": 0.0395,
             "refusal_rate": 0.8232
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 68,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 83,
+          "SUPPORTED": 22,
+          "CONTRADICTED": 4,
+          "MISSING_INFO - PARTIAL": 2,
+          "UNSUPPORTED": 2
+        },
+        "judge_n": 181
       },
       "qwen2.5:1.5b": {
         "n": 181,
@@ -1327,7 +1614,16 @@
             "token_f1": 0.1636,
             "refusal_rate": 0.1878
           }
-        }
+        },
+        "judge_labels": {
+          "UNSUPPORTED": 49,
+          "SUPPORTED": 41,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 16,
+          "MISSING_INFO - PARTIAL": 10,
+          "CONTRADICTED": 43,
+          "REFUSAL_VALID": 22
+        },
+        "judge_n": 181
       },
       "phi4-mini": {
         "n": 181,
@@ -1345,7 +1641,16 @@
             "token_f1": 0.0617,
             "refusal_rate": 0.768
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 68,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 70,
+          "SUPPORTED": 30,
+          "MISSING_INFO - PARTIAL": 5,
+          "UNSUPPORTED": 4,
+          "CONTRADICTED": 4
+        },
+        "judge_n": 181
       },
       "qwen3:4b-instruct-2507-q4_K_M": {
         "n": 181,
@@ -1363,7 +1668,15 @@
             "token_f1": 0.0797,
             "refusal_rate": 0.5856
           }
-        }
+        },
+        "judge_labels": {
+          "REFUSAL_VALID": 67,
+          "SUPPORTED": 63,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 38,
+          "CONTRADICTED": 5,
+          "UNSUPPORTED": 8
+        },
+        "judge_n": 181
       },
       "gemma3:4b": {
         "n": 181,
@@ -1381,7 +1694,16 @@
             "token_f1": 0.065,
             "refusal_rate": 0.674
           }
-        }
+        },
+        "judge_labels": {
+          "SUPPORTED": 40,
+          "UNSUPPORTED": 4,
+          "MISSING_INFO - UNJUSTIFIED_REFUSAL": 63,
+          "CONTRADICTED": 6,
+          "REFUSAL_VALID": 59,
+          "MISSING_INFO - PARTIAL": 9
+        },
+        "judge_n": 181
       }
     },
     "gap_gold_minus_retrieved_e5_convex": {

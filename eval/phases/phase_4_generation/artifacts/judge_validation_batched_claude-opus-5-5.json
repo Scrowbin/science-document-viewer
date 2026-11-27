@@ -1,0 +1,837 @@
+{
+  "judge_model": "claude-opus-5-5",
+  "prompt": "JUDGE_BATCH_PROMPT (answers to the same question judged together)",
+  "n": 100,
+  "agreement_6_labels": 0.82,
+  "agreement_3_classes": 0.93,
+  "invalid_outputs": 0,
+  "confusion_human_rows_judge_cols": {
+    "REFUSAL_VALID": {
+      "MISSING_INFO - UNJUSTIFIED_REFUSAL": 9,
+      "REFUSAL_VALID": 7
+    },
+    "UNSUPPORTED": {
+      "SUPPORTED": 3,
+      "UNSUPPORTED": 8,
+      "MISSING_INFO - PARTIAL": 1
+    },
+    "CONTRADICTED": {
+      "CONTRADICTED": 5,
+      "UNSUPPORTED": 1
+    },
+    "SUPPORTED": {
+      "SUPPORTED": 41,
+      "UNSUPPORTED": 2,
+      "CONTRADICTED": 1
+    },
+    "MISSING_INFO - UNJUSTIFIED_REFUSAL": {
+      "MISSING_INFO - UNJUSTIFIED_REFUSAL": 18
+    },
+    "MISSING_INFO - PARTIAL": {
+      "SUPPORTED": 1,
+      "MISSING_INFO - PARTIAL": 3
+    }
+  },
+  "rows": [
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states the provers' formalism is type-logical grammars."
+    },
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states the provers' formalism is type-logical grammars."
+    },
+    {
+      "round": 1,
+      "id": "REV-01",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Type-logical grammars is the formalism described."
+    },
+    {
+      "round": 2,
+      "id": "REV-01/Model_Delta",
+      "model": "phi4-mini",
+      "human": "UNSUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Type-logical grammars is the formalism described."
+    },
+    {
+      "round": 2,
+      "id": "REV-01/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "UNSUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Context describes the theorem provers' formalism as type-logical grammars."
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "qwen2.5:0.5b",
+      "human": "CONTRADICTED",
+      "judge": "CONTRADICTED",
+      "reason": "Context treats drunk tweets as the drunk-texting task."
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "llama3.2:1b",
+      "human": "CONTRADICTED",
+      "judge": "CONTRADICTED",
+      "reason": "Context frames drunk tweets as drunk-texting, so they do equate them."
+    },
+    {
+      "round": 1,
+      "id": "REV-02",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Drunk-texting prediction is defined over tweets."
+    },
+    {
+      "round": 2,
+      "id": "REV-02/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context introduces drunk-texting prediction on tweets, answering the question."
+    },
+    {
+      "round": 2,
+      "id": "REV-02/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "CONTRADICTED",
+      "reason": "Context treats drunk tweets as the drunk-texting task."
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Corpus S and its description match the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "SUPPORTED",
+      "reason": "Open IE was run on hits from the Sentence corpus S."
+    },
+    {
+      "round": 1,
+      "id": "REV-03",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states Open IE was run on the Sentence corpus."
+    },
+    {
+      "round": 2,
+      "id": "REV-03/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Open IE was run on hits from the Sentence corpus S."
+    },
+    {
+      "round": 2,
+      "id": "REV-03/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Open IE was run on hits from the Sentence corpus S."
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "The four regional dialects are listed in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "The four regional dialects are listed in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-04",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "The four regional dialects are listed in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-04/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "The four regional dialects are listed in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-04/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists all categories exactly as given in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names LDC training data and NIST test sets."
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "MISSING_INFO - PARTIAL",
+      "reason": "Only mentions the validation set, omitting LDC training and test sets."
+    },
+    {
+      "round": 1,
+      "id": "REV-05",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "MISSING_INFO - PARTIAL",
+      "reason": "Omits LDC training data and NIST test sets."
+    },
+    {
+      "round": 2,
+      "id": "REV-05/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names LDC training data and NIST test sets."
+    },
+    {
+      "round": 2,
+      "id": "REV-05/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "CONTRADICTED",
+      "reason": "MT03 is only the validation set; test sets are MT04-06 and MT08."
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Mandarin-English code-switching corpus."
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Mandarin-English code-switching corpus."
+    },
+    {
+      "round": 1,
+      "id": "REV-06",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Mandarin-English code-switching corpus."
+    },
+    {
+      "round": 2,
+      "id": "REV-06/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Mandarin-English code-switching corpus."
+    },
+    {
+      "round": 2,
+      "id": "REV-06/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names the Mandarin-English SEAME corpus."
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context lists the baselines."
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Baselines and descriptions copied from the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-07",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five baselines from the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-07/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five baselines from the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-07/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five baselines from the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says Text2Visual provides visual components conveying text meaning."
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "SimplerVoice is not mentioned in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-08",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Directly paraphrases the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-08/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Visual components conveying S-V-O text implies linking images and text."
+    },
+    {
+      "round": 2,
+      "id": "REV-08/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Visual components conveying S-V-O text implies linking images and text."
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says only the shared-task datasets were used."
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Context says datasets were given by the shared task, not provided in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-09",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says only the shared-task datasets were used."
+    },
+    {
+      "round": 2,
+      "id": "REV-09/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says only the shared-task datasets were used."
+    },
+    {
+      "round": 2,
+      "id": "REV-09/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says only the shared-task datasets were used."
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "CONTRADICTED",
+      "reason": "Indicator words were a manually constructed set, not built from the questions' first words."
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context describes the dataset construction in detail."
+    },
+    {
+      "round": 1,
+      "id": "REV-10",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Describes a generic text corpus not mentioned in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-10/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context describes the dataset construction in detail."
+    },
+    {
+      "round": 2,
+      "id": "REV-10/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Accurately summarises the construction process."
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names the reference corpus used."
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Reference corpus of 21,093 tokens is stated."
+    },
+    {
+      "round": 1,
+      "id": "REV-11",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Reference corpus of 21,093 tokens is stated."
+    },
+    {
+      "round": 2,
+      "id": "REV-11/Model_Delta",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names the reference corpus used."
+    },
+    {
+      "round": 2,
+      "id": "REV-11/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names the reference corpus used."
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Nothing about metrics appears in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "Context is only a heading."
+    },
+    {
+      "round": 1,
+      "id": "REV-12",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "Context is only a heading."
+    },
+    {
+      "round": 2,
+      "id": "REV-12/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Nothing about metrics appears in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-12/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "Context is only a heading."
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "llama3.2:3b",
+      "human": "CONTRADICTED",
+      "judge": "UNSUPPORTED",
+      "reason": "UD data being used for Flair embeddings is not stated."
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "llama3.2:1b",
+      "human": "UNSUPPORTED",
+      "judge": "MISSING_INFO - PARTIAL",
+      "reason": "Omits Czech Wikipedia used for FastText embeddings."
+    },
+    {
+      "round": 1,
+      "id": "REV-13",
+      "model": "qwen2.5:0.5b",
+      "human": "MISSING_INFO - PARTIAL",
+      "judge": "MISSING_INFO - PARTIAL",
+      "reason": "Omits Czech Wikipedia used for FastText."
+    },
+    {
+      "round": 2,
+      "id": "REV-13/Model_Delta",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Data sources for word2vec, FastText and BERT match; Flair noted as unspecified."
+    },
+    {
+      "round": 2,
+      "id": "REV-13/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names LINDAT/CLARIN corpora and Czech Wikipedia."
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says diversity is measured by distinct n-grams."
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Distinct n-gram count is the stated diversity measure."
+    },
+    {
+      "round": 1,
+      "id": "REV-14",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Distinct n-grams normalised by generated tokens, as stated."
+    },
+    {
+      "round": 2,
+      "id": "REV-14/Model_Delta",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says diversity is measured by distinct n-grams."
+    },
+    {
+      "round": 2,
+      "id": "REV-14/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context says diversity is measured by distinct n-grams."
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five systems correctly."
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "The claim about short-message datasets is not stated in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-15",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five systems correctly."
+    },
+    {
+      "round": 2,
+      "id": "REV-15/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "CONTRADICTED",
+      "judge": "CONTRADICTED",
+      "reason": "Lists Google's Naive Bayes software as an extra system, though CLD2/CLD3 are its implementations among five systems."
+    },
+    {
+      "round": 2,
+      "id": "REV-15/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Lists the five systems correctly."
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "llama3.2:3b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states mBERT embeddings do not represent similar semantics similarly across languages."
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Second and third challenges are not in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-16",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states mBERT embeddings do not represent similar semantics similarly across languages."
+    },
+    {
+      "round": 2,
+      "id": "REV-16/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states mBERT embeddings do not represent similar semantics similarly across languages."
+    },
+    {
+      "round": 2,
+      "id": "REV-16/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context states mBERT embeddings do not represent similar semantics similarly across languages."
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "llama3.2:1b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Multi-cascaded Deep Model name is not in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Baseline is the BIBREF3 model."
+    },
+    {
+      "round": 1,
+      "id": "REV-17",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "BIBREF3 model chosen for its multilingual classification performance."
+    },
+    {
+      "round": 2,
+      "id": "REV-17/Model_Delta",
+      "model": "phi4-mini",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Multi-cascaded bilingual SMS description is not in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-17/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Baseline is the BIBREF3 model."
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Ternary Trans-CNN is stated."
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Architecture details match the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-18",
+      "model": "llama3.2:1b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Architecture details match the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-18/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Ternary Trans-CNN by Mathur et al. is stated."
+    },
+    {
+      "round": 2,
+      "id": "REV-18/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "All details match the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "qwen2.5:0.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "PDFs and Microsoft Word are stated."
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "llama3.2:1b",
+      "human": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "judge": "MISSING_INFO - UNJUSTIFIED_REFUSAL",
+      "reason": "Context names PDF and Word formats."
+    },
+    {
+      "round": 1,
+      "id": "REV-19",
+      "model": "llama3.2:3b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "Formats and plain-text conversion are stated."
+    },
+    {
+      "round": 2,
+      "id": "REV-19/Model_Delta",
+      "model": "qwen2.5:1.5b",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "PDFs and Microsoft Word are stated."
+    },
+    {
+      "round": 2,
+      "id": "REV-19/Model_Epsilon",
+      "model": "phi4-mini",
+      "human": "SUPPORTED",
+      "judge": "SUPPORTED",
+      "reason": "PDFs and Microsoft Word are stated."
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "qwen2.5:0.5b",
+      "human": "UNSUPPORTED",
+      "judge": "UNSUPPORTED",
+      "reason": "Listed genres do not appear in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "llama3.2:3b",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "The 14 genres are in a table not included in the context."
+    },
+    {
+      "round": 1,
+      "id": "REV-20",
+      "model": "llama3.2:1b",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "The 14 genres are in a table not included in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-20/Model_Delta",
+      "model": "phi4-mini",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "The 14 genres are in a table not included in the context."
+    },
+    {
+      "round": 2,
+      "id": "REV-20/Model_Epsilon",
+      "model": "qwen2.5:1.5b",
+      "human": "REFUSAL_VALID",
+      "judge": "REFUSAL_VALID",
+      "reason": "The 14 genres are in a table not included in the context."
+    }
+  ]
+}

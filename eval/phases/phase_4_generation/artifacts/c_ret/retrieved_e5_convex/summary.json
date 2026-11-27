@@ -27,7 +27,16 @@
           "token_f1": 0.0344,
           "refusal_rate": 0.5465
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 181,
+        "SUPPORTED": 228,
+        "REFUSAL_VALID": 72,
+        "MISSING_INFO - PARTIAL": 45,
+        "UNSUPPORTED": 23,
+        "CONTRADICTED": 18
+      },
+      "judge_n": 567
     },
     "qwen2.5:1.5b": {
       "n": 567,
@@ -55,7 +64,16 @@
           "token_f1": 0.0445,
           "refusal_rate": 0.2558
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - PARTIAL": 102,
+        "SUPPORTED": 279,
+        "REFUSAL_VALID": 31,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 30,
+        "UNSUPPORTED": 74,
+        "CONTRADICTED": 51
+      },
+      "judge_n": 567
     },
     "phi4-mini": {
       "n": 567,
@@ -83,7 +101,16 @@
           "token_f1": 0.0422,
           "refusal_rate": 0.7326
         }
-      }
+      },
+      "judge_labels": {
+        "SUPPORTED": 219,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 220,
+        "REFUSAL_VALID": 76,
+        "MISSING_INFO - PARTIAL": 25,
+        "UNSUPPORTED": 11,
+        "CONTRADICTED": 16
+      },
+      "judge_n": 567
     },
     "qwen3:4b-instruct-2507-q4_K_M": {
       "n": 567,
@@ -111,7 +138,16 @@
           "token_f1": 0.0184,
           "refusal_rate": 0.3953
         }
-      }
+      },
+      "judge_labels": {
+        "SUPPORTED": 347,
+        "CONTRADICTED": 13,
+        "REFUSAL_VALID": 70,
+        "UNSUPPORTED": 31,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 87,
+        "MISSING_INFO - PARTIAL": 19
+      },
+      "judge_n": 567
     },
     "gemma3:4b": {
       "n": 567,
@@ -139,7 +175,16 @@
           "token_f1": 0.027,
           "refusal_rate": 0.686
         }
-      }
+      },
+      "judge_labels": {
+        "SUPPORTED": 169,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 275,
+        "REFUSAL_VALID": 75,
+        "MISSING_INFO - PARTIAL": 27,
+        "UNSUPPORTED": 13,
+        "CONTRADICTED": 8
+      },
+      "judge_n": 567
     }
   }
 }

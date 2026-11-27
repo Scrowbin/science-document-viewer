@@ -7,3 +7,13 @@
 | phi4-mini | 181 | 0.0617 | 0.768 | 0.758 | – | 1.21 | 3.17 | 53.0 |
 | qwen3:4b-instruct-2507-q4_K_M | 181 | 0.0797 | 0.586 | 0.735 | – | 1.42 | 4.97 | 55.2 |
 | gemma3:4b | 181 | 0.0650 | 0.674 | 0.898 | – | 1.37 | 3.29 | 55.4 |
+
+## Judge labels
+
+| Model | SUPPORTED | MISSING_INFO - PARTIAL | MISSING_INFO - UNJUSTIFIED_REFUSAL | REFUSAL_VALID | UNSUPPORTED | CONTRADICTED |
+|---|---|---|---|---|---|---|
+| llama3.2:3b | 22 | 2 | 83 | 68 | 2 | 4 |
+| qwen2.5:1.5b | 41 | 10 | 16 | 22 | 49 | 43 |
+| phi4-mini | 30 | 5 | 70 | 68 | 4 | 4 |
+| qwen3:4b-instruct-2507-q4_K_M | 63 | 0 | 38 | 67 | 8 | 5 |
+| gemma3:4b | 40 | 9 | 63 | 59 | 4 | 6 |

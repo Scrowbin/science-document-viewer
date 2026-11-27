@@ -19,7 +19,7 @@ Template là công cụ để thực hiện Quy định, không thay thế Quy �
 | # | Mâu thuẫn | Đã chốt |
 |---|---|---|
 | 1 | Độ dài phần nội dung: Quy định ghi "tối thiểu 30 trang, không quá 80 trang" [QĐ mục 2.1], nhưng cũng ghi "tối thiểu 40 trang" [QĐ mục 3 (11)]. | Giữ phần nội dung trong khoảng **40–80 trang**, thỏa cả hai. Không tính bìa, danh mục, mục lục, tài liệu tham khảo và phụ lục. |
-| 2 | Trích dẫn 3 tác giả trở lên: [QĐ] dùng "Tran và cộng sự (2019)", còn ví dụ trong [TPL] dùng "(Vaswani et al., 2023)". | Theo [QĐ]: **"và cộng sự"**. Hai tác giả: **"A và B"**. |
+| 2 | Trích dẫn 3 tác giả trở lên: [QĐ] dùng "Tran và cộng sự (2019)", còn ví dụ trong [TPL] dùng "(Vaswani et al., 2023)". | Chốt ngày 27/11/2026 (quyết định của tác giả): trích dẫn trong bài theo **APA 7**, như ví dụ của [TPL]: "(Vaswani et al., 2017)", "(Reimers & Gurevych, 2019)" trong ngoặc; "Liu et al. (2024)", "Reimers and Gurevych (2019)" trong câu; nhiều nguồn trong một ngoặc xếp theo **thứ tự ABC** của họ tác giả. Mục 7 bên dưới ghi cách của [QĐ] để tham khảo. |
 | 3 | Vị trí chú thích hình. | Theo [QĐ] và [TPL]: **hình ghi chú thích phía dưới, bảng ghi chú thích phía trên.** |
 | 4 | Ví dụ ngoặc đơn nhiều tác giả trong [QĐ], "(Simon, Smith & West, 2009)", dùng "&", không thống nhất với ví dụ văn xuôi "Zhang và Hanks". | Trong câu văn tiếng Việt dùng "và". Ký hiệu "&" chỉ xuất hiện **trong danh mục tài liệu tham khảo** (định dạng APA). |
 | 5 | Số đề mục: ví dụ trong [QĐ] có dấu chấm cuối ("4.1.", "4.1.1."), còn đánh số tự động của [TPL] thì không ("1.1", "2.1.1"). | Chọn **một** kiểu và dùng thống nhất toàn quyển. Ưu tiên đánh số tự động của template; không gõ số tay trộn lẫn với số tự động. |

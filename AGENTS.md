@@ -173,6 +173,7 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   only a future extension in the thesis (`docs/design/DEPLOYMENT_PLAN.md`).
 * Evaluation (four phases, `eval/README.md`): Phase 1 extraction (OHR-Bench), Phase 2
   chunking × embedding (C-RET and PeerQA) and Phase 3 (BM25, fusion, reranking) are done;
-  Phase 4 (LLMs, gold vs retrieved) needs a Kaggle rerun (`eval/kaggle/`), then the judge pass
-  (Claude Opus 5.5 on exported, blinded prompts; validated on the 100 human labels).
+  Phase 4 (LLMs, gold vs four retrieved pipelines, C-RET and PeerQA) is done, including the judge
+  pass (Claude Opus 5.5 on exported, blinded prompts; single and batched prompts, both validated on
+  the 100 human labels); results and the model choice are in `eval/README.md` and thesis Chapter 5.
   The 16-configuration combination run was dropped (archived).

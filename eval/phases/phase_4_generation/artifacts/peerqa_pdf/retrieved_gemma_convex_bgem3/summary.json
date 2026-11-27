@@ -17,7 +17,16 @@
           "token_f1": 0.0432,
           "refusal_rate": 0.8011
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 55,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 89,
+        "SUPPORTED": 24,
+        "MISSING_INFO - PARTIAL": 3,
+        "CONTRADICTED": 4,
+        "UNSUPPORTED": 6
+      },
+      "judge_n": 181
     },
     "qwen2.5:1.5b": {
       "n": 181,
@@ -35,7 +44,16 @@
           "token_f1": 0.1687,
           "refusal_rate": 0.1657
         }
-      }
+      },
+      "judge_labels": {
+        "SUPPORTED": 45,
+        "UNSUPPORTED": 54,
+        "MISSING_INFO - PARTIAL": 23,
+        "CONTRADICTED": 28,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 16,
+        "REFUSAL_VALID": 15
+      },
+      "judge_n": 181
     },
     "phi4-mini": {
       "n": 181,
@@ -53,7 +71,16 @@
           "token_f1": 0.0678,
           "refusal_rate": 0.7182
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 58,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 72,
+        "SUPPORTED": 36,
+        "MISSING_INFO - PARTIAL": 6,
+        "CONTRADICTED": 5,
+        "UNSUPPORTED": 4
+      },
+      "judge_n": 181
     },
     "qwen3:4b-instruct-2507-q4_K_M": {
       "n": 181,
@@ -71,7 +98,16 @@
           "token_f1": 0.0977,
           "refusal_rate": 0.547
         }
-      }
+      },
+      "judge_labels": {
+        "REFUSAL_VALID": 53,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 46,
+        "UNSUPPORTED": 11,
+        "SUPPORTED": 66,
+        "CONTRADICTED": 4,
+        "MISSING_INFO - PARTIAL": 1
+      },
+      "judge_n": 181
     },
     "gemma3:4b": {
       "n": 181,
@@ -89,7 +125,16 @@
           "token_f1": 0.0755,
           "refusal_rate": 0.6685
         }
-      }
+      },
+      "judge_labels": {
+        "SUPPORTED": 39,
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 74,
+        "REFUSAL_VALID": 47,
+        "MISSING_INFO - PARTIAL": 13,
+        "CONTRADICTED": 4,
+        "UNSUPPORTED": 4
+      },
+      "judge_n": 181
     }
   }
 }

@@ -97,7 +97,16 @@
           "token_f1": 0.0569,
           "refusal_rate": 0.779
         }
-      }
+      },
+      "judge_labels": {
+        "MISSING_INFO - UNJUSTIFIED_REFUSAL": 72,
+        "SUPPORTED": 36,
+        "UNSUPPORTED": 2,
+        "REFUSAL_VALID": 68,
+        "MISSING_INFO - PARTIAL": 1,
+        "CONTRADICTED": 2
+      },
+      "judge_n": 181
     },
     "gemma3:4b": {
       "n": 181,

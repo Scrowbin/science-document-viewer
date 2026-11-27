@@ -261,6 +261,81 @@ def fig_human():
     save(fig, "fig5_11_human_check.png")
 
 
+# ----------------------------------------------------------------------------- phase 4: generation
+P4 = PH / "phase_4_generation/artifacts/summary.json"
+P4_MODELS = [("llama3.2:3b", "llama3.2:3b"), ("qwen2.5:1.5b", "qwen2.5:1.5b"), ("phi4-mini", "phi4-mini"),
+             ("qwen3:4b-instruct-2507-q4_K_M", "qwen3:4b"), ("gemma3:4b", "gemma3:4b")]
+P4_PANELS = [("c_ret", "gold", "C-RET, bằng chứng chuẩn"), ("c_ret", "retrieved_gemma_dense", "C-RET, ngữ cảnh truy xuất"),
+             ("peerqa_pdf", "gold", "PeerQA, bằng chứng chuẩn"),
+             ("peerqa_pdf", "retrieved_gemma_dense", "PeerQA, ngữ cảnh truy xuất")]
+P4_CATS = [("Có căn cứ", ["SUPPORTED"]), ("Đúng một phần", ["MISSING_INFO - PARTIAL"]),
+           ("Không căn cứ / mâu thuẫn", ["UNSUPPORTED", "CONTRADICTED"]),
+           ("Từ chối hợp lệ", ["REFUSAL_VALID"]), ("Từ chối không cần thiết", ["MISSING_INFO - UNJUSTIFIED_REFUSAL"])]
+
+
+def fig_phase4_labels():
+    """Phase 4: share of judge labels per model, gold vs retrieved (embeddinggemma dense), both datasets."""
+    s = J(P4)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 5.2), sharex=True)
+    y = np.arange(len(P4_MODELS))[::-1]
+    for ax, (cohort, cond, title) in zip(axes.flat, P4_PANELS):
+        d = s[cohort][cond]
+        left = np.zeros(len(P4_MODELS))
+        for j, (lab, keys) in enumerate(P4_CATS):
+            v = np.array([sum(d[m]["judge_labels"].get(k, 0) for k in keys) / d[m]["judge_n"] for m, _ in P4_MODELS])
+            ax.barh(y, v, left=left, color=C[j], label=lab, edgecolor=SURF, linewidth=1.5, height=0.62)
+            for yi, l0, vi in zip(y, left, v):
+                if vi >= 0.08:
+                    ax.text(l0 + vi / 2, yi, f"{vi:.0%}", ha="center", va="center", fontsize=7,
+                            color="white" if j in (0, 1) else INK)
+            left += v
+        n = d[P4_MODELS[0][0]]["judge_n"]
+        ax.set_title(f"{title} ({n} câu hỏi)", fontsize=9, color=INK)
+        ax.set_yticks(y, [name for _, name in P4_MODELS])
+        ax.set_xlim(0, 1)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        ax.grid(axis="y", visible=False)
+    for ax in axes[1]:
+        ax.set_xlabel("Tỷ lệ câu trả lời theo nhãn của mô hình chấm")
+    h, lab = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="upper center", ncol=5, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.savefig(OUT / "fig5_12_phase4_labels.png", dpi=300)
+    plt.close(fig)
+    print("wrote fig5_12_phase4_labels.png")
+
+
+def fig_phase4_gap():
+    """Phase 4: Token F1 and refusal rate per model, gold vs retrieved context (embeddinggemma dense)."""
+    s = J(P4)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 4.6))
+    y = np.arange(len(P4_MODELS))[::-1]
+    for r, (cohort, name) in enumerate([("c_ret", "C-RET"), ("peerqa_pdf", "PeerQA")]):
+        for c, (key, xlabel, fmt) in enumerate([("token_f1", "Token F1", "{:.2f}"), ("refusal_rate", "Tỷ lệ từ chối", "{:.0%}")]):
+            ax = axes[r, c]
+            g = [s[cohort]["gold"][m][key] for m, _ in P4_MODELS]
+            t = [s[cohort]["retrieved_gemma_dense"][m][key] for m, _ in P4_MODELS]
+            for yi, a, b in zip(y, g, t):
+                ax.plot([a, b], [yi, yi], color=GREY, linewidth=2, zorder=1)
+            ax.scatter(g, y, s=46, color=C[0], edgecolor=SURF, linewidth=2, zorder=3, label="Bằng chứng chuẩn")
+            ax.scatter(t, y, s=46, color=C[1], edgecolor=SURF, linewidth=2, zorder=3, label="Ngữ cảnh truy xuất")
+            ax.set_yticks(y, [nm for _, nm in P4_MODELS] if c == 0 else [""] * len(y))
+            ax.tick_params(axis="y", length=0)
+            ax.grid(axis="y", visible=False)
+            ax.set_title(f"{name}: {xlabel}", fontsize=9, color=INK)
+            if key == "refusal_rate":
+                ax.set_xlim(0, 1)
+                ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+            else:
+                ax.set_xlim(0, 0.3)
+    h, lab = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="upper center", ncol=2, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.savefig(OUT / "fig5_13_phase4_gold_vs_retrieved.png", dpi=300)
+    plt.close(fig)
+    print("wrote fig5_13_phase4_gold_vs_retrieved.png")
+
+
 if __name__ == "__main__":
     fig_qasper()
     fig_extraction()
@@ -269,3 +344,5 @@ if __name__ == "__main__":
     fig_phase3_tradeoff()
     fig_generation()
     fig_human()
+    fig_phase4_labels()
+    fig_phase4_gap()

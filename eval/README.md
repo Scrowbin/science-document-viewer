@@ -168,7 +168,44 @@ Script `phases/phase_4_generation/scripts/evaluate_llm_generation.py`; notebook 
 - **Status (2026-11-17):**
   - First Kaggle run: only PeerQA `gold` is valid (llama3.2:3b, qwen2.5:1.5b, phi4-mini, gemma3:4b). The datasets were not attached, so C-RET had 0 questions and PeerQA `retrieved` sent 166/181 questions an empty context; qwen3 leaked its reasoning. These outputs are kept in `artifacts/_invalid_run_2026-11-17/` (see its README) and are not used.
   - The script now stops when the QASPER JSON or the PeerQA PDFs are missing or a context is empty (`--allow-missing-context` skips and reports them instead), and records `context_tokens` and a `reasoning_leak` flag. The notebook checks both datasets before running.
-  - Pending: rerun of C-RET (gold, retrieved), PeerQA retrieved, and qwen3 on PeerQA gold; then the judge pass (judge validation is done, see above).
+  - Rerun (2026-11-26/27): C-RET `gold` and four retrieved pipelines (`gemma:dense`, the Phase 3 choice; `gemma:convex`; `gemma:convex+bgem3`; `e5:convex`, the application's chat retrieval), PeerQA the same four pipelines, and qwen3 on PeerQA `gold`. 18,700 answers, 0 generation errors.
+- **Batched judge prompt.** `JUDGE_BATCH_PROMPT` (`judge_batch`) judges the answers of all models to one (context, question) together; answer order is shuffled with seed `42:{paper_id}:{question_id}`; a group with one answer uses `JUDGE_PROMPT`. Validation on the same 100 human labels (Claude Opus 5.5, `artifacts/judge_validation_batched_claude-opus-5-5.json`): 82/100 (6 labels), 93/100 (3 classes), 0 invalid outputs.
+  - Labels by prompt: `JUDGE_PROMPT` for 6,394 answers (C-RET `gold` and `retrieved_gemma_dense`, PeerQA `gold` of four models); `JUDGE_BATCH_PROMPT` for the other 12,306 (C-RET `gemma_convex`, `gemma_convex_bgem3`, `e5_convex`, all PeerQA retrieved, qwen3 on PeerQA `gold`). Every `per_query.jsonl` row has exactly one judge label.
+
+### 7.0 Results (judge: Claude Opus 5.5; latency on the Kaggle GPU)
+
+Gold evidence → retrieved context (`gemma:dense`). "Supported" = SUPPORTED; "unsup." = UNSUPPORTED + CONTRADICTED. Source: `artifacts/summary.json`; figures `reports/thesis_figures/fig5_12_phase4_labels.png`, `fig5_13_phase4_gold_vs_retrieved.png`.
+
+C-RET (567 questions):
+
+| Model | Token F1 | Refusal | Supported | Unsup. | Yes/No correct (86) | P50 |
+|---|---|---|---|---|---|---|
+| llama3.2:3b | 0.196 → 0.153 | 45.9% → 43.6% | 41.3% → 40.0% | 6.3% → 8.8% | 24 → 29 | 0.40 → 1.06 s |
+| qwen2.5:1.5b | 0.250 → 0.218 | 27.7% → 9.9% | 46.6% → 48.1% | 13.4% → 23.6% | 23 → 40 | 0.26 → 0.69 s |
+| phi4-mini | 0.238 → 0.170 | 48.7% → 53.1% | 43.7% → 36.0% | 3.5% → 3.7% | 26 → 17 | 0.45 → 1.19 s |
+| qwen3:4b | 0.238 → 0.185 | 36.7% → 25.8% | 54.5% → 62.1% | 4.8% → 7.6% | 38 → 37 | 0.58 → 2.03 s |
+| gemma3:4b | 0.118 → 0.105 | 75.3% → 64.4% | 19.8% → 27.2% | 0.5% → 2.1% | 0 → 13 | 0.48 → 1.28 s |
+
+PeerQA (181 questions with an author answer):
+
+| Model | Token F1 | Refusal | Supported | Unsup. | P50 |
+|---|---|---|---|---|---|
+| llama3.2:3b | 0.036 → 0.040 | 85.1% → 82.3% | 11.0% → 12.2% | 3.3% → 3.3% | 0.25 → 1.00 s |
+| qwen2.5:1.5b | 0.122 → 0.164 | 54.1% → 18.8% | 27.6% → 22.7% | 12.2% → 50.8% | 0.18 → 0.91 s |
+| phi4-mini | 0.057 → 0.062 | 81.8% → 76.8% | 17.1% → 16.6% | 1.1% → 4.4% | 0.34 → 1.21 s |
+| qwen3:4b | 0.057 → 0.080 | 77.9% → 58.6% | 19.9% → 34.8% | 2.2% → 7.2% | 0.36 → 1.42 s |
+| gemma3:4b | 0.046 → 0.065 | 85.6% → 67.4% | 11.6% → 22.1% | 0.6% → 5.5% | 0.41 → 1.37 s |
+
+Supported share by retrieval pipeline, all five models pooled (C-RET / PeerQA): `gemma:dense` 42.7% / 21.7%, `gemma:convex` 44.8% / 21.3%, `gemma:convex+bgem3` 43.7% / 23.2%, `e5:convex` 43.8% / 20.4%. Per model, no pipeline is best for every model.
+
+**Theory vs result.**
+- Newer models ground better: true for qwen3:4b (highest supported share in 3 of 4 settings, unsupported 2.2–7.6%), not for gemma3:4b, which refuses 64–86% of questions and has about half of its C-RET answers labelled unjustified refusals. Probe (`artifacts/gemma_refusal_probe/`, 50 C-RET gold questions): with a softer refusal instruction gemma's refusal rate falls from 72% to 52% and Yes/No accuracy rises from 0/8 to 4/8, so its refusals follow from how it obeys the application's strict refusal line.
+- Token F1 does not track groundedness: qwen2.5:1.5b has the highest F1 and the most unsupported answers (23.6% C-RET, 50.8% PeerQA, retrieved).
+- Retrieved context lowers C-RET Token F1 (by 0.013–0.068) as expected, but does not raise refusals (4 of 5 models refuse less). Supported explanation: REFUSAL_VALID falls from 12–18% (gold) to 5–12% (retrieved), so the bare QASPER evidence passages often lack the answer while whole retrieved sections carry the surrounding text. Why F1 falls while the supported share does not (different wording from the reference) was not tested.
+- PeerQA gold evidence is very short (median 348 characters vs 5,639 for retrieved context) and 34–40% of gold answers are valid refusals, so retrieved context gives higher F1 and fewer refusals for every model.
+- The retrieval pipeline has little effect (pooled supported share within 2.1 points on C-RET, 2.8 on PeerQA). On C-RET `gemma:dense` uses the single-answer prompt and the other pipelines the batched one, so part of these small gaps may come from the prompt.
+
+**Choice:** `qwen3:4b-instruct-2507` (highest supported share with retrieved context on both datasets, few unsupported answers; slowest on the GPU, P50 about 2 s). `llama3.2:3b` stays as the local CPU fallback; qwen3:4b latency on CPU was not measured.
 
 ### 7.1 Preliminary study (CPU, gold evidence)
 
@@ -200,7 +237,7 @@ backend/venv/Scripts/python.exe eval/phases/phase_4_generation/scripts/evaluate_
 - Methods are chosen and evaluated on the same C-RET papers; QASPER is NLP/ML only; PeerQA is a small check on a different question style.
 - Phase 1 uses a different, multi-domain dataset; its conclusion was checked on the academic subset.
 - Phases 2–4 use QASPER's own text, so extraction errors of the application are not included.
-- Automatic metrics are lexical; the LLM judge is validated on only 100 answers from one reviewer.
+- Automatic metrics are lexical; the LLM judge is validated on only 100 answers from one reviewer, and two judge prompts (single and batched) label different parts of Phase 4.
 - Phases 2–4 latencies are measured on a Kaggle GPU, not on the application's CPU.
 
 ## 10. References and models
@@ -209,4 +246,4 @@ backend/venv/Scripts/python.exe eval/phases/phase_4_generation/scripts/evaluate_
 [2] Dasigi, P. et al. (2021). A dataset of information-seeking questions and answers anchored in research papers (QASPER). NAACL.
 [3] Baumgärtner, T., Briscoe, T., & Gurevych, I. (2025). PeerQA. NAACL.
 
-Models: `intfloat/e5-small-v2`, `Snowflake/snowflake-arctic-embed-s`, `nomic-ai/modernbert-embed-base`, `google/embeddinggemma-300m`, `Qwen/Qwen3-Embedding-0.6B`; rerankers `cross-encoder/ms-marco-MiniLM-L6-v2`, `BAAI/bge-reranker-v2-m3`; LLMs via Ollama `llama3.2:3b`, `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b`, `gemma3:4b`, judge `gemini-2.5-flash` (Gemini API). Prefixes and instructions per model are in `rag_service.MODEL_PREFIX_SPECS`.
+Models: `intfloat/e5-small-v2`, `Snowflake/snowflake-arctic-embed-s`, `nomic-ai/modernbert-embed-base`, `google/embeddinggemma-300m`, `Qwen/Qwen3-Embedding-0.6B`; rerankers `cross-encoder/ms-marco-MiniLM-L6-v2`, `BAAI/bge-reranker-v2-m3`; LLMs via Ollama `llama3.2:3b`, `qwen2.5:1.5b`, `phi4-mini`, `qwen3:4b`, `gemma3:4b`, judge Claude Opus 5.5 (`claude-opus-5-5`; the Gemini path `gemini-2.5-flash` is still in the script but produced no labels). Prefixes and instructions per model are in `rag_service.MODEL_PREFIX_SPECS`.
