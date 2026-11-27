@@ -4,7 +4,7 @@ import type { Document, SortKey, SortState, Collection } from '../../types';
 import { flattenCollections } from '../../utils/collections';
 import type { RowSelectModifiers } from '../../hooks/useDocumentSelection';
 import type { BulkActionHandlers } from '../BulkActions/BulkActions';
-import { formatDateTime } from '../../utils/format';
+import { formatDateTime, getDocumentPaperUrl } from '../../utils/format';
 import { setDocumentDragImage } from '../../utils/dragImage';
 import {
   FaFileLines,
@@ -26,6 +26,8 @@ import {
   FaFolderMinus,
   FaRotateRight,
   FaBook,
+  FaDownload,
+  FaArrowUpRightFromSquare,
 } from 'react-icons/fa6';
 
 /** drag-and-drop payload type carrying a JSON array of document ids. */
@@ -57,6 +59,8 @@ export interface DocumentTableProps {
   onInspectChunks?: (doc: Document) => void;
   /** Re-run AI indexing for a document whose indexing failed. */
   onRetryIndexing?: (doc: Document) => void;
+  /** Locate and download an open-access PDF for a DOI/URL document without a file. */
+  onFindFullText?: (doc: Document) => void;
   isTrashView?: boolean;
   isLoading?: boolean;
   /** Text for the empty table (why nothing is shown and what to do). */
@@ -172,6 +176,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onAddTag,
   onInspectChunks,
   onRetryIndexing,
+  onFindFullText,
   isTrashView = false,
   isLoading = false,
   emptyMessage,
@@ -478,19 +483,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                         >
                           <FaRotateLeft aria-hidden="true" /> Restore
                         </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className={styles.openPdfActionBtn}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenPdf(doc);
-                          }}
-                          title={doc.file ? 'Open PDF Viewer' : 'Preview Metadata in Viewer'}
-                        >
-                          <FaFilePdf aria-hidden="true" /> {doc.file ? 'Open PDF' : 'Preview'}
-                        </button>
-                      )}
+                      ) : null}
                     </div>
                   </td>
                   <td className={styles.td}>{doc.creator || '—'}</td>
@@ -618,10 +611,26 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
           onClick={(e) => e.stopPropagation()}
           onKeyDown={handleMenuKeyDown}
         >
-          {!contextMenu.doc.inTrash && (
+          {!contextMenu.doc.inTrash && (contextMenu.doc.file || getDocumentPaperUrl(contextMenu.doc)) && (
             <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onOpenPdf(contextMenu.doc))}>
-              <FaFilePdf aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
-              <span>Open in New Tab</span>
+              {contextMenu.doc.file ? (
+                <>
+                  <FaFilePdf aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
+                  <span>Open in New Tab</span>
+                </>
+              ) : (
+                <>
+                  <FaArrowUpRightFromSquare aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
+                  <span>Open Paper Website</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {!contextMenu.doc.inTrash && !contextMenu.doc.file && onFindFullText && (
+            <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onFindFullText(contextMenu.doc))}>
+              <FaDownload aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
+              <span>Find Full Text</span>
             </div>
           )}
 

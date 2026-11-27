@@ -1,0 +1,32 @@
+remove database password similarity check (password been used too many times)
+new tabs have these _tabShortcutBadge_b30r9_68 shits, remove ^, keep only the numbering
+remove preview button on documents 
+
+ON DOI document add, if document havent been uploaded, user behavior is clicking on that document, boot up the arxiv/ site correlating to that paper 
+On DOI document add, download that document on right click > find full text
+metadata info page and ai assistant page is merged, selectable via tabs
+Get the chunks button on the pdf reader toolbar
+On document open, auto collapse metadata  and library tab and zoom in document at 174%.
+remove openpdf button on pdf reader toolbar when other document is being opened
+last read function doesnt work
+
+add a search bar to tags
+=====
+The retrieve passage click to show in pdf part inside the right sidebar doesnt work, but the one on the pdf reader toolbar does
+remove ai assistant button on the toolbar
+rename the collapseable right side bar from METADATA to METADATA and AI
+notes on hover, display a preview of the notes
+remove the default pdf viewer tab 
+remove the Open PDF button
+the connected status isnt working properly, i dont have my ollama instance opened yet.
+====
+move notes into the same metadata & ai tab
+retrieve passage show in pdf button inside right sidebar keep collapsing the sidebar, stop that behavior.
+when the lm hasnt answered in time, remove the dot inside the yellow relevant exempt message box.
+remove these "what problem does this paper solve bts".
+on hover on the offline status, display clearly that the LM is offline or backend or sum
+
+
+
+=== UNRESOLVED ===
+This password is too common

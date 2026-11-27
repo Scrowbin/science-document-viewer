@@ -6,7 +6,6 @@ import {
   pageRectToCss,
   type PageRect,
 } from '../../utils/citationGeometry';
-import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
 import { documentsApi } from '../../api/documentsApi';
 import { describeApiError } from '../../hooks/useDocuments';
 import { resolveFileUrl } from './pdfAssets';
@@ -17,7 +16,6 @@ import { useFind } from './useFind';
 import { PdfPages } from './PdfPages';
 import { ViewerToolbar } from './ViewerToolbar';
 import { FindBar } from './FindBar';
-import { AnnotationsList } from './AnnotationsList';
 import { ViewerContextMenu, type ContextMenuState, type PagePoint } from './ViewerContextMenu';
 import { ViewerLinkService, type LinkTarget } from './linkService';
 import { caretFromPoint, rangeText } from './textLayerSelection';
@@ -34,9 +32,6 @@ import {
   DEFAULT_NOTE_COLOR,
   HIGHLIGHT_COLORS,
   PIN_SIZE,
-  SIDEBAR_DEFAULT_WIDTH,
-  SIDEBAR_MAX_WIDTH,
-  SIDEBAR_MIN_WIDTH,
   safeCssColor,
   type Tool,
 } from './viewerConstants';
@@ -45,11 +40,8 @@ import 'pdfjs-dist/web/pdf_viewer.css';
 
 import {
   FaNoteSticky,
-  FaAnglesRight,
-  FaAnglesLeft,
   FaCopy,
   FaFolderOpen,
-  FaEraser,
   FaRobot,
   FaTriangleExclamation,
   FaRotateRight,
@@ -60,35 +52,14 @@ export interface PdfViewerProps {
   document: Document;
   /** Called after a PDF was uploaded for a metadata-only entry. */
   onFileAttached?: (docId: string) => void | Promise<void>;
+  /** Open the Chunk Inspector modal for this document. */
+  onInspectChunks?: (doc: Document) => void;
+  /** External jump-to-page/citation request (e.g. from the right sidebar AI tab). */
+  jumpRequest?: { page: number; source?: ChatSource; seq: number } | null;
 }
 
-type SidebarTab = 'annotations' | 'ai';
-
-interface SidebarLayout {
-  collapsed: boolean;
-  customWidth: number | null;
-  tab: SidebarTab;
-}
-
-/** Sidebar layout for this browser session (module level: survives the viewer unmounting). */
-let savedLayout: SidebarLayout | null = null;
-
-/**
- * Public component. Layout preferences (sidebar width/collapse/tab) survive document switches;
- * everything document-specific lives in `PdfViewerInner`, which is keyed on the document id so
- * popups, menus, citations, find state and annotations reset on document change.
- */
-export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc, onFileAttached }) => {
-  const [layout, setLayout] = useState<SidebarLayout>(() => savedLayout ?? {
-    collapsed: typeof window !== 'undefined' ? window.innerWidth < 850 : false,
-    customWidth: null,
-    tab: 'annotations',
-  });
-  // The viewer unmounts on the Library tab; keep the panel as the user left it.
-  useEffect(() => {
-    savedLayout = layout;
-  }, [layout]);
-  return <PdfViewerInner key={doc.id} doc={doc} layout={layout} setLayout={setLayout} onFileAttached={onFileAttached} />;
+export const PdfViewer: React.FC<PdfViewerProps> = ({ document: doc, onFileAttached, onInspectChunks, jumpRequest }) => {
+  return <PdfViewerInner key={doc.id} doc={doc} onFileAttached={onFileAttached} onInspectChunks={onInspectChunks} jumpRequest={jumpRequest} />;
 };
 
 // ─── Per-document view memory (page + zoom survive tab switches) ────────────
@@ -156,9 +127,9 @@ interface CitationState {
 
 interface InnerProps {
   doc: Document;
-  layout: SidebarLayout;
-  setLayout: React.Dispatch<React.SetStateAction<SidebarLayout>>;
   onFileAttached?: (docId: string) => void | Promise<void>;
+  onInspectChunks?: (doc: Document) => void;
+  jumpRequest?: { page: number; source?: ChatSource; seq: number } | null;
 }
 
 const NO_ANNOTATIONS: Annotation[] = [];
@@ -171,7 +142,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return !!el.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || el.isContentEditable;
 }
 
-const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAttached }) => {
+const PdfViewerInner: React.FC<InnerProps> = ({ doc, onFileAttached, onInspectChunks, jumpRequest }) => {
   // ─── Source & loading ──────────────────────────────────────────────────────
   /** A PDF opened from disk is a read-only preview: notes and AI stay with the library document. */
   const [localFileOverride, setLocalFileOverride] = useState<string | null>(null);
@@ -199,7 +170,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
   // ─── Refs & page element registry ──────────────────────────────────────────
   const viewerWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
-  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const pageElsRef = useRef(new Map<number, HTMLDivElement>());
   const dragCleanupRef = useRef<(() => void) | null>(null);
@@ -796,72 +766,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
     setNoteEditor(null);
   };
 
-  const jumpToAnnotation = (anno: Annotation) => {
-    if (anno.id !== undefined) setActiveAnnotationId(anno.id);
-    const pageIndex = anno.page_number - 1;
-    if (pageIndex < 0 || pageIndex >= numPages) return;
-    setCurrentPageIndex(pageIndex);
-    const r = anno.rects[0];
-    scrollToPage(pageIndex, r ? (anno.type === 'note' ? r.y1 - PIN_SIZE : r.y1) : undefined, r?.x1, 'smooth');
-  };
-
-  // ─── Sidebar layout ────────────────────────────────────────────────────────
-  const [wrapperWidth, setWrapperWidth] = useState<number>(() => (typeof window !== 'undefined' ? window.innerWidth : 1200));
-  const [isDraggingSidebar, setIsDraggingSidebar] = useState(false);
-
-  useEffect(() => {
-    const el = viewerWrapperRef.current;
-    if (!el) return;
-    let prevW = el.clientWidth || window.innerWidth;
-    const observer = new ResizeObserver((entries) => {
-      const w = entries[0]?.contentRect.width ?? 0;
-      if (w <= 0) return;
-      setWrapperWidth(w);
-      if (w < 580 && prevW >= 580) setLayout((l) => ({ ...l, collapsed: true }));
-      else if (w >= 580 && prevW < 580) setLayout((l) => ({ ...l, collapsed: false }));
-      prevW = w;
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [setLayout]);
-
-  const effectiveSidebarWidth = (() => {
-    if (layout.customWidth !== null) {
-      return Math.min(layout.customWidth, Math.max(SIDEBAR_MIN_WIDTH, Math.floor(wrapperWidth * 0.45)));
-    }
-    if (wrapperWidth >= 1100) return SIDEBAR_DEFAULT_WIDTH;
-    if (wrapperWidth >= 850) return 275;
-    return 235;
-  })();
-
-  const handleSidebarResizeMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDraggingSidebar(true);
-    const startX = e.clientX;
-    const startWidth = effectiveSidebarWidth;
-    const onMove = (me: MouseEvent) => {
-      const width = Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, startWidth + (startX - me.clientX)));
-      setLayout((l) => ({ ...l, customWidth: width }));
-    };
-    const cleanup = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      dragCleanupRef.current = null;
-    };
-    const onUp = () => {
-      cleanup();
-      setIsDraggingSidebar(false);
-    };
-    dragCleanupRef.current?.();
-    dragCleanupRef.current = cleanup;
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-  };
-
   // ─── Find in document ──────────────────────────────────────────────────────
   const [findOpen, setFindOpen] = useState(false);
   const [findFocusToken, setFindFocusToken] = useState(0);
@@ -1010,6 +914,14 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
     return () => cancelAnimationFrame(frame);
   }, [ready, jumpToPage]);
 
+  // Execute external citation jumps (e.g. from the right sidebar AI Assistant tab).
+  const lastJumpSeqRef = useRef(0);
+  useEffect(() => {
+    if (!jumpRequest || jumpRequest.seq === lastJumpSeqRef.current) return;
+    lastJumpSeqRef.current = jumpRequest.seq;
+    jumpToPage(jumpRequest.page, jumpRequest.source);
+  }, [jumpRequest, jumpToPage]);
+
   /** Citation rects per page (page space). */
   const citationRects = useMemo(() => {
     const out = new Map<number, PageRect[]>();
@@ -1069,8 +981,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
       goBackFromLink();
       return;
     }
-    // Shortcuts below apply to the document area, not the AI/notes sidebar.
-    if (sidebarRef.current?.contains(e.target as Node)) return;
 
     if (mod && key === 'f') {
       e.preventDefault();
@@ -1137,7 +1047,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
     setCitation(null);
     setSelectionPopup(null);
     setNoteEditor(null);
-    setLayout((l) => (l.tab === 'ai' ? { ...l, tab: 'annotations' } : l));
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -1216,6 +1125,11 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
                 onContextMenu={(e) => openAnnotationMenu(anno, e)}
               >
                 <FaNoteSticky />
+                {anno.comment && (
+                  <div className={styles.stickyPinPreview} role="tooltip">
+                    {anno.comment}
+                  </div>
+                )}
               </div>
             );
           }
@@ -1355,7 +1269,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
   };
 
   // ─── Render ────────────────────────────────────────────────────────────────
-  const aiPanelOpen = layout.tab === 'ai' && !layout.collapsed;
   const viewerCursor = tool === 'note' ? 'crosshair' : undefined;
 
   return (
@@ -1388,9 +1301,7 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
         onFitPage={() => zoom.setFitMode('fit-page')}
         findOpen={findOpen}
         onToggleFind={() => (findOpen ? closeFind() : openFind())}
-        onOpenFile={() => fileInputRef.current?.click()}
-        aiActive={aiPanelOpen}
-        onOpenAi={() => setLayout((l) => ({ ...l, tab: 'ai', collapsed: false }))}
+        onInspectChunks={onInspectChunks ? () => onInspectChunks(doc) : undefined}
       />
 
       <div className={styles.pdfBody}>
@@ -1543,98 +1454,6 @@ const PdfViewerInner: React.FC<InnerProps> = ({ doc, layout, setLayout, onFileAt
             )}
           </div>
         </div>
-
-        {/* Annotations / AI sidebar — collapsible + resizable */}
-        {!layout.collapsed ? (
-          <>
-            <div
-              className={`${styles.sidebarResizeHandle} ${isDraggingSidebar ? styles.sidebarResizeHandleActive : ''}`}
-              onMouseDown={handleSidebarResizeMouseDown}
-              onDoubleClick={() => setLayout((l) => ({ ...l, customWidth: null }))}
-              title="Drag to resize the panel, double-click to reset auto-width"
-            />
-            <div
-              ref={sidebarRef}
-              className={styles.pdfNotesSidebar}
-              style={{ width: effectiveSidebarWidth, transition: isDraggingSidebar ? 'none' : 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
-            >
-              <div className={styles.pdfNotesHeader}>
-                <div className={styles.sidebarTabGroup}>
-                  <button
-                    type="button"
-                    className={`${styles.sidebarTabBtn} ${layout.tab === 'annotations' ? styles.sidebarTabBtnActive : ''}`}
-                    onClick={() => setLayout((l) => ({ ...l, tab: 'annotations' }))}
-                  >
-                    <FaNoteSticky style={{ fontSize: 10 }} />
-                    <span>Notes ({annotations.length})</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.sidebarTabBtn} ${layout.tab === 'ai' ? styles.sidebarTabBtnActive : ''}`}
-                    onClick={() => setLayout((l) => ({ ...l, tab: 'ai' }))}
-                  >
-                    <FaRobot style={{ fontSize: 10 }} />
-                    <span>AI Assistant</span>
-                  </button>
-                </div>
-
-                <div className={styles.sidebarHeaderActions}>
-                  {layout.tab === 'annotations' && hasHighlights && (
-                    <button type="button" className={styles.clearHighlightsBtn} onClick={clearAllHighlights} title="Clear all highlights in this document">
-                      <FaEraser />
-                      <span>Clear Highlights</span>
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.sidebarCollapseBtn}
-                    onClick={() => setLayout((l) => ({ ...l, collapsed: true }))}
-                    title="Collapse panel"
-                    aria-label="Collapse panel"
-                  >
-                    <FaAnglesRight />
-                  </button>
-                </div>
-              </div>
-
-              {layout.tab === 'ai' && isLocalPreview ? (
-                <div className={styles.viewerStatus} role="status">
-                  <div className={styles.viewerStatusText}>
-                    The AI assistant answers from “{doc.title}”. Go back to the document, or import this file to ask about it.
-                  </div>
-                </div>
-              ) : layout.tab === 'ai' ? (
-                <div className={styles.aiSidebarBody}>
-                  <AiChatPanel
-                    key={doc.id}
-                    document={doc}
-                    onJumpToPage={jumpToPage}
-                    activeCitationChunkId={citation?.chunkId}
-                    onClose={() => setLayout((l) => ({ ...l, collapsed: true }))}
-                    onClearCitation={() => setCitation(null)}
-                  />
-                </div>
-              ) : (
-                <AnnotationsList
-                  annotations={annotations}
-                  activeId={activeAnnotationId}
-                  onSelect={jumpToAnnotation}
-                  onDelete={(anno) => anno.id !== undefined && deleteAnnotation(anno.id)}
-                />
-              )}
-            </div>
-          </>
-        ) : (
-          <button
-            type="button"
-            className={styles.sidebarExpandBtn}
-            onClick={() => setLayout((l) => ({ ...l, collapsed: false }))}
-            title={`Expand annotations panel (${annotations.length} annotation${annotations.length !== 1 ? 's' : ''})`}
-          >
-            <FaAnglesLeft />
-            {annotations.length > 0 && <span className={styles.sidebarExpandCount}>{annotations.length}</span>}
-          </button>
-        )}
       </div>
 
       {contextMenu && (

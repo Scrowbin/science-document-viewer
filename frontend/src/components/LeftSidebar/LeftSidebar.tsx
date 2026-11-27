@@ -19,6 +19,8 @@ import {
   FaTrash,
   FaFilter,
   FaFilterCircleXmark,
+  FaMagnifyingGlass,
+  FaXmark,
 } from 'react-icons/fa6';
 import { ContextMenu, type ContextMenuEntry } from '../common/ContextMenu';
 import { COLLECTION_COLORS } from '../../constants/collectionColors';
@@ -154,6 +156,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const [renaming, setRenaming] = useState<RenameState | null>(null);
   const closeMenu = useCallback(() => setMenu(null), []);
   const [isTagsCollapsed, setIsTagsCollapsed] = useState(false);
+  const [tagSearchQuery, setTagSearchQuery] = useState('');
   const [customSidebarWidth, setCustomSidebarWidth] = useState<number | null>(null);
   const [isDraggingWidth, setIsDraggingWidth] = useState(false);
   const [windowWidth, setWindowWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200));
@@ -824,11 +827,41 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </div>
           {!isTagsCollapsed && (
             <div className={styles.tagListWrapper}>
+              {tags.length > 0 && (
+                <div className={styles.tagSearchRow}>
+                  <FaMagnifyingGlass className={styles.tagSearchIcon} aria-hidden="true" />
+                  <input
+                    type="text"
+                    className={styles.tagSearchInput}
+                    value={tagSearchQuery}
+                    onChange={(e) => setTagSearchQuery(e.target.value)}
+                    placeholder="Search tags..."
+                    aria-label="Search tags"
+                  />
+                  {tagSearchQuery && (
+                    <button
+                      type="button"
+                      className={styles.tagSearchClearBtn}
+                      onClick={() => setTagSearchQuery('')}
+                      aria-label="Clear tag search"
+                      title="Clear search"
+                    >
+                      <FaXmark />
+                    </button>
+                  )}
+                </div>
+              )}
               <div className={styles.tagListContainer}>
                 {tags.length === 0 && (
                   <div className={styles.sidebarHint}>No tags yet. Add tags from the metadata panel.</div>
                 )}
-                {tags.map((tag) => {
+                {tags.length > 0 &&
+                  tags.filter((t) => t.toLowerCase().includes(tagSearchQuery.trim().toLowerCase())).length === 0 && (
+                    <div className={styles.sidebarHint}>No matching tags.</div>
+                  )}
+                {tags
+                  .filter((tag) => tag.toLowerCase().includes(tagSearchQuery.trim().toLowerCase()))
+                  .map((tag) => {
                   const isActive = selectedTag === tag;
                   if (renaming?.kind === 'tag' && renaming.key === tag && onRenameTag) {
                     return (

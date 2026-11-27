@@ -39,8 +39,8 @@ interface UseZoomOptions {
 }
 
 export function useZoom({ scrollAreaRef, getPageEl, sizes, currentPageIndex, initial }: UseZoomOptions) {
-  const [zoom, setZoom] = useState(() => (initial && Number.isFinite(initial.zoom) ? clampZoom(initial.zoom) : 100));
-  const [mode, setMode] = useState<ZoomMode>(() => initial?.mode ?? 'auto');
+  const [zoom, setZoom] = useState(() => (initial && Number.isFinite(initial.zoom) ? clampZoom(initial.zoom) : 174));
+  const [mode, setMode] = useState<ZoomMode>(() => initial?.mode ?? 'custom');
   const [renderScale, setRenderScale] = useState(() => zoom / 100);
   const anchorRef = useRef<ZoomAnchor | null>(null);
   const zoomRef = useRef(zoom);

@@ -30,13 +30,6 @@ export interface AiChatPanelProps {
   onClearCitation?: () => void;
 }
 
-const STARTER_PROMPTS = [
-  'What problem does this paper solve?',
-  'Explain the core methodology & architecture.',
-  'What are the key experimental benchmarks?',
-  'Summarize the primary contributions.',
-];
-
 /** Must match the backend limit (400 `question_too_long`). */
 const MAX_QUESTION_CHARS = 2000;
 
@@ -212,7 +205,6 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   const blockReason = getBlockReason(effectiveStatus, hasFile);
   const inputDisabled = blockReason !== null;
   const status = describeRagStatus(effectiveStatus, hasFile);
-  const lastModel = [...messages].reverse().find((m) => m.role === 'assistant' && m.model)?.model;
   const questionTooLong = inputQuery.length > MAX_QUESTION_CHARS;
 
   // Keep the newest message in view (scrolls only the message list, not the page around it).
@@ -454,7 +446,6 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
 
         {msg.degraded && (
           <div className={styles.degradedBanner} role="note">
-            <FaCircleExclamation aria-hidden="true" />
             <span>
               The language model did not answer in time, so this is not a generated answer: below are the most
               relevant excerpts from the paper, with their sources.
@@ -501,7 +492,6 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
         )}
 
         <div className={styles.messageMeta}>
-          {msg.model && <span className={styles.messageModel}>{msg.model}</span>}
           <span>{msg.timestamp}</span>
         </div>
       </div>
@@ -548,7 +538,6 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
             <FaRobot className={styles.robotIcon} aria-hidden="true" />
             AI Assistant
           </span>
-          {lastModel && <span className={styles.modelBadge} title="Model that produced the latest answer">{lastModel}</span>}
         </div>
 
         <div className={styles.headerActions}>
@@ -648,21 +637,6 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
           <FaWandMagicSparkles aria-hidden="true" />
           <span>Summarize Document</span>
         </button>
-
-        <div className={styles.promptChipsScroll}>
-          {STARTER_PROMPTS.map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              className={styles.promptChip}
-              onClick={() => handleSendMessage(prompt)}
-              disabled={isBusy || inputDisabled}
-              title={inputDisabled ? 'Available once the PDF is indexed' : `Ask: ${prompt}`}
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 4. Chat Messages Stream */}

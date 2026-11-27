@@ -45,6 +45,7 @@ from .permissions import (
     visible_documents_q,
 )
 from .services.crossref_service import fetch_metadata_from_doi
+from .services.full_text_service import find_and_download_full_text
 from .services.webhook_service import trigger_rag_ingestion
 from .services.pdf_metadata_service import (
     apply_pdf_metadata_to_document,
@@ -529,6 +530,39 @@ class DocumentViewSet(viewsets.ModelViewSet):
         doc.last_read = None if doc.last_read else timezone.now()
         doc.save(update_fields=["last_read"])
         return Response({"id": doc.id, "last_read": doc.last_read})
+
+    @action(detail=True, methods=["post"], url_path="mark-read")
+    def mark_read(self, request, pk=None):
+        """Record that the document was opened/read now."""
+        doc = self.get_object()
+        doc.last_read = timezone.now()
+        doc.save(update_fields=["last_read"])
+        return Response({"id": doc.id, "last_read": doc.last_read})
+
+    @action(detail=True, methods=["post"], url_path="find-full-text")
+    def find_full_text(self, request, pk=None):
+        """Attempt to locate and download an open-access PDF for a DOI/URL document."""
+        doc = self.get_object()
+        if doc.file and os.path.exists(doc.file.path):
+            return Response(DocumentDetailSerializer(doc, context={"request": request}).data)
+        if not (doc.doi or doc.url):
+            return Response(
+                {"code": "missing_identifier", "detail": "Document has no DOI or URL to search for full text."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        result = find_and_download_full_text(doc.doi or "", doc.url or "", doc.title or "")
+        if not result:
+            return Response(
+                {"code": "not_found", "detail": "No open-access full-text PDF could be found for this document."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        filename, content = result
+        doc.file.save(filename, ContentFile(content), save=False)
+        doc.file_size = len(content)
+        doc.rag_status = "PENDING"
+        doc.save(update_fields=["file", "file_size", "rag_status"])
+        _schedule_ingestion(doc)
+        return Response(DocumentDetailSerializer(doc, context={"request": request}).data)
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, pk=None):
@@ -1212,3 +1246,31 @@ class SharedWithMeView(views.APIView):
                 shared_docs, many=True, context={"request": request}
             ).data
         )
+
+
+class OllamaHealthView(views.APIView):
+    """Lightweight check for whether the configured Ollama LLM endpoint is reachable."""
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        import requests as http_requests
+
+        candidates = []
+        primary = getattr(settings, "OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+        key = getattr(settings, "OLLAMA_API_KEY", "")
+        candidates.append((primary, {"Authorization": f"Bearer {key}"} if key else None))
+
+        fallback = getattr(settings, "OLLAMA_FALLBACK_URL", "").rstrip("/")
+        if fallback and fallback != primary:
+            candidates.append((fallback, None))
+
+        for url, headers in candidates:
+            try:
+                resp = http_requests.get(f"{url}/api/tags", headers=headers, timeout=2)
+                if resp.status_code == 200:
+                    return Response({"ollama_connected": True})
+            except Exception:
+                continue
+
+        return Response({"ollama_connected": False})

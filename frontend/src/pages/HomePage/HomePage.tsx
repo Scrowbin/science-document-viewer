@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useCallback, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
-import type { Document, AppTab, SortKey, SortState, Collection } from '../../types';
+import type { Document, AppTab, SortKey, SortState, Collection, ChatSource } from '../../types';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useAuth } from '../../hooks/useAuth';
 import { useDocuments, describeApiError } from '../../hooks/useDocuments';
@@ -12,6 +12,8 @@ import { useDocumentSelection } from '../../hooks/useDocumentSelection';
 import { sortDocuments, filterDocuments } from '../../utils/documentFilters';
 import { collectionScope, collectionPath, withDocumentCounts } from '../../utils/collections';
 import { formatApaCitation, formatApaReferenceList, copyCitation } from '../../utils/citation';
+import { getDocumentPaperUrl } from '../../utils/format';
+import { documentsApi } from '../../api/documentsApi';
 import { markDuplicates } from '../../utils/duplicates';
 import { ChatSessionProvider } from '../../context/ChatSessionContext';
 
@@ -66,6 +68,8 @@ export function HomePage() {
     documents,
     setDocuments,
     isLiveApiConnected,
+    apiReachable,
+    ollamaConnected,
     isLoadingDocs,
     loadError,
     reloadDocuments,
@@ -79,6 +83,7 @@ export function HomePage() {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleMarkRead,
     handleTogglePublication,
     handleRetryIndexing,
     handleBulkAction,
@@ -182,11 +187,9 @@ export function HomePage() {
   const [sortState, setSortState] = useState<SortState>({ key: 'lastRead', direction: 'desc' });
 
   // ─── Tab Management ───────────────────────────────────────────────────────
-  const [tabs, setTabs] = useState<AppTab[]>([
-    LIBRARY_TAB,
-    { id: 'tab-pdf-default', title: 'PDF Viewer', type: 'pdf', closable: true },
-  ]);
+  const [tabs, setTabs] = useState<AppTab[]>([LIBRARY_TAB]);
   const [activeTabId, setActiveTabId] = useState<string>(LIBRARY_TAB.id);
+  const [jumpRequest, setJumpRequest] = useState<{ docId: string; page: number; source?: ChatSource; seq: number } | null>(null);
 
   // ─── Derived State (Memos) ────────────────────────────────────────────────
   // Duplicate Items = same DOI or title (not only copies made with "Duplicate Item")
@@ -366,8 +369,21 @@ export function HomePage() {
   }, []);
 
   // ─── Document Handlers ────────────────────────────────────────────────────
-  const handleOpenPdf = useCallback((doc: Document) => {
+  const handleOpenPdf = useCallback((doc: Document, opts?: { collapseSidebars?: boolean }) => {
     selectOnly(doc.id);
+    void handleMarkRead(doc);
+    if (!doc.file) {
+      const paperUrl = getDocumentPaperUrl(doc);
+      if (paperUrl) {
+        window.open(paperUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
+    }
+    // Auto-collapse library and metadata panels when opening a document from the library.
+    if (opts?.collapseSidebars !== false) {
+      setSidebarCollapsed(true);
+      setRightSidebarCollapsed(true);
+    }
     // A document already open in a tab is focused there, never opened twice.
     const existing = tabs.find((t) => t.documentId === doc.id);
     if (existing) {
@@ -380,7 +396,18 @@ export function HomePage() {
       return [...prev, { id: tabId, title: doc.metadata.shortTitle || doc.title, type: 'pdf', documentId: doc.id, closable: true }];
     });
     setActiveTabId(tabId);
-  }, [selectOnly, tabs]);
+  }, [selectOnly, handleMarkRead, tabs]);
+
+  const handleFindFullText = useCallback(async (doc: Document) => {
+    showToast(`Searching for full-text PDF for "${doc.title}"...`);
+    try {
+      await documentsApi.findFullText(doc.id);
+      await refreshDocument(doc.id);
+      showToast('Full-text PDF downloaded and attached');
+    } catch (err) {
+      showToast(describeApiError(err, 'Could not find an open-access PDF for this document.'), 'error');
+    }
+  }, [refreshDocument, showToast]);
 
   const handleCopyCitation = useCallback((doc: Document) => {
     copyCitation(formatApaCitation(doc)).then(
@@ -716,6 +743,8 @@ export function HomePage() {
             user={user}
             isAuthenticated={isAuthenticated}
             isLiveApiConnected={isLiveApiConnected}
+            apiReachable={apiReachable}
+            ollamaConnected={ollamaConnected}
             isLoadingDocs={isLoadingDocs}
             showMenu={showUserMenu}
             userInitials={userInitials}
@@ -881,6 +910,7 @@ export function HomePage() {
                   onAddTag={handleAddTagPrompt}
                   onInspectChunks={setInspectingDoc}
                   onRetryIndexing={(doc) => void handleRetryIndexing(doc)}
+                  onFindFullText={(doc) => void handleFindFullText(doc)}
                   isTrashView={isTrashView}
                   isLoading={isLoadingDocs && documents.length === 0}
                   emptyMessage={tableEmptyMessage}
@@ -889,7 +919,12 @@ export function HomePage() {
                 />
               </>
             ) : activePdfDoc ? (
-              <PdfViewer document={activePdfDoc} onFileAttached={refreshDocument} />
+              <PdfViewer
+                document={activePdfDoc}
+                onFileAttached={refreshDocument}
+                onInspectChunks={setInspectingDoc}
+                jumpRequest={jumpRequest && jumpRequest.docId === activePdfDoc.id ? jumpRequest : null}
+              />
             ) : selectedDocTab ? (
               <div className={styles.emptyViewer}>
                 <span>
@@ -901,7 +936,7 @@ export function HomePage() {
               </div>
             ) : (
               <div className={styles.emptyViewer}>
-                Select a document in the Library and choose <strong>Open PDF</strong> to view it here.
+                Double-click a document in the Library to view it here.
               </div>
             )}
           </main>
@@ -914,6 +949,11 @@ export function HomePage() {
             collections={collections}
             onSetCollection={handleAddToCollection}
             onInspectChunks={setInspectingDoc}
+            onJumpToPage={(doc, page, source) => {
+              if (!doc.file) return;
+              handleOpenPdf(doc, { collapseSidebars: false });
+              setJumpRequest((prev) => ({ docId: doc.id, page, source, seq: (prev?.seq ?? 0) + 1 }));
+            }}
             collapsed={rightSidebarCollapsed}
             onToggleCollapse={() => setRightSidebarCollapsed((prev) => !prev)}
             selectionSummary={

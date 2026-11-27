@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import type { Document, RagStatus } from '../types';
 import { documentsApi, type BulkAction, type BulkActionFailure, type LookupDoiResult } from '../api/documentsApi';
+import { ragApi } from '../api/ragApi';
 import { dateInputValue, normalizeDateForApi } from '../utils/format';
 
 export type ToastFn = (msg: string, type?: 'success' | 'error') => void;
@@ -185,6 +186,8 @@ export interface UseDocumentsReturn {
   documents: Document[];
   setDocuments: React.Dispatch<React.SetStateAction<Document[]>>;
   isLiveApiConnected: boolean;
+  apiReachable: boolean;
+  ollamaConnected: boolean;
   isLoadingDocs: boolean;
   loadError: string | null;
   reloadDocuments: () => void;
@@ -199,6 +202,7 @@ export interface UseDocumentsReturn {
   handleSetDocumentCollection: (docId: string, collectionId: string | null, collectionName: string | null) => Promise<void>;
   handleAddTagToDocument: (docId: string, tagName: string) => Promise<void>;
   handleToggleReadStatus: (doc: Document) => Promise<void>;
+  handleMarkRead: (doc: Document) => Promise<void>;
   /** Add to / remove from "My Publications" (is_publication). */
   handleTogglePublication: (doc: Document) => Promise<void>;
   /** Re-run AI indexing for a document whose indexing failed (owner only). */
@@ -224,6 +228,8 @@ export interface UseDocumentsReturn {
 export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLiveApiConnected, setIsLiveApiConnected] = useState(false);
+  const [apiReachable, setApiReachable] = useState(false);
+  const [ollamaConnected, setOllamaConnected] = useState(false);
   const [isLoadingDocs, setIsLoadingDocs] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -250,17 +256,22 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
       try {
         // The list endpoint leaves out Trash unless asked, so load both; otherwise the
         // Trash view would be empty after every reload.
-        const [liveDocs, trashedDocs] = await Promise.all([
+        const [liveDocs, trashedDocs, ollamaOk] = await Promise.all([
           documentsApi.getDocuments(),
           documentsApi.getDocuments({ in_trash: true }),
+          ragApi.checkHealth(),
         ]);
         if (!isMounted) return;
         setDocuments([...liveDocs, ...trashedDocs]);
-        setIsLiveApiConnected(true);
+        setApiReachable(true);
+        setOllamaConnected(ollamaOk);
+        setIsLiveApiConnected(ollamaOk);
         setLoadError(null);
       } catch (err) {
         if (!isMounted) return;
         console.warn('Failed to load documents:', err);
+        setApiReachable(false);
+        setOllamaConnected(false);
         setIsLiveApiConnected(false);
         setLoadError(describeApiError(err, 'Could not load your library'));
       } finally {
@@ -398,6 +409,17 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
       showToast(describeApiError(err, 'Failed to update read status'), 'error');
     }
   }, [showToast]);
+
+  const handleMarkRead = useCallback(async (doc: Document) => {
+    const optimistic = new Date().toISOString();
+    setDocuments((prev) => prev.map((d) => (d.id === doc.id ? { ...d, lastRead: optimistic } : d)));
+    try {
+      const res = await documentsApi.markRead(doc.id);
+      setDocuments((prev) => prev.map((d) => (d.id === doc.id ? { ...d, lastRead: res.last_read ?? optimistic } : d)));
+    } catch (err) {
+      console.warn('Mark read failed:', err);
+    }
+  }, []);
 
   const handleTogglePublication = useCallback(async (doc: Document) => {
     const next = !doc.isPublication;
@@ -700,6 +722,8 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     documents,
     setDocuments,
     isLiveApiConnected,
+    apiReachable,
+    ollamaConnected,
     isLoadingDocs,
     loadError,
     reloadDocuments,
@@ -713,6 +737,7 @@ export function useDocuments(showToast: ToastFn): UseDocumentsReturn {
     handleSetDocumentCollection,
     handleAddTagToDocument,
     handleToggleReadStatus,
+    handleMarkRead,
     handleTogglePublication,
     handleRetryIndexing,
     handleBulkAction,

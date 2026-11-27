@@ -13,7 +13,9 @@ ACTION_MIN_PERMISSION = {
     'update': 'EDIT',
     'partial_update': 'EDIT',
     'toggle_read': 'EDIT',
+    'mark_read': 'EDIT',
     'related': 'EDIT',
+    'find_full_text': 'EDIT',
 }
 
 

@@ -232,6 +232,14 @@ export const documentsApi = {
   },
 
   /**
+   * Mark document as read now (e.g. when opened in the viewer).
+   */
+  async markRead(id: string | number): Promise<{ id: number; last_read: string | null }> {
+    const res = await apiClient.post<{ id: number; last_read: string | null }>(`/documents/${id}/mark-read/`);
+    return res.data;
+  },
+
+  /**
    * Clone/duplicate document.
    */
   async duplicateDocument(id: string | number): Promise<Document> {
@@ -248,6 +256,17 @@ export const documentsApi = {
       timeout: RAG_TIMEOUT_MS,
     });
     return { status: res.data?.status ?? '', accepted: res.status === 202 };
+  },
+
+  /**
+   * Search open-access sources (arXiv, OpenAlex, Semantic Scholar, Crossref) for a PDF
+   * and attach it to an existing DOI/URL document.
+   */
+  async findFullText(id: string | number): Promise<Document> {
+    const res = await apiClient.post<DjangoDocumentRaw>(`/documents/${id}/find-full-text/`, undefined, {
+      timeout: 60_000,
+    });
+    return mapDjangoDocToFrontend(res.data);
   },
 
   /**

@@ -90,7 +90,7 @@ export const TabBar: React.FC<TabBarProps> = ({
               <span className={styles.tabTitle}>{tab.title}</span>
               {shortcutKey && (
                 <span className={styles.tabShortcutBadge} aria-hidden="true">
-                  ^{shortcutKey}
+                  {shortcutKey}
                 </span>
               )}
               {tab.closable && (

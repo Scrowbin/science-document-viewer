@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './MetadataPanel.module.css';
-import type { Document, DocumentMetadata, Collection } from '../../types';
+import type { Document, DocumentMetadata, Collection, ChatSource } from '../../types';
 import { METADATA_FIELDS_CONFIG } from '../../constants/metadataConfig';
 import {
   FaArrowUpRightFromSquare,
@@ -14,7 +14,13 @@ import {
   FaAnglesRight,
   FaAnglesLeft,
   FaCube,
+  FaCircleInfo,
+  FaRobot,
+  FaNoteSticky,
 } from 'react-icons/fa6';
+import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
+import { AnnotationsList } from '../PdfViewer/AnnotationsList';
+import { useAnnotations } from '../PdfViewer/useAnnotations';
 import { FloatingTagTooltip } from '../common/FloatingTagTooltip';
 import { useTagTooltip } from '../../hooks/useTagTooltip';
 import { flattenCollections } from '../../utils/collections';
@@ -64,8 +70,31 @@ export interface MetadataPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   onInspectChunks?: (doc: Document) => void;
+  onJumpToPage?: (doc: Document, pageNumber: number, source?: ChatSource) => void;
   /** Shown instead of "No document selected" when several documents are selected. */
   selectionSummary?: React.ReactNode;
+}
+
+type PanelTabKey = 'metadata' | 'notes' | 'ai';
+const DEFAULT_TAB_ORDER: PanelTabKey[] = ['metadata', 'notes', 'ai'];
+const TAB_ORDER_STORAGE_KEY = 'metadataPanel.tabOrder';
+
+function readTabOrder(): PanelTabKey[] {
+  try {
+    const raw = window.localStorage.getItem(TAB_ORDER_STORAGE_KEY);
+    if (!raw) return DEFAULT_TAB_ORDER;
+    const parsed = JSON.parse(raw);
+    if (
+      Array.isArray(parsed) &&
+      parsed.length === DEFAULT_TAB_ORDER.length &&
+      DEFAULT_TAB_ORDER.every((k) => parsed.includes(k))
+    ) {
+      return parsed as PanelTabKey[];
+    }
+  } catch {
+    // ignore storage errors
+  }
+  return DEFAULT_TAB_ORDER;
 }
 
 /**
@@ -82,8 +111,13 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   collapsed = false,
   onToggleCollapse,
   onInspectChunks,
+  onJumpToPage,
   selectionSummary,
 }) => {
+  const [activeTab, setActiveTab] = useState<PanelTabKey>('metadata');
+  const [tabOrder, setTabOrder] = useState<PanelTabKey[]>(readTabOrder);
+  const [draggedTab, setDraggedTab] = useState<PanelTabKey | null>(null);
+  const { annotations, remove: deleteAnnotation } = useAnnotations(document?.id ?? '');
   const [syncedFrom, setSyncedFrom] = useState<{ doc: Document | null; editing: boolean }>({
     doc: document,
     editing: isEditing,
@@ -177,13 +211,13 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
             e.stopPropagation();
             onToggleCollapse?.();
           }}
-          title="Expand Metadata Panel"
-          aria-label="Expand Metadata Panel"
+          title="Expand Metadata & AI Panel"
+          aria-label="Expand Metadata & AI Panel"
         >
           <FaAnglesLeft />
         </button>
         <div className={styles.railVerticalTitle}>
-          <span>Metadata</span>
+          <span>Metadata &amp; AI</span>
         </div>
       </aside>
     );
@@ -423,85 +457,165 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
         aria-orientation="vertical"
       />
       <div className={styles.metaHeader}>
-        <div className={styles.metaHeaderTop}>
-          <div className={styles.metaBadge}>{meta.itemType}</div>
-          <div className={styles.metaHeaderActions}>
-            {isEditing ? (
-              <>
+        <div className={styles.panelTabsRow}>
+          <div className={styles.panelTabGroup} role="tablist" aria-label="Document Inspector Tabs">
+            {tabOrder.map((tabKey) => {
+              const label =
+                tabKey === 'metadata'
+                  ? 'Metadata'
+                  : tabKey === 'notes'
+                  ? `Notes (${annotations.length})`
+                  : 'AI';
+              const icon =
+                tabKey === 'metadata' ? (
+                  <FaCircleInfo aria-hidden="true" />
+                ) : tabKey === 'notes' ? (
+                  <FaNoteSticky aria-hidden="true" />
+                ) : (
+                  <FaRobot aria-hidden="true" />
+                );
+              return (
                 <button
+                  key={tabKey}
                   type="button"
-                  className={styles.saveBtn}
-                  onClick={() => void handleSave()}
-                  disabled={!canSave}
-                  title={titleMissing ? 'A title is required' : dateInvalid ? DATE_FORMAT_HINT : 'Save changes'}
+                  role="tab"
+                  draggable
+                  aria-selected={activeTab === tabKey}
+                  className={`${styles.panelTabBtn} ${activeTab === tabKey ? styles.panelTabBtnActive : ''}`}
+                  title="Click to switch tab, drag to reorder"
+                  onClick={() => setActiveTab(tabKey)}
+                  onDragStart={() => setDraggedTab(tabKey)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => {
+                    if (!draggedTab || draggedTab === tabKey) return;
+                    setTabOrder((prev) => {
+                      const next = [...prev];
+                      const fromIdx = next.indexOf(draggedTab);
+                      const toIdx = next.indexOf(tabKey);
+                      if (fromIdx === -1 || toIdx === -1) return prev;
+                      next.splice(fromIdx, 1);
+                      next.splice(toIdx, 0, draggedTab);
+                      try {
+                        window.localStorage.setItem(TAB_ORDER_STORAGE_KEY, JSON.stringify(next));
+                      } catch {
+                        // ignore storage errors
+                      }
+                      return next;
+                    });
+                    setDraggedTab(null);
+                  }}
+                  onDragEnd={() => setDraggedTab(null)}
                 >
-                  <FaFloppyDisk aria-hidden="true" /> {isSaving ? 'Saving…' : 'Save'}
+                  {icon}
+                  <span>{label}</span>
                 </button>
-                <button
-                  type="button"
-                  className={styles.cancelBtn}
-                  onClick={handleCancel}
-                  disabled={isSaving}
-                  title="Discard changes"
-                >
-                  <FaXmark aria-hidden="true" /> Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                {canEdit && (
-                  <button
-                    type="button"
-                    className={styles.editBtn}
-                    onClick={() => onToggleEdit?.(true)}
-                    title="Edit document metadata"
-                  >
-                    <FaPenToSquare aria-hidden="true" /> Edit
-                  </button>
-                )}
-                {onInspectChunks && document && (
-                  <button
-                    type="button"
-                    className={styles.inspectBtn}
-                    onClick={() => onInspectChunks(document)}
-                    title="Inspect extracted sections and RAG chunks"
-                  >
-                    <FaCube aria-hidden="true" /> Chunks
-                  </button>
-                )}
-              </>
-            )}
-            {onToggleCollapse && (
-              <button
-                type="button"
-                className={styles.collapseBtn}
-                onClick={onToggleCollapse}
-                title="Collapse metadata panel"
-                aria-label="Collapse metadata panel"
-              >
-                <FaAnglesRight />
-              </button>
-            )}
+              );
+            })}
           </div>
+          {onToggleCollapse && (
+            <button
+              type="button"
+              className={styles.collapseBtn}
+              onClick={onToggleCollapse}
+              title="Collapse panel"
+              aria-label="Collapse panel"
+            >
+              <FaAnglesRight />
+            </button>
+          )}
         </div>
 
-        {isEditing ? (
-          <input
-            type="text"
-            className={styles.metaInput}
-            value={draft.title}
-            onChange={(e) => handleFieldChange('title', e.target.value)}
-            placeholder="Document Title (required)"
-            aria-label="Title"
-            aria-invalid={titleMissing}
-            style={{ fontWeight: 600 }}
-          />
-        ) : (
-          <div className={styles.metaTitle}>{meta.title}</div>
+        {activeTab === 'metadata' && (
+          <div className={styles.metaHeaderTop}>
+            <div className={styles.metaBadge}>{meta.itemType}</div>
+            <div className={styles.metaHeaderActions}>
+              {isEditing ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.saveBtn}
+                    onClick={() => void handleSave()}
+                    disabled={!canSave}
+                    title={titleMissing ? 'A title is required' : dateInvalid ? DATE_FORMAT_HINT : 'Save changes'}
+                  >
+                    <FaFloppyDisk aria-hidden="true" /> {isSaving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.cancelBtn}
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                    title="Discard changes"
+                  >
+                    <FaXmark aria-hidden="true" /> Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  {canEdit && (
+                    <button
+                      type="button"
+                      className={styles.editBtn}
+                      onClick={() => onToggleEdit?.(true)}
+                      title="Edit document metadata"
+                    >
+                      <FaPenToSquare aria-hidden="true" /> Edit
+                    </button>
+                  )}
+                  {onInspectChunks && document && (
+                    <button
+                      type="button"
+                      className={styles.inspectBtn}
+                      onClick={() => onInspectChunks(document)}
+                      title="Inspect extracted sections and RAG chunks"
+                    >
+                      <FaCube aria-hidden="true" /> Chunks
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'metadata' && (
+          isEditing ? (
+            <input
+              type="text"
+              className={styles.metaInput}
+              value={draft.title}
+              onChange={(e) => handleFieldChange('title', e.target.value)}
+              placeholder="Document Title (required)"
+              aria-label="Title"
+              aria-invalid={titleMissing}
+              style={{ fontWeight: 600 }}
+            />
+          ) : (
+            <div className={styles.metaTitle}>{meta.title}</div>
+          )
         )}
       </div>
 
-      <div className={styles.metaBody}>
+      {activeTab === 'ai' ? (
+        <div className={styles.aiTabBody}>
+          <AiChatPanel
+            key={document.id}
+            document={document}
+            onJumpToPage={(page, source) => onJumpToPage?.(document, page, source)}
+          />
+        </div>
+      ) : activeTab === 'notes' ? (
+        <div className={styles.notesTabBody}>
+          <AnnotationsList
+            annotations={annotations}
+            activeId={null}
+            onSelect={(anno) => onJumpToPage?.(document, anno.page_number)}
+            onDelete={(anno) => anno.id !== undefined && deleteAnnotation(anno.id)}
+          />
+        </div>
+      ) : (
+        <>
+          <div className={styles.metaBody}>
         {METADATA_FIELDS_CONFIG.map((field) => {
           // Title is already editable in header
           if (field.key === 'title') return null;
@@ -859,8 +973,10 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
             </div>
           );
         })}
-      </div>
-      <FloatingTagTooltip {...tooltipProps} />
+          </div>
+          <FloatingTagTooltip {...tooltipProps} />
+        </>
+      )}
     </aside>
   );
 };

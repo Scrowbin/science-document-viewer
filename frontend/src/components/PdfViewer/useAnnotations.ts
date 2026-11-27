@@ -95,6 +95,7 @@ export function useAnnotations(docId: string) {
   const dismissError = useCallback(() => setError(null), []);
 
   useEffect(() => {
+    if (!docId) return;
     let cancelled = false;
     annotationsApi
       .getDocumentAnnotations(docId)
@@ -248,5 +249,5 @@ export function useAnnotations(docId: string) {
 
   const remove = useCallback((id: AnnotationId) => removeMany([id]), [removeMany]);
 
-  return { annotations, create, update, remove, removeMany, error, dismissError };
+  return { annotations: docId ? annotations : [], create, update, remove, removeMany, error, dismissError };
 }

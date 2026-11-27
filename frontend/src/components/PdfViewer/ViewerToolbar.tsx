@@ -10,10 +10,9 @@ import {
   FaArrowsLeftRight,
   FaExpand,
   FaCircleCheck,
-  FaFolderOpen,
   FaArrowPointer,
   FaEraser,
-  FaRobot,
+  FaCube,
 } from 'react-icons/fa6';
 import styles from './PdfViewer.module.css';
 import { HIGHLIGHT_COLORS, type Tool } from './viewerConstants';
@@ -40,10 +39,7 @@ export interface ViewerToolbarProps {
 
   findOpen: boolean;
   onToggleFind: () => void;
-  onOpenFile: () => void;
-
-  aiActive: boolean;
-  onOpenAi: () => void;
+  onInspectChunks?: () => void;
 }
 
 export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
@@ -64,9 +60,7 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
   onFitPage,
   findOpen,
   onToggleFind,
-  onOpenFile,
-  aiActive,
-  onOpenAi,
+  onInspectChunks,
 }) => {
   // Page input: a draft while the user types, otherwise it mirrors the current page.
   const [pageDraft, setPageDraft] = useState<string | null>(null);
@@ -234,25 +228,22 @@ export const ViewerToolbar: React.FC<ViewerToolbarProps> = ({
         >
           <FaMagnifyingGlass />
         </button>
-        <button type="button" className={styles.pdfToolBtn} onClick={onOpenFile} title="Open any local PDF file in this viewer">
-          <FaFolderOpen />
-          <span>Open PDF</span>
-        </button>
       </div>
 
-      {/* AI Research Assistant */}
-      <div className={styles.pdfToolbarGroup}>
-        <button
-          type="button"
-          className={aiActive ? styles.pdfToolBtnAiActive : styles.pdfToolBtnAi}
-          onClick={onOpenAi}
-          title="Open AI Research Assistant (Grounded Q&A, 1-Click Summary, Page Citations)"
-        >
-          <FaRobot />
-          <span>AI Assistant</span>
-          <span className={styles.aiSparkleBadge}>RAG</span>
-        </button>
-      </div>
+      {/* Chunks */}
+      {onInspectChunks && (
+        <div className={styles.pdfToolbarGroup}>
+          <button
+            type="button"
+            className={styles.pdfToolBtn}
+            onClick={onInspectChunks}
+            title="Inspect extracted sections and RAG chunks"
+          >
+            <FaCube />
+            <span>Chunks</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -186,4 +186,18 @@ export const ragApi = {
     );
     return response.data;
   },
+
+  /**
+   * Check whether the backend's configured Ollama LLM instance is reachable.
+   */
+  async checkHealth(): Promise<boolean> {
+    try {
+      const response = await apiClient.get<{ ollama_connected?: boolean }>('/rag/health/', {
+        timeout: 4000,
+      });
+      return Boolean(response.data?.ollama_connected);
+    } catch {
+      return false;
+    }
+  },
 };

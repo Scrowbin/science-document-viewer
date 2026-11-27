@@ -66,3 +66,33 @@ export function normalizeDateForApi(value: string | null | undefined): string | 
 }
 
 export const DATE_FORMAT_HINT = 'Use YYYY, YYYY-MM or YYYY-MM-DD';
+
+const ARXIV_DOI_RE = /arxiv\.(\d{4}\.\d{4,5}(?:v\d+)?)/i;
+
+/**
+ * Best external web URL for a document without a local PDF (arXiv abstract page when
+ * the DOI identifies an arXiv paper, otherwise its stored http(s) URL or doi.org link).
+ */
+export function getDocumentPaperUrl(doc: { metadata?: { doi?: string; url?: string } }): string | null {
+  const doi = (doc.metadata?.doi || '').trim();
+  const arxivMatch = ARXIV_DOI_RE.exec(doi);
+  if (arxivMatch) {
+    return `https://arxiv.org/abs/${arxivMatch[1]}`;
+  }
+  const rawUrl = (doc.metadata?.url || '').trim();
+  if (rawUrl) {
+    try {
+      const parsed = new URL(rawUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return rawUrl;
+      }
+    } catch {
+      // ignore invalid URL
+    }
+  }
+  if (doi) {
+    const cleanDoi = doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').replace(/^doi:\s*/i, '');
+    if (cleanDoi) return `https://doi.org/${cleanDoi}`;
+  }
+  return null;
+}

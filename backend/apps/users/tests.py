@@ -123,7 +123,7 @@ class AuthHardeningTests(TestCase):
 
     def test_registration_validation(self):
         self.assertEqual(self._register(username="bob@example").status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(self._register(password="password").status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._register(password="short").status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(self._register(password="12345678901").status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(self._register(email="alice@example.com").status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(self._register().status_code, status.HTTP_201_CREATED)

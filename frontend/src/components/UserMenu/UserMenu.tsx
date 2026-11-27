@@ -12,6 +12,8 @@ export interface UserMenuProps {
   user: User | null;
   isAuthenticated: boolean;
   isLiveApiConnected: boolean;
+  apiReachable?: boolean;
+  ollamaConnected?: boolean;
   isLoadingDocs: boolean;
   showMenu: boolean;
   userInitials: string;
@@ -25,6 +27,8 @@ export function UserMenu({
   user,
   isAuthenticated,
   isLiveApiConnected,
+  apiReachable = isLiveApiConnected,
+  ollamaConnected = isLiveApiConnected,
   isLoadingDocs,
   showMenu,
   userInitials,
@@ -36,9 +40,11 @@ export function UserMenu({
   const statusLabel = isLoadingDocs ? 'Connecting…' : isLiveApiConnected ? 'Connected' : 'Offline';
   const statusTitle = isLoadingDocs
     ? 'Connecting to the server…'
-    : isLiveApiConnected
-    ? 'Connected to the library server'
-    : 'Cannot reach the library server';
+    : apiReachable && ollamaConnected
+    ? 'Connected: Library server and LLM (Ollama) are online'
+    : apiReachable
+    ? 'Offline: Library server is online, but the LLM (Ollama) is offline'
+    : 'Offline: Backend library server is unreachable';
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   // Escape closes the open menu and returns focus to its button.

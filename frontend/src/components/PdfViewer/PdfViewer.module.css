@@ -345,7 +345,33 @@
 
 .stickyPin:hover {
   transform: translate(0, -100%) scale(1.1);
-  filter: brightness(0.9);
+  filter: brightness(0.95);
+  z-index: 30;
+}
+
+.stickyPinPreview {
+  display: none;
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 160px;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.stickyPin:hover:not(.stickyPinDragging) .stickyPinPreview {
+  display: block;
 }
 
 .stickyPinActive {
