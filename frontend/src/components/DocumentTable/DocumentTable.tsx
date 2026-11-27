@@ -28,6 +28,7 @@ import {
   FaBook,
   FaDownload,
   FaArrowUpRightFromSquare,
+  FaShareNodes,
 } from 'react-icons/fa6';
 
 /** drag-and-drop payload type carrying a JSON array of document ids. */
@@ -61,6 +62,8 @@ export interface DocumentTableProps {
   onRetryIndexing?: (doc: Document) => void;
   /** Locate and download an open-access PDF for a DOI/URL document without a file. */
   onFindFullText?: (doc: Document) => void;
+  /** Open the Share modal for a document. */
+  onShareDoc?: (doc: Document) => void;
   isTrashView?: boolean;
   isLoading?: boolean;
   /** Text for the empty table (why nothing is shown and what to do). */
@@ -177,6 +180,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
   onInspectChunks,
   onRetryIndexing,
   onFindFullText,
+  onShareDoc,
   isTrashView = false,
   isLoading = false,
   emptyMessage,
@@ -430,6 +434,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
                   tabIndex={0}
                   aria-selected={isSelected}
                   aria-label={`${doc.title}${doc.inTrash ? ' (in Trash)' : ''}. Press Enter to open, Shift+F10 for actions.`}
+                  title={doc.ownerUsername ? `Owner: ${doc.ownerUsername}` : undefined}
                   className={`${styles.tr} ${isSelected ? styles.trSelected : ''} ${
                     isDraggable ? styles.draggableRow : ''
                   }`}
@@ -727,6 +732,13 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({
             <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onInspectChunks(contextMenu.doc))}>
               <FaCube aria-hidden="true" style={{ color: '#2563eb' }} />
               <span>Inspect Chunks...</span>
+            </div>
+          )}
+
+          {!contextMenu.doc.inTrash && onShareDoc && (!contextMenu.doc.userPermission || contextMenu.doc.userPermission === 'OWNER') && (
+            <div role="menuitem" tabIndex={-1} className={styles.contextMenuItem} onClick={act(() => onShareDoc(contextMenu.doc))}>
+              <FaShareNodes aria-hidden="true" style={{ color: 'var(--accent-blue)' }} />
+              <span>Share...</span>
             </div>
           )}
 

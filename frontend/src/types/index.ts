@@ -42,6 +42,17 @@ export type RagStatus = 'PENDING' | 'INDEXING' | 'INDEXED' | 'FAILED';
  */
 export type DocumentPermission = 'OWNER' | 'EDIT' | 'COMMENT' | 'VIEW' | 'NONE';
 
+export type SharePermission = 'VIEW' | 'COMMENT' | 'EDIT';
+
+export interface ShareEntry {
+  id: string;
+  sharedWithUser: string;
+  sharedWithUsername: string;
+  sharedWithEmail: string;
+  permission: SharePermission;
+  createdAt: string;
+}
+
 export interface Document {
   id: string;
   title: string;
@@ -57,6 +68,8 @@ export interface Document {
   ragStatus?: RagStatus;
   /** Primary collection id (null/undefined when unfiled). */
   collectionId?: string | null;
+  /** Username of the document owner. */
+  ownerUsername?: string;
   /** Only known after the document detail endpoint has been fetched. */
   userPermission?: DocumentPermission;
 }

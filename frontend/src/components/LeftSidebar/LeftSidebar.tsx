@@ -21,6 +21,7 @@ import {
   FaFilterCircleXmark,
   FaMagnifyingGlass,
   FaXmark,
+  FaShareNodes,
 } from 'react-icons/fa6';
 import { ContextMenu, type ContextMenuEntry } from '../common/ContextMenu';
 import { COLLECTION_COLORS } from '../../constants/collectionColors';
@@ -101,6 +102,7 @@ export interface LeftSidebarProps {
   /** Right-click actions (each menu item is shown only when its handler is given). */
   onRenameCollection?: (col: Collection, name: string) => void;
   onRecolorCollection?: (col: Collection, color: string) => void;
+  onShareCollection?: (col: Collection) => void;
   onDeleteCollection?: (col: Collection) => void;
   onRenameTag?: (oldTag: string, newTag: string) => void;
   onDeleteTag?: (tag: string) => void;
@@ -147,6 +149,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   onSelectDoc,
   onRenameCollection,
   onRecolorCollection,
+  onShareCollection,
   onDeleteCollection,
   onRenameTag,
   onDeleteTag,
@@ -384,6 +387,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     }
     if (onCreateCollection) {
       entries.push({ label: 'New subcollection…', icon: <FaFolderPlus />, onSelect: () => openModalWithParent(col.id) });
+    }
+    if (onShareCollection) {
+      entries.push({ label: 'Share…', icon: <FaShareNodes />, onSelect: () => onShareCollection(col) });
     }
     if (onRecolorCollection) {
       if (entries.length) entries.push({ kind: 'divider' });

@@ -85,12 +85,13 @@ class DocumentListSerializer(FileUrlMixin, serializers.ModelSerializer):
     authors = serializers.SerializerMethodField()
     tags = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
     primary_collection_name = serializers.ReadOnlyField(source='primary_collection.name')
+    owner_username = serializers.ReadOnlyField(source='owner.username')
     file_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
         fields = (
-            'id', 'title', 'short_title', 'item_type', 'repository',
+            'id', 'owner_username', 'title', 'short_title', 'item_type', 'repository',
             'doi', 'url', 'date', 'authors', 'tags', 'primary_collection',
             'primary_collection_name', 'file_url', 'file_size', 'rag_status',
             'in_trash', 'is_publication', 'is_duplicate', 'last_read',

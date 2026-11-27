@@ -26,6 +26,7 @@ import { MetadataPanel } from '../../components/MetadataPanel/MetadataPanel';
 import { DoiModal } from '../../components/DoiModal/DoiModal';
 import { UploadModal } from '../../components/UploadModal/UploadModal';
 import { ChunkInspectorModal } from '../../components/ChunkInspectorModal/ChunkInspectorModal';
+import { ShareModal, type ShareTarget } from '../../components/ShareModal/ShareModal';
 import { UserMenu } from '../../components/UserMenu/UserMenu';
 import { BulkActions, type BulkActionHandlers } from '../../components/BulkActions/BulkActions';
 import { FaCheck, FaCircleExclamation, FaChevronRight, FaFolderTree } from 'react-icons/fa6';
@@ -126,6 +127,8 @@ export function HomePage() {
 
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [inspectingDoc, setInspectingDoc] = useState<Document | null>(null);
+  const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
+  const [sharedDocIds, setSharedDocIds] = useState<Set<string>>(() => new Set());
   /** Id of the document whose metadata is being edited (null = not editing). */
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 780 : false));
@@ -199,13 +202,30 @@ export function HomePage() {
     const nonTrash = libraryDocuments.filter((d) => !d.inTrash);
     return {
       all: nonTrash.length,
+      shared: nonTrash.filter((d) => sharedDocIds.has(d.id)).length,
       recent: nonTrash.filter((d) => Boolean(d.lastRead)).length,
       publications: nonTrash.filter((d) => d.isPublication).length,
       duplicates: nonTrash.filter((d) => d.isDuplicate).length,
       unfiled: nonTrash.filter((d) => !d.collectionId).length,
       trash: libraryDocuments.filter((d) => d.inTrash).length,
     };
-  }, [libraryDocuments]);
+  }, [libraryDocuments, sharedDocIds]);
+
+  useEffect(() => {
+    if (!apiReachable) return;
+    let cancelled = false;
+    documentsApi
+      .getSharedWithMe()
+      .then((docs) => {
+        if (!cancelled) setSharedDocIds(new Set(docs.map((d) => d.id)));
+      })
+      .catch(() => {
+        // non-critical; shared count stays empty if offline
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiReachable, documents.length, activeNavId]);
 
   // Collections with live document counts, matched by collection id, using the same
   // membership rule as the document list (direct only, or including subcollections).
@@ -233,9 +253,9 @@ export function HomePage() {
   }, [documents]);
 
   const processedDocuments = useMemo(() => {
-    const filtered = filterDocuments(libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag);
+    const filtered = filterDocuments(libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sharedDocIds);
     return sortDocuments(filtered, sortState.key, sortState.direction);
-  }, [libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sortState]);
+  }, [libraryDocuments, searchQuery, activeNavId, selectedCollectionScope, selectedTag, sharedDocIds, sortState]);
 
   // ─── Selection (single + multi) ───────────────────────────────────────────
   // Only an explicit user selection counts; there is no "first row" fallback.
@@ -790,6 +810,7 @@ export function HomePage() {
             onCreateCollection={handleCreateCollection}
             onRenameCollection={(col, name) => void handleRenameCollection(col, name)}
             onRecolorCollection={(col, color) => void handleRecolorCollection(col, color)}
+            onShareCollection={(col) => setShareTarget({ kind: 'collection', id: col.id, title: col.name })}
             onDeleteCollection={(col) => void handleDeleteCollection(col)}
             onRenameTag={(oldTag, newTag) => void handleSidebarRenameTag(oldTag, newTag)}
             onDeleteTag={(tag) => void handleSidebarDeleteTag(tag)}
@@ -911,6 +932,7 @@ export function HomePage() {
                   onInspectChunks={setInspectingDoc}
                   onRetryIndexing={(doc) => void handleRetryIndexing(doc)}
                   onFindFullText={(doc) => void handleFindFullText(doc)}
+                  onShareDoc={(doc) => setShareTarget({ kind: 'document', id: doc.id, title: doc.title })}
                   isTrashView={isTrashView}
                   isLoading={isLoadingDocs && documents.length === 0}
                   emptyMessage={tableEmptyMessage}
@@ -949,6 +971,7 @@ export function HomePage() {
             collections={collections}
             onSetCollection={handleAddToCollection}
             onInspectChunks={setInspectingDoc}
+            onShareDocument={(doc) => setShareTarget({ kind: 'document', id: doc.id, title: doc.title })}
             onJumpToPage={(doc, page, source) => {
               if (!doc.file) return;
               handleOpenPdf(doc, { collapseSidebars: false });
@@ -1024,6 +1047,13 @@ export function HomePage() {
           isOpen={Boolean(inspectingDoc)}
           document={inspectingDoc}
           onClose={() => setInspectingDoc(null)}
+        />
+
+        <ShareModal
+          isOpen={Boolean(shareTarget)}
+          target={shareTarget}
+          onClose={() => setShareTarget(null)}
+          onNotify={showToast}
         />
 
         {/* Toast Notification (live region always mounted so screen readers announce changes) */}

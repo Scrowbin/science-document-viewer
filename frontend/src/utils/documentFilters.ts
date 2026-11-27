@@ -51,7 +51,8 @@ export function filterDocuments(
   query: string,
   activeNavId: string | null,
   collectionScope: ReadonlySet<string> | null,
-  selectedTag: string | null
+  selectedTag: string | null,
+  sharedDocIds?: ReadonlySet<string>
 ): Document[] {
   return docs.filter((doc) => {
     // 1. Library Section Filtering
@@ -59,6 +60,9 @@ export function filterDocuments(
       switch (activeNavId) {
         case 'all':
           if (doc.inTrash) return false;
+          break;
+        case 'shared':
+          if (doc.inTrash || !sharedDocIds?.has(doc.id)) return false;
           break;
         case 'recent':
           if (doc.inTrash || !doc.lastRead) return false;

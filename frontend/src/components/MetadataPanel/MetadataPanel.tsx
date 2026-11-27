@@ -17,6 +17,7 @@ import {
   FaCircleInfo,
   FaRobot,
   FaNoteSticky,
+  FaShareNodes,
 } from 'react-icons/fa6';
 import { AiChatPanel } from '../AiChatPanel/AiChatPanel';
 import { AnnotationsList } from '../PdfViewer/AnnotationsList';
@@ -70,6 +71,7 @@ export interface MetadataPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   onInspectChunks?: (doc: Document) => void;
+  onShareDocument?: (doc: Document) => void;
   onJumpToPage?: (doc: Document, pageNumber: number, source?: ChatSource) => void;
   /** Shown instead of "No document selected" when several documents are selected. */
   selectionSummary?: React.ReactNode;
@@ -111,6 +113,7 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
   collapsed = false,
   onToggleCollapse,
   onInspectChunks,
+  onShareDocument,
   onJumpToPage,
   selectionSummary,
 }) => {
@@ -570,6 +573,16 @@ export const MetadataPanel: React.FC<MetadataPanelProps> = ({
                       title="Inspect extracted sections and RAG chunks"
                     >
                       <FaCube aria-hidden="true" /> Chunks
+                    </button>
+                  )}
+                  {onShareDocument && document && (!document.userPermission || document.userPermission === 'OWNER') && (
+                    <button
+                      type="button"
+                      className={styles.inspectBtn}
+                      onClick={() => onShareDocument(document)}
+                      title="Share document with collaborators"
+                    >
+                      <FaShareNodes aria-hidden="true" /> Share
                     </button>
                   )}
                 </>

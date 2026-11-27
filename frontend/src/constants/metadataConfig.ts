@@ -6,6 +6,7 @@ import {
   FaCopy,
   FaFolderOpen,
   FaTrash,
+  FaUsers,
 } from 'react-icons/fa6';
 
 /**
@@ -42,6 +43,7 @@ export const METADATA_FIELDS_CONFIG: MetadataFieldDefinition[] = [
  */
 export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   { id: 'all', label: 'All Documents', icon: FaBookOpen },
+  { id: 'shared', label: 'Shared with Me', icon: FaUsers },
   { id: 'recent', label: 'Recently Read', icon: FaClock },
   { id: 'unfiled', label: 'Unfiled Items', icon: FaFolderOpen },
   { id: 'publications', label: 'My Publications', icon: FaBook },

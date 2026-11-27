@@ -1,4 +1,6 @@
 import apiClient from './client';
+import { mapShareEntry, type RawShareEntry } from './documentsApi';
+import type { ShareEntry, SharePermission } from '../types';
 
 /** Matches CollectionTreeSerializer response shape from backend. */
 export interface CollectionNode {
@@ -57,6 +59,26 @@ export const collectionsApi = {
    */
   async deleteCollection(id: string | number): Promise<void> {
     await apiClient.delete(`/collections/${id}/`);
+  },
+
+  /** Fetch active shares for a collection (owner only). */
+  async getShares(colId: string | number): Promise<ShareEntry[]> {
+    const res = await apiClient.get<RawShareEntry[]>(`/collections/${colId}/shares/`);
+    return res.data.map(mapShareEntry);
+  },
+
+  /** Grant or update a user's permission on a collection (owner only). */
+  async shareCollection(colId: string | number, email: string, permission: SharePermission): Promise<ShareEntry> {
+    const res = await apiClient.post<RawShareEntry>(`/collections/${colId}/shares/`, {
+      shared_with_email: email,
+      permission,
+    });
+    return mapShareEntry(res.data);
+  },
+
+  /** Revoke a share on a collection (owner only). */
+  async revokeShare(colId: string | number, shareId: string): Promise<void> {
+    await apiClient.delete(`/collections/${colId}/shares/${shareId}/`);
   },
 };
 

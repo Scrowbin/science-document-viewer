@@ -1,5 +1,5 @@
 import apiClient, { RAG_TIMEOUT_MS } from './client';
-import type { Document, DocumentMetadata, DocumentPermission, RagStatus } from '../types';
+import type { Document, DocumentMetadata, DocumentPermission, RagStatus, ShareEntry, SharePermission } from '../types';
 
 export interface DjangoDocumentRaw {
   id: number | string;
@@ -32,6 +32,7 @@ export interface DjangoDocumentRaw {
   domains?: string[];
   date_added?: string;
   date_modified?: string;
+  owner_username?: string;
   user_permission?: string;
 }
 
@@ -121,6 +122,7 @@ export function mapDjangoDocToFrontend(doc: DjangoDocumentRaw): Document {
     fileSize: doc.file_size,
     ragStatus: toRagStatus(doc.rag_status),
     collectionId: doc.primary_collection != null ? String(doc.primary_collection) : null,
+    ownerUsername: doc.owner_username || undefined,
     userPermission: toPermission(doc.user_permission),
     isPublication: doc.is_publication,
     isDuplicate: doc.is_duplicate,
@@ -349,7 +351,53 @@ export const documentsApi = {
     );
     return response.data;
   },
+
+  /** Fetch active shares for a document (owner only). */
+  async getShares(docId: string): Promise<ShareEntry[]> {
+    const res = await apiClient.get<RawShareEntry[]>(`/documents/${docId}/shares/`);
+    return res.data.map(mapShareEntry);
+  },
+
+  /** Grant or update a user's permission on a document (owner only). */
+  async shareDocument(docId: string, email: string, permission: SharePermission): Promise<ShareEntry> {
+    const res = await apiClient.post<RawShareEntry>(`/documents/${docId}/shares/`, {
+      shared_with_email: email,
+      permission,
+    });
+    return mapShareEntry(res.data);
+  },
+
+  /** Revoke a share on a document (owner only). */
+  async revokeShare(docId: string, shareId: string): Promise<void> {
+    await apiClient.delete(`/documents/${docId}/shares/${shareId}/`);
+  },
+
+  /** Fetch documents shared with the current user (excluding owned documents). */
+  async getSharedWithMe(): Promise<Document[]> {
+    const res = await apiClient.get<DjangoDocumentRaw[]>('/shared-with-me/');
+    return res.data.map(mapDjangoDocToFrontend);
+  },
 };
+
+export interface RawShareEntry {
+  id: number | string;
+  shared_with_user: number | string;
+  shared_with_username?: string;
+  shared_with_email_display?: string;
+  permission: SharePermission;
+  created_at?: string;
+}
+
+export function mapShareEntry(raw: RawShareEntry): ShareEntry {
+  return {
+    id: String(raw.id),
+    sharedWithUser: String(raw.shared_with_user),
+    sharedWithUsername: raw.shared_with_username || '',
+    sharedWithEmail: raw.shared_with_email_display || '',
+    permission: raw.permission,
+    createdAt: raw.created_at || '',
+  };
+}
 
 export type BulkAction = 'move' | 'remove_from_collection' | 'trash' | 'restore' | 'delete' | 'add_tag' | 'remove_tag';
 
