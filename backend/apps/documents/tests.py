@@ -1,4 +1,4 @@
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
@@ -805,6 +805,8 @@ def create_sample_academic_pdf() -> bytes:
     return pdf_bytes
 
 
+# Pinned to e5-small-v2: the claims checked here (384-dim vectors, SentenceTransformer encode) are e5-specific.
+@override_settings(EMBEDDING_MODEL="intfloat/e5-small-v2")
 class DocumentLifecycleThesisTestCase(TransactionTestCase):
     """
     Verification test suite for Document Lifecycle matching Thesis Specifications:
@@ -816,6 +818,12 @@ class DocumentLifecycleThesisTestCase(TransactionTestCase):
     """
 
     def setUp(self):
+        from .services.rag_service import RagService, MODEL_DIMENSIONS
+        # The shared service may already exist with another model (backend/.env); switch it to e5 for these tests.
+        svc = RagService.get_instance()
+        self._saved_model = (svc.model_name, svc.vector_dim, svc._embedder, svc._is_st_model)
+        svc.model_name, svc.vector_dim = "intfloat/e5-small-v2", MODEL_DIMENSIONS["intfloat/e5-small-v2"]
+        svc._embedder, svc._is_st_model = None, False
         self.client = APIClient()
         self.user = User.objects.create_user(username="thesis_user", email="thesis@univ.edu", password="password123")
         self.client.force_authenticate(user=self.user)
@@ -833,6 +841,9 @@ class DocumentLifecycleThesisTestCase(TransactionTestCase):
                     os.remove(doc.file.path)
             except Exception:
                 pass
+        from .services.rag_service import RagService
+        svc = RagService.get_instance()
+        svc.model_name, svc.vector_dim, svc._embedder, svc._is_st_model = self._saved_model
         super().tearDown()
 
     def test_upload_writes_points_and_parents_to_qdrant(self):

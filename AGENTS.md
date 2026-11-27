@@ -55,10 +55,11 @@ Backend (backend/)    Django 5 + DRF + SimpleJWT, PostgreSQL 16
         |  in-process call
         v
 RAG pipeline          PyMuPDF layout-aware section extraction -> hierarchical (small-to-big)
-(apps/documents/)     chunking -> intfloat/e5-small-v2 embeddings (with prefixes) ->
+(apps/documents/)     chunking -> google/embeddinggemma-300m embeddings (FastEmbed ONNX, with prefixes) ->
                       embedded Qdrant (child vectors + vectorless parent collection) ->
-                      dense retrieval by default (RAG_RETRIEVAL_MODE=dense; rrf_legacy optional)
-                      -> parent expansion within a token budget -> Ollama llama3.2:3b
+                      chat retrieval: convex dense + BM25 (RAG_CHAT_RETRIEVAL_MODE=convex)
+                      -> parent expansion within a token budget -> Ollama (qwen3:4b on a Kaggle
+                      GPU for demos, llama3.2:3b as the local CPU fallback)
 ```
 
 Production settings live in `backend/core/settings.py` and `backend/.env` (see `SETUP.md`).
@@ -168,6 +169,9 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   shorter primary LLM timeout when a fallback exists, no silent embedding-model fallback. The chat retrieves with
   `RAG_CHAT_RETRIEVAL_MODE=convex` plus budget fill and answer-aligned citations; `RAG_RETRIEVAL_MODE` stays `dense`. Planned FR-16 (context retry, default
   `strict`): `docs/design/CONTEXT_RETRY_PLAN.md`.
+  Since 2026-11-27 the app uses embeddinggemma + convex (all documents re-indexed; the gated model needs
+  `HF_TOKEN`; `RAG_MIN_SIMILARITY_SCORE=0.30`, calibrated in `eval/README.md`). Changing `EMBEDDING_MODEL`
+  requires `manage.py reindex_documents --all`.
 * Scope: proof of concept that runs locally on one machine; not scalable as is. The desktop
   client + project-hosted server model is deferred until after the graduation project and is
   only a future extension in the thesis (`docs/design/DEPLOYMENT_PLAN.md`).

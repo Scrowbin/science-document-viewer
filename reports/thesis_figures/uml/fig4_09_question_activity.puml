@@ -13,10 +13,10 @@ if (Bộ lọc câu hỏi?) then ([tục tĩu hoặc nhạy cảm\nvề ứng d�
 else ([hợp lệ])
 endif
 :Truy xuất convex, mở rộng sang đoạn cha;
-if (Độ tương đồng dense cao nhất?) then ([< 0,80])
+if (Độ tương đồng dense cao nhất?) then ([< 0,30])
   :Từ chối, không gọi LLM;
   stop
-else ([≥ 0,80])
+else ([≥ 0,30])
 endif
 :Tạo lời nhắc: chỉ dùng ngữ cảnh,\ntừ chối nếu không đủ;
 :Gọi máy chủ mô hình chính\n(GPU khi demo: chờ tối đa 40 s);

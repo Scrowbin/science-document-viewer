@@ -42,7 +42,7 @@ Ask only these questions on stage. Answers normally take about 2 seconds on the 
 |---|---|
 | Answer says **(Local RAG)** | Kaggle or the tunnel dropped. Keep going; answers take about 30 s on CPU. A hung tunnel can add up to 40 s per question first. Restart Kaggle afterwards. |
 | Answer shows excerpts only | Neither model replied. Show the citations, then check Kaggle and Ollama. |
-| Status stuck on Queued or Indexing | Indexing usually takes under a minute on CPU. If it never moves, restart the backend; indexing resumes on startup. |
+| Status stuck on Queued or Indexing | Indexing takes about 2 minutes for the Attention paper on CPU (4–5 minutes for long papers), so upload it before the talk or talk through the wait. If it never moves, restart the backend; indexing resumes on startup. |
 | `ollama_status` says the model is not available | Make the Kaggle secret `OLLAMA_MODEL` and `OLLAMA_MODEL` in `backend/.env` match, then restart. If it shows `has: []`, also check that `OLLAMA_API_KEY` is the same in both places. |
 | ngrok "endpoint already online" | Cancel the old Kaggle run, or stop the endpoint in the ngrok dashboard. |
 

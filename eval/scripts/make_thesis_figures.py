@@ -53,7 +53,7 @@ def hbars(ax, labels, values, highlight, fmt="{:.3f}", xlabel=""):
     ax.grid(axis="y", visible=False)
     span = max(values) if max(values) > 0 else 1
     for yi, v in zip(y, values):
-        ax.text(v + span * 0.015, yi, fmt.format(v), va="center", color=INK, fontsize=8)
+        ax.text(v + span * 0.015, yi, fmt.format(v), va="center", color=INK, fontsize=8.5)
     ax.set_xlim(0, span * 1.18)
     ax.set_xlabel(xlabel)
 
@@ -70,7 +70,7 @@ def fig_qasper():
             w = sum(len(par.split()) for sec in p["full_text"] for par in sec["paragraphs"])
             if w > 0:
                 words.append(w)
-    fig, axes = plt.subplots(1, 3, figsize=(11, 3.2))
+    fig, axes = plt.subplots(3, 1, figsize=(6.3, 7.4))
     labels = {"extractive": "Trích xuất", "abstractive": "Tự diễn đạt", "yes_no": "Có/Không", "unanswerable": "Không trả lời được"}
     keys = ["extractive", "abstractive", "yes_no", "unanswerable"]
     total = sum(qt.values())
@@ -81,7 +81,7 @@ def fig_qasper():
     med = float(np.median(words))
     ax.axvline(med, color=INK2, linestyle="--", linewidth=1)
     ax.annotate(f"trung vị {med:,.0f} từ", xy=(med, ax.get_ylim()[1] * 0.8), xytext=(7000, ax.get_ylim()[1] * 0.8),
-                fontsize=7.5, color=INK2, va="center", arrowprops={"arrowstyle": "-", "color": INK2, "linewidth": 0.8})
+                fontsize=8.5, color=INK2, va="center", arrowprops={"arrowstyle": "-", "color": INK2, "linewidth": 0.8})
     ax.set_xlabel(f"Độ dài bài báo (số từ; {len(words):,} bài)")
     ax.set_ylabel("Số bài báo")
     ax.grid(axis="x", visible=False)
@@ -103,7 +103,7 @@ def fig_extraction():
     rec = [s[n]["evidence_recall"] for n in names]
     ms = [s[n]["timing"]["ms_per_page"] for n in names]
     hl = [n == "pymupdf_layout" for n in names]
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 3.2))
+    fig, axes = plt.subplots(3, 1, figsize=(6.3, 7.0))
     hbars(axes[0], labels, rec, hl, xlabel="Độ phủ bằng chứng")
     y = np.arange(len(names))[::-1]
     srcs = [("text", "Văn bản"), ("table", "Bảng"), ("formula", "Công thức")]
@@ -114,11 +114,9 @@ def fig_extraction():
     axes[1].set_xlim(0, 100)
     axes[1].set_xlabel("LCS (%) theo loại nguồn bằng chứng")
     axes[1].grid(axis="y", visible=False)
-    axes[1].legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=7)
+    axes[1].set_yticks(y, labels)
+    axes[1].legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=8.5)
     hbars(axes[2], labels, ms, hl, fmt="{:.1f}", xlabel="ms/trang")
-    for ax in axes[1:]:
-        ax.set_yticks(y, [""] * len(y))
-        ax.tick_params(axis="y", length=0)
     save(fig, "fig5_2_extraction_ohr.png")
 
 
@@ -154,7 +152,7 @@ def fig_retrieval_grid(cohort="c_ret"):
     nd, src = phase2_ndcg(cohort)
     models = [m for m in ["e5", "arctic", "modernbert", "gemma", "qwen"] if any(k[1] == m for k in nd)]
     chunkers = [("hierarchical", "hierarchical"), ("fixed_size", "fixed_size"), ("section_overlap", "section_overlap")]
-    fig, ax = plt.subplots(figsize=(7.2, 3.6))
+    fig, ax = plt.subplots(figsize=(6.3, 4.2))
     y = np.arange(len(models))[::-1]
     h = 0.26
     for j, (ck, name) in enumerate(chunkers):
@@ -163,13 +161,13 @@ def fig_retrieval_grid(cohort="c_ret"):
         ax.barh(yy, v, height=h, color=C[j], edgecolor=SURF, linewidth=1, label=name)
         for yi, vi in zip(yy, v):
             if not np.isnan(vi):
-                ax.text(vi + 0.008, yi, f"{vi:.3f}", va="center", fontsize=7, color=INK)
+                ax.text(vi + 0.008, yi, f"{vi:.3f}", va="center", fontsize=8, color=INK)
     ax.set_yticks(y, [P2_LABELS[m] for m in models])
-    ax.set_xlim(0, 0.82)
+    ax.set_xlim(0, 0.86)
     ax.set_xlabel("nDCG@10 (C-RET, 335 bài báo; truy xuất dense)" if cohort == "c_ret"
-                  else "nDCG@10 (PeerQA, 107 bài báo, văn bản trích xuất từ PDF; truy xuất dense)")
+                  else "nDCG@10 (PeerQA, 107 bài báo, văn bản từ PDF; truy xuất dense)")
     ax.grid(axis="y", visible=False)
-    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=7.5)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3, fontsize=8.5)
     print("  phase 2 source:", src)
     save(fig, "fig5_3_retrieval_grid.png" if cohort == "c_ret" else "fig5_4_retrieval_grid_peerqa.png")
 
@@ -181,7 +179,7 @@ def fig_phase3_tradeoff():
     fam = {"dense": ("dense", C[0]), "rrf": ("rrf / convex", C[1]), "convex": ("rrf / convex", C[1]),
            "dense+minilm": ("+ MiniLM", C[2]), "convex+minilm": ("+ MiniLM", C[2]),
            "dense+bgem3": ("+ bge-reranker-v2-m3", C[4]), "convex+bgem3": ("+ bge-reranker-v2-m3", C[4])}
-    fig, axes = plt.subplots(1, 2, figsize=(7.4, 3.5), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(6.3, 4.0), sharey=True)
     for ax, (key, title) in zip(axes, [("c_ret", "C-RET (566 câu hỏi)"), ("peerqa_pdf", "PeerQA (284 câu hỏi)")]):
         c = d["cohorts"][key]
         lat = c["latency_ms_p50"]
@@ -194,19 +192,19 @@ def fig_phase3_tradeoff():
                 ax.scatter(x, v, s=22, color=col, edgecolor=SURF, linewidth=0.8, zorder=3,
                            label=name if name not in seen else None)
                 seen.add(name)
-                if emb == "gemma" and arm == "dense":
+                if emb == "gemma" and arm == "convex":
                     ax.scatter(x, v, s=90, facecolor="none", edgecolor=INK, linewidth=1.0, zorder=4)
-                    ax.annotate("embeddinggemma\ndense (chọn)", (x, v), xytext=(8, -26), textcoords="offset points",
-                                fontsize=7, color=INK, arrowprops={"arrowstyle": "-", "color": INK2, "lw": 0.6})
+                    ax.annotate("embeddinggemma\nconvex (chọn)", (x, v), xytext=(28, -48), textcoords="offset points",
+                                fontsize=8, color=INK, arrowprops={"arrowstyle": "-", "color": INK2, "lw": 0.6})
         ax.scatter(lat["bm25"], c["bm25"], s=22, marker="s", color=GREY, edgecolor=SURF, linewidth=0.8, zorder=3,
                    label="BM25")
         ax.set_xscale("log")
-        ax.set_title(title, fontsize=9, color=INK)
-        ax.set_xlabel("Độ trễ truy xuất (ms, thang log, GPU T4)")
+        ax.set_title(title, fontsize=9.5, color=INK)
+        ax.set_xlabel("Độ trễ truy xuất\n(ms, thang log, GPU T4)")
     axes[0].set_ylabel("nDCG@10")
     h, lab = axes[0].get_legend_handles_labels()
-    fig.legend(h, lab, loc="upper center", ncol=5, fontsize=7.5, bbox_to_anchor=(0.5, 1.0))
-    fig.tight_layout(rect=(0, 0, 1, 0.92))
+    fig.legend(h, lab, loc="upper center", ncol=3, fontsize=8.5, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
     fig.savefig(OUT / "fig5_5_phase3_tradeoff.png", dpi=300)
     plt.close(fig)
     print("wrote fig5_5_phase3_tradeoff.png")
@@ -223,13 +221,10 @@ def fig_generation():
     rows.sort(key=lambda r: -r[1])
     labels = [r[0] for r in rows]
     hl = [r[0] in ("llama3.2:3b", "qwen2.5:1.5b") for r in rows]
-    fig, axes = plt.subplots(1, 3, figsize=(10.5, 2.8))
+    fig, axes = plt.subplots(3, 1, figsize=(6.3, 6.6))
     hbars(axes[0], labels, [r[1] for r in rows], hl, xlabel="Token F1")
     hbars(axes[1], labels, [r[2] for r in rows], hl, fmt="{:.0%}", xlabel="Tỷ lệ từ chối trả lời")
     hbars(axes[2], labels, [r[3] for r in rows], hl, fmt="{:.1f} s", xlabel="Độ trễ P50 (s)")
-    for ax in axes[1:]:
-        ax.set_yticklabels([])
-        ax.tick_params(axis="y", length=0)
     save(fig, "fig5_10_generation.png")
 
 
@@ -241,7 +236,7 @@ def fig_human():
             ("Không căn cứ / mâu thuẫn", ["UNSUPPORTED", "CONTRADICTED"]),
             ("Từ chối hợp lệ", ["REFUSAL_VALID"]), ("Từ chối không cần thiết", ["MISSING_INFO - UNJUSTIFIED_REFUSAL"])]
     models = ["llama3.2:3b", "llama3.2:1b", "qwen2.5:0.5b", "qwen2.5:1.5b", "phi4-mini"]
-    fig, ax = plt.subplots(figsize=(7.2, 3.2))
+    fig, ax = plt.subplots(figsize=(6.3, 3.6))
     y = np.arange(len(models))[::-1]
     left = np.zeros(len(models))
     for j, (lab, keys) in enumerate(cats):
@@ -257,7 +252,7 @@ def fig_human():
     ax.set_xticks(range(0, 21, 5))
     ax.set_xlabel("Số câu trả lời (20 câu hỏi mỗi mô hình, một người đánh giá)")
     ax.grid(axis="y", visible=False)
-    ax.legend(ncol=3, loc="upper center", bbox_to_anchor=(0.5, 1.32), fontsize=7.5)
+    ax.legend(ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.40), fontsize=8.5)
     save(fig, "fig5_11_human_check.png")
 
 
