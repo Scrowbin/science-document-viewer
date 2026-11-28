@@ -1196,3 +1196,72 @@ class DemoPathRegressionTests(SimpleTestCase):
             convex = rag.hybrid_search("Gemma4 proposes", top_k=1, mode="convex")
         self.assertEqual(dense[0][0].metadata["chunk_id"], "c0")
         self.assertEqual(convex[0][0].metadata["chunk_id"], "c2")
+
+
+class EmbeddedQdrantRecreateTests(SimpleTestCase):
+    """Re-indexing in embedded Qdrant must start from an empty collection: on Windows the old
+    SQLite file survived delete_collection, so stale 384-dim rows reloaded into the recreated
+    768-dim collection, the upsert failed, and every retry then failed until a restart."""
+
+    def setUp(self):
+        import random
+        import shutil
+
+        from .services.rag_service import RagService
+
+        self.path = tempfile.mkdtemp(prefix="qdrant_recreate_")
+        self.addCleanup(shutil.rmtree, self.path, ignore_errors=True)
+        self.svc = RagService(storage_path=self.path, embedding_model_name="google/embeddinggemma-300m")
+        self.addCleanup(self.svc.client.close)
+        self.svc._embed_texts = lambda texts, is_query=False: [[random.random() for _ in range(768)] for _ in texts]
+        self.chunks = [
+            {"text": f"t{i}", "document_id": "x", "chunk_id": i, "parent_id": "p0", "parent_text": "P",
+             "strategy": "hierarchical"}
+            for i in range(5)
+        ]
+
+    def _old_collection(self, n=3):
+        import random
+
+        from qdrant_client import models as qm
+
+        self.svc.client.create_collection("doc_x", vectors_config=qm.VectorParams(size=384, distance=qm.Distance.COSINE))
+        self.svc.client.upsert(
+            "doc_x", [qm.PointStruct(id=i, vector=[random.random() for _ in range(384)], payload={}) for i in range(n)]
+        )
+
+    def test_stale_rows_on_disk_do_not_reload_into_the_new_collection(self):
+        import sqlite3
+
+        from qdrant_client import models as qm
+
+        self._old_collection()
+        db = os.path.join(self.path, "collection", "doc_x", "storage.sqlite")
+        con = sqlite3.connect(db)
+        stale = con.execute("select * from points").fetchall()
+        con.close()
+        # the in-memory copy forgets the rows while they stay on disk
+        self.svc.client._client.collections["doc_x"].delete(qm.FilterSelector(filter=qm.Filter()))
+        con = sqlite3.connect(db)
+        con.executemany("insert into points values (?, ?)", stale)
+        con.commit()
+        con.close()
+
+        self.assertEqual(self.svc.index_chunks("doc_x", self.chunks, recreate=True), 5)
+        self.assertEqual(self.svc.client.count("doc_x").count, 5)
+
+    def test_reindex_recovers_from_a_collection_broken_by_a_failed_write(self):
+        from qdrant_client import models as qm
+
+        # The state of the failing server: a plain delete/recreate reloaded the old 384-dim rows,
+        # the 768-dim upsert failed half-way, and the collection stayed broken in memory.
+        self._old_collection()
+        client = self.svc.client
+        client.delete_collection("doc_x")
+        client.create_collection("doc_x", vectors_config=qm.VectorParams(size=768, distance=qm.Distance.COSINE))
+        if client.count("doc_x").count:  # stale rows reloaded (Windows keeps the SQLite file open)
+            with self.assertRaises(ValueError):
+                client.upsert("doc_x", [qm.PointStruct(id=90 + i, vector=[0.1] * 768, payload={}) for i in range(3)])
+
+        self.assertEqual(self.svc.index_chunks("doc_x", self.chunks, recreate=True), 5)
+        self.assertEqual(self.svc.client.count("doc_x").count, 5)

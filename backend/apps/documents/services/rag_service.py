@@ -24,6 +24,7 @@ import logging
 import os
 import re
 import threading
+import shutil
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -460,8 +461,42 @@ class RagService:
         if not self.client.collection_exists(name):
             return
         from qdrant_client.models import Filter, FilterSelector
-        self.client.delete(collection_name=name, points_selector=FilterSelector(filter=Filter()), wait=True)
+        try:
+            self.client.delete(collection_name=name, points_selector=FilterSelector(filter=Filter()), wait=True)
+        except Exception as e:
+            # A failed write (e.g. vectors of the wrong size) can leave the in-memory collection
+            # inconsistent; dropping it below still works, so a retry does not fail forever.
+            logger.warning("Could not empty collection %s before dropping it: %s", name, e)
+        # Embedded mode: qdrant_client's delete_collection does not close the collection's SQLite
+        # file, so on Windows its folder cannot be removed and a recreated collection reloads rows
+        # the in-memory copy never had (old vectors of another size). Close it and remove the folder.
+        local = getattr(self.client, "_client", None)
+        collection = getattr(local, "collections", {}).get(name) if local is not None else None
+        if collection is not None:
+            try:
+                collection.close()
+            except Exception as e:
+                logger.warning("Could not close collection %s: %s", name, e)
         self.client.delete_collection(name)
+        path = getattr(local, "location", None)
+        if collection is not None and path and getattr(local, "persistent", False):
+            folder = os.path.join(path, "collection", name)
+            shutil.rmtree(folder, ignore_errors=True)
+            leftover = os.path.join(folder, "storage.sqlite")
+            if os.path.exists(leftover):
+                # Still held open (e.g. by a collection object left over from an earlier failed
+                # attempt): empty it instead, so the recreated collection starts with no rows.
+                import sqlite3
+
+                con = sqlite3.connect(leftover)
+                try:
+                    con.execute("DELETE FROM points")
+                    con.commit()
+                except sqlite3.OperationalError as e:
+                    if "no such table" not in str(e):
+                        raise
+                finally:
+                    con.close()
 
     def search_dense(
         self,

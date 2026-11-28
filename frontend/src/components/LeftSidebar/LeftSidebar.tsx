@@ -215,6 +215,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   // Reveal the selected collection: when the selection changes (e.g. chosen from the path bar),
   // open its ancestors once. Adjusting state during render on a prop change (React's
   // recommended pattern) keeps the user free to close those folders afterwards.
+  /** Which folder was already selected when the current click/double-click gesture began. */
+  const gestureStartActiveRef = useRef<string | null>(null);
+
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
   if (selectedCollectionId !== revealedFor) {
     setRevealedFor(selectedCollectionId);
@@ -229,7 +232,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   }
 
   /** Arrow-key navigation over the visible folder rows (Windows Explorer / WAI tree pattern). */
-  const handleTreeKey = (e: React.KeyboardEvent<HTMLElement>, col: Collection, hasChildren: boolean, isExpanded: boolean) => {
+  const handleTreeKey = (e: React.KeyboardEvent<HTMLElement>, col: Collection, canOpen: boolean, isExpanded: boolean) => {
     const rows = Array.from(
       e.currentTarget.closest('aside')?.querySelectorAll<HTMLElement>('[data-tree-row]') ?? []
     );
@@ -254,11 +257,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         go(rows[rows.length - 1]);
         break;
       case 'ArrowRight':
-        if (hasChildren && !isExpanded) setExpanded(col.id, true);
-        else if (hasChildren) go(rows.find((r) => r.dataset.parentId === col.id));
+        if (canOpen && !isExpanded) setExpanded(col.id, true);
+        else if (canOpen) go(rows.find((r) => r.dataset.parentId === col.id));
         break;
       case 'ArrowLeft':
-        if (hasChildren && isExpanded) setExpanded(col.id, false);
+        if (canOpen && isExpanded) setExpanded(col.id, false);
         else if (col.parent) go(rows.find((r) => r.dataset.colId === col.parent));
         break;
       case '*':
@@ -496,10 +499,13 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     const childCount = col.children?.length ?? 0;
     const hasChildren = childCount > 0;
     const isExpanded = !collapsedCollections.has(col.id);
-    const showDocs = !collapsed && isActive && colDocs.length > 0;
+    // A folder can be opened/closed when it has subcollections or, while selected, its own documents
+    // (they are listed under the selected folder only).
+    const canOpen = hasChildren || (isActive && colDocs.length > 0);
+    const showDocs = !collapsed && isActive && isExpanded && colDocs.length > 0;
     const showChildren = !collapsed && hasChildren && isExpanded;
     const isDropTarget = dragOverColId === col.id;
-    const FolderIcon = hasChildren && isExpanded && !collapsed ? FaFolderOpen : FaFolder;
+    const FolderIcon = canOpen && isExpanded && !collapsed ? FaFolderOpen : FaFolder;
     const subLabel = hasChildren ? `, ${childCount} subcollection${childCount === 1 ? '' : 's'}` : '';
     const zone = onDropDocsOnCollection
       ? dropZone(
@@ -523,11 +529,15 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           // closes a folder that has subcollections, like a file explorer.
           onClick={() => onSelectCollection(col.id)}
           onDoubleClick={(e) => {
-            if (!hasChildren || collapsed) return;
+            if (!canOpen || collapsed) return;
             e.preventDefault();
-            toggleExpandCollection(col.id);
+            // The first click of a double-click on a folder that was not selected already showed its
+            // documents; keep it open instead of closing it straight away.
+            if (!hasChildren && gestureStartActiveRef.current !== col.id) setExpanded(col.id, true);
+            else toggleExpandCollection(col.id);
           }}
           onMouseDown={(e) => {
+            if (e.detail === 1) gestureStartActiveRef.current = isActive ? col.id : null;
             if (e.detail > 1) e.preventDefault(); // no text selection on double-click
           }}
           onContextMenu={(e) => openMenu(e, col.name, collectionMenuEntries(col))}
@@ -537,36 +547,36 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               openMenu(e, col.name, collectionMenuEntries(col));
               return;
             }
-            if (!collapsed && handleTreeKey(e, col, hasChildren, isExpanded)) return;
+            if (!collapsed && handleTreeKey(e, col, canOpen, isExpanded)) return;
             activateOnKey(e, () => onSelectCollection(col.id));
           }}
           role="button"
           tabIndex={0}
           aria-pressed={isActive}
-          aria-expanded={hasChildren && !collapsed ? isExpanded : undefined}
+          aria-expanded={canOpen && !collapsed ? isExpanded : undefined}
           aria-label={`${col.name}, ${col.count ?? 0} document${(col.count ?? 0) === 1 ? '' : 's'}${subLabel}`}
           title={
             collapsed
               ? `${col.name} (${col.count ?? 0})`
-              : `${col.name}${subLabel}${hasChildren ? '. Double-click to open or close' : ''}. Drop documents here to move them.`
+              : `${col.name}${subLabel}${canOpen ? '. Double-click to open or close' : ''}. Drop documents here to move them.`
           }
           {...zone}
         >
           {!collapsed && (
             <span
-              className={`${styles.treeToggle} ${hasChildren ? styles.treeToggleActive : ''} ${
-                hasChildren && isExpanded ? styles.treeToggleOpen : ''
+              className={`${styles.treeToggle} ${canOpen ? styles.treeToggleActive : ''} ${
+                canOpen && isExpanded ? styles.treeToggleOpen : ''
               }`}
               onClick={(e) => {
-                if (!hasChildren) return;
+                if (!canOpen) return;
                 e.stopPropagation(); // the arrow only opens/closes; it does not select
                 toggleExpandCollection(col.id);
               }}
               onDoubleClick={(e) => e.stopPropagation()}
-              title={hasChildren ? (isExpanded ? 'Close folder (Left arrow)' : 'Open folder (Right arrow)') : undefined}
+              title={canOpen ? (isExpanded ? 'Close folder (Left arrow)' : 'Open folder (Right arrow)') : undefined}
               aria-hidden="true"
             >
-              {hasChildren && <FaChevronRight />}
+              {canOpen && <FaChevronRight />}
             </span>
           )}
           <FolderIcon className={styles.sidebarIcon} style={{ color: col.color || undefined }} aria-hidden="true" />

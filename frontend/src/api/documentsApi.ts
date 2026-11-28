@@ -374,7 +374,7 @@ export const documentsApi = {
 
   /** Fetch documents shared with the current user (excluding owned documents). */
   async getSharedWithMe(): Promise<Document[]> {
-    const res = await apiClient.get<DjangoDocumentRaw[]>('/shared-with-me/');
+    const res = await apiClient.get<DjangoDocumentRaw[]>('/shares/shared-with-me/');
     return res.data.map(mapDjangoDocToFrontend);
   },
 };
