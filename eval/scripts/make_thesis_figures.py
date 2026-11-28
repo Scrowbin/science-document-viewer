@@ -260,9 +260,9 @@ def fig_human():
 P4 = PH / "phase_4_generation/artifacts/summary.json"
 P4_MODELS = [("llama3.2:3b", "llama3.2:3b"), ("qwen2.5:1.5b", "qwen2.5:1.5b"), ("phi4-mini", "phi4-mini"),
              ("qwen3:4b-instruct-2507-q4_K_M", "qwen3:4b"), ("gemma3:4b", "gemma3:4b")]
-P4_PANELS = [("c_ret", "gold", "C-RET, bằng chứng chuẩn"), ("c_ret", "retrieved_gemma_dense", "C-RET, ngữ cảnh truy xuất"),
-             ("peerqa_pdf", "gold", "PeerQA, bằng chứng chuẩn"),
-             ("peerqa_pdf", "retrieved_gemma_dense", "PeerQA, ngữ cảnh truy xuất")]
+P4_PANELS = [("c_ret", "gold", "C-RET, context chuẩn"), ("c_ret", "retrieved_gemma_dense", "C-RET, context từ truy xuất"),
+             ("peerqa_pdf", "gold", "PeerQA, context chuẩn"),
+             ("peerqa_pdf", "retrieved_gemma_dense", "PeerQA, context từ truy xuất")]
 P4_CATS = [("Có căn cứ", ["SUPPORTED"]), ("Đúng một phần", ["MISSING_INFO - PARTIAL"]),
            ("Không căn cứ / mâu thuẫn", ["UNSUPPORTED", "CONTRADICTED"]),
            ("Từ chối hợp lệ", ["REFUSAL_VALID"]), ("Từ chối không cần thiết", ["MISSING_INFO - UNJUSTIFIED_REFUSAL"])]
@@ -312,8 +312,8 @@ def fig_phase4_gap():
             t = [s[cohort]["retrieved_gemma_dense"][m][key] for m, _ in P4_MODELS]
             for yi, a, b in zip(y, g, t):
                 ax.plot([a, b], [yi, yi], color=GREY, linewidth=2, zorder=1)
-            ax.scatter(g, y, s=46, color=C[0], edgecolor=SURF, linewidth=2, zorder=3, label="Bằng chứng chuẩn")
-            ax.scatter(t, y, s=46, color=C[1], edgecolor=SURF, linewidth=2, zorder=3, label="Ngữ cảnh truy xuất")
+            ax.scatter(g, y, s=46, color=C[0], edgecolor=SURF, linewidth=2, zorder=3, label="Context chuẩn")
+            ax.scatter(t, y, s=46, color=C[1], edgecolor=SURF, linewidth=2, zorder=3, label="Context từ truy xuất")
             ax.set_yticks(y, [nm for _, nm in P4_MODELS] if c == 0 else [""] * len(y))
             ax.tick_params(axis="y", length=0)
             ax.grid(axis="y", visible=False)
