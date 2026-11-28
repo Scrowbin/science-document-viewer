@@ -175,6 +175,9 @@ OLLAMA_FALLBACK_URL = os.getenv('OLLAMA_FALLBACK_URL', '')
 OLLAMA_FALLBACK_MODEL = os.getenv('OLLAMA_FALLBACK_MODEL', OLLAMA_MODEL)
 EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'intfloat/e5-small-v2')
 CHUNKING_STRATEGY = os.getenv('CHUNKING_STRATEGY', 'hierarchical')  # 'hierarchical' (production default) | 'section_overlap'
+# App child windows end on sentence boundaries (same 150-word budget); the evaluation used plain word windows.
+# Changing it requires manage.py reindex_documents --all.
+RAG_CHUNK_SENTENCE_BOUNDS = os.getenv('RAG_CHUNK_SENTENCE_BOUNDS', 'true').lower() in ('1', 'true', 'yes')
 QDRANT_MODE = os.getenv('QDRANT_MODE', 'local')  # 'local' (embedded SQLite) or 'server' (standalone Docker)
 QDRANT_URL = os.getenv('QDRANT_URL', 'http://localhost:6333')
 QDRANT_PREFER_GRPC = os.getenv('QDRANT_PREFER_GRPC', 'false').lower() == 'true'
@@ -200,6 +203,8 @@ RAG_MIN_SIMILARITY_SCORE = float(os.getenv('RAG_MIN_SIMILARITY_SCORE', '0.80'))
 RAG_RETRIEVAL_MODE = os.getenv('RAG_RETRIEVAL_MODE', 'dense')
 # Retrieval used by the chat endpoint. 'convex' is the Phase 3 dense + BM25 arm; evaluation calls keep RAG_RETRIEVAL_MODE.
 RAG_CHAT_RETRIEVAL_MODE = os.getenv('RAG_CHAT_RETRIEVAL_MODE', 'convex')
+# Cross-encoder for the chat's optional accurate mode (reranks the top 30 children; Phase 3 `convex+bgem3`).
+RAG_RERANK_MODEL = os.getenv('RAG_RERANK_MODEL', 'BAAI/bge-reranker-v2-m3')
 OLLAMA_TEMPERATURE = float(os.getenv('OLLAMA_TEMPERATURE', '0'))
 # Ollama context window, set explicitly (Ollama 0.40.13 default is 4096; real prompts peak ~2,300 tokens)
 OLLAMA_NUM_CTX = int(os.getenv('OLLAMA_NUM_CTX', '4096'))

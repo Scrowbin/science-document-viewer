@@ -39,6 +39,16 @@ const REPHRASE_HINTS = [
   'Split a compound question into smaller ones.',
 ];
 
+const ACCURATE_MODE_KEY = 'aiChat.accurateMode';
+
+function readAccurateMode(): boolean {
+  try {
+    return window.localStorage.getItem(ACCURATE_MODE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 /** Within this window after "Stop", the shared local model may still be busy (backend timeout). */
 const MODEL_BUSY_AFTER_STOP_MS = 60_000;
 /** When the user last stopped a request (the Ollama host is shared by all documents). */
@@ -227,6 +237,15 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   }, [isBusy, inputDisabled]);
 
   const docId = doc.id;
+  const [accurateMode, setAccurateMode] = useState<boolean>(readAccurateMode);
+  const toggleAccurateMode = (on: boolean) => {
+    setAccurateMode(on);
+    try {
+      window.localStorage.setItem(ACCURATE_MODE_KEY, on ? '1' : '0');
+    } catch {
+      /* the choice just isn't remembered */
+    }
+  };
 
   /** Citation click: the first source on that page carries the passage to highlight. */
   const sourceForPage = (sources: ChatSource[] | undefined, page: number) =>
@@ -242,7 +261,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
     try {
       const res =
         kind === 'chat' && question !== undefined
-          ? await ragApi.askQuestion(docId, question, { signal: controller.signal })
+          ? await ragApi.askQuestion(docId, question, { signal: controller.signal, accurate: accurateMode })
           : await ragApi.summarizeDocument(docId, { signal: controller.signal });
       chat.appendMessages(docId, [
         {
@@ -253,6 +272,8 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
           refused: res.refused,
           degraded: res.degraded,
           model: res.model,
+          reranked: res.reranked,
+          rerankMs: res.rerankMs,
           timestamp: getFormattedTime(),
         },
       ]);
@@ -492,6 +513,14 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
         )}
 
         <div className={styles.messageMeta}>
+          {msg.reranked === true && (
+            <span title="Passages were reranked with a cross-encoder before answering">
+              Accurate mode{msg.rerankMs !== undefined ? ` · retrieval ${(msg.rerankMs / 1000).toFixed(1)} s` : ''} ·{' '}
+            </span>
+          )}
+          {msg.reranked === false && (
+            <span title="The reranker could not run, so normal retrieval was used">Accurate mode unavailable · </span>
+          )}
           <span>{msg.timestamp}</span>
         </div>
       </div>
@@ -503,7 +532,9 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
   const pendingHint =
     pending?.kind === 'reindex'
       ? 'Re-indexing can take a minute on CPU. You can keep reading meanwhile.'
-      : `${pending?.kind === 'summary' ? 'Summaries' : 'Answers'} take a few seconds on a GPU and about 30 s on CPU. If the model does not answer in time, the most relevant excerpts are shown instead.`;
+      : `${pending?.kind === 'summary' ? 'Summaries' : 'Answers'} take a few seconds on a GPU and about 30 s on CPU${
+          pending?.kind === 'chat' && accurateMode ? '; accurate mode adds about 35 s to rerank passages' : ''
+        }. If the model does not answer in time, the most relevant excerpts are shown instead.`;
   const pendingAfterStop =
     pending !== null && pending.kind !== 'reindex' && pending.startedAt - lastStoppedAt < MODEL_BUSY_AFTER_STOP_MS;
 
@@ -715,7 +746,20 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
             <FaPaperPlane aria-hidden="true" style={{ fontSize: 11 }} />
           </button>
         </div>
-        <div id={`ai-chat-hint-${docId}`} className={`${styles.inputHint} ${questionTooLong ? styles.inputHintError : ''}`}>
+        <div className={styles.inputFooter}>
+          <label
+            className={styles.accurateToggle}
+            title="Reranks the retrieved passages with a cross-encoder (bge-reranker-v2-m3) before answering. Adds about 35 s per question on CPU (the first use also loads the model). In our evaluation it helped on reviewer-style questions and made no difference on others."
+          >
+            <input
+              type="checkbox"
+              checked={accurateMode}
+              onChange={(e) => toggleAccurateMode(e.target.checked)}
+              disabled={isBusy}
+            />
+            <span>Accurate mode (slower)</span>
+          </label>
+          <div id={`ai-chat-hint-${docId}`} className={`${styles.inputHint} ${questionTooLong ? styles.inputHintError : ''}`}>
           {questionTooLong ? (
             <>
               Question is too long ({inputQuery.length.toLocaleString()} / {MAX_QUESTION_CHARS.toLocaleString()}{' '}
@@ -729,6 +773,7 @@ export const AiChatPanel: React.FC<AiChatPanelProps> = ({
               paper.
             </>
           )}
+          </div>
         </div>
       </div>
     </div>

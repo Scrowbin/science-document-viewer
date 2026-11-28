@@ -221,6 +221,10 @@ export interface ChatMessage {
   degraded?: boolean;
   /** Model name reported by the backend for this answer. */
   model?: string;
+  /** Asked in accurate mode: true = reranked, false = reranking unavailable (normal retrieval used). */
+  reranked?: boolean;
+  /** Accurate mode: retrieval time including reranking, in ms. */
+  rerankMs?: number;
 }
 
 /**
@@ -232,6 +236,10 @@ export interface ChatResponse {
   model?: string;
   refused?: boolean;
   degraded?: boolean;
+  /** Accurate mode only: true when passages were reranked, false when reranking failed and normal retrieval was used. */
+  reranked?: boolean;
+  /** Accurate mode only: retrieval time including reranking, in ms. */
+  rerank_ms?: number | null;
 }
 
 /**

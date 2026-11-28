@@ -1197,6 +1197,62 @@ class DemoPathRegressionTests(SimpleTestCase):
         self.assertEqual(dense[0][0].metadata["chunk_id"], "c0")
         self.assertEqual(convex[0][0].metadata["chunk_id"], "c2")
 
+    def test_rerank_reorders_children_before_expansion(self):
+        import numpy as np
+        from langchain_core.documents import Document as LCDocument
+        from .services import rag_service as rs
+        docs = [LCDocument(page_content=t, metadata={"chunk_id": f"c{i}"}) for i, t in enumerate(
+            ["alpha beta", "gamma delta", "the answer passage"])]
+        service = MagicMock()
+        service.search_dense.return_value = []
+        service.client.collection_exists.return_value = False
+        reranker = MagicMock()
+        reranker.rerank.side_effect = lambda q, texts, **k: [10.0 if "answer" in t else 0.0 for t in texts]
+        with patch.object(rs.RagService, "get_instance", return_value=service), \
+                patch.object(rs, "get_reranker", return_value=reranker):
+            rag = rs.DocumentRAG(1, docs, embeddings=np.array([[1.0, 0.0], [0.9, 0.1], [0.0, 1.0]]))
+            rag.embed = lambda *_a, **_k: np.array([1.0, 0.0])
+            plain = rag.hybrid_search("question", top_k=1, mode="dense")
+            reranked = rag.hybrid_search("question", top_k=1, mode="dense", rerank=True)
+        self.assertEqual(plain[0][0].metadata["chunk_id"], "c0")
+        self.assertEqual(reranked[0][0].metadata["chunk_id"], "c2")
+        self.assertEqual(reranked[0][0].metadata["dense_score"], 0.0)  # dense score kept, not the rerank score
+
+    @override_settings(RAG_MIN_SIMILARITY_SCORE=0.80)
+    def test_accurate_mode_gates_on_normal_retrieval_and_reranks_after(self):
+        res, rag, _ = self._query("Explain something unrelated.", [self._chunk(score=0.5)])
+        self.assertNotIn("reranked", res)
+        from .services import rag_service as rs
+        rag = MagicMock()
+        rag.documents = [self._chunk()[0]]
+        rag.hybrid_search.return_value = [self._chunk(score=0.5)]
+        with patch.object(rs, "get_or_create_rag", return_value=rag), \
+                patch.object(rs, "screen_question", return_value=None), \
+                patch.object(rs, "_generate", return_value=("A", "m")):
+            refused = rs.query_document(1, "x.pdf", "Explain something unrelated.", "T", accurate=True)
+        self.assertEqual(refused["sources"], [])
+        self.assertEqual(rag.hybrid_search.call_count, 1)  # gate refused before any reranking
+        self.assertNotIn("rerank", rag.hybrid_search.call_args.kwargs)
+
+        rag.hybrid_search.reset_mock()
+        rag.hybrid_search.return_value = [self._chunk(score=0.9)]
+        with patch.object(rs, "get_or_create_rag", return_value=rag), \
+                patch.object(rs, "screen_question", return_value=None), \
+                patch.object(rs, "_generate", return_value=("A", "m")):
+            res = rs.query_document(1, "x.pdf", "What is the result?", "T", accurate=True)
+        self.assertEqual(rag.hybrid_search.call_count, 2)
+        self.assertTrue(rag.hybrid_search.call_args.kwargs["rerank"])
+        self.assertTrue(res["reranked"])
+
+        rag.hybrid_search.reset_mock()
+        rag.hybrid_search.side_effect = [[self._chunk(score=0.9)], RuntimeError("no model")]
+        with patch.object(rs, "get_or_create_rag", return_value=rag), \
+                patch.object(rs, "screen_question", return_value=None), \
+                patch.object(rs, "_generate", return_value=("A", "m")):
+            res = rs.query_document(1, "x.pdf", "What is the result?", "T", accurate=True)
+        self.assertFalse(res["reranked"])
+        self.assertTrue(res["sources"])  # normal retrieval used
+
 
 class EmbeddedQdrantRecreateTests(SimpleTestCase):
     """Re-indexing in embedded Qdrant must start from an empty collection: on Windows the old

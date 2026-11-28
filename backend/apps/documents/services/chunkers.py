@@ -30,6 +30,73 @@ def split_sentences(text: str) -> List[str]:
     return sentences if sentences else [text.strip()]
 
 
+# Sentence ends: . ! ? (plus closing quotes/brackets), whitespace (a line break counts), then a
+# capital, digit, quote or bracket. Abbreviations and single-letter initials do not end a sentence.
+_SENT_END = re.compile(r"[.!?][\"')\]]*\s+(?=[\"'(\[]?[A-Z0-9])")
+_NO_SENT_END = re.compile(
+    r"(?:\b(?:e\.g|i\.e|et al|al|Fig|Figs|Eq|Eqs|Sec|Secs|Tab|Ref|Refs|vs|cf|approx|resp|No|Nos|Vol|pp|"
+    r"Dr|Mr|Ms|Prof|Ph\.D|Inc|Ltd|Jr|Sr|St)|(?<![A-Za-z])[A-Z])\.$"
+)
+
+
+def sentence_spans(text: str) -> List[tuple]:
+    """(char_start, char_end) of each sentence in text, ending after its final punctuation."""
+    spans: List[tuple] = []
+    start = 0
+    for m in _SENT_END.finditer(text):
+        end = m.start() + len(m.group().rstrip())
+        if _NO_SENT_END.search(text[max(start, end - 16):end].lstrip("\"')]").rstrip("\"')]")):
+            continue
+        if text[start:end].strip():
+            spans.append((start, end))
+        start = m.end()
+    tail_end = len(text.rstrip())
+    if text[start:tail_end].strip():
+        spans.append((start, tail_end))
+    return spans
+
+
+def sentence_windows(text: str, max_words: int, overlap_words: int) -> List[tuple]:
+    """
+    Character spans of child windows made of whole sentences: each window holds as many sentences
+    as fit in max_words, and the next one starts with the trailing sentences of the previous window
+    that fit in overlap_words (none when the last sentence is longer). A sentence longer than
+    max_words is cut after a comma when one falls in the second half of the
+    window, otherwise after max_words words.
+    """
+    units: List[tuple] = []  # (char_start, char_end, n_words)
+    for cs, ce in sentence_spans(text):
+        words = [(m.start() + cs, m.end() + cs) for m in re.finditer(r"\S+", text[cs:ce])]
+        i = 0
+        while i < len(words):
+            end = min(len(words), i + max_words)
+            if end < len(words):
+                # cut an over-long sentence after the last comma in the second half of the window;
+                # dashes, hyphens, semicolons and colons are not cut points
+                for k in range(end - 1, i + max_words // 2 - 1, -1):
+                    if re.search(r",$", text[words[k][0]:words[k][1]]):
+                        end = k + 1
+                        break
+            units.append((words[i][0], words[end - 1][1], end - i))
+            i = end
+    windows: List[tuple] = []
+    i = 0
+    while i < len(units):
+        j, n = i, 0
+        while j < len(units) and (j == i or n + units[j][2] <= max_words):
+            n += units[j][2]
+            j += 1
+        windows.append((units[i][0], units[j - 1][1]))
+        if j >= len(units):
+            break
+        k, ov = j, 0
+        while k - 1 > i and ov + units[k - 1][2] <= overlap_words:
+            k -= 1
+            ov += units[k][2]
+        i = k
+    return windows
+
+
 def _section_page(section: Dict[str, Any]) -> int:
     """Start page of a section (extractors use 'page_start'; older callers used 'start_page' or 'page')."""
     return int(section.get("page_start") or section.get("start_page") or section.get("page") or 1)
@@ -281,6 +348,7 @@ def chunk_hierarchical(
     child_max_tokens: int = 200,
     child_overlap: int = 40,
     paper_id: str = "doc",
+    sentence_bounds: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Hierarchical (Small-to-Big) chunking strategy:
@@ -288,6 +356,8 @@ def chunk_hierarchical(
       - Child level: Granular sub-chunks (200 tokens max, 40 overlap) for precise vector embedding.
       - Each child carries parent metadata ('parent_id', 'parent_text', 'parent_tokens')
         and formats text with parent heading context for enriched semantic matching.
+    sentence_bounds=False is the word-window rule used in the evaluation (Phases 2-4). The app passes
+    True: windows are whole sentences within the same word budget (see sentence_windows).
     """
     child_chunks: List[Dict[str, Any]] = []
     child_max_words = max(15, int(child_max_tokens / 1.33))
@@ -329,17 +399,17 @@ def chunk_hierarchical(
             })
             continue
 
-        start_idx = 0
-        c_idx = 0
-        while start_idx < len(words):
-            slice_words = words[start_idx : start_idx + child_max_words]
-            if not slice_words:
-                break
-            
-            # Compute exact character offsets within parent_text using word spans
-            char_start = word_spans[start_idx][0]
-            last_word_idx = min(len(word_spans) - 1, start_idx + len(slice_words) - 1)
-            char_end = word_spans[last_word_idx][1]
+        if sentence_bounds:
+            spans = sentence_windows(parent_text, child_max_words, child_overlap_words)
+        else:
+            spans = []
+            start_idx = 0
+            while start_idx < len(words):
+                last_word_idx = min(len(word_spans), start_idx + child_max_words) - 1
+                spans.append((word_spans[start_idx][0], word_spans[last_word_idx][1]))
+                start_idx += step_words
+
+        for c_idx, (char_start, char_end) in enumerate(spans):
             chunk_text = parent_text[char_start:char_end]
 
             formatted_text = f"[{heading}]\n{chunk_text}" if heading != "Untitled Section" else chunk_text
@@ -361,8 +431,6 @@ def chunk_hierarchical(
                 "preview": chunk_text[:180].replace("\n", " ").strip() + "...",
                 **locate_span(sec, char_start, char_end),
             })
-            c_idx += 1
-            start_idx += step_words
 
     return child_chunks
 

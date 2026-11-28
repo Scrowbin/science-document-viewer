@@ -280,6 +280,7 @@ def chunk_document(pdf_path: str, strategy: Optional[str] = None) -> List[Docume
                     child_max_tokens=200,
                     child_overlap=40,
                     paper_id=paper_id,
+                    sentence_bounds=getattr(settings, "RAG_CHUNK_SENTENCE_BOUNDS", True),
                 )
                 docs = [
                     Document(

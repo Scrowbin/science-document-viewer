@@ -43,6 +43,24 @@ logger = logging.getLogger(__name__)
 
 RETRIEVAL_MODES = ("dense", "rrf_legacy", "convex")
 CONVEX_ALPHA = 0.7  # Phase 3: 0.7 * minmax(dense) + 0.3 * minmax(BM25) over all children
+# Chat "accurate mode" (app only): cross-encoder rescoring of the top RERANK_TOP_K children, as the Phase 3
+# `convex+bgem3` arm (question, child text). Loaded on first use; FastEmbed ONNX export of the evaluated model.
+RERANK_TOP_K = 30
+_reranker = None
+_reranker_lock = threading.Lock()
+
+
+def get_reranker():
+    """Shared cross-encoder for accurate mode (settings.RAG_RERANK_MODEL), loaded once."""
+    global _reranker
+    if _reranker is None:
+        with _reranker_lock:
+            if _reranker is None:
+                from fastembed.rerank.cross_encoder import TextCrossEncoder
+                name = getattr(settings, "RAG_RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
+                logger.info("Loading reranker %s", name)
+                _reranker = TextCrossEncoder(name)
+    return _reranker
 _LEXICAL_STOPWORDS = frozenset({
     "a", "an", "the", "in", "on", "of", "for", "to", "is", "are", "was",
     "were", "and", "or", "that", "this", "it", "by", "with", "from", "as",
@@ -935,6 +953,7 @@ class DocumentRAG:
         mode: Optional[str] = None,
         exclude_references: bool = False,
         context_fill: Optional[bool] = None,
+        rerank: bool = False,
     ) -> List[Tuple[Document, float]]:
         """
         mode (default settings.RAG_RETRIEVAL_MODE):
@@ -944,6 +963,8 @@ class DocumentRAG:
         exclude_references: skip chunks of the reference list (used by the app, not by the evaluation).
         context_fill: True keeps going when a parent does not fit, trimming it around the matched child to the
         remaining budget (used by the app). None follows settings.RAG_CONTEXT_FILL.
+        rerank: rescore the top RERANK_TOP_K children with the cross-encoder before parent expansion
+        (chat accurate mode, app only); the rest keep their order.
         """
         if not self.documents:
             return []
@@ -1056,6 +1077,12 @@ class DocumentRAG:
         if exclude_references:
             kept = [i for i in ranked_indices if not is_reference_section(self.documents[i].metadata.get("section"))]
             ranked_indices = kept or ranked_indices
+
+        if rerank:
+            head, tail = ranked_indices[:RERANK_TOP_K], ranked_indices[RERANK_TOP_K:]
+            scores = list(get_reranker().rerank(query, [self.content[i] for i in head], batch_size=8))
+            order = sorted(range(len(head)), key=lambda j: -float(scores[j]))
+            ranked_indices = [head[j] for j in order] + tail
 
         # If hierarchical: Expand child hits to unique parent sections, windowing over-long parents
         if self.is_hierarchical:
@@ -1540,10 +1567,12 @@ def align_sources_to_answer(
 
 
 def query_document(
-    doc_id: int, file_path: str, question: str, doc_title: str = ""
+    doc_id: int, file_path: str, question: str, doc_title: str = "", accurate: bool = False
 ) -> Dict[str, Any]:
     """
     Queries document RAG index, retrieves top chunks, and returns a response structure.
+    accurate: after the relevance gate passes on the normal convex retrieval, retrieve again with
+    cross-encoder reranking (slower). The gate itself is unchanged.
     """
     rag = get_or_create_rag(doc_id, file_path)
     if not rag or not rag.documents:
@@ -1595,6 +1624,25 @@ def query_document(
             "model": "Grounded Hybrid RAG (Local)",
         }
 
+    reranked = False
+    rerank_ms = None
+    if accurate:
+        import time
+        t0 = time.perf_counter()
+        try:
+            top_chunks = rag.hybrid_search(
+                question,
+                top_k=5,
+                mode=getattr(settings, "RAG_CHAT_RETRIEVAL_MODE", "convex"),
+                exclude_references=not _ASKS_ABOUT_REFERENCES_RE.search(question),
+                context_fill=True,
+                rerank=True,
+            )
+            reranked = True
+            rerank_ms = round((time.perf_counter() - t0) * 1000)
+        except Exception as e:
+            logger.warning("Reranking failed for doc %s, using normal retrieval: %s", doc_id, e)
+
     # Sources and the prompt name the page of the matched passage, so an inline [Page N] is correct.
     top_chunks = [
         (Document(page_content=doc.page_content, metadata={**doc.metadata, "page": source_page(doc.metadata)}), score)
@@ -1630,9 +1678,10 @@ def query_document(
     prompt = build_answer_prompt(question, doc_title, [doc for doc, _ in top_chunks], REFUSAL_MESSAGE)
 
     answer, model_label = _generate(prompt)
+    extra = {"reranked": reranked, "rerank_ms": rerank_ms} if accurate else {}
     if answer:
         return {"answer": answer, "sources": align_sources_to_answer(rag, sources, top_chunks, question, answer),
-                "model": model_label}
+                "model": model_label, **extra}
 
     # Grounded synthesis fallback
     snippets = []
@@ -1645,7 +1694,7 @@ def query_document(
         f"Based on retrieved context from **{doc_title or 'the document'}**:\n\n"
         + "\n\n".join(snippets)
     )
-    return {"answer": fallback_answer, "sources": sources, "model": "Grounded Hybrid RAG (Local)"}
+    return {"answer": fallback_answer, "sources": sources, "model": "Grounded Hybrid RAG (Local)", **extra}
 
 
 def summarize_document(

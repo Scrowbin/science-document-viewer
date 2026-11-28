@@ -637,7 +637,8 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         file_path = doc.file.path if doc.file else ""
         try:
-            res = query_document(doc.id, file_path, question, doc.title)
+            accurate = request.data.get("accurate") is True
+            res = query_document(doc.id, file_path, question, doc.title, accurate=accurate)
         except Exception:
             logger.exception("RAG query failed for document %s", doc.id)
             return Response(
@@ -936,6 +937,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             child_max_tokens=HIERARCHICAL_CHILD_TOKENS,
             child_overlap=HIERARCHICAL_CHILD_OVERLAP,
             paper_id=f"doc_{doc.id}",
+            sentence_bounds=getattr(settings, "RAG_CHUNK_SENTENCE_BOUNDS", True),
         )
 
         parents: List[Dict[str, Any]] = []

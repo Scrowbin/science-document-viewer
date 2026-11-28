@@ -162,7 +162,13 @@ under `backend/scripts/eval_common/` has unit tests runnable with `pytest`.
   `OLLAMA_FALLBACK_URL`; unset = unchanged) for demos on a Kaggle GPU (`SETUP.md` 3.1).
   Approved exception: stricter PDF heading detection in the app (`extract_sections_from_pdf(strict_headings=True)`,
   rejects pseudo-code/axis-number/affiliation lines, accepts bold appendix headings); the Phase 2 scripts pass
-  `strict_headings=False` to reproduce the evaluated rules. Bug fix: Qdrant collections are emptied before
+  `strict_headings=False` to reproduce the evaluated rules.
+  Approved exception: app child windows end on sentence boundaries (`chunk_hierarchical(sentence_bounds=True)`,
+  `RAG_CHUNK_SENTENCE_BOUNDS`, same 150-word budget, over-long sentences cut at a comma); evaluation scripts keep
+  the default word windows. Changing it requires `manage.py reindex_documents --all`.
+  Approved exception: optional chat "accurate mode" (`accurate: true` on `/chat/`, toggle in the AI panel): after the
+  unchanged relevance gate, retrieval is repeated with `hybrid_search(rerank=True)` (bge-reranker-v2-m3 via FastEmbed,
+  top 30 children, as Phase 3 `convex+bgem3`; `RAG_RERANK_MODEL`). Off by default; adds about 35 s per question on CPU. Bug fix: Qdrant collections are emptied before
   deletion (`RagService._drop_collection`), because on Windows embedded Qdrant kept the old points on re-index;
   it also closes the collection's SQLite file and removes or empties it, and drops a collection left broken by a
   failed write, so stale 384-dim rows cannot reload into a 768-dim collection and block every retry.

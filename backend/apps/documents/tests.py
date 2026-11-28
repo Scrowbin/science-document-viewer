@@ -763,6 +763,47 @@ class RagServiceTestCase(TestCase):
         self.assertEqual(chunks[0]["char_start"], 0)
         self.assertEqual(chunks[0]["char_end"], len("This is a short section with very few words."))
 
+    def test_hierarchical_sentence_bounds_keep_whole_sentences(self):
+        """With sentence_bounds, child windows start and end on sentence boundaries within the word budget."""
+        import re
+        from .services.chunkers import chunk_hierarchical, sentence_spans
+
+        sentences = [f"Sentence {i} reports a result on the test set (see Fig. {i} and Eq. {i}), e.g. accuracy." for i in range(60)]
+        text = " ".join(sentences[:30]) + "\n" + " ".join(sentences[30:])
+        sec = [{"title": "3. Results", "text": text, "page_start": 3, "page_end": 3}]
+
+        self.assertEqual([text[a:b] for a, b in sentence_spans(text)], sentences)
+
+        chunks = chunk_hierarchical(sec, child_max_tokens=200, child_overlap=40, paper_id="d", sentence_bounds=True)
+        self.assertGreater(len(chunks), 1)
+        for c in chunks:
+            self.assertEqual(c["parent_text"][c["char_start"]:c["char_end"]], c["child_text"])
+            self.assertTrue(c["child_text"].startswith("Sentence "))
+            self.assertTrue(c["child_text"].endswith("accuracy."))
+            self.assertLessEqual(len(c["child_text"].split()), int(200 / 1.33))
+        # consecutive windows overlap by whole trailing sentences and cover the text
+        for a, b in zip(chunks, chunks[1:]):
+            self.assertLess(a["char_start"], b["char_start"])
+            self.assertLessEqual(b["char_start"], a["char_end"])
+        self.assertEqual(chunks[-1]["char_end"], len(text))
+        self.assertTrue(re.match(r"Sentence 0 ", chunks[0]["child_text"]))
+
+    def test_hierarchical_sentence_bounds_split_overlong_sentence(self):
+        """A sentence longer than the window is cut into word pieces instead of producing an oversized child."""
+        from .services.chunkers import chunk_hierarchical
+
+        text = " ".join(["word"] * 400) + ". Short tail sentence."
+        sec = [{"title": "Long", "text": text, "page_start": 1, "page_end": 1}]
+        chunks = chunk_hierarchical(sec, child_max_tokens=200, child_overlap=40, paper_id="d", sentence_bounds=True)
+        self.assertTrue(all(len(c["child_text"].split()) <= int(200 / 1.33) for c in chunks))
+        self.assertEqual(chunks[-1]["char_end"], len(text))
+
+        clauses = ", ".join(" ".join(["term"] * 19) for _ in range(20)) + "."
+        sec = [{"title": "Clauses", "text": clauses, "page_start": 1, "page_end": 1}]
+        chunks = chunk_hierarchical(sec, child_max_tokens=200, child_overlap=40, paper_id="d", sentence_bounds=True)
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(c["child_text"].endswith((",", ".")) for c in chunks))
+
     def test_reindex_documents_management_command(self):
         """Verifies reindex_documents command executes without error for specified document."""
         import os

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { apiClient, RAG_TIMEOUT_MS } from './client';
+import { apiClient, RAG_ACCURATE_TIMEOUT_MS, RAG_TIMEOUT_MS } from './client';
 import type { ChatResponse, ChunkParent, RagStatus, SummaryResponse } from '../types';
 import type { ChunkStrategy, DocumentChunksResponse } from './documentsApi';
 
@@ -9,6 +9,11 @@ import type { ChunkStrategy, DocumentChunksResponse } from './documentsApi';
 export interface RagRequestOptions {
   /** Abort the in-flight request (e.g. a "Stop" button). */
   signal?: AbortSignal;
+}
+
+export interface AskOptions extends RagRequestOptions {
+  /** Accurate mode: the backend reranks retrieved passages with a cross-encoder (slower). */
+  accurate?: boolean;
 }
 
 export interface ReindexResponse {
@@ -24,6 +29,9 @@ export interface RagAnswer {
   model?: string;
   refused: boolean;
   degraded: boolean;
+  /** Set only for accurate-mode questions (see ChatResponse.reranked). */
+  reranked?: boolean;
+  rerankMs?: number;
 }
 
 const REFUSAL_MARKER = 'does not contain sufficient relevant information';
@@ -57,6 +65,8 @@ function normaliseAnswer(data: ChatResponse | SummaryResponse): RagAnswer {
     model: isFallbackLabel ? (degraded ? 'Retrieved excerpts (no LLM)' : undefined) : data.model,
     refused,
     degraded,
+    reranked: 'reranked' in data && typeof data.reranked === 'boolean' ? data.reranked : undefined,
+    rerankMs: 'rerank_ms' in data && typeof data.rerank_ms === 'number' ? data.rerank_ms : undefined,
   };
 }
 
@@ -154,11 +164,11 @@ export const ragApi = {
   /**
    * Submit a technical question to the Grounded RAG Assistant for a specific document.
    */
-  async askQuestion(docId: string, question: string, options: RagRequestOptions = {}): Promise<RagAnswer> {
+  async askQuestion(docId: string, question: string, options: AskOptions = {}): Promise<RagAnswer> {
     const response = await apiClient.post<ChatResponse>(
       `/documents/${docId}/chat/`,
-      { question },
-      { timeout: RAG_TIMEOUT_MS, signal: options.signal }
+      options.accurate ? { question, accurate: true } : { question },
+      { timeout: options.accurate ? RAG_ACCURATE_TIMEOUT_MS : RAG_TIMEOUT_MS, signal: options.signal }
     );
     return normaliseAnswer(response.data);
   },

@@ -6,6 +6,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80
 export const DEFAULT_TIMEOUT_MS = 15_000;
 /** RAG chat/summarize/reindex can take 60-90 s on a CPU-only LLM host. */
 export const RAG_TIMEOUT_MS = 120_000;
+/** Accurate-mode questions also rerank passages on the CPU (about 35 s more). */
+export const RAG_ACCURATE_TIMEOUT_MS = 180_000;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
